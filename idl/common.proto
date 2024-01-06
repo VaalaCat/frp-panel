@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package common;
+option go_package="../pb";
+
+enum RespCode {
+  RESP_CODE_UNSPECIFIED = 0;
+  RESP_CODE_SUCCESS = 1;
+  RESP_CODE_NOT_FOUND = 2;
+  RESP_CODE_ALREADY_EXISTS = 3;
+  RESP_CODE_INVALID = 4;
+  RESP_CODE_FINISH = 5;
+  RESP_CODE_UNAUTHORIZED = 6;
+}
+
+message Status {
+  RespCode code = 1;
+  string message = 2;
+}
+
+message CommonResponse {
+  optional Status status = 1;
+}
+
+message Client {
+  optional string id = 1;
+  optional string secret = 2;
+  optional string config = 3;
+}
+
+message Server {
+  optional string id = 1;
+  optional string secret = 2;
+  optional string ip = 3;
+  optional string config = 4; // 在定义上，ip和port只是为了方便使用
+}
+
+message User {
+	optional int64 UserID = 1;
+	optional int64 TenantID = 2;
+	optional string UserName = 3;
+	optional string Email = 4;
+	optional string Status = 5;
+	optional string Role = 6;
+	optional string Token = 7;
+  optional string RawPassword = 8;
+}

@@ -1,0 +1,79 @@
+syntax = "proto3";
+package master;
+
+import "common.proto";
+option go_package="../pb";
+
+enum Event {
+  EVENT_UNSPECIFIED = 0;
+  EVENT_REGISTER_CLIENT = 1;
+  EVENT_REGISTER_SERVER = 2;
+  EVENT_ERROR = 3;
+  EVENT_DATA = 4;
+  EVENT_UPDATE_FRPC = 5;
+  EVENT_REMOVE_FRPC = 6;
+  EVENT_UPDATE_FRPS = 7;
+  EVENT_REMOVE_FRPS = 8;
+}
+
+message ServerBase {
+  string server_id = 1;
+  string server_secret = 2;
+}
+
+message ClientBase {
+  string client_id = 1;
+  string client_secret = 2;
+}
+
+message ServerMessage {
+  Event event = 1;
+  string client_id = 2;
+  string session_id = 3;
+  bytes data = 4;
+}
+
+message ClientMessage {
+  Event event = 1;
+  string client_id = 2;
+  string session_id = 3;
+  string secret = 4;
+  bytes data = 5;
+}
+
+message PullClientConfigReq {
+  ClientBase base = 255;
+}
+
+message PullClientConfigResp {
+  common.Status status = 1;
+  common.Client client = 2;
+}
+
+message PullServerConfigReq {
+  ServerBase base = 255;
+}
+
+message PullServerConfigResp {
+  common.Status status = 1;
+  common.Server server = 2;
+}
+
+message FRPAuthRequest {
+  string user = 1;
+  string token = 2;
+
+  ServerBase base = 255;
+}
+
+message FRPAuthResponse {
+  common.Status status = 1;
+  bool ok = 2;
+}
+
+service Master {
+  rpc ServerSend(stream ClientMessage) returns(stream ServerMessage);
+  rpc PullClientConfig(PullClientConfigReq) returns(PullClientConfigResp);
+  rpc PullServerConfig(PullServerConfigReq) returns(PullServerConfigResp);
+  rpc FRPCAuth(FRPAuthRequest) returns(FRPAuthResponse);
+}

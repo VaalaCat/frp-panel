@@ -1,0 +1,60 @@
+syntax = "proto3";
+package api_server;
+
+import "common.proto";
+option go_package="../pb";
+
+message InitServerRequest {
+  optional string server_id = 1;
+  optional string server_ip = 2;
+}
+
+message InitServerResponse {
+  optional common.Status status = 1;
+  optional string server_id = 2;
+}
+
+message ListServersRequest {
+  optional int32 page = 1;
+  optional int32 page_size = 2;
+}
+
+message ListServersResponse {
+  optional common.Status status = 1;
+  optional int32 total = 2;
+  repeated common.Server servers = 3;
+}
+
+message GetServerRequest {
+  optional string server_id = 1;
+}
+
+message GetServerResponse {
+  optional common.Status status = 1;
+  optional common.Server server = 2;
+}
+
+message DeleteServerRequest {
+  optional string server_id = 1;
+}
+
+message DeleteServerResponse {
+  optional common.Status status = 1;
+}
+
+message UpdateFRPSRequest {
+  optional string server_id = 1;
+  optional bytes config = 2;
+}
+
+message UpdateFRPSResponse {
+  optional common.Status status = 1;
+}
+
+message RemoveFRPSRequest {
+  optional string server_id = 1;
+}
+
+message RemoveFRPSResponse {
+  optional common.Status status = 1;
+}

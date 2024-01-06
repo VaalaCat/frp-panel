@@ -1,0 +1,20 @@
+syntax = "proto3";
+package api_user;
+
+import "common.proto";
+option go_package="../pb";
+
+message GetUserInfoRequest {}
+
+message GetUserInfoResponse {
+    optional common.Status status = 1;
+    optional common.User user_info = 2;
+}
+
+message UpdateUserInfoRequest {
+    optional common.User user_info = 1;
+}
+
+message UpdateUserInfoResponse {
+    optional common.Status status = 1;
+}

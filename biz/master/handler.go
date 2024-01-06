@@ -1,0 +1,60 @@
+package master
+
+import (
+	"github.com/VaalaCat/frp-panel/biz/master/auth"
+	"github.com/VaalaCat/frp-panel/biz/master/client"
+	"github.com/VaalaCat/frp-panel/biz/master/server"
+	"github.com/VaalaCat/frp-panel/biz/master/user"
+	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/middleware"
+	"github.com/gin-gonic/gin"
+)
+
+func NewRouter() *gin.Engine {
+	router := gin.Default()
+	ConfigureRouter(router)
+	return router
+}
+
+func ConfigureRouter(router *gin.Engine) {
+	router.POST("/auth", auth.MakeGinHandlerFunc(auth.HandleLogin))
+
+	api := router.Group("/api")
+	v1 := api.Group("/v1")
+	{
+		authRouter := v1.Group("/auth")
+		{
+			authRouter.POST("/login", common.Wrapper(auth.LoginHandler))
+			authRouter.POST("/register", common.Wrapper(auth.RegisterHandler))
+		}
+		userRouter := v1.Group("/user", middleware.JWTAuth, middleware.AuthCtx)
+		{
+			userRouter.POST("/get", common.Wrapper(user.GetUserInfoHandler))
+			userRouter.POST("/update", common.Wrapper(user.UpdateUserInfoHander))
+		}
+		clientRouter := v1.Group("/client", middleware.JWTAuth, middleware.AuthCtx)
+		{
+			clientRouter.POST("/get", common.Wrapper(client.GetClientHandler))
+			clientRouter.POST("/init", common.Wrapper(client.InitClientHandler))
+			clientRouter.POST("/delete", common.Wrapper(client.DeleteClientHandler))
+			clientRouter.POST("/list", common.Wrapper(client.ListClientsHandler))
+		}
+		serverRouter := v1.Group("/server", middleware.JWTAuth, middleware.AuthCtx)
+		{
+			serverRouter.POST("/get", common.Wrapper(server.GetServerHandler))
+			serverRouter.POST("/init", common.Wrapper(server.InitServerHandler))
+			serverRouter.POST("/delete", common.Wrapper(server.DeleteServerHandler))
+			serverRouter.POST("/list", common.Wrapper(server.ListServersHandler))
+		}
+		frpcRouter := v1.Group("/frpc", middleware.JWTAuth, middleware.AuthCtx)
+		{
+			frpcRouter.POST("/update", common.Wrapper(client.UpdateFrpcHander))
+			frpcRouter.POST("/delete", common.Wrapper(client.RemoveFrpcHandler))
+		}
+		frpsRouter := v1.Group("/frps", middleware.JWTAuth, middleware.AuthCtx)
+		{
+			frpsRouter.POST("/update", common.Wrapper(server.UpdateFrpsHander))
+			frpsRouter.POST("/delete", common.Wrapper(server.RemoveFrpsHandler))
+		}
+	}
+}

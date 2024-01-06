@@ -1,0 +1,61 @@
+syntax = "proto3";
+package api_client;
+
+import "common.proto";
+option go_package="../pb";
+
+
+message InitClientRequest {
+  optional string client_id = 1;
+}
+
+message InitClientResponse {
+  optional common.Status status = 1;
+  optional string client_id = 2;
+}
+
+message ListClientsRequest {
+  optional int32 page = 1;
+  optional int32 page_size = 2;
+}
+
+message ListClientsResponse {
+  optional common.Status status = 1;
+  optional int32 total = 2;
+  repeated common.Client clients = 3;
+}
+
+message GetClientRequest {
+  optional string client_id = 1;
+}
+
+message GetClientResponse {
+  optional common.Status status = 1;
+  optional common.Client client = 2;
+}
+
+message DeleteClientRequest {
+  optional string client_id = 1;
+}
+
+message DeleteClientResponse {
+  optional common.Status status = 1;
+}
+
+message UpdateFRPCRequest {
+  optional string client_id = 1;
+  optional string server_id = 2;
+  optional bytes config = 3;
+}
+
+message UpdateFRPCResponse {
+  optional common.Status status = 1;
+}
+
+message RemoveFRPCRequest {
+  optional string client_id = 1;
+}
+
+message RemoveFRPCResponse {
+  optional common.Status status = 1;
+}

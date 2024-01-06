@@ -1,0 +1,309 @@
+digraph gocallvis {
+    label="github.com/VaalaCat/frp-panel/cmd";
+    labeljust="l";
+    fontname="Arial";
+    fontsize="14";
+    rankdir="LR";
+    bgcolor="lightgray";
+    style="solid";
+    penwidth="0.5";
+    pad="0.0";
+    nodesep="0.35";
+
+    node [shape="box" style="filled,rounded" fillcolor="honeydew" fontname="Verdana" penwidth="1.0" margin="0.05,0.0"];
+    edge [minlen="2"]
+
+    subgraph "cluster_focus" {
+        bgcolor="#e6ecfa";
+label="main";
+labelloc="t";
+labeljust="c";
+fontsize="18";
+        
+        "github.com/VaalaCat/frp-panel/cmd.runClient" [ fillcolor="lightblue" label="runClient" penwidth="0.5" tooltip="github.com/VaalaCat/frp-panel/cmd.runClient | defined in client.go:12\nat client.go:31: calling [github.com/VaalaCat/frp-panel/watcher.NewClient]\nat client.go:34: calling [github.com/VaalaCat/frp-panel/cmd.initClientOnce]\nat client.go:28: calling [github.com/VaalaCat/frp-panel/services/rpcclient.GetClientRPCSerivce]\nat client.go:29: calling [(*github.com/VaalaCat/frp-panel/services/rpcclient.ClientRPC).Stop]\nat client.go:22: calling [github.com/VaalaCat/frp-panel/services/rpcclient.MustInitClientRPCSerivce]\nat client.go:32: calling [(*github.com/VaalaCat/frp-panel/watcher.client).Stop]" ]
+        "github.com/VaalaCat/frp-panel/cmd.initClientOnce" [ label="initClientOnce" penwidth="0.5" tooltip="github.com/VaalaCat/frp-panel/cmd.initClientOnce | defined in client.go:42\nat client.go:43: calling [github.com/VaalaCat/frp-panel/biz/client.PullConfig]" fillcolor="lightblue" ]
+        "github.com/VaalaCat/frp-panel/cmd.initCommand$1" [ fillcolor="lightblue" label="initCommand$1" style="dotted,filled" tooltip="github.com/VaalaCat/frp-panel/cmd.initCommand$1 | defined in cmd.go:30\nat cmd.go:31: calling [github.com/VaalaCat/frp-panel/cmd.runClient]" ]
+        "github.com/VaalaCat/frp-panel/cmd.runServer" [ penwidth="0.5" tooltip="github.com/VaalaCat/frp-panel/cmd.runServer | defined in server.go:14\nat server.go:38: calling [(*github.com/VaalaCat/frp-panel/watcher.client).Stop]\nat server.go:37: calling [github.com/VaalaCat/frp-panel/watcher.NewClient]\nat server.go:35: calling [(*github.com/VaalaCat/frp-panel/services/rpcclient.ClientRPC).Stop]\nat server.go:22: calling [github.com/VaalaCat/frp-panel/conf.ServerAPIListenAddr]\nat server.go:24: calling [github.com/VaalaCat/frp-panel/services/api.GetAPIService]\nat server.go:25: calling [(*github.com/VaalaCat/frp-panel/services/api.server).Stop]\nat server.go:21: calling [github.com/VaalaCat/frp-panel/biz/server.NewRouter]\nat server.go:22: calling [github.com/VaalaCat/frp-panel/services/api.MustInitApiService]\nat server.go:40: calling [github.com/VaalaCat/frp-panel/cmd.initServerOnce]\nat server.go:27: calling [github.com/VaalaCat/frp-panel/services/rpcclient.MustInitClientRPCSerivce]\nat server.go:34: calling [github.com/VaalaCat/frp-panel/services/rpcclient.GetClientRPCSerivce]" fillcolor="lightblue" label="runServer" ]
+        "github.com/VaalaCat/frp-panel/cmd.initServerOnce" [ fillcolor="lightblue" label="initServerOnce" penwidth="0.5" tooltip="github.com/VaalaCat/frp-panel/cmd.initServerOnce | defined in server.go:49\nat server.go:50: calling [github.com/VaalaCat/frp-panel/biz/server.PullConfig]" ]
+        "github.com/VaalaCat/frp-panel/cmd.initCommand$2" [ fillcolor="lightblue" label="initCommand$2" style="dotted,filled" tooltip="github.com/VaalaCat/frp-panel/cmd.initCommand$2 | defined in cmd.go:37\nat cmd.go:38: calling [github.com/VaalaCat/frp-panel/cmd.runServer]" ]
+        "github.com/VaalaCat/frp-panel/cmd.runMaster" [ tooltip="github.com/VaalaCat/frp-panel/cmd.runMaster | defined in master.go:20\nat master.go:34: calling [github.com/VaalaCat/frp-panel/conf.FRPsAuthOption]\nat master.go:28: calling [github.com/VaalaCat/frp-panel/biz/master/auth.InitAuth]\nat master.go:37: calling [github.com/VaalaCat/frp-panel/services/server.GetServerSerivce]\nat master.go:23: calling [github.com/VaalaCat/frp-panel/biz/master.NewRouter]\nat master.go:32: calling [github.com/VaalaCat/frp-panel/utils.NewBaseFRPServerUserAuthConfig]\nat master.go:21: calling [github.com/VaalaCat/frp-panel/services/master.MustInitMasterService]\nat master.go:24: calling [github.com/VaalaCat/frp-panel/services/api.MustInitApiService]\nat master.go:26: calling [github.com/VaalaCat/frp-panel/cmd.initDatabase]\nat master.go:33: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:27: calling [github.com/VaalaCat/frp-panel/cache.InitCache]\nat master.go:24: calling [github.com/VaalaCat/frp-panel/conf.MasterAPIListenAddr]\nat master.go:31: calling [github.com/VaalaCat/frp-panel/services/master.GetMasterSerivce]\nat master.go:38: calling [github.com/VaalaCat/frp-panel/services/api.GetAPIService]" fillcolor="lightblue" label="runMaster" penwidth="0.5" ]
+        "github.com/VaalaCat/frp-panel/cmd.initDatabase" [ fillcolor="lightblue" label="initDatabase" penwidth="0.5" tooltip="github.com/VaalaCat/frp-panel/cmd.initDatabase | defined in master.go:47\nat master.go:48: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:49: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:51: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:53: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:60: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:57: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:63: calling [github.com/VaalaCat/frp-panel/models.GetDBManager]\nat master.go:56: calling [github.com/VaalaCat/frp-panel/models.GetDBManager]\nat master.go:49: calling [github.com/VaalaCat/frp-panel/models.MustInitDBManager]\nat master.go:56: calling [(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).SetDB]\nat master.go:63: calling [(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).Init]" ]
+        "github.com/VaalaCat/frp-panel/cmd.initCommand$3" [ style="dotted,filled" tooltip="github.com/VaalaCat/frp-panel/cmd.initCommand$3 | defined in cmd.go:44\nat cmd.go:45: calling [github.com/VaalaCat/frp-panel/cmd.runMaster]" fillcolor="lightblue" label="initCommand$3" ]
+        "github.com/VaalaCat/frp-panel/cmd.main" [ fillcolor="lightblue" label="main" penwidth="0.5" tooltip="github.com/VaalaCat/frp-panel/cmd.main | defined in main.go:10\nat main.go:16: calling [github.com/VaalaCat/frp-panel/utils.MD5]\nat main.go:13: calling [github.com/VaalaCat/frp-panel/conf.InitConfig]\nat main.go:14: calling [github.com/VaalaCat/frp-panel/rpc.InitRPCClients]\nat main.go:16: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat main.go:12: calling [github.com/VaalaCat/frp-panel/cmd.initCommand]\nat main.go:11: calling [github.com/VaalaCat/frp-panel/cmd.initLogger]" ]
+        "github.com/VaalaCat/frp-panel/cmd.initLogger" [ fillcolor="lightblue" label="initLogger" penwidth="0.5" tooltip="github.com/VaalaCat/frp-panel/cmd.initLogger | defined in cmd.go:59" ]
+        "github.com/VaalaCat/frp-panel/cmd.initCommand" [ penwidth="0.5" tooltip="github.com/VaalaCat/frp-panel/cmd.initCommand | defined in cmd.go:20" fillcolor="lightblue" label="initCommand" ]
+        
+        subgraph "cluster_github.com/VaalaCat/frp-panel/biz/client" {
+        fontsize="16";
+URL="/?f=github.com/VaalaCat/frp-panel/biz/client";
+fontname="Tahoma bold";
+rank="sink";
+label="client";
+tooltip="package: github.com/VaalaCat/frp-panel/biz/client";
+penwidth="0.8";
+style="filled";
+fillcolor="lightyellow";
+        
+        "github.com/VaalaCat/frp-panel/biz/client.PullConfig" [ fillcolor="moccasin" label="PullConfig" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/biz/client.PullConfig | defined in rpc_pull_config.go:15" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/biz/master" {
+        penwidth="0.8";
+style="filled";
+rank="sink";
+tooltip="package: github.com/VaalaCat/frp-panel/biz/master";
+fontsize="16";
+fillcolor="lightyellow";
+fontname="Tahoma bold";
+label="master";
+URL="/?f=github.com/VaalaCat/frp-panel/biz/master";
+        
+        "github.com/VaalaCat/frp-panel/biz/master.NewRouter" [ penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/biz/master.NewRouter | defined in handler.go:13" fillcolor="moccasin" label="NewRouter" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/biz/master/auth" {
+        fillcolor="lightyellow";
+label="auth";
+URL="/?f=github.com/VaalaCat/frp-panel/biz/master/auth";
+tooltip="package: github.com/VaalaCat/frp-panel/biz/master/auth";
+penwidth="0.8";
+style="filled";
+fontname="Tahoma bold";
+rank="sink";
+fontsize="16";
+        
+        "github.com/VaalaCat/frp-panel/biz/master/auth.InitAuth" [ label="InitAuth" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/biz/master/auth.InitAuth | defined in init.go:11" fillcolor="moccasin" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/biz/server" {
+        fillcolor="lightyellow";
+fontname="Tahoma bold";
+URL="/?f=github.com/VaalaCat/frp-panel/biz/server";
+tooltip="package: github.com/VaalaCat/frp-panel/biz/server";
+penwidth="0.8";
+style="filled";
+label="server";
+fontsize="16";
+rank="sink";
+        
+        "github.com/VaalaCat/frp-panel/biz/server.NewRouter" [ fillcolor="moccasin" label="NewRouter" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/biz/server.NewRouter | defined in auth_handler.go:13" ]
+        "github.com/VaalaCat/frp-panel/biz/server.PullConfig" [ tooltip="github.com/VaalaCat/frp-panel/biz/server.PullConfig | defined in rpc_pull_config.go:15" fillcolor="moccasin" label="PullConfig" penwidth="1.5" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/cache" {
+        tooltip="package: github.com/VaalaCat/frp-panel/cache";
+fontsize="16";
+style="filled";
+fillcolor="lightyellow";
+rank="sink";
+penwidth="0.8";
+fontname="Tahoma bold";
+label="cache";
+URL="/?f=github.com/VaalaCat/frp-panel/cache";
+        
+        "github.com/VaalaCat/frp-panel/cache.InitCache" [ label="InitCache" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/cache.InitCache | defined in freecache.go:13" fillcolor="moccasin" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/conf" {
+        URL="/?f=github.com/VaalaCat/frp-panel/conf";
+tooltip="package: github.com/VaalaCat/frp-panel/conf";
+style="filled";
+rank="sink";
+fillcolor="lightyellow";
+fontname="Tahoma bold";
+label="conf";
+penwidth="0.8";
+fontsize="16";
+        
+        "github.com/VaalaCat/frp-panel/conf.ServerAPIListenAddr" [ label="ServerAPIListenAddr" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/conf.ServerAPIListenAddr | defined in helper.go:42" fillcolor="moccasin" ]
+        "github.com/VaalaCat/frp-panel/conf.MasterAPIListenAddr" [ tooltip="github.com/VaalaCat/frp-panel/conf.MasterAPIListenAddr | defined in helper.go:37" fillcolor="moccasin" label="MasterAPIListenAddr" penwidth="1.5" ]
+        "github.com/VaalaCat/frp-panel/conf.Get" [ tooltip="github.com/VaalaCat/frp-panel/conf.Get | defined in settings.go:44" fillcolor="moccasin" label="Get" penwidth="1.5" ]
+        "github.com/VaalaCat/frp-panel/conf.FRPsAuthOption" [ fillcolor="moccasin" label="FRPsAuthOption" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/conf.FRPsAuthOption | defined in helper.go:47" ]
+        "github.com/VaalaCat/frp-panel/conf.InitConfig" [ label="InitConfig" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/conf.InitConfig | defined in settings.go:48" fillcolor="moccasin" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/models" {
+        fontsize="16";
+fillcolor="lightyellow";
+label="models";
+URL="/?f=github.com/VaalaCat/frp-panel/models";
+tooltip="package: github.com/VaalaCat/frp-panel/models";
+penwidth="0.8";
+style="filled";
+fontname="Tahoma bold";
+rank="sink";
+        
+        "github.com/VaalaCat/frp-panel/models.MustInitDBManager" [ fillcolor="moccasin" label="MustInitDBManager" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/models.MustInitDBManager | defined in db.go:39" ]
+        "github.com/VaalaCat/frp-panel/models.GetDBManager" [ fillcolor="moccasin" label="GetDBManager" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/models.GetDBManager | defined in db.go:55" ]
+        "(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).Init" [ fillcolor="moccasin" label="(*dbManagerImpl).Init" penwidth="1.5" tooltip="(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).Init | defined in db.go:21" ]
+        "(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).SetDB" [ fillcolor="moccasin" label="(*dbManagerImpl).SetDB" penwidth="1.5" tooltip="(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).SetDB | defined in db.go:66" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/rpc" {
+        style="filled";
+fontname="Tahoma bold";
+tooltip="package: github.com/VaalaCat/frp-panel/rpc";
+penwidth="0.8";
+fillcolor="lightyellow";
+rank="sink";
+label="rpc";
+URL="/?f=github.com/VaalaCat/frp-panel/rpc";
+fontsize="16";
+        
+        "github.com/VaalaCat/frp-panel/rpc.InitRPCClients" [ penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/rpc.InitRPCClients | defined in init.go:3" fillcolor="moccasin" label="InitRPCClients" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/services/api" {
+        URL="/?f=github.com/VaalaCat/frp-panel/services/api";
+penwidth="0.8";
+fontsize="16";
+rank="sink";
+label="api";
+style="filled";
+fillcolor="lightyellow";
+fontname="Tahoma bold";
+tooltip="package: github.com/VaalaCat/frp-panel/services/api";
+        
+        "github.com/VaalaCat/frp-panel/services/api.MustInitApiService" [ tooltip="github.com/VaalaCat/frp-panel/services/api.MustInitApiService | defined in service.go:29" fillcolor="moccasin" label="MustInitApiService" penwidth="1.5" ]
+        "github.com/VaalaCat/frp-panel/services/api.GetAPIService" [ fillcolor="moccasin" label="GetAPIService" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/services/api.GetAPIService | defined in service.go:33" ]
+        "(*github.com/VaalaCat/frp-panel/services/api.server).Stop" [ tooltip="(*github.com/VaalaCat/frp-panel/services/api.server).Stop | defined in service.go:41" fillcolor="moccasin" label="(*server).Stop" penwidth="1.5" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/services/master" {
+        style="filled";
+fillcolor="lightyellow";
+rank="sink";
+label="master";
+penwidth="0.8";
+fontsize="16";
+fontname="Tahoma bold";
+URL="/?f=github.com/VaalaCat/frp-panel/services/master";
+tooltip="package: github.com/VaalaCat/frp-panel/services/master";
+        
+        "github.com/VaalaCat/frp-panel/services/master.MustInitMasterService" [ fillcolor="moccasin" label="MustInitMasterService" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/services/master.MustInitMasterService | defined in grpc_service.go:21" ]
+        "github.com/VaalaCat/frp-panel/services/master.GetMasterSerivce" [ fillcolor="moccasin" label="GetMasterSerivce" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/services/master.GetMasterSerivce | defined in grpc_service.go:29" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/services/rpcclient" {
+        fontsize="16";
+fontname="Tahoma bold";
+URL="/?f=github.com/VaalaCat/frp-panel/services/rpcclient";
+tooltip="package: github.com/VaalaCat/frp-panel/services/rpcclient";
+penwidth="0.8";
+fillcolor="lightyellow";
+rank="sink";
+label="rpcclient";
+style="filled";
+        
+        "github.com/VaalaCat/frp-panel/services/rpcclient.MustInitClientRPCSerivce" [ penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/services/rpcclient.MustInitClientRPCSerivce | defined in rpc_service.go:27" fillcolor="moccasin" label="MustInitClientRPCSerivce" ]
+        "github.com/VaalaCat/frp-panel/services/rpcclient.GetClientRPCSerivce" [ tooltip="github.com/VaalaCat/frp-panel/services/rpcclient.GetClientRPCSerivce | defined in rpc_service.go:35" fillcolor="moccasin" label="GetClientRPCSerivce" penwidth="1.5" ]
+        "(*github.com/VaalaCat/frp-panel/services/rpcclient.ClientRPC).Stop" [ fillcolor="moccasin" label="(*ClientRPC).Stop" penwidth="1.5" tooltip="(*github.com/VaalaCat/frp-panel/services/rpcclient.ClientRPC).Stop | defined in rpc_service.go:62" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/services/server" {
+        tooltip="package: github.com/VaalaCat/frp-panel/services/server";
+fontsize="16";
+style="filled";
+fontname="Tahoma bold";
+label="server";
+penwidth="0.8";
+fillcolor="lightyellow";
+rank="sink";
+URL="/?f=github.com/VaalaCat/frp-panel/services/server";
+        
+        "github.com/VaalaCat/frp-panel/services/server.GetServerSerivce" [ penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/services/server.GetServerSerivce | defined in frps_service.go:45" fillcolor="moccasin" label="GetServerSerivce" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/utils" {
+        penwidth="0.8";
+fontsize="16";
+style="filled";
+fillcolor="lightyellow";
+URL="/?f=github.com/VaalaCat/frp-panel/utils";
+fontname="Tahoma bold";
+rank="sink";
+label="utils";
+tooltip="package: github.com/VaalaCat/frp-panel/utils";
+        
+        "github.com/VaalaCat/frp-panel/utils.NewBaseFRPServerUserAuthConfig" [ penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/utils.NewBaseFRPServerUserAuthConfig | defined in frp_config.go:19" fillcolor="moccasin" label="NewBaseFRPServerUserAuthConfig" ]
+        "github.com/VaalaCat/frp-panel/utils.MD5" [ label="MD5" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/utils.MD5 | defined in hash.go:12" fillcolor="moccasin" ]
+        
+    }
+
+        subgraph "cluster_github.com/VaalaCat/frp-panel/watcher" {
+        style="filled";
+fillcolor="lightyellow";
+fontname="Tahoma bold";
+rank="sink";
+label="watcher";
+penwidth="0.8";
+URL="/?f=github.com/VaalaCat/frp-panel/watcher";
+tooltip="package: github.com/VaalaCat/frp-panel/watcher";
+fontsize="16";
+        
+        "github.com/VaalaCat/frp-panel/watcher.NewClient" [ fillcolor="moccasin" label="NewClient" penwidth="1.5" tooltip="github.com/VaalaCat/frp-panel/watcher.NewClient | defined in client.go:17" ]
+        "(*github.com/VaalaCat/frp-panel/watcher.client).Stop" [ fillcolor="moccasin" label="(*client).Stop" penwidth="1.5" tooltip="(*github.com/VaalaCat/frp-panel/watcher.client).Stop | defined in client.go:40" ]
+        
+    }
+
+    }
+
+    "github.com/VaalaCat/frp-panel/cmd.runClient" -> "github.com/VaalaCat/frp-panel/watcher.NewClient" [ color="saddlebrown" tooltip="at client.go:31: calling [github.com/VaalaCat/frp-panel/watcher.NewClient]" ]
+    "github.com/VaalaCat/frp-panel/cmd.initClientOnce" -> "github.com/VaalaCat/frp-panel/biz/client.PullConfig" [ color="saddlebrown" tooltip="at client.go:43: calling [github.com/VaalaCat/frp-panel/biz/client.PullConfig]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "(*github.com/VaalaCat/frp-panel/watcher.client).Stop" [ color="saddlebrown" tooltip="at server.go:38: calling [(*github.com/VaalaCat/frp-panel/watcher.client).Stop]" style="dashed" arrowhead="normalnoneodiamond" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/conf.FRPsAuthOption" [ color="saddlebrown" tooltip="at master.go:34: calling [github.com/VaalaCat/frp-panel/conf.FRPsAuthOption]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runClient" -> "github.com/VaalaCat/frp-panel/cmd.initClientOnce" [ tooltip="at client.go:34: calling [github.com/VaalaCat/frp-panel/cmd.initClientOnce]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "github.com/VaalaCat/frp-panel/watcher.NewClient" [ color="saddlebrown" tooltip="at server.go:37: calling [github.com/VaalaCat/frp-panel/watcher.NewClient]" ]
+    "github.com/VaalaCat/frp-panel/cmd.initCommand$2" -> "github.com/VaalaCat/frp-panel/cmd.runServer" [ tooltip="at cmd.go:38: calling [github.com/VaalaCat/frp-panel/cmd.runServer]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/biz/master/auth.InitAuth" [ color="saddlebrown" tooltip="at master.go:28: calling [github.com/VaalaCat/frp-panel/biz/master/auth.InitAuth]" ]
+    "github.com/VaalaCat/frp-panel/cmd.main" -> "github.com/VaalaCat/frp-panel/utils.MD5" [ color="saddlebrown" tooltip="at main.go:16: calling [github.com/VaalaCat/frp-panel/utils.MD5]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/services/server.GetServerSerivce" [ color="saddlebrown" tooltip="at master.go:37: calling [github.com/VaalaCat/frp-panel/services/server.GetServerSerivce]" ]
+    "github.com/VaalaCat/frp-panel/cmd.main" -> "github.com/VaalaCat/frp-panel/conf.InitConfig" [ color="saddlebrown" tooltip="at main.go:13: calling [github.com/VaalaCat/frp-panel/conf.InitConfig]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runClient" -> "github.com/VaalaCat/frp-panel/services/rpcclient.GetClientRPCSerivce" [ color="saddlebrown" tooltip="at client.go:28: calling [github.com/VaalaCat/frp-panel/services/rpcclient.GetClientRPCSerivce]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runClient" -> "(*github.com/VaalaCat/frp-panel/services/rpcclient.ClientRPC).Stop" [ style="dashed" arrowhead="normalnoneodiamond" color="saddlebrown" tooltip="at client.go:29: calling [(*github.com/VaalaCat/frp-panel/services/rpcclient.ClientRPC).Stop]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "(*github.com/VaalaCat/frp-panel/services/rpcclient.ClientRPC).Stop" [ style="dashed" arrowhead="normalnoneodiamond" color="saddlebrown" tooltip="at server.go:35: calling [(*github.com/VaalaCat/frp-panel/services/rpcclient.ClientRPC).Stop]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/biz/master.NewRouter" [ color="saddlebrown" tooltip="at master.go:23: calling [github.com/VaalaCat/frp-panel/biz/master.NewRouter]" ]
+    "github.com/VaalaCat/frp-panel/cmd.initDatabase" -> "github.com/VaalaCat/frp-panel/conf.Get" [ tooltip="at master.go:48: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:49: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:51: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:53: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:60: calling [github.com/VaalaCat/frp-panel/conf.Get]\nat master.go:57: calling [github.com/VaalaCat/frp-panel/conf.Get]" color="saddlebrown" ]
+    "github.com/VaalaCat/frp-panel/cmd.initDatabase" -> "github.com/VaalaCat/frp-panel/models.GetDBManager" [ color="saddlebrown" tooltip="at master.go:63: calling [github.com/VaalaCat/frp-panel/models.GetDBManager]\nat master.go:56: calling [github.com/VaalaCat/frp-panel/models.GetDBManager]" ]
+    "github.com/VaalaCat/frp-panel/cmd.main" -> "github.com/VaalaCat/frp-panel/rpc.InitRPCClients" [ color="saddlebrown" tooltip="at main.go:14: calling [github.com/VaalaCat/frp-panel/rpc.InitRPCClients]" ]
+    "github.com/VaalaCat/frp-panel/cmd.main" -> "github.com/VaalaCat/frp-panel/conf.Get" [ tooltip="at main.go:16: calling [github.com/VaalaCat/frp-panel/conf.Get]" color="saddlebrown" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/utils.NewBaseFRPServerUserAuthConfig" [ color="saddlebrown" tooltip="at master.go:32: calling [github.com/VaalaCat/frp-panel/utils.NewBaseFRPServerUserAuthConfig]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runClient" -> "github.com/VaalaCat/frp-panel/services/rpcclient.MustInitClientRPCSerivce" [ color="saddlebrown" tooltip="at client.go:22: calling [github.com/VaalaCat/frp-panel/services/rpcclient.MustInitClientRPCSerivce]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/services/master.MustInitMasterService" [ color="saddlebrown" tooltip="at master.go:21: calling [github.com/VaalaCat/frp-panel/services/master.MustInitMasterService]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/services/api.MustInitApiService" [ color="saddlebrown" tooltip="at master.go:24: calling [github.com/VaalaCat/frp-panel/services/api.MustInitApiService]" ]
+    "github.com/VaalaCat/frp-panel/cmd.initDatabase" -> "github.com/VaalaCat/frp-panel/models.MustInitDBManager" [ tooltip="at master.go:49: calling [github.com/VaalaCat/frp-panel/models.MustInitDBManager]" color="saddlebrown" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/cmd.initDatabase" [ tooltip="at master.go:26: calling [github.com/VaalaCat/frp-panel/cmd.initDatabase]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/conf.Get" [ color="saddlebrown" tooltip="at master.go:33: calling [github.com/VaalaCat/frp-panel/conf.Get]" ]
+    "github.com/VaalaCat/frp-panel/cmd.initCommand$3" -> "github.com/VaalaCat/frp-panel/cmd.runMaster" [ tooltip="at cmd.go:45: calling [github.com/VaalaCat/frp-panel/cmd.runMaster]" ]
+    "github.com/VaalaCat/frp-panel/cmd.main" -> "github.com/VaalaCat/frp-panel/cmd.initCommand" [ tooltip="at main.go:12: calling [github.com/VaalaCat/frp-panel/cmd.initCommand]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "github.com/VaalaCat/frp-panel/conf.ServerAPIListenAddr" [ color="saddlebrown" tooltip="at server.go:22: calling [github.com/VaalaCat/frp-panel/conf.ServerAPIListenAddr]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "github.com/VaalaCat/frp-panel/services/api.GetAPIService" [ color="saddlebrown" tooltip="at server.go:24: calling [github.com/VaalaCat/frp-panel/services/api.GetAPIService]" ]
+    "github.com/VaalaCat/frp-panel/cmd.initServerOnce" -> "github.com/VaalaCat/frp-panel/biz/server.PullConfig" [ color="saddlebrown" tooltip="at server.go:50: calling [github.com/VaalaCat/frp-panel/biz/server.PullConfig]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "(*github.com/VaalaCat/frp-panel/services/api.server).Stop" [ color="saddlebrown" tooltip="at server.go:25: calling [(*github.com/VaalaCat/frp-panel/services/api.server).Stop]" style="dashed" arrowhead="normalnoneodiamond" ]
+    "github.com/VaalaCat/frp-panel/cmd.initDatabase" -> "(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).SetDB" [ style="dashed" color="saddlebrown" tooltip="at master.go:56: calling [(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).SetDB]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/cache.InitCache" [ color="saddlebrown" tooltip="at master.go:27: calling [github.com/VaalaCat/frp-panel/cache.InitCache]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runClient" -> "(*github.com/VaalaCat/frp-panel/watcher.client).Stop" [ tooltip="at client.go:32: calling [(*github.com/VaalaCat/frp-panel/watcher.client).Stop]" style="dashed" arrowhead="normalnoneodiamond" color="saddlebrown" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "github.com/VaalaCat/frp-panel/biz/server.NewRouter" [ color="saddlebrown" tooltip="at server.go:21: calling [github.com/VaalaCat/frp-panel/biz/server.NewRouter]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "github.com/VaalaCat/frp-panel/services/api.MustInitApiService" [ color="saddlebrown" tooltip="at server.go:22: calling [github.com/VaalaCat/frp-panel/services/api.MustInitApiService]" ]
+    "github.com/VaalaCat/frp-panel/cmd.initDatabase" -> "(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).Init" [ tooltip="at master.go:63: calling [(*github.com/VaalaCat/frp-panel/models.dbManagerImpl).Init]" style="dashed" color="saddlebrown" ]
+    "github.com/VaalaCat/frp-panel/cmd.initCommand$1" -> "github.com/VaalaCat/frp-panel/cmd.runClient" [ tooltip="at cmd.go:31: calling [github.com/VaalaCat/frp-panel/cmd.runClient]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "github.com/VaalaCat/frp-panel/cmd.initServerOnce" [ tooltip="at server.go:40: calling [github.com/VaalaCat/frp-panel/cmd.initServerOnce]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/conf.MasterAPIListenAddr" [ color="saddlebrown" tooltip="at master.go:24: calling [github.com/VaalaCat/frp-panel/conf.MasterAPIListenAddr]" ]
+    "github.com/VaalaCat/frp-panel/cmd.main" -> "github.com/VaalaCat/frp-panel/cmd.initLogger" [ tooltip="at main.go:11: calling [github.com/VaalaCat/frp-panel/cmd.initLogger]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "github.com/VaalaCat/frp-panel/services/rpcclient.MustInitClientRPCSerivce" [ color="saddlebrown" tooltip="at server.go:27: calling [github.com/VaalaCat/frp-panel/services/rpcclient.MustInitClientRPCSerivce]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runServer" -> "github.com/VaalaCat/frp-panel/services/rpcclient.GetClientRPCSerivce" [ color="saddlebrown" tooltip="at server.go:34: calling [github.com/VaalaCat/frp-panel/services/rpcclient.GetClientRPCSerivce]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/services/master.GetMasterSerivce" [ color="saddlebrown" tooltip="at master.go:31: calling [github.com/VaalaCat/frp-panel/services/master.GetMasterSerivce]" ]
+    "github.com/VaalaCat/frp-panel/cmd.runMaster" -> "github.com/VaalaCat/frp-panel/services/api.GetAPIService" [ color="saddlebrown" tooltip="at master.go:38: calling [github.com/VaalaCat/frp-panel/services/api.GetAPIService]" ]
+}

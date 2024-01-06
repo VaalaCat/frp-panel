@@ -1,0 +1,25 @@
+syntax = "proto3";
+package api_auth;
+
+import "common.proto";
+option go_package="../pb";
+
+message LoginRequest {
+  optional string username = 1;
+  optional string password = 2;
+}
+
+message LoginResponse {
+  optional common.Status status = 1;
+  optional string token = 2;
+}
+
+message RegisterRequest {
+  optional string username = 1;
+  optional string password = 2;
+  optional string email = 3;
+}
+
+message RegisterResponse {
+  optional common.Status status = 1;
+}
