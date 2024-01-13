@@ -23,6 +23,7 @@ import {
 import { useState } from "react"
 import { useToast } from "./ui/use-toast"
 import { RespCode } from "@/lib/pb/common"
+import { useRouter } from "next/router"
 
 export const LoginSchema = z.object({
     username: ZodStringSchema,
@@ -34,14 +35,19 @@ export const LoginComponent = () => {
         resolver: zodResolver(LoginSchema),
     })
     const { toast } = useToast()
+    const router = useRouter()
 
     const [loginAlert, setLoginAlert] = useState(false)
 
     const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
+        toast({ title: "登录中，请稍候" })
         try {
             const res = await login({ ...values })
             if (res.status?.code === RespCode.SUCCESS) {
-                toast({ title: "登录成功" })
+                toast({ title: "登录成功，正在跳转到首页" })
+                setTimeout(() => {
+                    router.push('/');
+                }, 3000);
                 setLoginAlert(false)
             } else {
                 toast({ title: "登录失败" })

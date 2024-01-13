@@ -1,6 +1,7 @@
 import http from '@/api/http'
 import { API_PATH } from '@/lib/consts'
 import {
+    GetPlatformInfoResponse,
     GetUserInfoRequest, GetUserInfoResponse,
     UpdateUserInfoRequest, UpdateUserInfoResponse
 } from '@/lib/pb/api_user'
@@ -16,4 +17,9 @@ export const getUserInfo = async (req: GetUserInfoRequest) => {
 export const updateUserInfo = async (req: UpdateUserInfoRequest) => {
     const res = await http.post(API_PATH + '/user/update', UpdateUserInfoRequest.toJson(req))
     return UpdateUserInfoResponse.fromJson((res.data as BaseResponse).body)
+}
+
+export const getPlatformInfo = async () => {
+    const res = await http.get(API_PATH + '/user/platform')
+    return GetPlatformInfoResponse.fromJson((res.data as BaseResponse).body)
 }

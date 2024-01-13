@@ -21,6 +21,7 @@ import {
 import { Switch } from "./ui/switch"
 import { FRPCEditor } from "./frpc_editor"
 import { FRPCForm } from "./frpc_form"
+import { useSearchParams } from "next/navigation"
 
 export interface FRPCFormCardProps {
     clientID?: string
@@ -30,6 +31,8 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({ clientID: defaultCli
     const [advanceMode, setAdvanceMode] = useState<boolean>(false)
     const [clientID, setClientID] = useState<string | undefined>()
     const [serverID, setServerID] = useState<string | undefined>()
+    const searchParams = useSearchParams()
+    const paramClientID = searchParams.get('clientID')
     const handleServerChange = (value: string) => {
         setServerID(value)
     }
@@ -39,27 +42,37 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({ clientID: defaultCli
     }
 
     useEffect(() => {
-        setClientID(defaultClientID)
-        setServerID(defaultServerID)
+        if (defaultClientID) {
+            setClientID(defaultClientID)
+        }
+        if (defaultServerID) {
+            setServerID(defaultServerID)
+        }
     }, [defaultClientID, defaultServerID])
+
+    useEffect(() => {
+        if (paramClientID) {
+            setClientID(paramClientID)
+        }
+    }, [paramClientID])
 
     const { data: serverList, refetch: refetchServers } = useQuery({
         queryKey: ["listServer"], queryFn: () => {
-            return listServer({ page: 1, pageSize: 100 })
+            return listServer({ page: 1, pageSize: 500 })
         }
     });
 
     const { data: clientList, refetch: refetchClients } = useQuery({
         queryKey: ["listClient"], queryFn: () => {
-            return listClient({ page: 1, pageSize: 100 })
+            return listClient({ page: 1, pageSize: 500 })
         }
     })
 
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>创建隧道</CardTitle>
-                <CardDescription>选择客户端和服务端以创建隧道</CardDescription>
+                <CardTitle>编辑隧道</CardTitle>
+                <CardDescription>选择客户端和服务端以编辑隧道</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className=" flex items-center space-x-4 rounded-md border p-4">
@@ -93,6 +106,7 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({ clientID: defaultCli
                     </Select>
                     <Label className="text-sm font-medium">客户端</Label>
                     <Select onValueChange={handleClientChange}
+                        value={clientID}
                         onOpenChange={() => {
                             refetchServers()
                             refetchClients()

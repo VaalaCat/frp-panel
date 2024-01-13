@@ -4,3 +4,5 @@ __debug*
 tmp
 *.db
 frp-panel
+out
+cmd/out

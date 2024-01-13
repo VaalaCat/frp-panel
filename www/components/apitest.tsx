@@ -16,10 +16,11 @@ export const APITest = () => {
     const [clientID, setClientID] = useState<string>("admin.client")
     const [username, setUsername] = useState<string>("admin")
     const [password, setPassword] = useState<string>("admin")
+    const [email, setEmail] = useState<string>("admin@localhost")
 
     return (
         <div className='flex flex-col w-full p-10 lg:w-1/2'>
-            <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 my-4'>
+            <div className='grid grid-cols-2 sm:grid-cols-5 gap-4 my-4'>
                 <div >
                     <Label>username</Label>
                     <Input value={username} onChange={e => setUsername(e.target.value)} />
@@ -27,6 +28,10 @@ export const APITest = () => {
                 <div >
                     <Label>password</Label>
                     <Input value={password} onChange={e => setPassword(e.target.value)} />
+                </div>
+                <div >
+                    <Label>email</Label>
+                    <Input value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
                 <div >
                     <Label>clientID</Label>
@@ -42,7 +47,7 @@ export const APITest = () => {
                     console.log("attempting login:", await login({ username: username, password: password }))
                 }}>login</Button>
                 <Button onClick={async () => {
-                    console.log("attempting register:", await register({ username: username, password: password }))
+                    console.log("attempting register:", await register({ username: username, password: password, email: email }))
                 }}>register</Button>
                 <Button onClick={async () => {
                     console.log("attempting update user:", await updateUserInfo({

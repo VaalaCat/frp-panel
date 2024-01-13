@@ -45,7 +45,7 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID }) =
     const form = useForm<z.infer<typeof TCPConfigSchema>>({
         resolver: zodResolver(TCPConfigSchema),
     })
-    const updateFrpc = useMutation({ mutationFn: updateFRPC })
+    const updateFrpc = useMutation({ mutationFn: updateFRPC, })
 
     useEffect(() => {
         setTCPConfig(undefined)
@@ -54,12 +54,17 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID }) =
 
     const onSubmit = async (values: z.infer<typeof TCPConfigSchema>) => {
         setTCPConfig({ type: "tcp", ...values })
-        const res = await updateFrpc.mutateAsync({
-            config: Buffer.from(JSON.stringify({
-                proxies: [{ ...values, type: "tcp" }]
-            } as ClientConfig)), serverId: serverID, clientId: clientID
-        })
-        toast({ title: "创建隧道状态", description: res.status?.code === RespCode.SUCCESS ? "创建成功" : "创建失败" })
+        try {
+            const res = await updateFrpc.mutateAsync({
+                config: Buffer.from(JSON.stringify({
+                    proxies: [{ ...values, type: "tcp" }]
+                } as ClientConfig)), serverId: serverID, clientId: clientID
+            })
+            toast({ title: "创建隧道状态", description: res.status?.code === RespCode.SUCCESS ? "创建成功" : "创建失败" })
+        } catch (error) {
+            console.error(error)
+            toast({ title: "创建隧道状态", description: "创建失败" })
+        }
     }
 
     return (

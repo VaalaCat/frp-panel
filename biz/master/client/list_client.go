@@ -31,6 +31,11 @@ func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.Li
 		return nil, err
 	}
 
+	clientCounts, err := dao.CountClients(userInfo)
+	if err != nil {
+		return nil, err
+	}
+
 	respClients := lo.Map(clients, func(c *models.ClientEntity, _ int) *pb.Client {
 		return &pb.Client{
 			Id:     lo.ToPtr(c.ClientID),
@@ -42,5 +47,6 @@ func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.Li
 	return &pb.ListClientsResponse{
 		Status:  &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
 		Clients: respClients,
+		Total:   lo.ToPtr(int32(clientCounts)),
 	}, nil
 }

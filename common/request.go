@@ -18,7 +18,8 @@ type CommonReq interface {
 		pb.DeleteClientRequest |
 		pb.InitServerRequest | pb.ListServersRequest | pb.GetServerRequest |
 		pb.DeleteServerRequest |
-		pb.GetUserInfoRequest | pb.UpdateUserInfoRequest
+		pb.GetUserInfoRequest | pb.UpdateUserInfoRequest |
+		pb.GetPlatformInfoRequest
 }
 
 func GetProtoRequest[T CommonReq](c *gin.Context) (r *T, err error) {
@@ -77,6 +78,8 @@ func GetServerMessageRequest[T CommonReq](b []byte, r *T, trans func(b []byte, m
 	case *pb.GetUserInfoRequest:
 		return trans(b, ptr)
 	case *pb.UpdateUserInfoRequest:
+		return trans(b, ptr)
+	case *pb.GetPlatformInfoRequest:
 		return trans(b, ptr)
 	default:
 	}

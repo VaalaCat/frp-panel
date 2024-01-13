@@ -17,7 +17,8 @@ type CommonResp interface {
 		pb.DeleteClientResponse |
 		pb.InitServerResponse | pb.ListServersResponse | pb.GetServerResponse |
 		pb.DeleteServerResponse |
-		pb.GetUserInfoResponse | pb.UpdateUserInfoResponse
+		pb.GetUserInfoResponse | pb.UpdateUserInfoResponse |
+		pb.GetPlatformInfoResponse
 }
 
 func OKResp[T CommonResp](c *gin.Context, origin *T) {

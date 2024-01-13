@@ -132,3 +132,61 @@ func ListServers(userInfo models.UserInfo, page, pageSize int) ([]*models.Server
 		return c.ServerEntity
 	}), nil
 }
+
+func CountServers(userInfo models.UserInfo) (int64, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var count int64
+	err := db.Model(&models.Server{}).Where(
+		&models.Server{
+			ServerEntity: &models.ServerEntity{
+				UserID:   userInfo.GetUserID(),
+				TenantID: userInfo.GetTenantID(),
+			},
+		},
+	).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func CountUnconfiguredServers(userInfo models.UserInfo) (int64, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var count int64
+	err := db.Model(&models.Server{}).Where(
+		&models.Server{
+			ServerEntity: &models.ServerEntity{
+				UserID:        userInfo.GetUserID(),
+				TenantID:      userInfo.GetTenantID(),
+				ConfigContent: []byte{},
+			},
+		},
+	).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func CountConfiguredServers(userInfo models.UserInfo) (int64, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var count int64
+	err := db.Model(&models.Server{}).Where(
+		&models.Server{
+			ServerEntity: &models.ServerEntity{
+				UserID:   userInfo.GetUserID(),
+				TenantID: userInfo.GetTenantID(),
+			},
+		},
+	).Not(
+		&models.Server{
+			ServerEntity: &models.ServerEntity{
+				ConfigContent: []byte{},
+			},
+		},
+	).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

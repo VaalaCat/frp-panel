@@ -1,6 +1,8 @@
 package main
 
 import (
+	"embed"
+
 	bizmaster "github.com/VaalaCat/frp-panel/biz/master"
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
 	"github.com/VaalaCat/frp-panel/cache"
@@ -17,10 +19,13 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:embed all:out
+var fs embed.FS
+
 func runMaster() {
 	master.MustInitMasterService()
 
-	router := bizmaster.NewRouter()
+	router := bizmaster.NewRouter(fs)
 	api.MustInitApiService(conf.MasterAPIListenAddr(), router)
 
 	initDatabase()

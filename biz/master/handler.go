@@ -1,6 +1,8 @@
 package master
 
 import (
+	"embed"
+
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/biz/master/server"
@@ -10,8 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter() *gin.Engine {
+func NewRouter(fs embed.FS) *gin.Engine {
 	router := gin.Default()
+	HandleStaticFile(fs, router)
 	ConfigureRouter(router)
 	return router
 }
@@ -26,11 +29,13 @@ func ConfigureRouter(router *gin.Engine) {
 		{
 			authRouter.POST("/login", common.Wrapper(auth.LoginHandler))
 			authRouter.POST("/register", common.Wrapper(auth.RegisterHandler))
+			authRouter.GET("/logout", auth.RemoveJWTHandler)
 		}
 		userRouter := v1.Group("/user", middleware.JWTAuth, middleware.AuthCtx)
 		{
 			userRouter.POST("/get", common.Wrapper(user.GetUserInfoHandler))
 			userRouter.POST("/update", common.Wrapper(user.UpdateUserInfoHander))
+			userRouter.GET("/platform", user.GetPlatformInfo)
 		}
 		clientRouter := v1.Group("/client", middleware.JWTAuth, middleware.AuthCtx)
 		{

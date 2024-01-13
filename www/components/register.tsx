@@ -24,6 +24,7 @@ import { useState } from "react"
 import { useToast } from "./ui/use-toast"
 import { RespCode } from "@/lib/pb/common"
 import { useRouter } from 'next/router'
+import { Toast } from "./ui/toast"
 
 export const RegisterSchema = z.object({
     username: ZodStringSchema,
@@ -43,14 +44,14 @@ export const RegisterComponent = () => {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-
     const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
+        toast({ title: "注册中，请稍候" })
         try {
             const res = await register({ ...values })
             if (res.status?.code === RespCode.SUCCESS) {
-                toast({ title: "注册成功" })
+                toast({ title: "注册成功，正在跳转到登录" })
                 setRegisterAlert(false)
-                await sleep(5000)
+                await sleep(3000)
                 router.push("/login")
             } else {
                 toast({ title: "注册失败" })

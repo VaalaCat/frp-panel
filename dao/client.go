@@ -145,3 +145,54 @@ func GetAllClients(userInfo models.UserInfo) ([]*models.ClientEntity, error) {
 		return c.ClientEntity
 	}), nil
 }
+
+func CountClients(userInfo models.UserInfo) (int64, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var count int64
+	err := db.Model(&models.Client{}).Where(&models.Client{
+		ClientEntity: &models.ClientEntity{
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+		},
+	}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func CountUnconfiguredClients(userInfo models.UserInfo) (int64, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var count int64
+	err := db.Model(&models.Client{}).Where(&models.Client{
+		ClientEntity: &models.ClientEntity{
+			UserID:        userInfo.GetUserID(),
+			TenantID:      userInfo.GetTenantID(),
+			ConfigContent: []byte{},
+		},
+	}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func CountConfiguredClients(userInfo models.UserInfo) (int64, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var count int64
+	err := db.Model(&models.Client{}).
+		Where(&models.Client{
+			ClientEntity: &models.ClientEntity{
+				UserID:   userInfo.GetUserID(),
+				TenantID: userInfo.GetTenantID(),
+			}}).
+		Not(&models.Client{
+			ClientEntity: &models.ClientEntity{
+				ConfigContent: []byte{},
+			}}).
+		Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

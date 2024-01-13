@@ -7,14 +7,26 @@ option go_package="../pb";
 message GetUserInfoRequest {}
 
 message GetUserInfoResponse {
-    optional common.Status status = 1;
-    optional common.User user_info = 2;
+  optional common.Status status = 1;
+  optional common.User user_info = 2;
 }
 
 message UpdateUserInfoRequest {
-    optional common.User user_info = 1;
+  optional common.User user_info = 1;
 }
 
 message UpdateUserInfoResponse {
-    optional common.Status status = 1;
+  optional common.Status status = 1;
+}
+
+message GetPlatformInfoRequest {}
+
+message GetPlatformInfoResponse {
+  optional common.Status status = 1;
+  int32 total_client_count = 2;
+  int32 total_server_count = 3;
+  int32 unconfigured_client_count = 4;
+  int32 unconfigured_server_count = 5;
+  int32 configured_client_count = 6;
+  int32 configured_server_count = 7;
 }

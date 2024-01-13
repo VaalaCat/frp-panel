@@ -48,6 +48,44 @@ export interface UpdateUserInfoResponse {
      */
     status?: Status;
 }
+/**
+ * @generated from protobuf message api_user.GetPlatformInfoRequest
+ */
+export interface GetPlatformInfoRequest {
+}
+/**
+ * @generated from protobuf message api_user.GetPlatformInfoResponse
+ */
+export interface GetPlatformInfoResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+    /**
+     * @generated from protobuf field: int32 total_client_count = 2;
+     */
+    totalClientCount: number;
+    /**
+     * @generated from protobuf field: int32 total_server_count = 3;
+     */
+    totalServerCount: number;
+    /**
+     * @generated from protobuf field: int32 unconfigured_client_count = 4;
+     */
+    unconfiguredClientCount: number;
+    /**
+     * @generated from protobuf field: int32 unconfigured_server_count = 5;
+     */
+    unconfiguredServerCount: number;
+    /**
+     * @generated from protobuf field: int32 configured_client_count = 6;
+     */
+    configuredClientCount: number;
+    /**
+     * @generated from protobuf field: int32 configured_server_count = 7;
+     */
+    configuredServerCount: number;
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class GetUserInfoRequest$Type extends MessageType<GetUserInfoRequest> {
     constructor() {
@@ -218,3 +256,122 @@ class UpdateUserInfoResponse$Type extends MessageType<UpdateUserInfoResponse> {
  * @generated MessageType for protobuf message api_user.UpdateUserInfoResponse
  */
 export const UpdateUserInfoResponse = new UpdateUserInfoResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetPlatformInfoRequest$Type extends MessageType<GetPlatformInfoRequest> {
+    constructor() {
+        super("api_user.GetPlatformInfoRequest", []);
+    }
+    create(value?: PartialMessage<GetPlatformInfoRequest>): GetPlatformInfoRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<GetPlatformInfoRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetPlatformInfoRequest): GetPlatformInfoRequest {
+        return target ?? this.create();
+    }
+    internalBinaryWrite(message: GetPlatformInfoRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_user.GetPlatformInfoRequest
+ */
+export const GetPlatformInfoRequest = new GetPlatformInfoRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> {
+    constructor() {
+        super("api_user.GetPlatformInfoResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status },
+            { no: 2, name: "total_client_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "total_server_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 4, name: "unconfigured_client_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 5, name: "unconfigured_server_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 6, name: "configured_client_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 7, name: "configured_server_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GetPlatformInfoResponse>): GetPlatformInfoResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.totalClientCount = 0;
+        message.totalServerCount = 0;
+        message.unconfiguredClientCount = 0;
+        message.unconfiguredServerCount = 0;
+        message.configuredClientCount = 0;
+        message.configuredServerCount = 0;
+        if (value !== undefined)
+            reflectionMergePartial<GetPlatformInfoResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetPlatformInfoResponse): GetPlatformInfoResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                case /* int32 total_client_count */ 2:
+                    message.totalClientCount = reader.int32();
+                    break;
+                case /* int32 total_server_count */ 3:
+                    message.totalServerCount = reader.int32();
+                    break;
+                case /* int32 unconfigured_client_count */ 4:
+                    message.unconfiguredClientCount = reader.int32();
+                    break;
+                case /* int32 unconfigured_server_count */ 5:
+                    message.unconfiguredServerCount = reader.int32();
+                    break;
+                case /* int32 configured_client_count */ 6:
+                    message.configuredClientCount = reader.int32();
+                    break;
+                case /* int32 configured_server_count */ 7:
+                    message.configuredServerCount = reader.int32();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetPlatformInfoResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* int32 total_client_count = 2; */
+        if (message.totalClientCount !== 0)
+            writer.tag(2, WireType.Varint).int32(message.totalClientCount);
+        /* int32 total_server_count = 3; */
+        if (message.totalServerCount !== 0)
+            writer.tag(3, WireType.Varint).int32(message.totalServerCount);
+        /* int32 unconfigured_client_count = 4; */
+        if (message.unconfiguredClientCount !== 0)
+            writer.tag(4, WireType.Varint).int32(message.unconfiguredClientCount);
+        /* int32 unconfigured_server_count = 5; */
+        if (message.unconfiguredServerCount !== 0)
+            writer.tag(5, WireType.Varint).int32(message.unconfiguredServerCount);
+        /* int32 configured_client_count = 6; */
+        if (message.configuredClientCount !== 0)
+            writer.tag(6, WireType.Varint).int32(message.configuredClientCount);
+        /* int32 configured_server_count = 7; */
+        if (message.configuredServerCount !== 0)
+            writer.tag(7, WireType.Varint).int32(message.configuredServerCount);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_user.GetPlatformInfoResponse
+ */
+export const GetPlatformInfoResponse = new GetPlatformInfoResponse$Type();

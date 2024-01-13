@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Switch } from "./ui/switch"
 import { FRPSEditor } from "./frps_editor"
 import FRPSForm from "./frps_form"
+import { useSearchParams } from "next/navigation"
 
 export interface FRPSFormCardProps {
     serverID?: string
@@ -21,6 +22,8 @@ export interface FRPSFormCardProps {
 export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultServerID }: FRPSFormCardProps = {}) => {
     const [advanceMode, setAdvanceMode] = useState<boolean>(false)
     const [serverID, setServerID] = useState<string | undefined>()
+    const searchParams = useSearchParams()
+    const paramServerID = searchParams.get('serverID')
     const { data: serverList, refetch: refetchServers } = useQuery({
         queryKey: ["listServer"], queryFn: () => {
             return listServer({ page: 1, pageSize: 100 })
@@ -33,8 +36,16 @@ export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultSer
     });
 
     useEffect(() => {
-        setServerID(defaultServerID)
+        if (defaultServerID) {
+            setServerID(defaultServerID)
+        }
     }, [defaultServerID])
+
+    useEffect(() => {
+        if (paramServerID) {
+            setServerID(paramServerID)
+        }
+    }, [paramServerID])
 
     const handleServerChange = (value: string) => {
         setServerID(value)
@@ -60,6 +71,7 @@ export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultSer
             <div className="flex flex-col w-full pt-2">
                 <Label className="text-sm font-medium">服务端</Label>
                 <Select onValueChange={handleServerChange}
+                    value={serverID}
                     onOpenChange={() => {
                         refetchServers()
                         refetchServer()

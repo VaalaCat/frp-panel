@@ -55,15 +55,20 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
 
 	const onSubmit = async (values: z.infer<typeof ServerConfigZodSchema>) => {
 		setFrpsConfig({ ...values })
-		let resp = await updateFrps.mutateAsync({
-			serverId: serverID, config: Buffer.from(JSON.stringify({
-				...values
-			} as ServerConfig))
-		})
-		toast({
-			title: resp.status?.code === RespCode.SUCCESS ? "创建成功" : "创建失败",
-			description: resp.status?.message,
-		})
+		try {
+			let resp = await updateFrps.mutateAsync({
+				serverId: serverID, config: Buffer.from(JSON.stringify({
+					...values
+				} as ServerConfig))
+			})
+			toast({
+				title: resp.status?.code === RespCode.SUCCESS ? "创建成功" : "创建失败",
+				description: resp.status?.message,
+			})
+		} catch (error) {
+			console.error(error)
+			toast({ title: "创建服务端状态", description: "创建失败" })
+		}
 	}
 	return (
 		<div className="flex flex-col w-full pt-2">
