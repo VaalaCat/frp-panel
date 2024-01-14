@@ -99,7 +99,7 @@ frp-panel可选docker和直接运行模式部署，直接部署请到release下�
 
 - master   
    
-```
+```bash
 docker run -d -p 9000:9000 \
 	-p 9001:9001 \
 	-v /opt/frp-panel:/data \
@@ -110,7 +110,7 @@ docker run -d -p 9000:9000 \
 ```
 - client   
    
-```
+```bash
 docker run -d -p your_port:your_port \
 	-e APP_GLOBAL_SECRET=your_secret \  # 客户端和服务端的Secret与Master不一样，但也最好不要泄漏
 	-e MASTER_RPC_HOST=your_master \	# master节点的IP，端口是默认9000，修改配置请看最后
@@ -118,13 +118,14 @@ docker run -d -p your_port:your_port \
 ```
 - server   
    
-```
+```bash
 docker run -d -p your_port:your_port \
 	-e APP_GLOBAL_SECRET=your_secret \  # 客户端和服务端的Secret与Master不一样，但也最好不要泄漏
 	-e MASTER_RPC_HOST=your_master \	# master节点的IP，端口是默认9000，修改配置请看最后
 	vaalacat/frp-panel server -s xxx -i xxx # 在WebUI复制的参数
 ```
-直接运行   
+
+### 直接运行(Linux)
 - master   
    
 ```
@@ -135,11 +136,33 @@ APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel master
 ```
 APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel client -s xxx -i xxx # 在WebUI复制的参数
 ```
-- client   
+- server
    
 ```
 APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel server -s xxx -i xxx # 在WebUI复制的参数
 ```
+### 直接运行(Windows)
+在下载的可执行文件同名文件夹下创建一个 `.env` 文件(注意不要有后缀名)，然后输入以下内容保存后运行对应命令，注意，client和server的对应参数需要在web页面复制
+
+- master: `frp-panel-amd64.exe master`
+```
+APP_GLOBAL_SECRET=your_secret
+MASTER_RPC_HOST=IP
+DB_DSN=data.db
+```
+
+- client: `frp-panel-amd64.exe client -s xxx -i xxx`
+```
+APP_GLOBAL_SECRET=your_secret
+MASTER_RPC_HOST=IP
+```
+
+- server: `frp-panel-amd64.exe server -s xxx -i xxx`
+```
+APP_GLOBAL_SECRET=your_secret
+MASTER_RPC_HOST=IP
+```
+
 ### 配置说明
 
 [settings.go](conf/settings.go)
