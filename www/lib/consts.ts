@@ -1,5 +1,6 @@
 import * as z from "zod"
 import { Client, Server } from "./pb/common"
+import { GetPlatformInfoResponse } from "./pb/api_user"
 
 export const API_PATH = '/api/v1'
 export const SET_TOKEN_HEADER = 'x-set-authorization'
@@ -17,6 +18,6 @@ export const ZodEmailSchema = z.string()
 	.email("是不是输错了邮箱地址呢?")
 // .refine((e) => e === "abcd@fg.com", "This email is not in our database")
 
-export const ExecCommandStr = <T extends Client | Server>(type: string, item: T) => {
-	return `frp-panel ${type} -s ${item.secret} -i ${item.id}`
+export const ExecCommandStr = <T extends Client | Server>(type: string, item: T, info: GetPlatformInfoResponse) => {
+	return `APP_GLOBAL_SECRET=${info.globalSecret} MASTER_RPC_HOST=${info.masterRpcHost} frp-panel ${type} -s ${item.secret} -i ${item.id}`
 }

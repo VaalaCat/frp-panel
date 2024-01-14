@@ -15,6 +15,7 @@ type Config struct {
 		CookieDomain   string `env:"COOKIE_DOMAIN" env-default:"" env-description:"cookie domain"`
 		CookieSecure   bool   `env:"COOKIE_SECURE" env-default:"false" env-description:"cookie secure"`
 		CookieHTTPOnly bool   `env:"COOKIE_HTTP_ONLY" env-default:"true" env-description:"cookie http only"`
+		EnableRegister bool   `env:"ENABLE_REGISTER" env-default:"false" env-description:"enable register, only allow the first admin to register"`
 	} `env-prefix:"APP_"`
 	Master struct {
 		APIPort                   int    `env:"API_PORT" env-default:"9000" env-description:"master api port"`
@@ -33,7 +34,7 @@ type Config struct {
 	} `env-prefix:"SERVER_"`
 	DB struct {
 		Type string `env:"TYPE" env-default:"sqlite3" env-description:"db type, mysql or sqlite3 and so on"`
-		DSN  string `env:"DSN" env-default:"data.db" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
+		DSN  string `env:"DSN" env-default:"/data/data.db" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
 	} `env-prefix:"DB_"`
 }
 

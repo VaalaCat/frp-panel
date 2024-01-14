@@ -85,6 +85,14 @@ export interface GetPlatformInfoResponse {
      * @generated from protobuf field: int32 configured_server_count = 7;
      */
     configuredServerCount: number;
+    /**
+     * @generated from protobuf field: string global_secret = 8;
+     */
+    globalSecret: string;
+    /**
+     * @generated from protobuf field: string master_rpc_host = 9;
+     */
+    masterRpcHost: string;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class GetUserInfoRequest$Type extends MessageType<GetUserInfoRequest> {
@@ -291,7 +299,9 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
             { no: 4, name: "unconfigured_client_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 5, name: "unconfigured_server_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 6, name: "configured_client_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-            { no: 7, name: "configured_server_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ }
+            { no: 7, name: "configured_server_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 8, name: "global_secret", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 9, name: "master_rpc_host", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<GetPlatformInfoResponse>): GetPlatformInfoResponse {
@@ -302,6 +312,8 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         message.unconfiguredServerCount = 0;
         message.configuredClientCount = 0;
         message.configuredServerCount = 0;
+        message.globalSecret = "";
+        message.masterRpcHost = "";
         if (value !== undefined)
             reflectionMergePartial<GetPlatformInfoResponse>(this, message, value);
         return message;
@@ -331,6 +343,12 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
                     break;
                 case /* int32 configured_server_count */ 7:
                     message.configuredServerCount = reader.int32();
+                    break;
+                case /* string global_secret */ 8:
+                    message.globalSecret = reader.string();
+                    break;
+                case /* string master_rpc_host */ 9:
+                    message.masterRpcHost = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -365,6 +383,12 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         /* int32 configured_server_count = 7; */
         if (message.configuredServerCount !== 0)
             writer.tag(7, WireType.Varint).int32(message.configuredServerCount);
+        /* string global_secret = 8; */
+        if (message.globalSecret !== "")
+            writer.tag(8, WireType.LengthDelimited).string(message.globalSecret);
+        /* string master_rpc_host = 9; */
+        if (message.masterRpcHost !== "")
+            writer.tag(9, WireType.LengthDelimited).string(message.masterRpcHost);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

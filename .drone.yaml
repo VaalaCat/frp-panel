@@ -1,0 +1,145 @@
+kind: pipeline
+name: build-and-publish
+
+steps:
+  - name: download modules
+    image: golang:1.21-alpine
+    commands:
+      - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+      - apk update --no-cache && apk add --no-cache tzdata git
+      - CGO_ENABLED=0 GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct go mod download
+      - mkdir -p etc
+      - cp /etc/ssl/certs/ca-certificates.crt ./etc/ca-certificates.crt
+      - cp /usr/share/zoneinfo/Asia/Shanghai ./etc/Shanghai
+    volumes:
+      - name: gocache
+        path: /go/pkg/mod
+      - name: build
+        path: /tmp/app
+    when:
+      event:
+        - pull_request
+        - promote
+        - rollback
+  - name: build frontend
+    image: node:18-alpine
+    commands:
+      - cd www
+      - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+      - apk update --no-cache && apk add --no-cache tzdata git openssh
+      - npm config set registry https://registry.npmmirror.com
+      # - npm install -g pnpm
+      - npm install || (sleep 3 && rm -rf node_modules && npm install )
+      - npm run build || (sleep 3 && rm -rf node_modules && npm install && npm run build)
+    volumes:
+      - name: nodecache
+        path: /drone/src/www/node_modules
+    when:
+      event:
+        - pull_request
+        - promote
+        - rollback
+  - name: build - amd64
+    image: golang:1.21-alpine
+    commands:
+      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct go build -ldflags="-s -w" -o frp-panel-amd64 cmd/*.go
+    volumes:
+      - name: gocache
+        path: /go/pkg/mod
+      - name: build
+        path: /tmp/app
+    depends_on:
+      - build frontend
+      - download modules
+    when:
+      event:
+        - pull_request
+        - promote
+        - rollback
+  - name: build - arm64
+    image: golang:1.21-alpine
+    commands:
+      - CGO_ENABLED=0 GOOS=linux GOARCH=arm64 GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct go build -ldflags="-s -w" -o frp-panel-arm64 cmd/*.go
+    volumes:
+      - name: gocache
+        path: /go/pkg/mod
+      - name: build
+        path: /tmp/app
+    depends_on:
+      - build frontend
+      - download modules
+    when:
+      event:
+        - pull_request
+        - promote
+        - rollback
+
+  - name: publish - amd64
+    image: thegeeklab/drone-docker-buildx:24
+    privileged: true
+    settings:
+      mirror: https://dockerproxy.com
+      buildkit_config: |
+        [registry."docker.io"]
+          mirrors = ["dockerproxy.com"]
+      debug: true
+      platforms:
+        - linux/amd64
+      build_args:
+        - ARCH=amd64
+      repo: vaalacat/frp-panel
+      tags:
+        - amd64
+      registry:
+        from_secret: DOCKER_REGISTRY
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+    depends_on:
+      - build - amd64
+    when:
+      event:
+        - promote
+        - rollback
+      target:
+        - production
+  - name: publish - arm64
+    image: thegeeklab/drone-docker-buildx:24
+    privileged: true
+    settings:
+      mirror: https://dockerproxy.com
+      buildkit_config: |
+        [registry."docker.io"]
+          mirrors = ["dockerproxy.com"]
+      debug: false
+      platforms:
+        - linux/arm64
+      build_args:
+        - ARCH=arm64
+      repo: vaalacat/frp-panel
+      tags:
+        - arm64
+      registry:
+        from_secret: DOCKER_REGISTRY
+      username:
+        from_secret: DOCKER_USERNAME
+      password:
+        from_secret: DOCKER_PASSWORD
+    depends_on:
+      - build - arm64
+    when:
+      event:
+        - promote
+        - rollback
+      target:
+        - production
+volumes:
+  - name: build
+    temp: {}
+  - name: gocache
+    host:
+      path: /tmp/drone/frp-panel/gocache
+  - name: nodecache
+    host:
+      path: /tmp/drone/frp-panel/nodecache

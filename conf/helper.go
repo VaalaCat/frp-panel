@@ -11,6 +11,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func MasterDefaultSalt() string {
+	cfg := Get()
+	return utils.MD5(fmt.Sprintf("salt_%s:%d:%s",
+		cfg.Master.InternalFRPServerHost,
+		cfg.Master.InternalFRPServerPort,
+		cfg.App.GlobalSecret))
+}
+
 func RPCListenAddr() string {
 	cfg := Get()
 	return fmt.Sprintf(":%d", cfg.Master.RPCPort)

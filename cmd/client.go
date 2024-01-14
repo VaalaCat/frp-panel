@@ -2,14 +2,17 @@ package main
 
 import (
 	bizclient "github.com/VaalaCat/frp-panel/biz/client"
+	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/watcher"
+	"github.com/fatedier/golib/crypto"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
 )
 
 func runClient(clientID, clientSecret string) {
+	crypto.DefaultSalt = conf.Get().App.GlobalSecret
 	logrus.Infof("start to run client")
 	if len(clientSecret) == 0 {
 		logrus.Fatal("client secret cannot be empty")

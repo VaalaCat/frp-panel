@@ -29,4 +29,6 @@ message GetPlatformInfoResponse {
   int32 unconfigured_server_count = 5;
   int32 configured_client_count = 6;
   int32 configured_server_count = 7;
+  string global_secret = 8;
+  string master_rpc_host = 9;
 }

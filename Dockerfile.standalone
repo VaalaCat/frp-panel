@@ -1,0 +1,46 @@
+# Stage 1: Building frontend
+FROM node:18-alpine AS frontend
+WORKDIR /app
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+RUN apk update --no-cache && apk add --no-cache tzdata git openssh
+RUN npm config set registry https://registry.npmmirror.com
+COPY www/package*.json .
+RUN npm install
+
+COPY www/api/ ./api
+COPY www/components/ ./components
+COPY www/lib/ ./lib
+COPY www/out/ ./out
+COPY www/pages/ ./pages
+COPY www/public/ ./public
+COPY www/store/ ./store
+COPY www/styles/ ./styles
+COPY www/types/ ./types
+
+COPY www/*.js ./
+COPY www/*.ts ./
+COPY www/*.yaml ./
+COPY www/*.json ./
+
+RUN ls && npm run build
+
+# Stage 2: Building binary
+FROM golang:1.21-alpine AS builder
+WORKDIR /app
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+RUN apk update --no-cache && apk add --no-cache tzdata git
+COPY go.mod go.sum ./
+RUN CGO_ENABLED=0 GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct go mod download
+COPY . .
+RUN rm -rf /app/cmd/out
+COPY --from=frontend /app/out ./cmd/out
+RUN CGO_ENABLED=0 GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct go build -ldflags="-s -w" -o frp-panel cmd/*.go
+
+# Stage 3: Build image
+FROM alpine:latest
+WORKDIR /app
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+RUN apk update --no-cache && apk add --no-cache tzdata git
+COPY --from=builder /app/frp-panel .
+ENTRYPOINT ["/app/frp-panel"]
+CMD ["master"]

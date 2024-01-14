@@ -27,6 +27,8 @@ import { ExecCommandStr } from "@/lib/consts"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { deleteClient, listClient } from "@/api/client"
 import { useRouter } from "next/router"
+import { useStore } from "@nanostores/react"
+import { $platformInfo } from "@/store/user"
 
 export type ClientTableSchema = {
     id: string,
@@ -76,13 +78,18 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
 export const ClientSecret = ({ client }: { client: ClientTableSchema }) => {
     const [showSecrect, setShowSecrect] = useState<boolean>(false)
     const fakeSecret = Array.from({ length: client.secret.length }).map(() => '*').join('')
+    const platformInfo = useStore($platformInfo)
     const { toast } = useToast()
     return <div
         onMouseEnter={() => setShowSecrect(true)}
         onMouseLeave={() => setShowSecrect(false)}
         onClick={() => {
-            navigator.clipboard.writeText(ExecCommandStr("client", client));
-            toast({ description: "复制成功", });
+            if (platformInfo) {
+                navigator.clipboard.writeText(ExecCommandStr("client", client, platformInfo));
+                toast({ description: "复制成功", });
+            } else {
+                toast({ description: "获取平台信息失败", });
+            }
         }}
         className="font-medium hover:rounded hover:bg-slate-100 p-2 font-mono">{
             showSecrect ? client.secret : fakeSecret
@@ -97,6 +104,7 @@ export interface ClientItemProps {
 export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
     const { toast } = useToast()
     const router = useRouter();
+    const platformInfo = useStore($platformInfo)
     const fetchDataOptions = {
         pageIndex: table.getState().pagination.pageIndex,
         pageSize: table.getState().pagination.pageSize,
@@ -135,8 +143,12 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
                 <DropdownMenuLabel>操作</DropdownMenuLabel>
                 <DropdownMenuItem
                     onClick={() => {
-                        navigator.clipboard.writeText(ExecCommandStr("client", client));
-                        toast({ description: "复制成功", });
+                        if (platformInfo) {
+                            navigator.clipboard.writeText(ExecCommandStr("client", client, platformInfo));
+                            toast({ description: "复制成功", });
+                        } else {
+                            toast({ description: "获取平台信息失败", });
+                        }
                     }}
                 >
                     复制启动命令

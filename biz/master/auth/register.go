@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -20,6 +21,19 @@ func RegisterHandler(c context.Context, req *pb.RegisterRequest) (*pb.RegisterRe
 		return &pb.RegisterResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "invalid username or password or email"},
 		}, fmt.Errorf("invalid username or password or email")
+	}
+
+	userCount, err := dao.AdminCountUsers()
+	if err != nil {
+		return &pb.RegisterResponse{
+			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
+		}, err
+	}
+
+	if !conf.Get().App.EnableRegister && userCount > 0 {
+		return &pb.RegisterResponse{
+			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "register is disabled"},
+		}, fmt.Errorf("register is disabled")
 	}
 
 	hashedPassword, err := utils.HashPassword(password)

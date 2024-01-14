@@ -21,6 +21,16 @@ func AdminGetAllUsers() ([]*models.UserEntity, error) {
 		}), nil
 }
 
+func AdminCountUsers() (int64, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var count int64
+	err := db.Model(&models.User{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func GetUserByUserID(userID int) (*models.UserEntity, error) {
 	if userID == 0 {
 		return nil, fmt.Errorf("invalid user id")

@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/gin-gonic/gin"
@@ -58,5 +59,7 @@ func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
 		UnconfiguredServerCount: int32(unconfiguredServers),
 		ConfiguredClientCount:   int32(configuredClients),
 		ConfiguredServerCount:   int32(configuredServers),
+		GlobalSecret:            conf.MasterDefaultSalt(),
+		MasterRpcHost:           conf.Get().Master.RPCHost,
 	}, nil
 }

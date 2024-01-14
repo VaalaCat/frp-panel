@@ -1,18 +1,41 @@
-项目如下
+> 详细博客地址: [https://vaala.cat/2024/01/14/frp-panel-doc/](https://vaala.cat/2024/01/14/frp-panel-doc/)
+> 使用说明可以看博客，也可以直接滑到最后
 
-项目包含三个角色
-1. Master: 控制节点，接受来自前端的请求并负责管理Client和Server
-2. Server: 服务端，受控制节点控制，负责对客户端提供服务，包含frps和rpc(用于连接Master)服务
-3. Client: 客户端，受控制节点控制，包含frpc和rpc(用于连接Master)服务
+# FRP-Panel
 
-启动方式：
+我们的目标就是做一个：   
+- 客户端配置可中心化管理   
+- 多服务端配置管理   
+- 可视化配置界面   
+- 简化运行所需要的配置   
+   
+的更强更完善的frp！
 
-- master: `go run cmd/*.go master` 或是 `frp-panel master`
-- client: `go run cmd/*.go client -i <clientID> -s <clientSecret>` 或是 `frp-panel client -i <clientID> -s <clientSecret>`
-- server: `go run cmd/*.go server -i <serverID> -s <serverSecret>` 或是 `frp-panel server -i <serverID> -s <serverSecret>`
+- demo Video: [demo Video](doc/frp-panel-demo.mp4)
 
-项目配置文件会默认读取当前文件夹下的.env文件，项目内置了样例配置文件，可以按照自己的需求进行修改
+![](./doc/frp-panel-demo.gif)
 
+## 项目开发指南
+
+### 平台架构设计   
+
+技术栈选好了，下一步就是要设计程序的架构。在刚刚背景里说的那样，frp本身有frpc和frps（客户端和服务端），这两个角色肯定是必不可少了。然后我们还要新增一个东西去管理它们，所以frp-panel新增了一个master角色。master会负责管理各种frpc和frps，中心化的存储配置文件和连接信息。   
+
+然后是frpc和frps。原版是需要在两边分别写配置文件的。那么既然原版已经支持了，就不用在走原版的路子，我们直接不支持配置文件，所有的配置都必须从master获取。   
+
+其次还要考虑到与原版的兼容问题，frp-panel的客户端/服务端都必须要能连上官方frpc/frps服务。这样的话就可以做到配置文件/不要配置文件都能完美工作了。   
+总的说来架构还是很简单的。
+
+![arch](doc/arch.png)
+
+### 开发
+
+项目包含三个角色   
+1. Master: 控制节点，接受来自前端的请求并负责管理Client和Server   
+2. Server: 服务端，受控制节点控制，负责对客户端提供服务，包含frps和rpc(用于连接Master)服务   
+3. Client: 客户端，受控制节点控制，包含frpc和rpc(用于连接Master)服务   
+   
+接下来给出一个项目中各个包的功能   
 ```
 .
 |-- biz                 # 主要业务逻辑
@@ -54,8 +77,84 @@
     |-- store
     |-- styles
     `-- types
+
 ```
+
+### 调试启动方式：
+
+- master: `go run cmd/*.go master`
+- client: `go run cmd/*.go client -i <clientID> -s <clientSecret>`
+- server: `go run cmd/*.go server -i <serverID> -s <serverSecret>`
+
+项目配置文件会默认读取当前文件夹下的.env文件，项目内置了样例配置文件，可以按照自己的需求进行修改
 
 详细架构调用图
 
 ![structure](doc/callvis.svg)
+
+## 项目使用说明
+frp-panel可选docker和直接运行模式部署，直接部署请到release下载文件：[release](https://github.com/VaalaCat/frp-panel/releases)
+
+### docker   
+
+- master   
+   
+```
+docker run -d -p 9000:9000 \
+	-p 9001:9001 \
+	-v /opt/frp-panel:/data \
+	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
+	-e MASTER_RPC_HOST=0.0.0.0 \
+	vaalacat/frp-panel
+
+```
+- client   
+   
+```
+docker run -d -p your_port:your_port \
+	-e APP_GLOBAL_SECRET=your_secret \  # 客户端和服务端的Secret与Master不一样，但也最好不要泄漏
+	-e MASTER_RPC_HOST=your_master \	# master节点的IP，端口是默认9000，修改配置请看最后
+	vaalacat/frp-panel client -s xxx -i xxx # 在WebUI复制的参数
+```
+- server   
+   
+```
+docker run -d -p your_port:your_port \
+	-e APP_GLOBAL_SECRET=your_secret \  # 客户端和服务端的Secret与Master不一样，但也最好不要泄漏
+	-e MASTER_RPC_HOST=your_master \	# master节点的IP，端口是默认9000，修改配置请看最后
+	vaalacat/frp-panel server -s xxx -i xxx # 在WebUI复制的参数
+```
+直接运行   
+- master   
+   
+```
+APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel master
+```
+- client   
+   
+```
+APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel client -s xxx -i xxx # 在WebUI复制的参数
+```
+- client   
+   
+```
+APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel server -s xxx -i xxx # 在WebUI复制的参数
+```
+### 配置说明
+
+[settings.go](conf/settings.go)
+这里有详细的配置参数解释，需要进一步修改配置请参考该文件
+
+### 一些图片
+
+![](doc/platform_info.png)
+![](doc/login.png)
+![](doc/register.png)
+![](doc/clients_menu.png)
+![](doc/server_menu.png)
+![](doc/create_client.png)
+![](doc/create_server.png)
+![](doc/edit_client.png)
+![](doc/edit_client_adv.png)
+![](doc/edit_server.png)
+![](doc/edit_server_adv.png)

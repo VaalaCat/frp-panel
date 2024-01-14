@@ -2,11 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { getPlatformInfo } from '@/api/user';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { TbDeviceHeartMonitor, TbEngine, TbEngineOff, TbServer2, TbServerBolt, TbServerOff } from 'react-icons/tb';
+import { useEffect } from 'react';
+import { $platformInfo } from '@/store/user';
 export const PlatformInfo = () => {
 	const platformInfo = useQuery({
 		queryKey: ['platformInfo'],
 		queryFn: getPlatformInfo
 	})
+	useEffect(() => {
+		$platformInfo.set(platformInfo.data)
+	}, [platformInfo])
 	return (
 		<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
 			<Card>

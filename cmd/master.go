@@ -13,6 +13,7 @@ import (
 	"github.com/VaalaCat/frp-panel/services/server"
 	"github.com/VaalaCat/frp-panel/utils"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
+	"github.com/fatedier/golib/crypto"
 	"github.com/glebarez/sqlite"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
@@ -23,6 +24,7 @@ import (
 var fs embed.FS
 
 func runMaster() {
+	crypto.DefaultSalt = conf.MasterDefaultSalt()
 	master.MustInitMasterService()
 
 	router := bizmaster.NewRouter(fs)

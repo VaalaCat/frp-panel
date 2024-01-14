@@ -26,6 +26,9 @@ import { ExecCommandStr } from "@/lib/consts"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { deleteServer, listServer } from "@/api/server"
 import { useRouter } from "next/router"
+import { getUserInfo } from "@/api/user"
+import { useStore } from "@nanostores/react"
+import { $platformInfo } from "@/store/user"
 
 export type ServerTableSchema = {
 	id: string,
@@ -85,12 +88,18 @@ export const ServerSecret = ({ server }: { server: ServerTableSchema }) => {
 	const [showSecrect, setShowSecrect] = useState<boolean>(false)
 	const fakeSecret = Array.from({ length: server.secret.length }).map(() => '*').join('')
 	const { toast } = useToast()
+	const platformInfo = useStore($platformInfo)
+
 	return <div
 		onMouseEnter={() => setShowSecrect(true)}
 		onMouseLeave={() => setShowSecrect(false)}
 		onClick={() => {
-			navigator.clipboard.writeText(ExecCommandStr("server", server));
-			toast({ description: "复制成功", });
+			if (platformInfo) {
+				navigator.clipboard.writeText(ExecCommandStr("server", server, platformInfo));
+				toast({ description: "复制成功", });
+			} else {
+				toast({ description: "获取平台信息失败", });
+			}
 		}}
 		className="font-medium hover:rounded hover:bg-slate-100 p-2 font-mono">{
 			showSecrect ? server.secret : fakeSecret
@@ -105,6 +114,7 @@ export interface ServerItemProps {
 export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
 	const { toast } = useToast()
 	const router = useRouter();
+	const platformInfo = useStore($platformInfo)
 
 	const fetchDataOptions = {
 		pageIndex: table.getState().pagination.pageIndex,
@@ -142,8 +152,12 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
 				<DropdownMenuLabel>操作</DropdownMenuLabel>
 				<DropdownMenuItem
 					onClick={() => {
-						navigator.clipboard.writeText(ExecCommandStr("server", server));
-						toast({ description: "复制成功", });
+						if (platformInfo) {
+							navigator.clipboard.writeText(ExecCommandStr("server", server, platformInfo));
+							toast({ description: "复制成功", });
+						} else {
+							toast({ description: "获取平台信息失败", });
+						}
 					}}
 				>
 					复制启动命令

@@ -7,11 +7,13 @@ import (
 	"github.com/VaalaCat/frp-panel/services/api"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/watcher"
+	"github.com/fatedier/golib/crypto"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
 )
 
 func runServer(clientID, clientSecret string) {
+	crypto.DefaultSalt = conf.Get().App.GlobalSecret
 	logrus.Infof("start to run server")
 
 	if len(clientID) == 0 {
