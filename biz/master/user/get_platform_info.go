@@ -61,5 +61,7 @@ func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
 		ConfiguredServerCount:   int32(configuredServers),
 		GlobalSecret:            conf.MasterDefaultSalt(),
 		MasterRpcHost:           conf.Get().Master.RPCHost,
+		MasterRpcPort:           int32(conf.Get().Master.RPCPort),
+		MasterApiPort:           int32(conf.Get().Master.APIPort),
 	}, nil
 }

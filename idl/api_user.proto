@@ -31,4 +31,6 @@ message GetPlatformInfoResponse {
   int32 configured_server_count = 7;
   string global_secret = 8;
   string master_rpc_host = 9;
+  int32 master_rpc_port = 10;
+  int32 master_api_port = 11;
 }

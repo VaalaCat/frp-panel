@@ -7,9 +7,15 @@ import (
 )
 
 type ClientsManager interface {
-	Get(cliID string) pb.Master_ServerSendServer
-	Set(cliID string, sender pb.Master_ServerSendServer)
+	Get(cliID string) *Connector
+	Set(cliID, clientType string, sender pb.Master_ServerSendServer)
 	Remove(cliID string)
+}
+
+type Connector struct {
+	CliID   string
+	Conn    pb.Master_ServerSendServer
+	CliType string
 }
 
 type ClientsManagerImpl struct {
@@ -17,13 +23,13 @@ type ClientsManagerImpl struct {
 }
 
 // Get implements ClientsManager.
-func (c *ClientsManagerImpl) Get(cliID string) pb.Master_ServerSendServer {
+func (c *ClientsManagerImpl) Get(cliID string) *Connector {
 	cliAny, ok := c.senders.Load(cliID)
 	if !ok {
 		return nil
 	}
 
-	cli, ok := cliAny.(pb.Master_ServerSendServer)
+	cli, ok := cliAny.(*Connector)
 	if !ok {
 		return nil
 	}
@@ -32,8 +38,12 @@ func (c *ClientsManagerImpl) Get(cliID string) pb.Master_ServerSendServer {
 }
 
 // Set implements ClientsManager.
-func (c *ClientsManagerImpl) Set(cliID string, sender pb.Master_ServerSendServer) {
-	c.senders.Store(cliID, sender)
+func (c *ClientsManagerImpl) Set(cliID, clientType string, sender pb.Master_ServerSendServer) {
+	c.senders.Store(cliID, &Connector{
+		CliID:   cliID,
+		Conn:    sender,
+		CliType: clientType,
+	})
 }
 
 func (c *ClientsManagerImpl) Remove(cliID string) {

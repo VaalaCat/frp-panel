@@ -8,7 +8,8 @@ import (
 
 type Config struct {
 	App struct {
-		GlobalSecret   string `env:"GLOBAL_SECRET" env-required:"true" env-description:"global secret, used in manager gen secret, keep it safe"`
+		Secret         string `env:"SECRET" env-description:"app secret, for client and server frp salt"`
+		GlobalSecret   string `env:"GLOBAL_SECRET" env-default:"frp-panel" env-description:"global secret, used in manager gen secret, keep it safe"`
 		CookieAge      int    `env:"COOKIE_AGE" env-default:"86400" env-description:"cookie age in second, default is 1 day"`
 		CookieName     string `env:"COOKIE_NAME" env-default:"frp-panel-cookie" env-description:"cookie name"`
 		CookiePath     string `env:"COOKIE_PATH" env-default:"/" env-description:"cookie path"`
@@ -21,7 +22,7 @@ type Config struct {
 		APIPort                   int    `env:"API_PORT" env-default:"9000" env-description:"master api port"`
 		APIHost                   string `env:"API_HOST" env-description:"master host, can behind proxy like cdn"`
 		CacheSize                 int    `env:"CACHE_SIZE" env-default:"100" env-description:"cache size in MB"`
-		RPCHost                   string `env:"RPC_HOST" env-required:"true" env-description:"master host, is a public ip or domain"`
+		RPCHost                   string `env:"RPC_HOST" env-default:"127.0.0.1" env-description:"master host, is a public ip or domain"`
 		RPCPort                   int    `env:"RPC_PORT" env-default:"9001" env-description:"master rpc port"`
 		InternalFRPServerHost     string `env:"INTERNAL_FRP_SERVER_HOST" env-description:"internal frp server host, used for client connection"`
 		InternalFRPServerPort     int    `env:"INTERNAL_FRP_SERVER_PORT" env-default:"9002" env-description:"internal frp server port, used for client connection"`
@@ -34,7 +35,7 @@ type Config struct {
 	} `env-prefix:"SERVER_"`
 	DB struct {
 		Type string `env:"TYPE" env-default:"sqlite3" env-description:"db type, mysql or sqlite3 and so on"`
-		DSN  string `env:"DSN" env-default:"/data/data.db" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
+		DSN  string `env:"DSN" env-default:"data.db" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
 	} `env-prefix:"DB_"`
 }
 

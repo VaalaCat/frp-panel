@@ -13,7 +13,7 @@ import (
 )
 
 func runServer(clientID, clientSecret string) {
-	crypto.DefaultSalt = conf.Get().App.GlobalSecret
+	crypto.DefaultSalt = conf.Get().App.Secret
 	logrus.Infof("start to run server")
 
 	if len(clientID) == 0 {

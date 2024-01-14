@@ -33,7 +33,7 @@ func CallClient(c context.Context, clientID string, event pb.Event, msg proto.Me
 	}
 
 	recvMap.Store(req.SessionId, make(chan *pb.ClientMessage))
-	err = sender.Send(req)
+	err = sender.Conn.Send(req)
 	if err != nil {
 		logrus.WithError(err).Errorf("cannot send")
 		return nil, err
@@ -75,7 +75,7 @@ func Recv(clientID string) chan bool {
 				logrus.Errorf("cannot get client")
 				continue
 			}
-			resp, err := reciver.Recv()
+			resp, err := reciver.Conn.Recv()
 			if err == io.EOF {
 				logrus.Infof("finish client recv")
 				done <- true

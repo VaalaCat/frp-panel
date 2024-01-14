@@ -29,6 +29,7 @@ import { deleteClient, listClient } from "@/api/client"
 import { useRouter } from "next/router"
 import { useStore } from "@nanostores/react"
 import { $platformInfo } from "@/store/user"
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
 export type ClientTableSchema = {
     id: string,
@@ -42,7 +43,7 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
         accessorKey: "id",
         header: "ID",
         cell: ({ row }) => {
-            return <div className="font-mono">{row.original.id}</div>
+            return < ClientID client={row.original} />
         }
     },
     {
@@ -75,25 +76,46 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
     },
 ]
 
+export const ClientID = ({ client }: { client: ClientTableSchema }) => {
+    const platformInfo = useStore($platformInfo)
+    return <Popover >
+        <PopoverTrigger asChild><div className="font-mono">{client.id}</div></PopoverTrigger>
+        <PopoverContent className="w-fit overflow-auto max-w-48">
+            <div className="p-2 border rounded font-mono w-fit">
+                {platformInfo === undefined ? "获取平台信息失败" : ExecCommandStr("client", client, platformInfo)}
+            </div>
+        </PopoverContent>
+    </Popover>
+}
+
 export const ClientSecret = ({ client }: { client: ClientTableSchema }) => {
     const [showSecrect, setShowSecrect] = useState<boolean>(false)
     const fakeSecret = Array.from({ length: client.secret.length }).map(() => '*').join('')
     const platformInfo = useStore($platformInfo)
     const { toast } = useToast()
-    return <div
-        onMouseEnter={() => setShowSecrect(true)}
-        onMouseLeave={() => setShowSecrect(false)}
-        onClick={() => {
-            if (platformInfo) {
-                navigator.clipboard.writeText(ExecCommandStr("client", client, platformInfo));
-                toast({ description: "复制成功", });
-            } else {
-                toast({ description: "获取平台信息失败", });
-            }
-        }}
-        className="font-medium hover:rounded hover:bg-slate-100 p-2 font-mono">{
-            showSecrect ? client.secret : fakeSecret
-        }</div>
+    return <Popover >
+        <PopoverTrigger asChild>
+            <div
+                onMouseEnter={() => setShowSecrect(true)}
+                onMouseLeave={() => setShowSecrect(false)}
+                onClick={() => {
+                    if (platformInfo) {
+                        navigator.clipboard.writeText(ExecCommandStr("client", client, platformInfo));
+                        toast({ description: "复制成功", });
+                    } else {
+                        toast({ description: "获取平台信息失败", });
+                    }
+                }}
+                className="font-medium hover:rounded hover:bg-slate-100 p-2 font-mono whitespace-nowrap">{
+                    showSecrect ? client.secret : fakeSecret
+                }</div>
+        </PopoverTrigger>
+        <PopoverContent className="w-fit overflow-auto max-w-48">
+            <div className="p-2 border rounded font-mono w-fit">
+                {platformInfo === undefined ? "获取平台信息失败" : ExecCommandStr("client", client, platformInfo)}
+            </div>
+        </PopoverContent>
+    </Popover>
 }
 
 export interface ClientItemProps {
@@ -145,9 +167,9 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
                     onClick={() => {
                         if (platformInfo) {
                             navigator.clipboard.writeText(ExecCommandStr("client", client, platformInfo));
-                            toast({ description: "复制成功", });
+                            toast({ description: "复制成功，如果复制不成功，请点击ID字段手动复制", });
                         } else {
-                            toast({ description: "获取平台信息失败", });
+                            toast({ description: "获取平台信息失败，如果复制不成功，请点击ID字段手动复制", });
                         }
                     }}
                 >

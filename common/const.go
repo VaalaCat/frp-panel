@@ -45,3 +45,8 @@ const (
 	StatusFailed  = "failed"
 	StatusDone    = "done"
 )
+
+const (
+	CliTypeServer = "server"
+	CliTypeClient = "client"
+)

@@ -2,8 +2,8 @@ import { TbBuildingTunnel } from "react-icons/tb"
 import { Button } from "./ui/button"
 import { useStore } from '@nanostores/react'
 import { useRouter } from "next/router";
-import { $userInfo } from "@/store/user";
-import { getUserInfo } from "@/api/user";
+import { $platformInfo, $userInfo } from "@/store/user";
+import { getPlatformInfo, getUserInfo } from "@/api/user";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import Gravatar from 'react-gravatar'
@@ -18,6 +18,15 @@ import { logout } from "@/api/auth";
 export const Header = () => {
 	const router = useRouter();
 	const userInfo = useStore($userInfo)
+
+	const platformInfo = useQuery({
+		queryKey: ['platformInfo'],
+		queryFn: getPlatformInfo
+	})
+	
+	useEffect(() => {
+		$platformInfo.set(platformInfo.data)
+	}, [platformInfo])
 
 	const userInfoQuery = useQuery({
 		queryKey: ["userInfo"],

@@ -93,6 +93,14 @@ export interface GetPlatformInfoResponse {
      * @generated from protobuf field: string master_rpc_host = 9;
      */
     masterRpcHost: string;
+    /**
+     * @generated from protobuf field: int32 master_rpc_port = 10;
+     */
+    masterRpcPort: number;
+    /**
+     * @generated from protobuf field: int32 master_api_port = 11;
+     */
+    masterApiPort: number;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class GetUserInfoRequest$Type extends MessageType<GetUserInfoRequest> {
@@ -301,7 +309,9 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
             { no: 6, name: "configured_client_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 7, name: "configured_server_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 8, name: "global_secret", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 9, name: "master_rpc_host", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 9, name: "master_rpc_host", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 10, name: "master_rpc_port", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 11, name: "master_api_port", kind: "scalar", T: 5 /*ScalarType.INT32*/ }
         ]);
     }
     create(value?: PartialMessage<GetPlatformInfoResponse>): GetPlatformInfoResponse {
@@ -314,6 +324,8 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         message.configuredServerCount = 0;
         message.globalSecret = "";
         message.masterRpcHost = "";
+        message.masterRpcPort = 0;
+        message.masterApiPort = 0;
         if (value !== undefined)
             reflectionMergePartial<GetPlatformInfoResponse>(this, message, value);
         return message;
@@ -349,6 +361,12 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
                     break;
                 case /* string master_rpc_host */ 9:
                     message.masterRpcHost = reader.string();
+                    break;
+                case /* int32 master_rpc_port */ 10:
+                    message.masterRpcPort = reader.int32();
+                    break;
+                case /* int32 master_api_port */ 11:
+                    message.masterApiPort = reader.int32();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -389,6 +407,12 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         /* string master_rpc_host = 9; */
         if (message.masterRpcHost !== "")
             writer.tag(9, WireType.LengthDelimited).string(message.masterRpcHost);
+        /* int32 master_rpc_port = 10; */
+        if (message.masterRpcPort !== 0)
+            writer.tag(10, WireType.Varint).int32(message.masterRpcPort);
+        /* int32 master_api_port = 11; */
+        if (message.masterApiPort !== 0)
+            writer.tag(11, WireType.Varint).int32(message.masterApiPort);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

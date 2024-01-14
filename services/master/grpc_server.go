@@ -8,6 +8,7 @@ import (
 
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	masterserver "github.com/VaalaCat/frp-panel/biz/master/server"
+	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -72,6 +73,8 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 			return err
 		}
 
+		cliType := ""
+
 		if req.GetEvent() == pb.Event_EVENT_REGISTER_CLIENT || req.GetEvent() == pb.Event_EVENT_REGISTER_SERVER {
 			if len(req.GetSecret()) == 0 {
 				logrus.Errorf("rpc auth token is empty")
@@ -94,6 +97,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 					return err
 				}
 				secret = cli.ConnectSecret
+				cliType = common.CliTypeClient
 			case pb.Event_EVENT_REGISTER_SERVER:
 				srv, err := dao.AdminGetServerByServerID(req.GetClientId())
 				if err != nil {
@@ -105,6 +109,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 					return err
 				}
 				secret = srv.ConnectSecret
+				cliType = common.CliTypeServer
 			}
 
 			if secret != req.GetSecret() {
@@ -116,7 +121,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 				return fmt.Errorf("invalid secret, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
 			}
 
-			rpc.GetClientsManager().Set(req.GetClientId(), sender)
+			rpc.GetClientsManager().Set(req.GetClientId(), cliType, sender)
 			done = rpc.Recv(req.GetClientId())
 			sender.Send(&pb.ServerMessage{
 				Event:     req.GetEvent(),

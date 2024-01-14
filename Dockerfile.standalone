@@ -40,7 +40,14 @@ RUN CGO_ENABLED=0 GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct go 
 FROM alpine:latest
 WORKDIR /app
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-RUN apk update --no-cache && apk add --no-cache tzdata git
+RUN apk update --no-cache && apk add --no-cache tzdata git && mkdir -p /data
 COPY --from=builder /app/frp-panel .
+
+# web port
+EXPOSE 9000
+# rpc port
+EXPOSE 9001
+
+ENV DB_DSN /data/data.db
 ENTRYPOINT ["/app/frp-panel"]
 CMD ["master"]

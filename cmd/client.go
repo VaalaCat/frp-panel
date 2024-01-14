@@ -12,7 +12,7 @@ import (
 )
 
 func runClient(clientID, clientSecret string) {
-	crypto.DefaultSalt = conf.Get().App.GlobalSecret
+	crypto.DefaultSalt = conf.Get().App.Secret
 	logrus.Infof("start to run client")
 	if len(clientSecret) == 0 {
 		logrus.Fatal("client secret cannot be empty")

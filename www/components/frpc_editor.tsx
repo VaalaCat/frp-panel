@@ -50,6 +50,7 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
 		<Textarea key={configContent} placeholder="配置文件内容" id="message"
 			defaultValue={configContent}
 			onChange={(e) => setEditorValue(e.target.value)}
+			className="h-72"
 		/>
 		<div className="grid grid-cols-2 gap-2 mt-1">
 			<Button size="sm" onClick={handleSubmit} >提交</Button>
