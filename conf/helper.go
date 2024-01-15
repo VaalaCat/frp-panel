@@ -104,7 +104,7 @@ func GetCertTemplate() *x509.Certificate {
 			OrganizationalUnit: []string{"frp-panel"},
 		},
 		DNSNames:              []string{cfg.Master.APIHost},
-		IPAddresses:           []net.IP{net.ParseIP(cfg.Master.APIHost)},
+		IPAddresses:           []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")},
 		NotBefore:             now,
 		NotAfter:              now.AddDate(10, 0, 0),
 		SubjectKeyId:          []byte{102, 114, 112, 45, 112, 97, 110, 101, 108},
