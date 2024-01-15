@@ -13,13 +13,14 @@ import (
 type CommonReq interface {
 	pb.UpdateFRPCRequest | pb.RemoveFRPCRequest |
 		pb.UpdateFRPSRequest | pb.RemoveFRPSRequest |
-		pb.CommonResponse | pb.RegisterRequest | pb.LoginRequest |
+		pb.CommonRequest | pb.RegisterRequest | pb.LoginRequest |
 		pb.InitClientRequest | pb.ListClientsRequest | pb.GetClientRequest |
 		pb.DeleteClientRequest |
 		pb.InitServerRequest | pb.ListServersRequest | pb.GetServerRequest |
 		pb.DeleteServerRequest |
 		pb.GetUserInfoRequest | pb.UpdateUserInfoRequest |
-		pb.GetPlatformInfoRequest
+		pb.GetPlatformInfoRequest | pb.GetClientsStatusRequest |
+		pb.GetClientCertRequest
 }
 
 func GetProtoRequest[T CommonReq](c *gin.Context) (r *T, err error) {
@@ -45,7 +46,7 @@ func GetProtoRequest[T CommonReq](c *gin.Context) (r *T, err error) {
 
 func GetServerMessageRequest[T CommonReq](b []byte, r *T, trans func(b []byte, m protoreflect.ProtoMessage) error) (err error) {
 	switch ptr := any(r).(type) {
-	case *pb.CommonResponse:
+	case *pb.CommonRequest:
 		return trans(b, ptr)
 	case *pb.UpdateFRPCRequest:
 		return trans(b, ptr)
@@ -80,6 +81,10 @@ func GetServerMessageRequest[T CommonReq](b []byte, r *T, trans func(b []byte, m
 	case *pb.UpdateUserInfoRequest:
 		return trans(b, ptr)
 	case *pb.GetPlatformInfoRequest:
+		return trans(b, ptr)
+	case *pb.GetClientsStatusRequest:
+		return trans(b, ptr)
+	case *pb.GetClientCertRequest:
 		return trans(b, ptr)
 	default:
 	}

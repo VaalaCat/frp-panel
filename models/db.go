@@ -29,6 +29,9 @@ func (dbm *dbManagerImpl) Init() {
 		if err := db.AutoMigrate(&Server{}); err != nil {
 			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&Server{}).TableName())
 		}
+		if err := db.AutoMigrate(&Cert{}); err != nil {
+			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&Cert{}).TableName())
+		}
 	}
 }
 

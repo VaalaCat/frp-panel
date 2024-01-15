@@ -13,6 +13,11 @@ func HandleServerMessage(req *pb.ServerMessage) *pb.ClientMessage {
 		return common.WrapperServerMsg(req, UpdateFrpcHander)
 	case pb.Event_EVENT_REMOVE_FRPC:
 		return common.WrapperServerMsg(req, RemoveFrpcHandler)
+	case pb.Event_EVENT_PING:
+		return &pb.ClientMessage{
+			Event: pb.Event_EVENT_PONG,
+			Data:  []byte("pong"),
+		}
 	default:
 	}
 

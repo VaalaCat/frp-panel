@@ -5,6 +5,7 @@ import (
 
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
+	"github.com/VaalaCat/frp-panel/biz/master/platform"
 	"github.com/VaalaCat/frp-panel/biz/master/server"
 	"github.com/VaalaCat/frp-panel/biz/master/user"
 	"github.com/VaalaCat/frp-panel/common"
@@ -30,12 +31,17 @@ func ConfigureRouter(router *gin.Engine) {
 			authRouter.POST("/login", common.Wrapper(auth.LoginHandler))
 			authRouter.POST("/register", common.Wrapper(auth.RegisterHandler))
 			authRouter.GET("/logout", auth.RemoveJWTHandler)
+			authRouter.POST("/cert", common.Wrapper(auth.GetClientCert))
 		}
 		userRouter := v1.Group("/user", middleware.JWTAuth, middleware.AuthCtx)
 		{
 			userRouter.POST("/get", common.Wrapper(user.GetUserInfoHandler))
 			userRouter.POST("/update", common.Wrapper(user.UpdateUserInfoHander))
-			userRouter.GET("/platform", user.GetPlatformInfo)
+		}
+		platformRouter := v1.Group("/platform", middleware.JWTAuth, middleware.AuthCtx)
+		{
+			platformRouter.GET("/baseinfo", platform.GetPlatformInfo)
+			platformRouter.POST("/clientsstatus", common.Wrapper(platform.GetClientsStatus))
 		}
 		clientRouter := v1.Group("/client", middleware.JWTAuth, middleware.AuthCtx)
 		{

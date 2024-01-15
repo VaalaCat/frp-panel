@@ -16,6 +16,7 @@ type Client struct {
 
 type ClientEntity struct {
 	ClientID      string `json:"client_id" gorm:"uniqueIndex;not null;primaryKey"`
+	ServerID      string `json:"server_id"`
 	TenantID      int    `json:"tenant_id" gorm:"not null"`
 	UserID        int    `json:"user_id" gorm:"not null"`
 	ConfigContent []byte `json:"config_content"`

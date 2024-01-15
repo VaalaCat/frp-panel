@@ -83,6 +83,7 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 	}
 
 	cli.ConfigContent = rawCliConf
+	cli.ServerID = serverID
 
 	if err := dao.UpdateClient(userInfo, cli); err != nil {
 		logrus.WithError(err).Errorf("cannot update client, id: [%s]", clientID)
@@ -96,7 +97,7 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 	}
 
 	go func() {
-		resp, err := rpc.CallClient(c, req.GetClientId(), pb.Event_EVENT_UPDATE_FRPC, cliReq)
+		resp, err := rpc.CallClient(context.Background(), req.GetClientId(), pb.Event_EVENT_UPDATE_FRPC, cliReq)
 		if err != nil {
 			logrus.WithError(err).Errorf("update event send to client error, server: [%s], client: [%s]", serverID, req.GetClientId())
 		}

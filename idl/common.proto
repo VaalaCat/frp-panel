@@ -13,10 +13,18 @@ enum RespCode {
   RESP_CODE_UNAUTHORIZED = 6;
 }
 
+enum ClientType {
+  CLIENT_TYPE_UNSPECIFIED = 0;
+  CLIENT_TYPE_FRPC = 1;
+  CLIENT_TYPE_FRPS = 2;
+}
+
 message Status {
   RespCode code = 1;
   string message = 2;
 }
+
+message CommonRequest {}
 
 message CommonResponse {
   optional Status status = 1;

@@ -30,7 +30,7 @@ func RemoveFrpsHandler(c context.Context, req *pb.RemoveFRPSRequest) (*pb.Remove
 	}
 
 	go func() {
-		resp, err := rpc.CallClient(c, req.GetServerId(), pb.Event_EVENT_REMOVE_FRPS, req)
+		resp, err := rpc.CallClient(context.Background(), req.GetServerId(), pb.Event_EVENT_REMOVE_FRPS, req)
 		if err != nil {
 			logrus.WithError(err).Errorf("remove event send to server error, server id: [%s]", req.GetServerId())
 		}

@@ -5,6 +5,7 @@ import (
 
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
+	"github.com/fatedier/frp/pkg/metrics/mem"
 	"github.com/fatedier/frp/pkg/util/log"
 	"github.com/fatedier/frp/server"
 	"github.com/sirupsen/logrus"
@@ -14,6 +15,7 @@ type ServerHandler interface {
 	Run()
 	Stop()
 	GetCommonCfg() *v1.ServerConfig
+	GetMem() *mem.ServerStats
 }
 
 type Server struct {
@@ -79,4 +81,8 @@ func (s *Server) Stop() {
 
 func (s *Server) GetCommonCfg() *v1.ServerConfig {
 	return s.Common
+}
+
+func (s *Server) GetMem() *mem.ServerStats {
+	return mem.StatsCollector.GetServer()
 }

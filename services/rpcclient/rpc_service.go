@@ -24,7 +24,12 @@ var (
 	cliRpc *ClientRPC
 )
 
-func MustInitClientRPCSerivce(clientID, clientSecret string, event pb.Event, handerFunc func(req *pb.ServerMessage) *pb.ClientMessage) {
+func MustInitClientRPCSerivce(
+	clientID,
+	clientSecret string,
+	event pb.Event,
+	handerFunc func(req *pb.ServerMessage) *pb.ClientMessage,
+) {
 	if cliRpc != nil {
 		logrus.Warn("rpc client has been initialized")
 		return
@@ -39,7 +44,12 @@ func GetClientRPCSerivce() ClientRPCHandler {
 	return cliRpc
 }
 
-func NewClientRPCHandler(clientID, clientSecret string, event pb.Event, handerFunc func(req *pb.ServerMessage) *pb.ClientMessage) *ClientRPC {
+func NewClientRPCHandler(
+	clientID,
+	clientSecret string,
+	event pb.Event,
+	handerFunc func(req *pb.ServerMessage) *pb.ClientMessage,
+) *ClientRPC {
 	rpcCli, err := NewMasterCli()
 	if err != nil {
 		logrus.Fatalf("new rpc client failed: %v", err)

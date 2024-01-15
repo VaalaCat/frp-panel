@@ -36,6 +36,7 @@ func CallClient(c context.Context, clientID string, event pb.Event, msg proto.Me
 	err = sender.Conn.Send(req)
 	if err != nil {
 		logrus.WithError(err).Errorf("cannot send")
+		GetClientsManager().Remove(clientID)
 		return nil, err
 	}
 	respChAny, ok := recvMap.Load(req.SessionId)

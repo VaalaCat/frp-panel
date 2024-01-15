@@ -3,6 +3,7 @@ package master
 import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type MasterHandler interface {
@@ -18,12 +19,12 @@ var (
 	cli *Master
 )
 
-func MustInitMasterService() {
+func MustInitMasterService(creds credentials.TransportCredentials) {
 	if cli != nil {
 		logrus.Warn("server has been initialized")
 		return
 	}
-	cli = NewMasterHandler()
+	cli = NewMasterHandler(creds)
 }
 
 func GetMasterSerivce() MasterHandler {
@@ -33,8 +34,8 @@ func GetMasterSerivce() MasterHandler {
 	return cli
 }
 
-func NewMasterHandler() *Master {
-	s := NewRpcServer()
+func NewMasterHandler(creds credentials.TransportCredentials) *Master {
+	s := NewRpcServer(creds)
 	return &Master{
 		grpcServer: s,
 	}

@@ -10,8 +10,8 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func GlobalClientID(username, clientID string) string {
-	return fmt.Sprintf("%s.%s", username, clientID)
+func GlobalClientID(username, clientType, clientID string) string {
+	return fmt.Sprintf("%s.%s.%s", username, clientType, clientID)
 }
 
 func Wrapper[T CommonReq, U CommonResp](handler func(context.Context, *T) (*U, error)) func(c *gin.Context) {

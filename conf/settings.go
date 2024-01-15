@@ -4,6 +4,7 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/credentials"
 )
 
 type Config struct {
@@ -21,6 +22,7 @@ type Config struct {
 	Master struct {
 		APIPort                   int    `env:"API_PORT" env-default:"9000" env-description:"master api port"`
 		APIHost                   string `env:"API_HOST" env-description:"master host, can behind proxy like cdn"`
+		APIScheme                 string `env:"API_SCHEME" env-default:"http" env-description:"master api scheme"`
 		CacheSize                 int    `env:"CACHE_SIZE" env-default:"100" env-description:"cache size in MB"`
 		RPCHost                   string `env:"RPC_HOST" env-default:"127.0.0.1" env-description:"master host, is a public ip or domain"`
 		RPCPort                   int    `env:"RPC_PORT" env-default:"9001" env-description:"master rpc port"`
@@ -40,7 +42,8 @@ type Config struct {
 }
 
 var (
-	config *Config
+	config     *Config
+	ClientCred credentials.TransportCredentials
 )
 
 func Get() *Config {

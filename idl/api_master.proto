@@ -1,0 +1,39 @@
+syntax = "proto3";
+package api_master;
+
+import "common.proto";
+option go_package="../pb";
+
+message ClientStatus {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_ONLINE = 1;
+    STATUS_OFFLINE = 2;
+    STATUS_ERROR = 3;
+  }
+  common.ClientType client_type = 1;
+  string client_id = 2;
+  Status status = 3;
+  int32 ping = 4; // 单位为毫秒
+}
+
+message GetClientsStatusRequest {
+  common.ClientType client_type = 1;
+  repeated string client_ids = 2;
+}
+
+message GetClientsStatusResponse {
+  optional common.Status status = 1;
+  map<string, ClientStatus> clients = 2;
+}
+
+message GetClientCertRequest {
+  common.ClientType client_type = 1;
+  string client_id = 2;
+  string client_secret = 3;
+}
+
+message GetClientCertResponse {
+  optional common.Status status = 1;
+  bytes cert = 2;
+}

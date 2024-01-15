@@ -29,7 +29,7 @@ func InitServerHandler(c context.Context, req *pb.InitServerRequest) (*pb.InitSe
 		}, nil
 	}
 
-	globalServerID := common.GlobalClientID(userInfo.GetUserName(), userServerID)
+	globalServerID := common.GlobalClientID(userInfo.GetUserName(), "s", userServerID)
 
 	if err := dao.CreateServer(userInfo,
 		&models.ServerEntity{

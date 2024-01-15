@@ -47,7 +47,7 @@ func UpdateFrpsHander(c context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateF
 	}
 
 	go func() {
-		resp, err := rpc.CallClient(c, req.GetServerId(), pb.Event_EVENT_UPDATE_FRPS, req)
+		resp, err := rpc.CallClient(context.Background(), req.GetServerId(), pb.Event_EVENT_UPDATE_FRPS, req)
 		if err != nil {
 			logrus.WithError(err).Errorf("update event send to server error, server id: [%s]", req.GetServerId())
 		}

@@ -1,7 +1,11 @@
 package conf
 
 import (
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"fmt"
+	"math/big"
+	"net"
 	"net/url"
 	"time"
 
@@ -82,4 +86,32 @@ func GetCommonJWTWithExpireTime(uid string, expSec int) string {
 		int64(expSec),
 		map[string]string{common.UserIDKey: uid})
 	return token
+}
+
+func GetAPIURL() string {
+	cfg := Get()
+	return fmt.Sprintf("%s://%s:%d", cfg.Master.APIScheme, cfg.Master.APIHost, cfg.Master.APIPort)
+}
+
+func GetCertTemplate() *x509.Certificate {
+	cfg := Get()
+	now := time.Now()
+	return &x509.Certificate{
+		SerialNumber: big.NewInt(now.Unix()),
+		Subject: pkix.Name{
+			Country:            []string{"CN"},
+			Organization:       []string{"frp-panel"},
+			OrganizationalUnit: []string{"frp-panel"},
+		},
+		DNSNames:              []string{cfg.Master.APIHost},
+		IPAddresses:           []net.IP{net.ParseIP(cfg.Master.APIHost)},
+		NotBefore:             now,
+		NotAfter:              now.AddDate(10, 0, 0),
+		SubjectKeyId:          []byte{102, 114, 112, 45, 112, 97, 110, 101, 108},
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		KeyUsage: x509.KeyUsageKeyEncipherment |
+			x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+	}
 }

@@ -30,11 +30,15 @@ import { getUserInfo } from "@/api/user"
 import { useStore } from "@nanostores/react"
 import { $platformInfo } from "@/store/user"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
+import { getClientsStatus } from "@/api/platform"
+import { ClientType } from "@/lib/pb/common"
+import { ClientStatus, ClientStatus_Status } from "@/lib/pb/api_master"
 
 export type ServerTableSchema = {
 	id: string,
 	status: "invalid" | "valid"
 	secret: string
+	info?: string
 	ip: string
 	config?: string
 }
@@ -49,7 +53,7 @@ export const columns: ColumnDef<ServerTableSchema>[] = [
 	},
 	{
 		accessorKey: "status",
-		header: "状态",
+		header: "是否配置",
 		cell: ({ row }) => {
 			const Server = row.original
 			return <div className={`font-mono ${Server.status === "valid" ? "text-green-500" : "text-red-500"} min-w-12`}>{
@@ -58,6 +62,14 @@ export const columns: ColumnDef<ServerTableSchema>[] = [
 					invalid: "未配置",
 				}[Server.status]
 			}</div>
+		}
+	},
+	{
+		accessorKey: "info",
+		header: "运行信息",
+		cell: ({ row }) => {
+			const Server = row.original
+			return <ServerInfo server={Server} />
 		}
 	},
 	{
@@ -95,6 +107,38 @@ export const ServerID = ({ server }: { server: ServerTableSchema }) => {
 			</div>
 		</PopoverContent>
 	</Popover>
+}
+
+export const ServerInfo = ({ server }: { server: ServerTableSchema }) => {
+	const clientsInfo = useQuery({
+		queryKey: ["getClientsStatus", [server.id]],
+		queryFn: async () => {
+			return await getClientsStatus({
+				clientIds: [server.id],
+				clientType: ClientType.FRPS,
+			})
+		}
+	})
+
+	const trans = (info: ClientStatus | undefined) => {
+		let statusText: "在线" | "离线" | "错误" | "未知" = "未知";
+		if (info === undefined) {
+			return statusText;
+		}
+		if (info.status === ClientStatus_Status.ONLINE) {
+			statusText = "在线";
+		} else if (info.status === ClientStatus_Status.OFFLINE) {
+			statusText = "离线";
+		} else if (info.status === ClientStatus_Status.ERROR) {
+			statusText = "错误";
+		} return statusText;
+	}
+
+	const infoColor = clientsInfo.data?.clients[server.id]?.status === ClientStatus_Status.ONLINE ? "text-green-500" : "text-red-500"
+
+	return <div className={`p-2 border rounded font-mono w-fit ${infoColor}`}>
+		{`${clientsInfo.data?.clients[server.id].ping}ms, ${trans(clientsInfo.data?.clients[server.id])}`}
+	</div>
 }
 
 export const ServerSecret = ({ server }: { server: ServerTableSchema }) => {

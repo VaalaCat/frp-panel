@@ -1,4 +1,4 @@
-package user
+package platform
 
 import (
 	"github.com/VaalaCat/frp-panel/common"

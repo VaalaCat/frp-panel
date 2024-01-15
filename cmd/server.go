@@ -4,8 +4,10 @@ import (
 	bizserver "github.com/VaalaCat/frp-panel/biz/server"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/services/api"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
+	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/watcher"
 	"github.com/fatedier/golib/crypto"
 	"github.com/sirupsen/logrus"
@@ -26,6 +28,11 @@ func runServer(clientID, clientSecret string) {
 	a := api.GetAPIService()
 	defer a.Stop()
 
+	cred, err := utils.TLSClientCertNoValidate(rpc.GetClientCert(clientID, clientSecret, pb.ClientType_CLIENT_TYPE_FRPS))
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	conf.ClientCred = cred
 	rpcclient.MustInitClientRPCSerivce(
 		clientID,
 		clientSecret,

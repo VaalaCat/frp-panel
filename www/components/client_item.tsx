@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "./ui/use-toast"
 import React, { useState } from "react"
-import { useSearchParams } from "next/navigation"
 import { ExecCommandStr } from "@/lib/consts"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { deleteClient, listClient } from "@/api/client"
@@ -30,11 +29,15 @@ import { useRouter } from "next/router"
 import { useStore } from "@nanostores/react"
 import { $platformInfo } from "@/store/user"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
+import { getClientsStatus } from "@/api/platform"
+import { ClientType } from "@/lib/pb/common"
+import { ClientStatus, ClientStatus_Status } from "@/lib/pb/api_master"
 
 export type ClientTableSchema = {
     id: string,
     status: "invalid" | "valid"
     secret: string
+    info?: string
     config?: string
 }
 
@@ -48,7 +51,7 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
     },
     {
         accessorKey: "status",
-        header: "状态",
+        header: "是否配置",
         cell: ({ row }) => {
             const client = row.original
             return <div className={`font-medium ${client.status === "valid" ? "text-green-500" : "text-red-500"} min-w-12`}>{
@@ -57,6 +60,14 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
                     invalid: "未配置",
                 }[client.status]
             }</div>
+        }
+    },
+    {
+        accessorKey: "info",
+        header: "运行信息",
+        cell: ({ row }) => {
+            const client = row.original
+            return <ClientInfo client={client} />
         }
     },
     {
@@ -86,6 +97,38 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
             </div>
         </PopoverContent>
     </Popover>
+}
+
+export const ClientInfo = ({ client }: { client: ClientTableSchema }) => {
+    const clientsInfo = useQuery({
+        queryKey: ["getClientsStatus", [client.id]],
+        queryFn: async () => {
+            return await getClientsStatus({
+                clientIds: [client.id],
+                clientType: ClientType.FRPC,
+            })
+        }
+    })
+
+    const trans = (info: ClientStatus | undefined) => {
+        let statusText: "在线" | "离线" | "错误" | "未知" = "未知";
+        if (info === undefined) {
+            return statusText;
+        }
+        if (info.status === ClientStatus_Status.ONLINE) {
+            statusText = "在线";
+        } else if (info.status === ClientStatus_Status.OFFLINE) {
+            statusText = "离线";
+        } else if (info.status === ClientStatus_Status.ERROR) {
+            statusText = "错误";
+        } return statusText;
+    }
+
+    const infoColor = clientsInfo.data?.clients[client.id]?.status === ClientStatus_Status.ONLINE ? "text-green-500" : "text-red-500"
+
+    return <div className={`p-2 border rounded font-mono w-fit ${infoColor}`}>
+        {`${clientsInfo.data?.clients[client.id].ping}ms, ${trans(clientsInfo.data?.clients[client.id])}`}
+    </div>
 }
 
 export const ClientSecret = ({ client }: { client: ClientTableSchema }) => {

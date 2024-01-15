@@ -4,7 +4,9 @@ import (
 	bizclient "github.com/VaalaCat/frp-panel/biz/client"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
+	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/watcher"
 	"github.com/fatedier/golib/crypto"
 	"github.com/sirupsen/logrus"
@@ -21,6 +23,12 @@ func runClient(clientID, clientSecret string) {
 	if len(clientID) == 0 {
 		logrus.Fatal("client id cannot be empty")
 	}
+
+	cred, err := utils.TLSClientCertNoValidate(rpc.GetClientCert(clientID, clientSecret, pb.ClientType_CLIENT_TYPE_FRPC))
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	conf.ClientCred = cred
 
 	rpcclient.MustInitClientRPCSerivce(
 		clientID,

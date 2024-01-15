@@ -24,6 +24,11 @@ export interface Status {
     message: string;
 }
 /**
+ * @generated from protobuf message common.CommonRequest
+ */
+export interface CommonRequest {
+}
+/**
  * @generated from protobuf message common.CommonResponse
  */
 export interface CommonResponse {
@@ -140,6 +145,23 @@ export enum RespCode {
      */
     UNAUTHORIZED = 6
 }
+/**
+ * @generated from protobuf enum common.ClientType
+ */
+export enum ClientType {
+    /**
+     * @generated from protobuf enum value: CLIENT_TYPE_UNSPECIFIED = 0;
+     */
+    UNSPECIFIED = 0,
+    /**
+     * @generated from protobuf enum value: CLIENT_TYPE_FRPC = 1;
+     */
+    FRPC = 1,
+    /**
+     * @generated from protobuf enum value: CLIENT_TYPE_FRPS = 2;
+     */
+    FRPS = 2
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class Status$Type extends MessageType<Status> {
     constructor() {
@@ -195,6 +217,31 @@ class Status$Type extends MessageType<Status> {
  * @generated MessageType for protobuf message common.Status
  */
 export const Status = new Status$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CommonRequest$Type extends MessageType<CommonRequest> {
+    constructor() {
+        super("common.CommonRequest", []);
+    }
+    create(value?: PartialMessage<CommonRequest>): CommonRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<CommonRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CommonRequest): CommonRequest {
+        return target ?? this.create();
+    }
+    internalBinaryWrite(message: CommonRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message common.CommonRequest
+ */
+export const CommonRequest = new CommonRequest$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class CommonResponse$Type extends MessageType<CommonResponse> {
     constructor() {

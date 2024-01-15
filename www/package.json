@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && cp -r out ../cmd",
+    "build": "next build && rm -rf ../cmd/out && cp -r out ../cmd",
     "start": "next start",
     "lint": "next lint"
   },

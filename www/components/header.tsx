@@ -3,7 +3,7 @@ import { Button } from "./ui/button"
 import { useStore } from '@nanostores/react'
 import { useRouter } from "next/router";
 import { $platformInfo, $userInfo } from "@/store/user";
-import { getPlatformInfo, getUserInfo } from "@/api/user";
+import { getUserInfo } from "@/api/user";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import Gravatar from 'react-gravatar'
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/avatar"
 import { LOCAL_STORAGE_TOKEN_KEY } from "@/lib/consts";
 import { logout } from "@/api/auth";
+import { getPlatformInfo } from "@/api/platform";
 
 export const Header = () => {
 	const router = useRouter();
@@ -23,7 +24,7 @@ export const Header = () => {
 		queryKey: ['platformInfo'],
 		queryFn: getPlatformInfo
 	})
-	
+
 	useEffect(() => {
 		$platformInfo.set(platformInfo.data)
 	}, [platformInfo])

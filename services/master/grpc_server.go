@@ -15,14 +15,15 @@ import (
 	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type server struct {
 	pb.UnimplementedMasterServer
 }
 
-func NewRpcServer() *grpc.Server {
-	s := grpc.NewServer()
+func NewRpcServer(creds credentials.TransportCredentials) *grpc.Server {
+	s := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterMasterServer(s, &server{})
 	return s
 }

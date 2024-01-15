@@ -26,7 +26,7 @@ func InitClientHandler(c context.Context, req *pb.InitClientRequest) (*pb.InitCl
 		}, nil
 	}
 
-	globalClientID := common.GlobalClientID(userInfo.GetUserName(), userClientID)
+	globalClientID := common.GlobalClientID(userInfo.GetUserName(), "c", userClientID)
 
 	if err := dao.CreateClient(userInfo,
 		&models.ClientEntity{

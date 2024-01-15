@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { getPlatformInfo } from '@/api/user';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { TbDeviceHeartMonitor, TbEngine, TbEngineOff, TbServer2, TbServerBolt, TbServerOff } from 'react-icons/tb';
 import { useEffect } from 'react';
 import { $platformInfo } from '@/store/user';
+import { getPlatformInfo } from '@/api/platform';
 export const PlatformInfo = () => {
 	const platformInfo = useQuery({
 		queryKey: ['platformInfo'],

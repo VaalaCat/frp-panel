@@ -7,6 +7,7 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
 	"github.com/VaalaCat/frp-panel/cache"
 	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/services/api"
 	"github.com/VaalaCat/frp-panel/services/master"
@@ -25,14 +26,15 @@ var fs embed.FS
 
 func runMaster() {
 	crypto.DefaultSalt = conf.MasterDefaultSalt()
-	master.MustInitMasterService()
-
-	router := bizmaster.NewRouter(fs)
-	api.MustInitApiService(conf.MasterAPIListenAddr(), router)
 
 	initDatabase()
 	cache.InitCache()
 	auth.InitAuth()
+	creds := dao.InitCert(conf.GetCertTemplate())
+
+	master.MustInitMasterService(creds)
+	router := bizmaster.NewRouter(fs)
+	api.MustInitApiService(conf.MasterAPIListenAddr(), router)
 
 	logrus.Infof("start to run master")
 	m := master.GetMasterSerivce()
