@@ -60,7 +60,8 @@ func TLSClientCertNoValidate(caPem []byte) (credentials.TransportCredentials, er
 	certpool.AppendCertsFromPEM(caPem)
 
 	config := &tls.Config{
-		RootCAs: certpool,
+		RootCAs:            certpool,
+		InsecureSkipVerify: true,
 	}
 
 	return credentials.NewTLS(config), nil
