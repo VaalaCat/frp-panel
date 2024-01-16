@@ -13,7 +13,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { ZodIPSchema, ZodPortSchema } from "@/lib/consts"
+import { ZodIPSchema, ZodPortSchema, ZodStringSchema } from "@/lib/consts"
 import { RespCode, Server } from "@/lib/pb/common"
 import { updateFRPS } from "@/api/frp"
 import { useMutation } from "@tanstack/react-query"
@@ -24,7 +24,7 @@ const ServerConfigSchema = z.object({
 	bindPort: ZodPortSchema.default(7000),
 	proxyBindAddr: ZodIPSchema.optional(),
 	vhostHTTPPort: ZodPortSchema.optional(),
-	subDomainHost: ZodIPSchema.optional(),
+	subDomainHost: ZodStringSchema.optional(),
 });
 
 export const ServerConfigZodSchema = ServerConfigSchema;

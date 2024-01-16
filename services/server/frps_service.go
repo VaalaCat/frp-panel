@@ -9,6 +9,7 @@ import (
 	"github.com/fatedier/frp/pkg/util/log"
 	"github.com/fatedier/frp/server"
 	"github.com/sirupsen/logrus"
+	"github.com/sourcegraph/conc"
 )
 
 type ServerHandler interface {
@@ -72,11 +73,15 @@ func NewServerHandler(svrCfg *v1.ServerConfig) *Server {
 }
 
 func (s *Server) Run() {
-	s.srv.Run(context.Background())
+	wg := conc.NewWaitGroup()
+	wg.Go(func() { s.srv.Run(context.Background()) })
+	wg.Wait()
 }
 
 func (s *Server) Stop() {
-	s.srv.Close()
+	wg := conc.NewWaitGroup()
+	wg.Go(func() { s.srv.Close() })
+	wg.Wait()
 }
 
 func (s *Server) GetCommonCfg() *v1.ServerConfig {

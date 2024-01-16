@@ -50,3 +50,8 @@ const (
 	CliTypeServer = "server"
 	CliTypeClient = "client"
 )
+
+const (
+	DefaultServerID    = "default"
+	DefaultAdminUserID = 1
+)

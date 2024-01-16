@@ -22,7 +22,7 @@ steps:
         - promote
         - rollback
   - name: build frontend
-    image: node:18-alpine
+    image: node:20-alpine
     commands:
       - cd www
       - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories

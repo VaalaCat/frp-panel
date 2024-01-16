@@ -38,8 +38,15 @@ export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
 
 	useEffect(() => {
 		refetchServer()
-		setConfigContent(JSON.stringify(JSON.parse(serverResp?.server?.config == undefined ? "{}" : serverResp?.server?.config), null, 2))
-		setEditorValue(JSON.stringify(JSON.parse(serverResp?.server?.config == undefined ? "{}" : serverResp?.server?.config), null, 2))
+		try {
+			setConfigContent(JSON.stringify(JSON.parse(serverResp?.server?.config == undefined ||
+				serverResp?.server?.config == "" ? "{}" : serverResp?.server?.config), null, 2))
+			setEditorValue(JSON.stringify(JSON.parse(serverResp?.server?.config == undefined ||
+				serverResp?.server?.config == "" ? "{}" : serverResp?.server?.config), null, 2))
+		} catch (error) {
+			setConfigContent("{}")
+			setEditorValue("{}")
+		}
 	}, [serverResp, refetchServer])
 
 	return (<div className="grid w-full gap-1.5">

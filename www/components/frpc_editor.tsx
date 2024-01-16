@@ -38,8 +38,15 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
 
 	useEffect(() => {
 		refetchClient()
-		setConfigContent(JSON.stringify(JSON.parse(client?.client?.config == undefined ? "{}" : client?.client?.config), null, 2))
-		setEditorValue(JSON.stringify(JSON.parse(client?.client?.config == undefined ? "{}" : client?.client?.config), null, 2))
+		try {
+			setConfigContent(JSON.stringify(JSON.parse(client?.client?.config == undefined ? "{}" ||
+				client?.client?.config == "" : client?.client?.config), null, 2))
+			setEditorValue(JSON.stringify(JSON.parse(client?.client?.config == undefined ||
+				client?.client?.config == "" ? "{}" : client?.client?.config), null, 2))
+		} catch (error) {
+			setConfigContent("{}")
+			setEditorValue("{}")
+		}
 	}, [client, refetchClient])
 
 	return (<div className="grid w-full gap-1.5">

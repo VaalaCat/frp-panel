@@ -5,19 +5,24 @@ import (
 
 	bizmaster "github.com/VaalaCat/frp-panel/biz/master"
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
+	bizserver "github.com/VaalaCat/frp-panel/biz/server"
 	"github.com/VaalaCat/frp-panel/cache"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
+	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/services/api"
 	"github.com/VaalaCat/frp-panel/services/master"
-	"github.com/VaalaCat/frp-panel/services/server"
+	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/utils"
-	v1 "github.com/fatedier/frp/pkg/config/v1"
+	"github.com/VaalaCat/frp-panel/watcher"
 	"github.com/fatedier/golib/crypto"
 	"github.com/glebarez/sqlite"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -38,16 +43,15 @@ func runMaster() {
 
 	logrus.Infof("start to run master")
 	m := master.GetMasterSerivce()
-	opt := utils.NewBaseFRPServerUserAuthConfig(
-		conf.Get().Master.InternalFRPServerPort,
-		[]v1.HTTPPluginOptions{conf.FRPsAuthOption()},
-	)
-
-	s := server.GetServerSerivce(opt)
 	a := api.GetAPIService()
 
+	r, w := initDefaultInternalServer()
+	defer w.Stop()
+	defer r.Stop()
+
 	var wg conc.WaitGroup
-	wg.Go(s.Run)
+	wg.Go(w.Run)
+	wg.Go(r.Run)
 	wg.Go(m.Run)
 	wg.Go(a.Run)
 	wg.Wait()
@@ -65,9 +69,50 @@ func initDatabase() {
 			models.GetDBManager().SetDB("sqlite3", sqlitedb)
 			logrus.Infof("init database success, data location: [%s]", conf.Get().DB.DSN)
 		}
+	case "mysql":
+		if mysqlDB, err := gorm.Open(mysql.Open(conf.Get().DB.DSN), &gorm.Config{}); err != nil {
+			logrus.Panic(err)
+		} else {
+			models.GetDBManager().SetDB("mysql", mysqlDB)
+			logrus.Infof("init database success, data type: [%s]", "mysql")
+		}
+	case "postgres":
+		if postgresDB, err := gorm.Open(postgres.Open(conf.Get().DB.DSN), &gorm.Config{}); err != nil {
+			logrus.Panic(err)
+		} else {
+			models.GetDBManager().SetDB("postgres", postgresDB)
+			logrus.Infof("init database success, data type: [%s]", "postgres")
+		}
 	default:
 		logrus.Panicf("currently unsupported database type: %s", conf.Get().DB.Type)
 	}
 
 	models.GetDBManager().Init()
+}
+
+func initDefaultInternalServer() (rpcclient.ClientRPCHandler, watcher.Client) {
+	dao.InitDefaultServer(conf.Get().Master.APIHost)
+	defaultServer, err := dao.GetDefaultServer()
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	cred, err := utils.TLSClientCertNoValidate(rpc.GetClientCert(
+		defaultServer.ServerID, defaultServer.ConnectSecret, pb.ClientType_CLIENT_TYPE_FRPS))
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	conf.ClientCred = cred
+	rpcclient.MustInitClientRPCSerivce(
+		defaultServer.ServerID, defaultServer.ConnectSecret,
+		pb.Event_EVENT_REGISTER_SERVER,
+		bizserver.HandleServerMessage,
+	)
+
+	r := rpcclient.GetClientRPCSerivce()
+
+	w := watcher.NewClient(bizserver.PullConfig, defaultServer.ServerID, defaultServer.ConnectSecret)
+
+	go initServerOnce(defaultServer.ServerID, defaultServer.ConnectSecret)
+	return r, w
 }

@@ -50,6 +50,7 @@ func (c *clientController) Get(clientID string) client.ClientHandler {
 }
 
 func (c *clientController) Delete(clientID string) {
+	c.Stop(clientID)
 	c.clients.Delete(clientID)
 }
 

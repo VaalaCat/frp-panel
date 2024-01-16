@@ -50,6 +50,7 @@ func (c *serverController) Get(serverID string) server.ServerHandler {
 }
 
 func (c *serverController) Delete(serverID string) {
+	c.Stop(serverID)
 	c.servers.Delete(serverID)
 }
 

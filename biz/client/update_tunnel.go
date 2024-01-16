@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 
 	"github.com/VaalaCat/frp-panel/pb"
@@ -24,24 +23,21 @@ func UpdateFrpcHander(ctx context.Context, req *pb.UpdateFRPCRequest) (*pb.Updat
 	}
 
 	cli := tunnel.GetClientController().Get(req.GetClientId())
-	if cli == nil {
-		logrus.Errorf("cannot get client, id: [%s]", req.GetClientId())
-		return &pb.UpdateFRPCResponse{
-			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "cannot get client"},
-		}, fmt.Errorf("cannot get client")
-	}
-
-	if reflect.DeepEqual(c, cli.GetCommonCfg()) {
-		logrus.Warnf("client config not changed")
-		cli.Update(p, v)
-	} else {
-		tcli := tunnel.GetClientController().Get(req.GetClientId())
-		if tcli != nil {
-			tcli.Stop()
+	if cli != nil {
+		if reflect.DeepEqual(c, cli.GetCommonCfg()) {
+			logrus.Warnf("client common config not changed")
+			cli.Update(p, v)
+		} else {
+			cli.Stop()
 			tunnel.GetClientController().Delete(req.GetClientId())
+			tunnel.GetClientController().Add(req.GetClientId(), client.NewClientHandler(c, p, v))
+			tunnel.GetClientController().Run(req.GetClientId())
 		}
+		logrus.Infof("update client, id: [%s] success, running", req.GetClientId())
+	} else {
 		tunnel.GetClientController().Add(req.GetClientId(), client.NewClientHandler(c, p, v))
 		tunnel.GetClientController().Run(req.GetClientId())
+		logrus.Infof("add new client, id: [%s], running", req.GetClientId())
 	}
 
 	return &pb.UpdateFRPCResponse{

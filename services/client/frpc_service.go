@@ -15,6 +15,7 @@ import (
 	"github.com/fatedier/frp/pkg/util/log"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
+	"github.com/sourcegraph/conc"
 )
 
 type ClientHandler interface {
@@ -106,13 +107,21 @@ func (c *Client) Run() {
 		close(c.done)
 	}()
 
-	if err := c.cli.Run(context.Background()); err != nil {
-		logrus.Errorf("run client error: %v", err)
-	}
+	wg := conc.NewWaitGroup()
+	wg.Go(
+		func() {
+			if err := c.cli.Run(context.Background()); err != nil {
+				logrus.Errorf("run client error: %v", err)
+			}
+		},
+	)
+	wg.Wait()
 }
 
 func (c *Client) Stop() {
-	c.cli.Close()
+	wg := conc.NewWaitGroup()
+	wg.Go(func() { c.cli.Close() })
+	wg.Wait()
 }
 
 func (c *Client) Update(proxyCfgs []v1.ProxyConfigurer, visitorCfgs []v1.VisitorConfigurer) {

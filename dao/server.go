@@ -3,9 +3,53 @@ package dao
 import (
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/models"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
+
+func InitDefaultServer(serverIP string) {
+	db := models.GetDBManager().GetDefaultDB()
+	db.Where(&models.Server{
+		ServerEntity: &models.ServerEntity{
+			ServerID: common.DefaultServerID,
+		},
+	}).Attrs(&models.Server{
+		ServerEntity: &models.ServerEntity{
+			ServerID:      common.DefaultServerID,
+			ServerIP:      serverIP,
+			ConnectSecret: uuid.New().String(),
+		},
+	}).FirstOrCreate(&models.Server{})
+}
+
+func GetDefaultServer() (*models.ServerEntity, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	c := &models.Server{}
+	err := db.
+		Where(&models.Server{ServerEntity: &models.ServerEntity{
+			ServerID: common.DefaultServerID,
+		}}).
+		First(c).Error
+	if err != nil {
+		return nil, err
+	}
+	return c.ServerEntity, nil
+}
+
+func UpdateDefaultServer(c *models.Server) error {
+	db := models.GetDBManager().GetDefaultDB()
+	c.ServerID = common.DefaultServerID
+	err := db.Where(&models.Server{
+		ServerEntity: &models.ServerEntity{
+			ServerID: common.DefaultServerID,
+		}}).Save(c).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func ValidateServerSecret(serverID string, secret string) (*models.ServerEntity, error) {
 	if serverID == "" || secret == "" {
@@ -47,6 +91,9 @@ func AdminGetServerByServerID(serverID string) (*models.ServerEntity, error) {
 func GetServerByServerID(userInfo models.UserInfo, serverID string) (*models.ServerEntity, error) {
 	if serverID == "" {
 		return nil, fmt.Errorf("invalid server id")
+	}
+	if userInfo.GetUserID() == common.DefaultAdminUserID && serverID == common.DefaultServerID {
+		return GetDefaultServer()
 	}
 	db := models.GetDBManager().GetDefaultDB()
 	c := &models.Server{}
@@ -96,6 +143,9 @@ func UpdateServer(userInfo models.UserInfo, server *models.ServerEntity) error {
 	c := &models.Server{
 		ServerEntity: server,
 	}
+	if userInfo.GetUserID() == common.DefaultAdminUserID && server.ServerID == common.DefaultServerID {
+		return UpdateDefaultServer(c)
+	}
 	db := models.GetDBManager().GetDefaultDB()
 	return db.Where(
 		&models.Server{
@@ -123,7 +173,11 @@ func ListServers(userInfo models.UserInfo, page, pageSize int) ([]*models.Server
 				TenantID: userInfo.GetTenantID(),
 			},
 		},
-	).Offset(offset).Limit(pageSize).Find(&servers).Error
+	).Or(&models.Server{
+		ServerEntity: &models.ServerEntity{
+			ServerID: common.DefaultServerID,
+		},
+	}).Offset(offset).Limit(pageSize).Find(&servers).Error
 	if err != nil {
 		return nil, err
 	}

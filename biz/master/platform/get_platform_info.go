@@ -63,5 +63,6 @@ func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
 		MasterRpcHost:           conf.Get().Master.RPCHost,
 		MasterRpcPort:           int32(conf.Get().Master.RPCPort),
 		MasterApiPort:           int32(conf.Get().Master.APIPort),
+		MasterApiScheme:         conf.Get().Master.APIScheme,
 	}, nil
 }

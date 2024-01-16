@@ -19,5 +19,13 @@ export const ZodEmailSchema = z.string()
 // .refine((e) => e === "abcd@fg.com", "This email is not in our database")
 
 export const ExecCommandStr = <T extends Client | Server>(type: string, item: T, info: GetPlatformInfoResponse) => {
-	return `frp-panel ${type} -s ${item.secret} -i ${item.id} -a ${info.globalSecret} -r ${info.masterRpcHost} -c ${info.masterRpcPort} -p ${info.masterApiPort}`
+	return `frp-panel ${type
+		} -s ${item.secret
+		} -i ${item.id
+		} -a ${info.globalSecret
+		} -r ${info.masterRpcHost
+		} -c ${info.masterRpcPort
+		} -p ${info.masterApiPort
+		} -e ${info.masterApiScheme
+		}`
 }

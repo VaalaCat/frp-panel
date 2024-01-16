@@ -24,6 +24,7 @@ func initCommand() {
 		appSecret    string
 		rpcPort      int
 		apiPort      int
+		apiScheme    string
 	)
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -72,6 +73,9 @@ func initCommand() {
 	serverCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port")
 	clientCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port")
 	serverCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port")
+
+	clientCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme")
+	serverCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme")
 }
 
 func initLogger() {

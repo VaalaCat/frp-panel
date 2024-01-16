@@ -1,4 +1,4 @@
-import { TCPProxyConfig, UDPProxyConfig } from "@/types/proxy"
+import { HTTPProxyConfig, TCPProxyConfig, UDPProxyConfig } from "@/types/proxy"
 import * as z from "zod"
 import React from "react"
 import { ZodIPSchema, ZodPortSchema, ZodStringSchema } from "@/lib/consts"
@@ -32,6 +32,13 @@ export const UDPConfigSchema = z.object({
     name: ZodStringSchema,
     localIP: ZodIPSchema.default("127.0.0.1"),
     localPort: ZodPortSchema,
+})
+
+export const HTTPConfigSchema = z.object({
+    name: ZodStringSchema,
+    localPort: ZodPortSchema,
+    localIP: ZodIPSchema.default("127.0.0.1"),
+    subDomain: ZodStringSchema,
 })
 
 export interface ProxyFormProps {
@@ -148,12 +155,16 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID }) =
 
     const onSubmit = async (values: z.infer<typeof UDPConfigSchema>) => {
         setUDPConfig({ ...values, type: "udp" })
-        const res = await updateFrpc.mutateAsync({
-            config: Buffer.from(JSON.stringify({
-                proxies: [{ ...values }]
-            } as ClientConfig)), serverId: serverID, clientId: clientID
-        })
-        toast({ title: "创建隧道状态", description: res.status?.code === RespCode.SUCCESS ? "创建成功" : "创建失败" })
+        try {
+            const res = await updateFrpc.mutateAsync({
+                config: Buffer.from(JSON.stringify({
+                    proxies: [{ ...values }]
+                } as ClientConfig)), serverId: serverID, clientId: clientID
+            })
+            toast({ title: "创建隧道状态", description: res.status?.code === RespCode.SUCCESS ? "创建成功" : "创建失败" })
+        } catch (error) {
+            toast({ title: "创建隧道状态", description: `创建失败: ${error}` })
+        }
     }
     return (
         <Form {...form}>
@@ -217,4 +228,103 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID }) =
             </form>
         </Form>
     );
+}
+
+export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID }) => {
+    const [_, setHTTPConfig] = useState<HTTPProxyConfig | undefined>()
+    const { toast } = useToast()
+    const form = useForm<z.infer<typeof HTTPConfigSchema>>({
+        resolver: zodResolver(HTTPConfigSchema),
+    })
+
+    useEffect(() => {
+        setHTTPConfig(undefined)
+        form.reset({})
+    }, [])
+
+    const updateFrpc = useMutation({ mutationFn: updateFRPC })
+
+    const onSubmit = async (values: z.infer<typeof HTTPConfigSchema>) => {
+        setHTTPConfig({ ...values, type: "http" })
+        const conf = {
+            name: values.name,
+            type: "http",
+            subDomain: values.subDomain,
+            localIP: values.localIP,
+            localPort: values.localPort,
+        } as HTTPProxyConfig
+        try {
+            const res = await updateFrpc.mutateAsync({
+                config: Buffer.from(JSON.stringify({
+                    proxies: [conf]
+                } as ClientConfig)), serverId: serverID, clientId: clientID
+            })
+            toast({ title: "创建隧道状态", description: res.status?.code === RespCode.SUCCESS ? "创建成功" : "创建失败" })
+        } catch (error) {
+            toast({ title: "创建隧道状态", description: `创建失败: ${error}` })
+        }
+    }
+
+    return (
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel> 隧道名称 </FormLabel>
+                            <FormControl>
+                                <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                    defaultValue="httptunnel"
+                />
+                <FormField
+                    control={form.control}
+                    name="localPort"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel> 本地端口 </FormLabel>
+                            <FormControl>
+                                <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                    defaultValue={1234}
+                />
+                <FormField
+                    control={form.control}
+                    name="localIP"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel> 转发地址 </FormLabel>
+                            <FormControl>
+                                <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                    defaultValue="127.0.0.1"
+                />
+                <FormField
+                    control={form.control}
+                    name="subDomain"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel> 远端子域名 </FormLabel>
+                            <FormControl>
+                                <Input type="text" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>)}
+                    defaultValue={"sub"}
+                />
+                <Button type="submit">提交</Button>
+            </form>
+        </Form>
+    )
 }
