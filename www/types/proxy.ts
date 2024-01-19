@@ -30,7 +30,7 @@ export interface HealthCheckConfig {
 
 export interface DomainConfig {
 	customDomains?: string[];
-	subDomain?: string;
+	subdomain?: string;
 }
 
 export interface ProxyBaseConfig {

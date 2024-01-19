@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "./ui/use-toast"
 import React, { useState } from "react"
-import { ExecCommandStr } from "@/lib/consts"
+import { ExecCommandStr, LinuxInstallCommand, WindowsInstallCommand } from "@/lib/consts"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { deleteClient, listClient } from "@/api/client"
 import { useRouter } from "next/router"
@@ -91,10 +91,15 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
     const platformInfo = useStore($platformInfo)
     return <Popover >
         <PopoverTrigger asChild><div className="font-mono">{client.id}</div></PopoverTrigger>
-        <PopoverContent className="w-fit overflow-auto max-w-48">
+        <PopoverContent className="w-fit overflow-auto max-w-64">
+            <div>Linux安装到systemd</div>
             <div className="p-2 border rounded font-mono w-fit">
-                {platformInfo === undefined ? "获取平台信息失败" : ExecCommandStr("client", client, platformInfo)}
+                {platformInfo === undefined ? "获取平台信息失败" : LinuxInstallCommand("client", client, platformInfo)}
             </div>
+            {/* <div>Windows</div>
+            <div className="p-2 border rounded font-mono w-fit">
+                {platformInfo === undefined ? "获取平台信息失败" : WindowsInstallCommand("client", client, platformInfo)}
+            </div> */}
         </PopoverContent>
     </Popover>
 }

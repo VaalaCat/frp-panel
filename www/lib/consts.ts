@@ -18,8 +18,8 @@ export const ZodEmailSchema = z.string()
 	.email("是不是输错了邮箱地址呢?")
 // .refine((e) => e === "abcd@fg.com", "This email is not in our database")
 
-export const ExecCommandStr = <T extends Client | Server>(type: string, item: T, info: GetPlatformInfoResponse) => {
-	return `frp-panel ${type
+export const ExecCommandStr = <T extends Client | Server>(type: string, item: T, info: GetPlatformInfoResponse, fileName?: string) => {
+	return `${fileName || 'frp-panel'} ${type
 		} -s ${item.secret
 		} -i ${item.id
 		} -a ${info.globalSecret
@@ -28,4 +28,16 @@ export const ExecCommandStr = <T extends Client | Server>(type: string, item: T,
 		} -p ${info.masterApiPort
 		} -e ${info.masterApiScheme
 		}`
+}
+
+export const WindowsInstallCommand = <T extends Client | Server>(type: string, item: T, info: GetPlatformInfoResponse) => {
+	return `Invoke-WebRequest -Uri 'https://github.com/your_repository/frp-panel/releases/latest/download/frp-panel-amd64.exe' -OutFile 'frp-panel.exe'
+	Move-Item .\\frp-panel.exe C:\\Tools\\frp-panel.exe
+	$command = "C:\\Tools\\${ExecCommandStr(type, item, info, 'frp-panel.exe')}"
+	Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\FRPPanel' -Name 'ImagePath' -Value "\`"$command\`""
+	New-Service -Name 'FRPPanel' -BinaryPathName 'C:\\Tools\\frp-panel.exe' -StartupType Automatic | Start-Service`
+}
+
+export const LinuxInstallCommand = <T extends Client | Server>(type: string, item: T, info: GetPlatformInfoResponse) => {
+	return `curl -sSL https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --${ExecCommandStr(type, item, info, " ")}`
 }
