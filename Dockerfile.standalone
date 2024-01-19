@@ -10,7 +10,6 @@ RUN npm install
 COPY www/api/ ./api
 COPY www/components/ ./components
 COPY www/lib/ ./lib
-COPY www/out/ ./out
 COPY www/pages/ ./pages
 COPY www/public/ ./public
 COPY www/store/ ./store
