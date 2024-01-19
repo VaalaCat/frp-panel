@@ -1,0 +1,56 @@
+name: Version Tag Release
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - uses: actions/checkout@v4
+      - name: npm setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21.x"
+      - name: npm install and build
+        run: |
+          cd www
+          npm install && npm install -g pnpm
+      - name: Install dependencies
+        run: |
+          go mod tidy
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v2
+      - name: Compile server
+        run: bash ./build.sh
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          automatic_release_tag: ${{ steps.get_version.outputs.VERSION }}
+          files: |
+            dist/*
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          file: ./Dockerfile.standalone
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: vaalacat/frp-panel:${{ steps.get_version.outputs.VERSION }}

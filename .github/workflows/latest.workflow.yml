@@ -1,0 +1,48 @@
+name: Latest Release
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: npm setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21.x"
+      - name: npm install and build
+        run: |
+          cd www
+          npm install && npm install -g pnpm
+      - name: Install dependencies
+        run: |
+          go mod tidy
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v2
+      - name: Compile server
+        run: bash ./build.sh
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          file: ./Dockerfile.standalone
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: vaalacat/frp-panel:latest
