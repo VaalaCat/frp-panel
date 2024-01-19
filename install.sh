@@ -46,13 +46,16 @@ else
     start_params=$(get_start_params)
 fi
 
-sudo tee /lib/systemd/system/frp-panel.service << EOF
+sudo tee /lib/systemd/system/frpp.service << EOF
 [Unit]
 Description=frp-panel
 After=network.target
 
 [Service]
 Type=simple
+Restart=always
+RestartSec=5
+StartLimitInterval=0
 ExecStart=/usr/local/bin/frp-panel $start_params
 
 [Install]
@@ -61,6 +64,6 @@ EOF
 
 sudo systemctl daemon-reload
 
-sudo systemctl start frp-panel
+sudo systemctl start frpp
 
-sudo systemctl enable frp-panel
+sudo systemctl enable frpp
