@@ -83,6 +83,7 @@
 ### 调试启动方式：
 
 - master: `go run cmd/*.go master`
+> client 和 server 的具体参数请复制 master webui 中的内容
 - client: `go run cmd/*.go client -i <clientID> -s <clientSecret>`
 - server: `go run cmd/*.go server -i <serverID> -s <serverSecret>`
 
@@ -95,7 +96,11 @@
 ## 项目使用说明
 frp-panel可选docker和直接运行模式部署，直接部署请到release下载文件：[release](https://github.com/VaalaCat/frp-panel/releases)
 
+启动过后默认访问地址为 http://IP:9000
+
 ### docker   
+
+注意⚠️：client 和 server 的启动指令可能会随着项目更新而改变，虽然在项目迭代时会注意前后兼容，但仍难以完全适配，因此 client 和 server 的启动指令以 master 生成为准
 
 - master   
    
@@ -112,17 +117,15 @@ docker run -d -p 9000:9000 \
    
 ```bash
 docker run -d -p your_port:your_port \
-	-e APP_GLOBAL_SECRET=your_secret \  # 客户端和服务端的Secret与Master不一样，但也最好不要泄漏
-	-e MASTER_RPC_HOST=your_master \	# master节点的IP，端口是默认9000，修改配置请看最后
-	vaalacat/frp-panel client -s xxx -i xxx # 在WebUI复制的参数
+	vaalacat/frp-panel client -s xxx -i xxx # 在master WebUI复制的参数
 ```
 - server   
    
 ```bash
 docker run -d -p your_port:your_port \
-	-e APP_GLOBAL_SECRET=your_secret \  # 客户端和服务端的Secret与Master不一样，但也最好不要泄漏
-	-e MASTER_RPC_HOST=your_master \	# master节点的IP，端口是默认9000，修改配置请看最后
-	vaalacat/frp-panel server -s xxx -i xxx # 在WebUI复制的参数
+	-p 服务器开放端口70011:服务器开放端口7001 \
+	-p 服务器开放端口8000-8100:服务器开放端口8000-8100 \
+	vaalacat/frp-panel server -s xxx -i xxx # 在master WebUI复制的参数
 ```
 
 ### 直接运行(Linux)
@@ -134,12 +137,12 @@ APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel master
 - client   
    
 ```
-APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel client -s xxx -i xxx # 在WebUI复制的参数
+frp-panel client -s xxx -i xxx # 在master WebUI复制的参数
 ```
 - server
    
 ```
-APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel server -s xxx -i xxx # 在WebUI复制的参数
+frp-panel server -s xxx -i xxx # 在master WebUI复制的参数
 ```
 ### 直接运行(Windows)
 在下载的可执行文件同名文件夹下创建一个 `.env` 文件(注意不要有后缀名)，然后输入以下内容保存后运行对应命令，注意，client和server的对应参数需要在web页面复制
@@ -151,17 +154,11 @@ MASTER_RPC_HOST=IP
 DB_DSN=data.db
 ```
 
+client 和 server 要使用在 master WebUI复制的参数
+
 - client: `frp-panel-amd64.exe client -s xxx -i xxx`
-```
-APP_GLOBAL_SECRET=your_secret
-MASTER_RPC_HOST=IP
-```
 
 - server: `frp-panel-amd64.exe server -s xxx -i xxx`
-```
-APP_GLOBAL_SECRET=your_secret
-MASTER_RPC_HOST=IP
-```
 
 ### 配置说明
 
