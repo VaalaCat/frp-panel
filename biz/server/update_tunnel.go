@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/server"
@@ -25,8 +26,16 @@ func UpdateFrpsHander(ctx context.Context, req *pb.UpdateFRPSRequest) (*pb.Updat
 
 	serverID := req.GetServerId()
 	if cli := tunnel.GetServerController().Get(serverID); cli != nil {
-		cli.Stop()
-		tunnel.GetClientController().Delete(serverID)
+		if !reflect.DeepEqual(cli.GetCommonCfg(), s) {
+			cli.Stop()
+			tunnel.GetClientController().Delete(serverID)
+			logrus.Infof("server %s config changed, will recreate it", serverID)
+		} else {
+			logrus.Infof("server %s config not changed", serverID)
+			return &pb.UpdateFRPSResponse{
+				Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
+			}, nil
+		}
 	}
 	tunnel.GetServerController().Add(serverID, server.NewServerHandler(s))
 	tunnel.GetServerController().Run(serverID)

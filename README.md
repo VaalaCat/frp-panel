@@ -107,24 +107,34 @@ frp-panel可选docker和直接运行模式部署，直接部署请到release下�
 ```bash
 docker run -d -p 9000:9000 \
 	-p 9001:9001 \
+    --restart=unless-stopped \
 	-v /opt/frp-panel:/data \
 	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
 	-e MASTER_RPC_HOST=0.0.0.0 \
 	vaalacat/frp-panel
-
+# 或者
+docker run -d \
+	--network=host \
+    --restart=unless-stopped \
+	-v /opt/frp-panel:/data \
+	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
+	-e MASTER_RPC_HOST=0.0.0.0 \
+	vaalacat/frp-panel
 ```
 - client   
    
 ```bash
-docker run -d -p your_port:your_port \
+docker run -d \
+	--network=host \
+    --restart=unless-stopped \
 	vaalacat/frp-panel client -s xxx -i xxx # 在master WebUI复制的参数
 ```
 - server   
    
 ```bash
-docker run -d -p your_port:your_port \
-	-p 服务器开放端口70011:服务器开放端口7001 \
-	-p 服务器开放端口8000-8100:服务器开放端口8000-8100 \
+docker run -d \
+	--network=host \
+    --restart=unless-stopped \
 	vaalacat/frp-panel server -s xxx -i xxx # 在master WebUI复制的参数
 ```
 

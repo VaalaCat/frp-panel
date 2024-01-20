@@ -41,6 +41,8 @@ func UpdateFrpsHander(c context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateF
 		return nil, err
 	}
 
+	srv.Comment = req.GetComment()
+
 	if err := dao.UpdateServer(userInfo, srv); err != nil {
 		logrus.WithError(err).Errorf("cannot update server, id: [%s]", serverID)
 		return nil, err

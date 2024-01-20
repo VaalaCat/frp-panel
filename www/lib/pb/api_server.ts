@@ -24,6 +24,10 @@ export interface InitServerRequest {
      * @generated from protobuf field: optional string server_ip = 2;
      */
     serverIp?: string;
+    /**
+     * @generated from protobuf field: optional string comment = 3;
+     */
+    comment?: string;
 }
 /**
  * @generated from protobuf message api_server.InitServerResponse
@@ -120,6 +124,10 @@ export interface UpdateFRPSRequest {
      * @generated from protobuf field: optional bytes config = 2;
      */
     config?: Uint8Array;
+    /**
+     * @generated from protobuf field: optional string comment = 3;
+     */
+    comment?: string;
 }
 /**
  * @generated from protobuf message api_server.UpdateFRPSResponse
@@ -153,7 +161,8 @@ class InitServerRequest$Type extends MessageType<InitServerRequest> {
     constructor() {
         super("api_server.InitServerRequest", [
             { no: 1, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "server_ip", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 2, name: "server_ip", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<InitServerRequest>): InitServerRequest {
@@ -173,6 +182,9 @@ class InitServerRequest$Type extends MessageType<InitServerRequest> {
                 case /* optional string server_ip */ 2:
                     message.serverIp = reader.string();
                     break;
+                case /* optional string comment */ 3:
+                    message.comment = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -191,6 +203,9 @@ class InitServerRequest$Type extends MessageType<InitServerRequest> {
         /* optional string server_ip = 2; */
         if (message.serverIp !== undefined)
             writer.tag(2, WireType.LengthDelimited).string(message.serverIp);
+        /* optional string comment = 3; */
+        if (message.comment !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.comment);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -564,7 +579,8 @@ class UpdateFRPSRequest$Type extends MessageType<UpdateFRPSRequest> {
     constructor() {
         super("api_server.UpdateFRPSRequest", [
             { no: 1, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "config", kind: "scalar", opt: true, T: 12 /*ScalarType.BYTES*/ }
+            { no: 2, name: "config", kind: "scalar", opt: true, T: 12 /*ScalarType.BYTES*/ },
+            { no: 3, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<UpdateFRPSRequest>): UpdateFRPSRequest {
@@ -584,6 +600,9 @@ class UpdateFRPSRequest$Type extends MessageType<UpdateFRPSRequest> {
                 case /* optional bytes config */ 2:
                     message.config = reader.bytes();
                     break;
+                case /* optional string comment */ 3:
+                    message.comment = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -602,6 +621,9 @@ class UpdateFRPSRequest$Type extends MessageType<UpdateFRPSRequest> {
         /* optional bytes config = 2; */
         if (message.config !== undefined)
             writer.tag(2, WireType.LengthDelimited).bytes(message.config);
+        /* optional string comment = 3; */
+        if (message.comment !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.comment);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

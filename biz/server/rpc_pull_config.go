@@ -44,21 +44,18 @@ func PullConfig(serverID, serverSecret string) error {
 
 	ctrl := tunnel.GetServerController()
 
-	if t := ctrl.Get(serverID); t == nil {
-		ctrl.Add(serverID, server.NewServerHandler(s))
-		ctrl.Run(serverID)
-	} else {
+	if t := ctrl.Get(serverID); t != nil {
 		if !reflect.DeepEqual(t.GetCommonCfg(), s) {
+			t.Stop()
+			ctrl.Delete(serverID)
 			logrus.Infof("server %s config changed, will recreate it", serverID)
-			srv := ctrl.Get(serverID)
-			if srv != nil {
-				srv.Stop()
-				ctrl.Delete(serverID)
-			}
-			ctrl.Add(serverID, server.NewServerHandler(s))
-			ctrl.Run(serverID)
+		} else {
+			logrus.Infof("server %s config not changed", serverID)
+			return nil
 		}
 	}
+	ctrl.Add(serverID, server.NewServerHandler(s))
+	ctrl.Run(serverID)
 
 	logrus.Infof("pull server config success, serverID: [%s]", serverID)
 	return nil

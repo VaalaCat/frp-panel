@@ -53,6 +53,10 @@ export interface Client {
      * @generated from protobuf field: optional string config = 3;
      */
     config?: string;
+    /**
+     * @generated from protobuf field: optional string comment = 5;
+     */
+    comment?: string; // 用户自定义的备注
 }
 /**
  * @generated from protobuf message common.Server
@@ -74,6 +78,10 @@ export interface Server {
      * @generated from protobuf field: optional string config = 4;
      */
     config?: string; // 在定义上，ip和port只是为了方便使用
+    /**
+     * @generated from protobuf field: optional string comment = 5;
+     */
+    comment?: string; // 用户自定义的备注
 }
 /**
  * @generated from protobuf message common.User
@@ -294,7 +302,8 @@ class Client$Type extends MessageType<Client> {
         super("common.Client", [
             { no: 1, name: "id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "secret", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "config", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 3, name: "config", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<Client>): Client {
@@ -317,6 +326,9 @@ class Client$Type extends MessageType<Client> {
                 case /* optional string config */ 3:
                     message.config = reader.string();
                     break;
+                case /* optional string comment */ 5:
+                    message.comment = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -338,6 +350,9 @@ class Client$Type extends MessageType<Client> {
         /* optional string config = 3; */
         if (message.config !== undefined)
             writer.tag(3, WireType.LengthDelimited).string(message.config);
+        /* optional string comment = 5; */
+        if (message.comment !== undefined)
+            writer.tag(5, WireType.LengthDelimited).string(message.comment);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -355,7 +370,8 @@ class Server$Type extends MessageType<Server> {
             { no: 1, name: "id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "secret", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "ip", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "config", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 4, name: "config", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<Server>): Server {
@@ -381,6 +397,9 @@ class Server$Type extends MessageType<Server> {
                 case /* optional string config */ 4:
                     message.config = reader.string();
                     break;
+                case /* optional string comment */ 5:
+                    message.comment = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -405,6 +424,9 @@ class Server$Type extends MessageType<Server> {
         /* optional string config = 4; */
         if (message.config !== undefined)
             writer.tag(4, WireType.LengthDelimited).string(message.config);
+        /* optional string comment = 5; */
+        if (message.comment !== undefined)
+            writer.tag(5, WireType.LengthDelimited).string(message.comment);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

@@ -18,6 +18,7 @@ import { RespCode, Server } from "@/lib/pb/common"
 import { updateFRPS } from "@/api/frp"
 import { useMutation } from "@tanstack/react-query"
 import { useToast } from "./ui/use-toast"
+import { Label } from "@radix-ui/react-label"
 
 const ServerConfigSchema = z.object({
 	bindAddr: ZodIPSchema.default("0.0.0.0").optional(),
@@ -72,6 +73,11 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
 	}
 	return (
 		<div className="flex flex-col w-full pt-2">
+			<Label className="text-sm font-medium">节点 {serverID} 的备注</Label>
+			<p className="text-sm text-muted-foreground">可以到高级模式修改备注哦！</p>
+			<p className="text-sm border rounded p-2 my-2">
+				{server?.comment == undefined ? "空空如也" : server?.comment}
+			</p>
 			{serverID && <Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 					<FormField

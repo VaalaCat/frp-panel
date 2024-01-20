@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"time"
 
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
@@ -61,9 +62,15 @@ func NewServerHandler(svrCfg *v1.ServerConfig) *Server {
 
 	log.InitLog(svrCfg.Log.To, svrCfg.Log.Level, svrCfg.Log.MaxDays, svrCfg.Log.DisablePrintColor)
 
-	svr, err := server.NewService(svrCfg)
-	if err != nil {
-		logrus.Panic(err)
+	var svr *server.Service
+
+	for svr, err = server.NewService(svrCfg); err != nil; svr, err = server.NewService(svrCfg) {
+		if err != nil {
+			logrus.WithError(err).Errorf("cannot create server, wait 5 sec for retry")
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		break
 	}
 
 	return &Server{
@@ -80,7 +87,13 @@ func (s *Server) Run() {
 
 func (s *Server) Stop() {
 	wg := conc.NewWaitGroup()
-	wg.Go(func() { s.srv.Close() })
+	wg.Go(func() {
+		err := s.srv.Close()
+		if err != nil {
+			logrus.Errorf("close server error: %v", err)
+		}
+		logrus.Infof("server closed")
+	})
 	wg.Wait()
 }
 

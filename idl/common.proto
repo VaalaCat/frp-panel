@@ -34,6 +34,7 @@ message Client {
   optional string id = 1;
   optional string secret = 2;
   optional string config = 3;
+  optional string comment = 5; // 用户自定义的备注
 }
 
 message Server {
@@ -41,6 +42,7 @@ message Server {
   optional string secret = 2;
   optional string ip = 3;
   optional string config = 4; // 在定义上，ip和port只是为了方便使用
+  optional string comment = 5; // 用户自定义的备注
 }
 
 message User {
