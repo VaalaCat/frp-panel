@@ -1,9 +1,9 @@
 export interface APIMetadata {
-	version: string;
+  version: string
 }
 
 export interface BaseResponse {
-	code: number;
-	msg: string;
-	body?: any;
+  code: number
+  msg: string
+  body?: any
 }
