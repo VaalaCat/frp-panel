@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"time"
 
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
@@ -64,13 +63,8 @@ func NewServerHandler(svrCfg *v1.ServerConfig) *Server {
 
 	var svr *server.Service
 
-	for svr, err = server.NewService(svrCfg); err != nil; svr, err = server.NewService(svrCfg) {
-		if err != nil {
-			logrus.WithError(err).Errorf("cannot create server, wait 5 sec for retry")
-			time.Sleep(5 * time.Second)
-			continue
-		}
-		break
+	if svr, err = server.NewService(svrCfg); err != nil {
+		logrus.WithError(err).Panic("cannot create server, exit and restart")
 	}
 
 	return &Server{

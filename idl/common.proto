@@ -35,6 +35,7 @@ message Client {
   optional string secret = 2;
   optional string config = 3;
   optional string comment = 5; // 用户自定义的备注
+  optional string server_id = 6;
 }
 
 message Server {

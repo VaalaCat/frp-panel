@@ -38,9 +38,10 @@ func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.Li
 
 	respClients := lo.Map(clients, func(c *models.ClientEntity, _ int) *pb.Client {
 		return &pb.Client{
-			Id:     lo.ToPtr(c.ClientID),
-			Secret: lo.ToPtr(c.ConnectSecret),
-			Config: lo.ToPtr(string(c.ConfigContent)),
+			Id:       lo.ToPtr(c.ClientID),
+			Secret:   lo.ToPtr(c.ConnectSecret),
+			Config:   lo.ToPtr(string(c.ConfigContent)),
+			ServerId: lo.ToPtr(c.ServerID),
 		}
 	})
 

@@ -38,9 +38,10 @@ func GetClientHandler(ctx context.Context, req *pb.GetClientRequest) (*pb.GetCli
 	return &pb.GetClientResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
 		Client: &pb.Client{
-			Id:     lo.ToPtr(client.ClientID),
-			Secret: lo.ToPtr(client.ConnectSecret),
-			Config: lo.ToPtr(string(client.ConfigContent)),
+			Id:       lo.ToPtr(client.ClientID),
+			Secret:   lo.ToPtr(client.ConnectSecret),
+			Config:   lo.ToPtr(string(client.ConfigContent)),
+			ServerId: lo.ToPtr(client.ServerID),
 		},
 	}, nil
 }

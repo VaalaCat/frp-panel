@@ -38,7 +38,7 @@ export const PlatformInfo = () => {
 					</div>
 				</CardHeader>
 				<CardContent>
-					<div className='text-2xl font-bold'>{platformInfo.data?.configuredServerCount} 个</div>
+					<div className='text-2xl font-bold'>{platformInfo.data?.configuredClientCount} 个</div>
 					<p className="text-xs text-muted-foreground">请前往左侧🫲菜单修改</p>
 				</CardContent>
 			</Card>

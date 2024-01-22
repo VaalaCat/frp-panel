@@ -76,7 +76,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
 			<Label className="text-sm font-medium">节点 {serverID} 的备注</Label>
 			<p className="text-sm text-muted-foreground">可以到高级模式修改备注哦！</p>
 			<p className="text-sm border rounded p-2 my-2">
-				{server?.comment == undefined ? "空空如也" : server?.comment}
+				{server?.comment == undefined || server?.comment === "" ? "空空如也" : server?.comment}
 			</p>
 			{serverID && <Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

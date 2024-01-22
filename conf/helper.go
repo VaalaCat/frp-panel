@@ -56,10 +56,17 @@ func ServerAPIListenAddr() string {
 	return fmt.Sprintf(":%d", cfg.Server.APIPort)
 }
 
-func FRPsAuthOption() v1.HTTPPluginOptions {
+func FRPsAuthOption(isDefault bool) v1.HTTPPluginOptions {
 	cfg := Get()
-	authUrl, err := url.Parse(fmt.Sprintf("http://%s:%d%s", cfg.Master.InternalFRPAuthServerHost,
-		cfg.Master.InternalFRPAuthServerPort,
+	var port int
+	if isDefault {
+		port = cfg.Master.APIPort
+	} else {
+		port = cfg.Master.InternalFRPAuthServerPort
+	}
+	authUrl, err := url.Parse(fmt.Sprintf("http://%s:%d%s",
+		cfg.Master.InternalFRPAuthServerHost,
+		port,
 		cfg.Master.InternalFRPAuthServerPath))
 	if err != nil {
 		logrus.WithError(err).Fatalf("parse auth url error")

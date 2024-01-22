@@ -18,6 +18,7 @@ const (
 	FRPAuthTokenKey     = "token"
 	ErrKey              = "err"
 	UserInfoKey         = "x-vaala-userinfo"
+	FRPClientIDKey      = "x-vaala-frp-client-id"
 )
 
 const (

@@ -10,7 +10,7 @@ import {
 import { Label } from "@radix-ui/react-label"
 import { useQuery } from '@tanstack/react-query'
 import { listServer } from "@/api/server"
-import { listClient } from "@/api/client"
+import { getClient, listClient } from "@/api/client"
 import {
     Card,
     CardContent,
@@ -50,12 +50,6 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({ clientID: defaultCli
         }
     }, [defaultClientID, defaultServerID])
 
-    useEffect(() => {
-        if (paramClientID) {
-            setClientID(paramClientID)
-        }
-    }, [paramClientID])
-
     const { data: serverList, refetch: refetchServers } = useQuery({
         queryKey: ["listServer"], queryFn: () => {
             return listServer({ page: 1, pageSize: 500 })
@@ -67,6 +61,19 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({ clientID: defaultCli
             return listClient({ page: 1, pageSize: 500 })
         }
     })
+
+    const { data: client, refetch: refetchClient } = useQuery({
+        queryKey: ["getClient", clientID], queryFn: () => {
+            return getClient({ clientId: clientID })
+        }
+    })
+
+    useEffect(() => {
+        if (paramClientID) {
+            setClientID(paramClientID)
+            setServerID(clientList?.clients?.find((client) => client.id == paramClientID)?.serverId)
+        }
+    }, [paramClientID, clientList])
 
     return (
         <Card className="w-full">
@@ -90,6 +97,7 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({ clientID: defaultCli
 
                     <Label className="text-sm font-medium">服务端</Label>
                     <Select onValueChange={handleServerChange}
+                        value={serverID}
                         onOpenChange={() => {
                             refetchServers()
                             refetchClients()

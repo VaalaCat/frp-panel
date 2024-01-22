@@ -15,10 +15,13 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useToast } from "./ui/use-toast"
 import { $clientProxyConfigs } from "@/store/proxy"
 import { useStore } from "@nanostores/react"
 import { YesIcon } from "./ui/icon"
+import { Label } from "./ui/label"
+import { useQuery } from "@tanstack/react-query"
+import { getServer } from "@/api/server"
+import { ServerConfig } from "@/types/server"
 export const TCPConfigSchema = z.object({
     remotePort: ZodPortSchema,
     localIP: ZodIPSchema.default("127.0.0.1"),
@@ -46,7 +49,6 @@ export interface ProxyFormProps {
 
 export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName }) => {
     const [_, setTCPConfig] = useState<TCPProxyConfig | undefined>()
-
     const form = useForm<z.infer<typeof TCPConfigSchema>>({
         resolver: zodResolver(TCPConfigSchema),
     })
@@ -78,9 +80,20 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
         }, 3000);
     };
 
+    const { data: server } = useQuery({
+        queryKey: ["getServer", serverID], queryFn: () => {
+            return getServer({ serverId: serverID })
+        }
+    })
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <Label className="text-sm font-medium">访问方式</Label>
+                <p className="text-sm border rounded p-2 my-2 font-mono overflow-auto">
+                    {`${server?.server?.ip}:${(defaultProxyConfig as TCPProxyConfig).remotePort
+                        } -> ${defaultProxyConfig?.localIP}:${defaultProxyConfig?.localPort}`}
+                </p>
                 <FormField
                     control={form.control}
                     name="localPort"
@@ -165,9 +178,20 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
         }, 3000);
     };
 
+    const { data: server } = useQuery({
+        queryKey: ["getServer", serverID], queryFn: () => {
+            return getServer({ serverId: serverID })
+        }
+    })
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <Label className="text-sm font-medium">访问方式</Label>
+                <p className="text-sm border rounded p-2 my-2 font-mono overflow-auto">
+                    {`${server?.server?.ip}:${(defaultProxyConfig as UDPProxyConfig).remotePort
+                        } -> ${defaultProxyConfig?.localIP}:${defaultProxyConfig?.localPort}`}
+                </p>
                 <FormField
                     control={form.control}
                     name="localPort"
@@ -219,6 +243,7 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
 
 export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName }) => {
     const [_, setHTTPConfig] = useState<HTTPProxyConfig | undefined>()
+    const [serverConfig, setServerConfig] = useState<ServerConfig | undefined>()
     const form = useForm<z.infer<typeof HTTPConfigSchema>>({
         resolver: zodResolver(HTTPConfigSchema),
     })
@@ -250,9 +275,26 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
         }, 3000);
     };
 
+    const { data: server } = useQuery({
+        queryKey: ["getServer", serverID], queryFn: () => {
+            return getServer({ serverId: serverID })
+        }
+    })
+
+    useEffect(() => {
+        if (server && server.server?.config) {
+            setServerConfig(JSON.parse(server.server?.config) as ServerConfig)
+        }
+    }, [server])
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <Label className="text-sm font-medium">访问方式</Label>
+                <p className="text-sm border rounded p-2 my-2 font-mono overflow-auto">
+                    {`http://${(defaultProxyConfig as HTTPProxyConfig).subdomain}.${serverConfig?.subDomainHost}:${serverConfig?.vhostHTTPPort
+                        } -> ${defaultProxyConfig?.localIP}:${defaultProxyConfig?.localPort}`}
+                </p>
                 <FormField
                     control={form.control}
                     name="localPort"

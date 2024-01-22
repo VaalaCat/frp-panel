@@ -5,10 +5,12 @@ import (
 	"fmt"
 
 	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/utils"
+	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/sirupsen/logrus"
 )
 
@@ -35,6 +37,8 @@ func UpdateFrpsHander(c context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateF
 		logrus.WithError(err).Errorf("cannot load server config")
 		return nil, err
 	}
+
+	srvCfg.HTTPPlugins = []v1.HTTPPluginOptions{conf.FRPsAuthOption(common.DefaultServerID == serverID)}
 
 	if err := srv.SetConfigContent(srvCfg); err != nil {
 		logrus.WithError(err).Errorf("cannot set server config")

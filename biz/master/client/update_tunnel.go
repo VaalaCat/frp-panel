@@ -60,6 +60,7 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 	cliCfg.Auth = v1.AuthClientConfig{}
 	cliCfg.Metadatas = map[string]string{
 		common.FRPAuthTokenKey: userInfo.GetToken(),
+		common.FRPClientIDKey:  clientID,
 	}
 
 	newCfg := struct {
