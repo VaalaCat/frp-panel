@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@radix-ui/react-label'
-import { HTTPProxyForm, TCPProxyForm, UDPProxyForm } from './proxy_form'
+import { HTTPProxyForm, STCPProxyForm, TCPProxyForm, UDPProxyForm } from './proxy_form'
 import { useQuery } from '@tanstack/react-query'
 import { getClient } from '@/api/client'
 import { useStore } from '@nanostores/react'
@@ -112,6 +112,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
               <SelectItem value="http">http</SelectItem>
               <SelectItem value="tcp">tcp</SelectItem>
               <SelectItem value="udp">udp</SelectItem>
+              <SelectItem value="stcp">stcp</SelectItem>
             </SelectContent>
           </Select>
           <Button variant={'outline'} onClick={handleAddProxy}>
@@ -119,60 +120,142 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
           </Button>
         </PopoverContent>
       </Popover>
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4" key={clientID + serverID + client}>
-        {clientProxyConfigs.map((item) => {
-          return (
-            <Card key={item.name}>
-              <CardContent>
-                <div className="flex flex-col w-full pt-2">
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value={item.name}>
-                      <AccordionHeader className="flex flex-row justify-between">
-                        <div>隧道名称：{item.name}</div>
-                        <Button
-                          variant={'outline'}
-                          onClick={() => {
-                            handleDeleteProxy(item.name)
-                          }}
-                        >
-                          删除
-                        </Button>
-                      </AccordionHeader>
-                      <AccordionTrigger>类型:「{item.type}」</AccordionTrigger>
-                      <AccordionContent>
-                        {item.type === 'tcp' && serverID && clientID && (
-                          <TCPProxyForm
-                            defaultProxyConfig={item}
-                            proxyName={item.name}
-                            serverID={serverID}
-                            clientID={clientID}
-                          />
-                        )}
-                        {item.type === 'udp' && serverID && clientID && (
-                          <UDPProxyForm
-                            defaultProxyConfig={item}
-                            proxyName={item.name}
-                            serverID={serverID}
-                            clientID={clientID}
-                          />
-                        )}
-                        {item.type === 'http' && serverID && clientID && (
-                          <HTTPProxyForm
-                            defaultProxyConfig={item}
-                            proxyName={item.name}
-                            serverID={serverID}
-                            clientID={clientID}
-                          />
-                        )}
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+      <Accordion type="single" collapsible key={clientID + serverID + client}>
+        <AccordionItem value="proxies">
+          <AccordionTrigger>
+            <AccordionHeader className="flex flex-row justify-between">代理配置</AccordionHeader>
+          </AccordionTrigger>
+          <AccordionContent className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            {clientProxyConfigs.map((item) => {
+              return (
+                <Card key={item.name}>
+                  <CardContent>
+                    <div className="flex flex-col w-full pt-2">
+                      <Accordion type="single" collapsible>
+                        <AccordionItem value={item.name}>
+                          <AccordionHeader className="flex flex-row justify-between">
+                            <div>隧道名称：{item.name}</div>
+                            <Button
+                              variant={'outline'}
+                              onClick={() => {
+                                handleDeleteProxy(item.name)
+                              }}
+                            >
+                              删除
+                            </Button>
+                          </AccordionHeader>
+                          <AccordionTrigger>类型:「{item.type}」</AccordionTrigger>
+                          <AccordionContent>
+                            {item.type === 'tcp' && serverID && clientID && (
+                              <TCPProxyForm
+                                defaultProxyConfig={item}
+                                proxyName={item.name}
+                                serverID={serverID}
+                                clientID={clientID}
+                              />
+                            )}
+                            {item.type === 'udp' && serverID && clientID && (
+                              <UDPProxyForm
+                                defaultProxyConfig={item}
+                                proxyName={item.name}
+                                serverID={serverID}
+                                clientID={clientID}
+                              />
+                            )}
+                            {item.type === 'http' && serverID && clientID && (
+                              <HTTPProxyForm
+                                defaultProxyConfig={item}
+                                proxyName={item.name}
+                                serverID={serverID}
+                                clientID={clientID}
+                              />
+                            )}
+                            {item.type === 'stcp' && serverID && clientID && (
+                              <STCPProxyForm
+                                defaultProxyConfig={item}
+                                proxyName={item.name}
+                                serverID={serverID}
+                                clientID={clientID}
+                              />
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="visitors">
+          <AccordionTrigger>
+            <AccordionHeader className="flex flex-row justify-between">Visitor 配置</AccordionHeader>
+          </AccordionTrigger>
+          <AccordionContent className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            {clientProxyConfigs.map((item) => {
+              return (
+                <Card key={item.name}>
+                  <CardContent>
+                    <div className="flex flex-col w-full pt-2">
+                      <Accordion type="single" collapsible>
+                        <AccordionItem value={item.name}>
+                          <AccordionHeader className="flex flex-row justify-between">
+                            <div>隧道名称：{item.name}</div>
+                            <Button
+                              variant={'outline'}
+                              onClick={() => {
+                                handleDeleteProxy(item.name)
+                              }}
+                            >
+                              删除
+                            </Button>
+                          </AccordionHeader>
+                          <AccordionTrigger>类型:「{item.type}」</AccordionTrigger>
+                          <AccordionContent>
+                            {item.type === 'tcp' && serverID && clientID && (
+                              <TCPProxyForm
+                                defaultProxyConfig={item}
+                                proxyName={item.name}
+                                serverID={serverID}
+                                clientID={clientID}
+                              />
+                            )}
+                            {item.type === 'udp' && serverID && clientID && (
+                              <UDPProxyForm
+                                defaultProxyConfig={item}
+                                proxyName={item.name}
+                                serverID={serverID}
+                                clientID={clientID}
+                              />
+                            )}
+                            {item.type === 'http' && serverID && clientID && (
+                              <HTTPProxyForm
+                                defaultProxyConfig={item}
+                                proxyName={item.name}
+                                serverID={serverID}
+                                clientID={clientID}
+                              />
+                            )}
+                            {item.type === 'stcp' && serverID && clientID && (
+                              <STCPProxyForm
+                                defaultProxyConfig={item}
+                                proxyName={item.name}
+                                serverID={serverID}
+                                clientID={clientID}
+                              />
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
       <Button
         className="mt-2"
         onClick={() => {
