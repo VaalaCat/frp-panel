@@ -1,6 +1,8 @@
+import { useStore } from '@nanostores/react'
 import { Providers } from './providers'
 import { Toaster } from './ui/toaster'
 import { Inter } from 'next/font/google'
+import { $language } from '@/lib/i18n'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,8 +15,9 @@ export const RootLayout = ({
   header: React.ReactNode
   sidebar?: React.ReactNode
 }) => {
+  const language = useStore($language)
   return (
-    <main className={`${inter.className}`}>
+    <main key={language} className={`${inter.className}`}>
       <div>
         <Providers>{header}</Providers>
       </div>

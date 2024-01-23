@@ -1,3 +1,4 @@
+import i18n from '@/lib/i18n'
 import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { initClient, listClient } from '@/api/client'
@@ -15,8 +16,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { useTranslation } from 'react-i18next'
 
 export const CreateClientDialog = () => {
+  const { t } = useTranslation()
   const [clientID, setClientID] = useState<string | undefined>()
   const newClient = useMutation({
     mutationFn: initClient,
@@ -30,17 +33,17 @@ export const CreateClientDialog = () => {
   const { toast } = useToast()
 
   const handleNewClient = async () => {
-    toast({ title: '已提交创建请求' })
+    toast({ title: t('已提交创建请求') })
     try {
       let resp = await newClient.mutateAsync({ clientId: clientID })
       if (resp.status?.code !== RespCode.SUCCESS) {
-        toast({ title: '创建客户端失败' })
+        toast({ title: t('创建客户端失败') })
         return
       }
-      toast({ title: '创建客户端成功' })
+      toast({ title: t('创建客户端成功') })
       dataQuery.refetch()
     } catch (error) {
-      toast({ title: '创建客户端失败' })
+      toast({ title: t('创建客户端失败') })
     }
   }
 
@@ -48,19 +51,19 @@ export const CreateClientDialog = () => {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size={'sm'}>
-          新建
+          {t('新建')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>新建客户端</DialogTitle>
-          <DialogDescription>创建新的客户端用于连接，客户端ID必须唯一</DialogDescription>
+          <DialogTitle>{t('新建客户端')}</DialogTitle>
+          <DialogDescription>{t('创建新的客户端用于连接，客户端ID必须唯一')}</DialogDescription>
         </DialogHeader>
 
-        <Label>客户端ID</Label>
+        <Label>{t('客户端ID')}</Label>
         <Input className="mt-2" value={clientID} onChange={(e) => setClientID(e.target.value)} />
         <DialogFooter>
-          <Button onClick={handleNewClient}>创建</Button>
+          <Button onClick={handleNewClient}>{t('创建')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
