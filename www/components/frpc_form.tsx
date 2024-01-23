@@ -123,7 +123,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
       <Accordion type="single" collapsible key={clientID + serverID + client}>
         <AccordionItem value="proxies">
           <AccordionTrigger>
-            <AccordionHeader className="flex flex-row justify-between">代理配置</AccordionHeader>
+            <AccordionHeader className="flex flex-row justify-between">代理配置(点击展开)</AccordionHeader>
           </AccordionTrigger>
           <AccordionContent className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
             {clientProxyConfigs.map((item) => {
@@ -188,7 +188,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
             })}
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem value="visitors">
+        {/* <AccordionItem value="visitors">
           <AccordionTrigger>
             <AccordionHeader className="flex flex-row justify-between">Visitor 配置</AccordionHeader>
           </AccordionTrigger>
@@ -254,7 +254,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
               )
             })}
           </AccordionContent>
-        </AccordionItem>
+        </AccordionItem> */}
       </Accordion>
       <Button
         className="mt-2"

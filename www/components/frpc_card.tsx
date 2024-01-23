@@ -73,7 +73,10 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
     <Card className="w-full">
       <CardHeader>
         <CardTitle>编辑隧道</CardTitle>
-        <CardDescription>选择客户端和服务端以编辑隧道</CardDescription>
+        <CardDescription>
+          <div>注意⚠️：选择的「服务端」必须提前配置！</div>
+          <div>选择客户端和服务端以编辑隧道</div>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className=" flex items-center space-x-4 rounded-md border p-4">

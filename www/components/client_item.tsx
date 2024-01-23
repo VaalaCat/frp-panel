@@ -44,7 +44,7 @@ export type ClientTableSchema = {
 export const columns: ColumnDef<ClientTableSchema>[] = [
   {
     accessorKey: 'id',
-    header: 'ID',
+    header: 'ID(点击查看安装命令)',
     cell: ({ row }) => {
       return <ClientID client={row.original} />
     },
@@ -76,7 +76,7 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
   },
   {
     accessorKey: 'secret',
-    header: '连接密钥',
+    header: '连接密钥(点击查看启动命令)',
     cell: ({ row }) => {
       const client = row.original
       return <ClientSecret client={client} />
@@ -161,20 +161,13 @@ export const ClientSecret = ({ client }: { client: ClientTableSchema }) => {
         <div
           onMouseEnter={() => setShowSecrect(true)}
           onMouseLeave={() => setShowSecrect(false)}
-          onClick={() => {
-            if (platformInfo) {
-              navigator.clipboard.writeText(ExecCommandStr('client', client, platformInfo))
-              toast({ description: '复制成功' })
-            } else {
-              toast({ description: '获取平台信息失败' })
-            }
-          }}
           className="font-medium hover:rounded hover:bg-slate-100 p-2 font-mono whitespace-nowrap"
         >
           {showSecrect ? client.secret : fakeSecret}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-fit overflow-auto max-w-48">
+      <PopoverContent className="w-fit overflow-auto max-w-80">
+        <div>运行命令(需要<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases'>点击这里</a>自行下载文件)</div>
         <div className="p-2 border rounded font-mono w-fit">
           {platformInfo === undefined ? '获取平台信息失败' : ExecCommandStr('client', client, platformInfo)}
         </div>
@@ -231,15 +224,19 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
           <DropdownMenuLabel>操作</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
-              if (platformInfo) {
-                navigator.clipboard.writeText(ExecCommandStr('client', client, platformInfo))
-                toast({ description: '复制成功，如果复制不成功，请点击ID字段手动复制' })
-              } else {
+              try {
+                if (platformInfo) {
+                  navigator.clipboard.writeText(ExecCommandStr('client', client, platformInfo))
+                  toast({ description: '复制成功，如果复制不成功，请点击ID字段手动复制' })
+                } else {
+                  toast({ description: '获取平台信息失败，如果复制不成功，请点击ID字段手动复制' })
+                }
+              } catch (error) {
                 toast({ description: '获取平台信息失败，如果复制不成功，请点击ID字段手动复制' })
               }
             }}
           >
-            复制启动命令
+            复制启动命令(也可点击列表中的密钥查看)
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -247,7 +244,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
               router.push({ pathname: '/clientedit', query: { clientID: client.id } })
             }}
           >
-            修改
+            修改客户端配置
           </DropdownMenuItem>
           <DialogTrigger asChild>
             <DropdownMenuItem className="text-destructive">删除</DropdownMenuItem>

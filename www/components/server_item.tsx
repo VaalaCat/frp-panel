@@ -46,7 +46,7 @@ export type ServerTableSchema = {
 export const columns: ColumnDef<ServerTableSchema>[] = [
   {
     accessorKey: 'id',
-    header: 'ID',
+    header: 'ID(点击查看安装命令)',
     cell: ({ row }) => {
       return <ServerID server={row.original} />
     },
@@ -86,7 +86,7 @@ export const columns: ColumnDef<ServerTableSchema>[] = [
   },
   {
     accessorKey: 'secret',
-    header: '连接密钥',
+    header: '连接密钥(点击查看启动命令)',
     cell: ({ row }) => {
       const Server = row.original
       return <ServerSecret server={Server} />
@@ -172,20 +172,13 @@ export const ServerSecret = ({ server }: { server: ServerTableSchema }) => {
         <div
           onMouseEnter={() => setShowSecrect(true)}
           onMouseLeave={() => setShowSecrect(false)}
-          onClick={() => {
-            if (platformInfo) {
-              navigator.clipboard.writeText(ExecCommandStr('server', server, platformInfo))
-              toast({ description: '复制成功' })
-            } else {
-              toast({ description: '获取平台信息失败' })
-            }
-          }}
           className="font-medium hover:rounded hover:bg-slate-100 p-2 font-mono whitespace-nowrap"
         >
           {showSecrect ? server.secret : fakeSecret}
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-fit overflow-auto max-w-48">
+        <div>运行命令(需要<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases'>点击这里</a>自行下载文件)</div>
         <div className="p-2 border rounded font-mono w-fit">
           {platformInfo === undefined ? '获取平台信息失败' : ExecCommandStr('server', server, platformInfo)}
         </div>
@@ -241,15 +234,19 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
           <DropdownMenuLabel>操作</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
-              if (platformInfo) {
-                navigator.clipboard.writeText(ExecCommandStr('server', server, platformInfo))
-                toast({ description: '复制成功，如果复制不成功，请点击ID字段手动复制' })
-              } else {
+              try {
+                if (platformInfo) {
+                  navigator.clipboard.writeText(ExecCommandStr('server', server, platformInfo))
+                  toast({ description: '复制成功，如果复制不成功，请点击ID字段手动复制' })
+                } else {
+                  toast({ description: '获取平台信息失败，如果复制不成功，请点击ID字段手动复制' })
+                }
+              } catch (error) {
                 toast({ description: '获取平台信息失败，如果复制不成功，请点击ID字段手动复制' })
               }
             }}
           >
-            复制启动命令
+            复制启动命令(也可点击列表中的密钥查看)
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -262,7 +259,7 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
               })
             }}
           >
-            修改
+            修改服务端配置
           </DropdownMenuItem>
           <DialogTrigger asChild>
             <DropdownMenuItem className="text-destructive">删除</DropdownMenuItem>
@@ -271,11 +268,11 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
       </DropdownMenu>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>确定删除该客户端?</DialogTitle>
+          <DialogTitle>确定删除该服务端?</DialogTitle>
           <DialogDescription>
             <p className="text-destructive">此操作无法撤消。您确定要永久从我们的服务器中删除该客户端?</p>
             <p className="text-gray-500 border-l-4 border-gray-500 pl-4 py-2">
-              删除后运行中的客户端将无法通过现有参数再次连接，如果您需要删除客户端对外的连接，可以选择清空配置
+              删除后运行中的服务端将无法通过现有参数再次连接，如果您需要停止服务端的服务，可以选择清空配置
             </p>
           </DialogDescription>
         </DialogHeader>

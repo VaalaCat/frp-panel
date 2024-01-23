@@ -105,12 +105,14 @@ frp-panel可选docker和直接运行模式部署，直接部署请到release下�
 - master   
    
 ```bash
-docker run -d -p 9000:9000 \
-	-p 9001:9001 \
+docker run -d -p 9000:9000 \ # API控制台端口
+	-p 9001:9001 \ # rpc端口
+	-p 7000:7000 \ # frps 端口
+	-p 20000-20050:20000-20050 \ # 给frps预留的端口
     --restart=unless-stopped \
-	-v /opt/frp-panel:/data \
+	-v /opt/frp-panel:/data \ # 数据存储位置
 	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
-	-e MASTER_RPC_HOST=0.0.0.0 \
+	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
 	vaalacat/frp-panel
 # 或者
 docker run -d \
@@ -118,7 +120,7 @@ docker run -d \
     --restart=unless-stopped \
 	-v /opt/frp-panel:/data \
 	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
-	-e MASTER_RPC_HOST=0.0.0.0 \
+	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
 	vaalacat/frp-panel
 ```
 - client   
@@ -127,7 +129,7 @@ docker run -d \
 docker run -d \
 	--network=host \
     --restart=unless-stopped \
-	vaalacat/frp-panel client -s xxx -i xxx # 在master WebUI复制的参数
+	vaalacat/frp-panel client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
 ```
 - server   
    
@@ -135,24 +137,25 @@ docker run -d \
 docker run -d \
 	--network=host \
     --restart=unless-stopped \
-	vaalacat/frp-panel server -s xxx -i xxx # 在master WebUI复制的参数
+	vaalacat/frp-panel server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
 ```
 
 ### 直接运行(Linux)
 - master   
-   
+
+注意修改IP
 ```
 APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel master
 ```
-- client   
+- client
    
 ```
-frp-panel client -s xxx -i xxx # 在master WebUI复制的参数
+frp-panel client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
 ```
 - server
    
 ```
-frp-panel server -s xxx -i xxx # 在master WebUI复制的参数
+frp-panel server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
 ```
 ### 直接运行(Windows)
 在下载的可执行文件同名文件夹下创建一个 `.env` 文件(注意不要有后缀名)，然后输入以下内容保存后运行对应命令，注意，client和server的对应参数需要在web页面复制
@@ -166,9 +169,9 @@ DB_DSN=data.db
 
 client 和 server 要使用在 master WebUI复制的参数
 
-- client: `frp-panel-amd64.exe client -s xxx -i xxx`
+- client: `frp-panel-amd64.exe client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数`
 
-- server: `frp-panel-amd64.exe server -s xxx -i xxx`
+- server: `frp-panel-amd64.exe server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数`
 
 ### 配置说明
 

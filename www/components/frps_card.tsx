@@ -50,7 +50,15 @@ export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultSer
     <Card className="w-full">
       <CardHeader>
         <CardTitle>服务端配置</CardTitle>
-        <CardDescription>选择服务端以管理Frps服务</CardDescription>
+        <CardDescription>
+          <div>
+            注意⚠️：修改服务端配置文件后，服务端<a className='text-red-600'>会退出</a>
+            <br />如果您使用的是docker容器且启动命令中包含了 --restart=unless-stopped 或 --restart=always 则无需担心。
+            <br />如果您使用的是systemd安装也无需担心。
+          </div>
+          <div>
+            选择服务端以管理Frps服务
+          </div></CardDescription>
       </CardHeader>
       <CardContent>
         <div className=" flex items-center space-x-4 rounded-md border p-4">
