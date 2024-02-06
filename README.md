@@ -96,6 +96,8 @@
 ## 项目使用说明
 frp-panel可选docker和直接运行模式部署，直接部署请到release下载文件：[release](https://github.com/VaalaCat/frp-panel/releases)
 
+注意：二进制有两种，一种是仅客户端，一种是全功能可执行文件，客户端版只能执行client命令
+
 启动过后默认访问地址为 http://IP:9000
 
 ### docker   

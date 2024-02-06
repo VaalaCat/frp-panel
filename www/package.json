@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && rm -rf ../cmd/out && cp -r out ../cmd",
+    "build": "next build && rm -rf ../cmd/frpp/out && cp -r out ../cmd/frpp",
     "start": "next start",
     "lint": "next lint"
   },
