@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useToast } from './ui/use-toast'
 import React, { useState } from 'react'
-import { ExecCommandStr, LinuxInstallCommand, WindowsInstallCommand } from '@/lib/consts'
+import { ClientEnvFile, ExecCommandStr, LinuxInstallCommand, WindowsInstallCommand } from '@/lib/consts'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { deleteClient, listClient } from '@/api/client'
 import { useRouter } from 'next/router'
@@ -211,6 +211,15 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
     },
   })
 
+  const createAndDownloadFile = (fileName: string, content: string) => {
+    var aTag = document.createElement('a');
+    var blob = new Blob([content]);
+    aTag.download = fileName;
+    aTag.href = URL.createObjectURL(blob);
+    aTag.click();
+    URL.revokeObjectURL(aTag.href);
+  }
+
   return (
     <Dialog>
       <DropdownMenu>
@@ -246,6 +255,20 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
           >
             修改客户端配置
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              try {
+                if (platformInfo) {
+                  createAndDownloadFile(`.env`, ClientEnvFile(client, platformInfo))
+                }
+              }
+              catch (error) {
+                toast({ description: '获取平台信息失败' })
+              }
+            }}
+          >
+            下载配置文件
+          </DropdownMenuItem>
           <DialogTrigger asChild>
             <DropdownMenuItem className="text-destructive">删除</DropdownMenuItem>
           </DialogTrigger>
@@ -269,6 +292,6 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
           </DialogClose>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   )
 }

@@ -14,7 +14,11 @@ import (
 	"github.com/sourcegraph/conc"
 )
 
-func runServer(clientID, clientSecret string) {
+func runServer() {
+	var (
+		clientID     = conf.Get().Client.ID
+		clientSecret = conf.Get().Client.Secret
+	)
 	crypto.DefaultSalt = conf.Get().App.Secret
 	logrus.Infof("start to run server")
 

@@ -13,7 +13,11 @@ import (
 	"github.com/sourcegraph/conc"
 )
 
-func runClient(clientID, clientSecret string) {
+func runClient() {
+	var (
+		clientID     = conf.Get().Client.ID
+		clientSecret = conf.Get().Client.Secret
+	)
 	crypto.DefaultSalt = conf.Get().App.Secret
 	logrus.Infof("start to run client")
 	if len(clientSecret) == 0 {

@@ -39,6 +39,10 @@ type Config struct {
 		Type string `env:"TYPE" env-default:"sqlite3" env-description:"db type, mysql or sqlite3 and so on"`
 		DSN  string `env:"DSN" env-default:"data.db" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
 	} `env-prefix:"DB_"`
+	Client struct {
+		ID     string `env:"ID" env-description:"client id"`
+		Secret string `env:"SECRET" env-description:"client secret"`
+	} `env-prefix:"CLIENT_"`
 }
 
 var (
@@ -56,7 +60,7 @@ func InitConfig() {
 	)
 
 	if err = godotenv.Load(); err != nil {
-		logrus.Infof("Error loading .env file, will use runtime env")
+		logrus.WithError(err).Infof("Error loading .env file, will use runtime env")
 	}
 
 	cfg := Config{}

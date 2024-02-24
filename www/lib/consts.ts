@@ -23,9 +23,8 @@ export const ExecCommandStr = <T extends Client | Server>(
   info: GetPlatformInfoResponse,
   fileName?: string,
 ) => {
-  return `${fileName || 'frp-panel'} ${type} -s ${item.secret} -i ${item.id} -a ${info.globalSecret} -r ${
-    info.masterRpcHost
-  } -c ${info.masterRpcPort} -p ${info.masterApiPort} -e ${info.masterApiScheme}`
+  return `${fileName || 'frp-panel'} ${type} -s ${item.secret} -i ${item.id} -a ${info.globalSecret} -r ${info.masterRpcHost
+    } -c ${info.masterRpcPort} -p ${info.masterApiPort} -e ${info.masterApiScheme}`
 }
 
 export const WindowsInstallCommand = <T extends Client | Server>(
@@ -46,4 +45,18 @@ export const LinuxInstallCommand = <T extends Client | Server>(
   info: GetPlatformInfoResponse,
 ) => {
   return `curl -sSL https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --${ExecCommandStr(type, item, info, ' ')}`
+}
+
+export const ClientEnvFile = <T extends Client | Server>(
+  item: T,
+  info: GetPlatformInfoResponse,
+) => {
+  return `CLIENT_ID=${item.id}
+CLIENT_SECRET=${item.secret}
+APP_SECRET=${info.globalSecret}
+MASTER_RPC_HOST=${info.masterRpcHost}
+MASTER_RPC_PORT=${info.masterRpcPort}
+MASTER_API_HOST=${info.masterRpcHost}
+MASTER_API_PORT=${info.masterApiPort}
+MASTER_API_SCHEME=${info.masterApiScheme}`
 }

@@ -36,16 +36,20 @@ func initCommand() {
 		Use:   "client [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
 		Short: "run managed frpc",
 		Run: func(cmd *cobra.Command, args []string) {
-			patchConfig(rpcHost, appSecret, rpcPort, apiPort)
-			runClient(clientID, clientSecret)
+			patchConfig(rpcHost, appSecret,
+				clientID, clientSecret,
+				apiScheme, rpcPort, apiPort)
+			runClient()
 		},
 	}
 	serverCmd = &cobra.Command{
 		Use:   "server [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
 		Short: "run managed frps",
 		Run: func(cmd *cobra.Command, args []string) {
-			patchConfig(rpcHost, appSecret, rpcPort, apiPort)
-			runServer(clientID, clientSecret)
+			patchConfig(rpcHost, appSecret,
+				clientID, clientSecret,
+				apiScheme, rpcPort, apiPort)
+			runServer()
 		},
 	}
 	masterCmd = &cobra.Command{
@@ -82,7 +86,7 @@ func initLogger() {
 	logrus.SetReportCaller(true)
 }
 
-func patchConfig(host, secret string, rpcPort, apiPort int) {
+func patchConfig(host, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int) {
 	if len(host) != 0 {
 		conf.Get().Master.RPCHost = host
 		conf.Get().Master.APIHost = host
@@ -95,5 +99,14 @@ func patchConfig(host, secret string, rpcPort, apiPort int) {
 	}
 	if apiPort != 0 {
 		conf.Get().Master.APIPort = apiPort
+	}
+	if len(apiScheme) != 0 {
+		conf.Get().Master.APIScheme = apiScheme
+	}
+	if len(clientID) != 0 {
+		conf.Get().Client.ID = clientID
+	}
+	if len(clientSecret) != 0 {
+		conf.Get().Client.Secret = clientSecret
 	}
 }

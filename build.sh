@@ -20,7 +20,7 @@ echo "Building frp-panel client only linux binaries..."
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o dist/frp-panel-client-linux-amd64 cmd/frppc/*.go
 CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o dist/frp-panel-client-linux-arm64 cmd/frppc/*.go
 echo "Building frp-panel client only darwin binaries..."
-CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o dist/frp-panel-client-darwin-amd64 cmd/frpp/*.go
+CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o dist/frp-panel-client-darwin-amd64 cmd/frppc/*.go
 CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o dist/frp-panel-client-darwin-arm64 cmd/frppc/*.go
 
 echo "Build Done!"
