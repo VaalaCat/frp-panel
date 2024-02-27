@@ -1,6 +1,9 @@
 package conf
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -79,5 +82,15 @@ func (cfg *Config) Complete() {
 
 	if len(cfg.Master.APIHost) == 0 {
 		cfg.Master.APIHost = cfg.Master.RPCHost
+	}
+
+	hostname, err := os.Hostname()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	if len(cfg.Client.ID) == 0 {
+		cfg.Client.ID = hostname
 	}
 }

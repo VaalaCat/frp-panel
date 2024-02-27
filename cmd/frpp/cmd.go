@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -26,11 +23,6 @@ func initCommand() {
 		apiPort      int
 		apiScheme    string
 	)
-	hostname, err := os.Hostname()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 
 	clientCmd = &cobra.Command{
 		Use:   "client [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
@@ -66,8 +58,8 @@ func initCommand() {
 	rootCmd.AddCommand(clientCmd, serverCmd, masterCmd)
 	clientCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
 	serverCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
-	clientCmd.Flags().StringVarP(&clientID, "id", "i", hostname, "client id")
-	serverCmd.Flags().StringVarP(&clientID, "id", "i", hostname, "client id")
+	clientCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
+	serverCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
 	clientCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host")
 	serverCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host")
 	clientCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
@@ -109,4 +101,8 @@ func patchConfig(host, secret, clientID, clientSecret, apiScheme string, rpcPort
 	if len(clientSecret) != 0 {
 		conf.Get().Client.Secret = clientSecret
 	}
+	logrus.Infof("env config rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
+		conf.Get().Master.RPCHost, conf.Get().Master.RPCPort,
+		conf.Get().Master.APIHost, conf.Get().Master.APIPort,
+		conf.Get().Master.APIScheme)
 }
