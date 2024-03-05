@@ -22,9 +22,9 @@ func initCommand() {
 		apiScheme    string
 	)
 
-	clientCmd = &cobra.Command{
-		Use:   "client [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
-		Short: "run managed frpc",
+	rootCmd = &cobra.Command{
+		Use:   "frp-panel-client [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
+		Short: "frp-panel-client is a frp panel client QwQ",
 		Run: func(cmd *cobra.Command, args []string) {
 			patchConfig(rpcHost, appSecret,
 				clientID, clientSecret,
@@ -32,20 +32,15 @@ func initCommand() {
 			runClient()
 		},
 	}
-	rootCmd = &cobra.Command{
-		Use:   "frp-panel-client",
-		Short: "frp-panel-client is a frp panel client QwQ",
-	}
-	rootCmd.AddCommand(clientCmd)
-	clientCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
-	clientCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
-	clientCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host")
-	clientCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
+	rootCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
+	rootCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
+	rootCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host")
+	rootCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 
-	clientCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port")
-	clientCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port")
+	rootCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port")
+	rootCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port")
 
-	clientCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme")
+	rootCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme")
 }
 
 func initLogger() {
