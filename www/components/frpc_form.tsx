@@ -123,7 +123,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
       <Accordion type="single" collapsible key={clientID + serverID + client}>
         <AccordionItem value="proxies">
           <AccordionTrigger>
-            <AccordionHeader className="flex flex-row justify-between">代理配置(点击展开)</AccordionHeader>
+            <AccordionHeader className="flex flex-row justify-between w-full"><p>隧道配置</p> <p>点击展开{`${clientProxyConfigs.length}条隧道`}</p></AccordionHeader>
           </AccordionTrigger>
           <AccordionContent className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
             {clientProxyConfigs.map((item) => {

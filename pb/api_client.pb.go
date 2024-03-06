@@ -640,6 +640,194 @@ func (x *RemoveFRPCResponse) GetStatus() *Status {
 	return nil
 }
 
+type StopFRPCRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientId *string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+}
+
+func (x *StopFRPCRequest) Reset() {
+	*x = StopFRPCRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_client_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StopFRPCRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopFRPCRequest) ProtoMessage() {}
+
+func (x *StopFRPCRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopFRPCRequest.ProtoReflect.Descriptor instead.
+func (*StopFRPCRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *StopFRPCRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+type StopFRPCResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status *Status `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+}
+
+func (x *StopFRPCResponse) Reset() {
+	*x = StopFRPCResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_client_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StopFRPCResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopFRPCResponse) ProtoMessage() {}
+
+func (x *StopFRPCResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopFRPCResponse.ProtoReflect.Descriptor instead.
+func (*StopFRPCResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *StopFRPCResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+type StartFRPCRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientId *string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+}
+
+func (x *StartFRPCRequest) Reset() {
+	*x = StartFRPCRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_client_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartFRPCRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartFRPCRequest) ProtoMessage() {}
+
+func (x *StartFRPCRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartFRPCRequest.ProtoReflect.Descriptor instead.
+func (*StartFRPCRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *StartFRPCRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+type StartFRPCResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status *Status `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+}
+
+func (x *StartFRPCResponse) Reset() {
+	*x = StartFRPCResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_client_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartFRPCResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartFRPCResponse) ProtoMessage() {}
+
+func (x *StartFRPCResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartFRPCResponse.ProtoReflect.Descriptor instead.
+func (*StartFRPCResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *StartFRPCResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
 var File_api_client_proto protoreflect.FileDescriptor
 
 var file_api_client_proto_rawDesc = []byte{
@@ -720,6 +908,24 @@ var file_api_client_proto_rawDesc = []byte{
 	0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e,
 	0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x48, 0x00,
 	0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x88, 0x01, 0x01, 0x42, 0x09, 0x0a, 0x07, 0x5f,
+	0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x41, 0x0a, 0x0f, 0x53, 0x74, 0x6f, 0x70, 0x46, 0x52,
+	0x50, 0x43, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x20, 0x0a, 0x09, 0x63, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x08,
+	0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x88, 0x01, 0x01, 0x42, 0x0c, 0x0a, 0x0a, 0x5f,
+	0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x22, 0x4a, 0x0a, 0x10, 0x53, 0x74, 0x6f,
+	0x70, 0x46, 0x52, 0x50, 0x43, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2b, 0x0a,
+	0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e,
+	0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x48, 0x00, 0x52,
+	0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x88, 0x01, 0x01, 0x42, 0x09, 0x0a, 0x07, 0x5f, 0x73,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x42, 0x0a, 0x10, 0x53, 0x74, 0x61, 0x72, 0x74, 0x46, 0x52,
+	0x50, 0x43, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x20, 0x0a, 0x09, 0x63, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x08,
+	0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x88, 0x01, 0x01, 0x42, 0x0c, 0x0a, 0x0a, 0x5f,
+	0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x22, 0x4b, 0x0a, 0x11, 0x53, 0x74, 0x61,
+	0x72, 0x74, 0x46, 0x52, 0x50, 0x43, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2b,
+	0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e,
+	0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x48, 0x00,
+	0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x88, 0x01, 0x01, 0x42, 0x09, 0x0a, 0x07, 0x5f,
 	0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x07, 0x5a, 0x05, 0x2e, 0x2e, 0x2f, 0x70, 0x62, 0x62,
 	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
@@ -736,7 +942,7 @@ func file_api_client_proto_rawDescGZIP() []byte {
 	return file_api_client_proto_rawDescData
 }
 
-var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_api_client_proto_goTypes = []interface{}{
 	(*InitClientRequest)(nil),    // 0: api_client.InitClientRequest
 	(*InitClientResponse)(nil),   // 1: api_client.InitClientResponse
@@ -750,23 +956,29 @@ var file_api_client_proto_goTypes = []interface{}{
 	(*UpdateFRPCResponse)(nil),   // 9: api_client.UpdateFRPCResponse
 	(*RemoveFRPCRequest)(nil),    // 10: api_client.RemoveFRPCRequest
 	(*RemoveFRPCResponse)(nil),   // 11: api_client.RemoveFRPCResponse
-	(*Status)(nil),               // 12: common.Status
-	(*Client)(nil),               // 13: common.Client
+	(*StopFRPCRequest)(nil),      // 12: api_client.StopFRPCRequest
+	(*StopFRPCResponse)(nil),     // 13: api_client.StopFRPCResponse
+	(*StartFRPCRequest)(nil),     // 14: api_client.StartFRPCRequest
+	(*StartFRPCResponse)(nil),    // 15: api_client.StartFRPCResponse
+	(*Status)(nil),               // 16: common.Status
+	(*Client)(nil),               // 17: common.Client
 }
 var file_api_client_proto_depIdxs = []int32{
-	12, // 0: api_client.InitClientResponse.status:type_name -> common.Status
-	12, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
-	13, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
-	12, // 3: api_client.GetClientResponse.status:type_name -> common.Status
-	13, // 4: api_client.GetClientResponse.client:type_name -> common.Client
-	12, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
-	12, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
-	12, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
-	8,  // [8:8] is the sub-list for method output_type
-	8,  // [8:8] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	16, // 0: api_client.InitClientResponse.status:type_name -> common.Status
+	16, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
+	17, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
+	16, // 3: api_client.GetClientResponse.status:type_name -> common.Status
+	17, // 4: api_client.GetClientResponse.client:type_name -> common.Client
+	16, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
+	16, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
+	16, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
+	16, // 8: api_client.StopFRPCResponse.status:type_name -> common.Status
+	16, // 9: api_client.StartFRPCResponse.status:type_name -> common.Status
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_api_client_proto_init() }
@@ -920,6 +1132,54 @@ func file_api_client_proto_init() {
 				return nil
 			}
 		}
+		file_api_client_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StopFRPCRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_client_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StopFRPCResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_client_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartFRPCRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_client_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartFRPCResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_api_client_proto_msgTypes[0].OneofWrappers = []interface{}{}
 	file_api_client_proto_msgTypes[1].OneofWrappers = []interface{}{}
@@ -933,13 +1193,17 @@ func file_api_client_proto_init() {
 	file_api_client_proto_msgTypes[9].OneofWrappers = []interface{}{}
 	file_api_client_proto_msgTypes[10].OneofWrappers = []interface{}{}
 	file_api_client_proto_msgTypes[11].OneofWrappers = []interface{}{}
+	file_api_client_proto_msgTypes[12].OneofWrappers = []interface{}{}
+	file_api_client_proto_msgTypes[13].OneofWrappers = []interface{}{}
+	file_api_client_proto_msgTypes[14].OneofWrappers = []interface{}{}
+	file_api_client_proto_msgTypes[15].OneofWrappers = []interface{}{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_client_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

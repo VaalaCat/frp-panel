@@ -32,11 +32,13 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { getClientsStatus } from '@/api/platform'
 import { ClientType } from '@/lib/pb/common'
 import { ClientStatus, ClientStatus_Status } from '@/lib/pb/api_master'
+import { startFrpc, stopFrpc } from '@/api/frp'
 
 export type ClientTableSchema = {
   id: string
   status: 'invalid' | 'valid'
   secret: string
+  stopped: boolean
   info?: string
   config?: string
 }
@@ -124,12 +126,15 @@ export const ClientInfo = ({ client }: { client: ClientTableSchema }) => {
   })
 
   const trans = (info: ClientStatus | undefined) => {
-    let statusText: '在线' | '离线' | '错误' | '未知' = '未知'
+    let statusText: '在线' | '离线' | '错误' | '暂停' | '未知' = '未知'
     if (info === undefined) {
       return statusText
     }
     if (info.status === ClientStatus_Status.ONLINE) {
       statusText = '在线'
+      if (client.stopped) {
+        statusText = '暂停'
+      }
     } else if (info.status === ClientStatus_Status.OFFLINE) {
       statusText = '离线'
     } else if (info.status === ClientStatus_Status.ERROR) {
@@ -139,7 +144,8 @@ export const ClientInfo = ({ client }: { client: ClientTableSchema }) => {
   }
 
   const infoColor =
-    clientsInfo.data?.clients[client.id]?.status === ClientStatus_Status.ONLINE ? 'text-green-500' : 'text-red-500'
+    clientsInfo.data?.clients[client.id]?.status === ClientStatus_Status.ONLINE ? (
+      client.stopped ? 'text-yellow-500' : 'text-green-500') : 'text-red-500'
 
   return (
     <div className={`p-2 border rounded font-mono w-fit ${infoColor}`}>
@@ -211,6 +217,28 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
     },
   })
 
+  const stopClient = useMutation({
+    mutationFn: stopFrpc,
+    onSuccess: () => {
+      toast({ description: '停止成功' })
+      dataQuery.refetch()
+    },
+    onError: () => {
+      toast({ description: '停止失败' })
+    },
+  })
+
+  const startClient = useMutation({
+    mutationFn: startFrpc,
+    onSuccess: () => {
+      toast({ description: '启动成功' })
+      dataQuery.refetch()
+    },
+    onError: () => {
+      toast({ description: '启动失败' })
+    },
+  })
+
   const createAndDownloadFile = (fileName: string, content: string) => {
     var aTag = document.createElement('a');
     var blob = new Blob([content]);
@@ -269,6 +297,8 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
           >
             下载配置文件
           </DropdownMenuItem>
+          {!client.stopped && <DropdownMenuItem className="text-destructive" onClick={() => stopClient.mutate({ clientId: client.id })}>暂停</DropdownMenuItem>}
+          {client.stopped && <DropdownMenuItem onClick={() => startClient.mutate({ clientId: client.id })}>启动</DropdownMenuItem>}
           <DialogTrigger asChild>
             <DropdownMenuItem className="text-destructive">删除</DropdownMenuItem>
           </DialogTrigger>
@@ -280,7 +310,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
           <DialogDescription>
             <p className="text-destructive">此操作无法撤消。您确定要永久从我们的服务器中删除该客户端?</p>
             <p className="text-gray-500 border-l-4 border-gray-500 pl-4 py-2">
-              删除后运行中的客户端将无法通过现有参数再次连接，如果您需要删除客户端对外的连接，可以选择清空配置
+              删除后运行中的客户端将无法通过现有参数再次连接，如果您需要删除客户端对外的连接，可以选择暂停客户端
             </p>
           </DialogDescription>
         </DialogHeader>

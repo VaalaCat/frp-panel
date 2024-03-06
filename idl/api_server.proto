@@ -60,3 +60,19 @@ message RemoveFRPSRequest {
 message RemoveFRPSResponse {
   optional common.Status status = 1;
 }
+
+message StopFRPSRequest {
+  optional string server_id = 1;
+}
+
+message StopFRPSResponse {
+  optional common.Status status = 1;
+}
+
+message StartFRPSRequest {
+  optional string server_id = 1;
+}
+
+message StartFRPSResponse {
+  optional common.Status status = 1;
+}

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type CommonResp interface {
+type RespType interface {
 	pb.UpdateFRPCResponse | pb.RemoveFRPCResponse |
 		pb.UpdateFRPSResponse | pb.RemoveFRPSResponse |
 		pb.CommonResponse | pb.RegisterResponse | pb.LoginResponse |
@@ -19,10 +19,11 @@ type CommonResp interface {
 		pb.DeleteServerResponse |
 		pb.GetUserInfoResponse | pb.UpdateUserInfoResponse |
 		pb.GetPlatformInfoResponse | pb.GetClientsStatusResponse |
-		pb.GetClientCertResponse
+		pb.GetClientCertResponse |
+		pb.StartFRPCResponse | pb.StopFRPCResponse | pb.StartFRPSResponse | pb.StopFRPSResponse
 }
 
-func OKResp[T CommonResp](c *gin.Context, origin *T) {
+func OKResp[T RespType](c *gin.Context, origin *T) {
 	c.Header(TraceIDKey, c.GetString(TraceIDKey))
 	if c.ContentType() == "application/x-protobuf" {
 		c.ProtoBuf(http.StatusOK, origin)
@@ -31,7 +32,7 @@ func OKResp[T CommonResp](c *gin.Context, origin *T) {
 	}
 }
 
-func ErrResp[T CommonResp](c *gin.Context, origin *T, err string) {
+func ErrResp[T RespType](c *gin.Context, origin *T, err string) {
 	c.Header(TraceIDKey, c.GetString(TraceIDKey))
 	if c.ContentType() == "application/x-protobuf" {
 		c.ProtoBuf(http.StatusInternalServerError, origin)
@@ -50,7 +51,7 @@ func ErrUnAuthorized(c *gin.Context, err string) {
 	}
 }
 
-func ProtoResp[T CommonResp](origin *T) (*pb.ClientMessage, error) {
+func ProtoResp[T RespType](origin *T) (*pb.ClientMessage, error) {
 	switch ptr := any(origin).(type) {
 	case *pb.CommonResponse:
 		rawData, err := proto.Marshal(ptr)
@@ -95,6 +96,42 @@ func ProtoResp[T CommonResp](origin *T) (*pb.ClientMessage, error) {
 		}
 		return &pb.ClientMessage{
 			Event: pb.Event_EVENT_REMOVE_FRPC,
+			Data:  rawData,
+		}, nil
+	case *pb.StartFRPCResponse:
+		rawData, err := proto.Marshal(ptr)
+		if err != nil {
+			return nil, err
+		}
+		return &pb.ClientMessage{
+			Event: pb.Event_EVENT_START_FRPC,
+			Data:  rawData,
+		}, nil
+	case *pb.StopFRPCResponse:
+		rawData, err := proto.Marshal(ptr)
+		if err != nil {
+			return nil, err
+		}
+		return &pb.ClientMessage{
+			Event: pb.Event_EVENT_STOP_FRPC,
+			Data:  rawData,
+		}, nil
+	case *pb.StartFRPSResponse:
+		rawData, err := proto.Marshal(ptr)
+		if err != nil {
+			return nil, err
+		}
+		return &pb.ClientMessage{
+			Event: pb.Event_EVENT_START_FRPS,
+			Data:  rawData,
+		}, nil
+	case *pb.StopFRPSResponse:
+		rawData, err := proto.Marshal(ptr)
+		if err != nil {
+			return nil, err
+		}
+		return &pb.ClientMessage{
+			Event: pb.Event_EVENT_STOP_FRPS,
 			Data:  rawData,
 		}, nil
 	default:

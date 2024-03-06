@@ -61,6 +61,10 @@ export interface Client {
      * @generated from protobuf field: optional string server_id = 6;
      */
     serverId?: string;
+    /**
+     * @generated from protobuf field: optional bool stopped = 7;
+     */
+    stopped?: boolean;
 }
 /**
  * @generated from protobuf message common.Server
@@ -308,7 +312,8 @@ class Client$Type extends MessageType<Client> {
             { no: 2, name: "secret", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "config", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 5, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 6, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 6, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 7, name: "stopped", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<Client>): Client {
@@ -337,6 +342,9 @@ class Client$Type extends MessageType<Client> {
                 case /* optional string server_id */ 6:
                     message.serverId = reader.string();
                     break;
+                case /* optional bool stopped */ 7:
+                    message.stopped = reader.bool();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -364,6 +372,9 @@ class Client$Type extends MessageType<Client> {
         /* optional string server_id = 6; */
         if (message.serverId !== undefined)
             writer.tag(6, WireType.LengthDelimited).string(message.serverId);
+        /* optional bool stopped = 7; */
+        if (message.stopped !== undefined)
+            writer.tag(7, WireType.Varint).bool(message.stopped);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

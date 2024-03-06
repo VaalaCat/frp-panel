@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -16,6 +17,10 @@ func RPCPullConfig(ctx context.Context, req *pb.PullClientConfigReq) (*pb.PullCl
 
 	if cli, err = ValidateClientRequest(req.GetBase()); err != nil {
 		return nil, err
+	}
+
+	if cli.Stopped {
+		return nil, fmt.Errorf("client is stopped")
 	}
 
 	return &pb.PullClientConfigResp{

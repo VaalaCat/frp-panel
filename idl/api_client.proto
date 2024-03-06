@@ -59,3 +59,19 @@ message RemoveFRPCRequest {
 message RemoveFRPCResponse {
   optional common.Status status = 1;
 }
+
+message StopFRPCRequest {
+  optional string client_id = 1;
+}
+
+message StopFRPCResponse {
+  optional common.Status status = 1;
+}
+
+message StartFRPCRequest {
+  optional string client_id = 1;
+}
+
+message StartFRPCResponse {
+  optional common.Status status = 1;
+}

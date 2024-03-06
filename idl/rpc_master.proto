@@ -16,6 +16,10 @@ enum Event {
   EVENT_REMOVE_FRPS = 8;
   EVENT_PING = 9;
   EVENT_PONG = 10;
+  EVENT_STOP_FRPC = 11;
+  EVENT_START_FRPC = 12;
+  EVENT_STOP_FRPS = 13;
+  EVENT_START_FRPS = 14;
 }
 
 message ServerBase {

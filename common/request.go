@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-type CommonReq interface {
+type ReqType interface {
 	pb.UpdateFRPCRequest | pb.RemoveFRPCRequest |
 		pb.UpdateFRPSRequest | pb.RemoveFRPSRequest |
 		pb.CommonRequest | pb.RegisterRequest | pb.LoginRequest |
@@ -20,10 +20,11 @@ type CommonReq interface {
 		pb.DeleteServerRequest |
 		pb.GetUserInfoRequest | pb.UpdateUserInfoRequest |
 		pb.GetPlatformInfoRequest | pb.GetClientsStatusRequest |
-		pb.GetClientCertRequest
+		pb.GetClientCertRequest |
+		pb.StartFRPCRequest | pb.StopFRPCRequest | pb.StartFRPSRequest | pb.StopFRPSRequest
 }
 
-func GetProtoRequest[T CommonReq](c *gin.Context) (r *T, err error) {
+func GetProtoRequest[T ReqType](c *gin.Context) (r *T, err error) {
 	r = new(T)
 	if c.ContentType() == "application/x-protobuf" {
 		err = c.Copy().ShouldBindWith(r, binding.ProtoBuf)
@@ -44,7 +45,7 @@ func GetProtoRequest[T CommonReq](c *gin.Context) (r *T, err error) {
 	return r, nil
 }
 
-func GetServerMessageRequest[T CommonReq](b []byte, r *T, trans func(b []byte, m protoreflect.ProtoMessage) error) (err error) {
+func GetServerMessageRequest[T ReqType](b []byte, r *T, trans func(b []byte, m protoreflect.ProtoMessage) error) (err error) {
 	switch ptr := any(r).(type) {
 	case *pb.CommonRequest:
 		return trans(b, ptr)
@@ -86,6 +87,13 @@ func GetServerMessageRequest[T CommonReq](b []byte, r *T, trans func(b []byte, m
 		return trans(b, ptr)
 	case *pb.GetClientCertRequest:
 		return trans(b, ptr)
+	case *pb.StartFRPCRequest:
+		return trans(b, ptr)
+	case *pb.StopFRPCRequest:
+		return trans(b, ptr)
+	case *pb.StartFRPSRequest:
+		return trans(b, ptr)
+	case *pb.StopFRPSRequest:
 	default:
 	}
 	return fmt.Errorf("cannot unmarshal unknown type: %T", r)

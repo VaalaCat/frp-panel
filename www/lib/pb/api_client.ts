@@ -148,6 +148,42 @@ export interface RemoveFRPCResponse {
      */
     status?: Status;
 }
+/**
+ * @generated from protobuf message api_client.StopFRPCRequest
+ */
+export interface StopFRPCRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+}
+/**
+ * @generated from protobuf message api_client.StopFRPCResponse
+ */
+export interface StopFRPCResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.StartFRPCRequest
+ */
+export interface StartFRPCRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+}
+/**
+ * @generated from protobuf message api_client.StartFRPCResponse
+ */
+export interface StartFRPCResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class InitClientRequest$Type extends MessageType<InitClientRequest> {
     constructor() {
@@ -750,3 +786,187 @@ class RemoveFRPCResponse$Type extends MessageType<RemoveFRPCResponse> {
  * @generated MessageType for protobuf message api_client.RemoveFRPCResponse
  */
 export const RemoveFRPCResponse = new RemoveFRPCResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StopFRPCRequest$Type extends MessageType<StopFRPCRequest> {
+    constructor() {
+        super("api_client.StopFRPCRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<StopFRPCRequest>): StopFRPCRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StopFRPCRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StopFRPCRequest): StopFRPCRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StopFRPCRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StopFRPCRequest
+ */
+export const StopFRPCRequest = new StopFRPCRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StopFRPCResponse$Type extends MessageType<StopFRPCResponse> {
+    constructor() {
+        super("api_client.StopFRPCResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<StopFRPCResponse>): StopFRPCResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StopFRPCResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StopFRPCResponse): StopFRPCResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StopFRPCResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StopFRPCResponse
+ */
+export const StopFRPCResponse = new StopFRPCResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StartFRPCRequest$Type extends MessageType<StartFRPCRequest> {
+    constructor() {
+        super("api_client.StartFRPCRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<StartFRPCRequest>): StartFRPCRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StartFRPCRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StartFRPCRequest): StartFRPCRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StartFRPCRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StartFRPCRequest
+ */
+export const StartFRPCRequest = new StartFRPCRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StartFRPCResponse$Type extends MessageType<StartFRPCResponse> {
+    constructor() {
+        super("api_client.StartFRPCResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<StartFRPCResponse>): StartFRPCResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StartFRPCResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StartFRPCResponse): StartFRPCResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StartFRPCResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StartFRPCResponse
+ */
+export const StartFRPCResponse = new StartFRPCResponse$Type();

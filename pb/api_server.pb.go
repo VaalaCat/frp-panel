@@ -656,6 +656,194 @@ func (x *RemoveFRPSResponse) GetStatus() *Status {
 	return nil
 }
 
+type StopFRPSRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ServerId *string `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3,oneof" json:"server_id,omitempty"`
+}
+
+func (x *StopFRPSRequest) Reset() {
+	*x = StopFRPSRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_server_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StopFRPSRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopFRPSRequest) ProtoMessage() {}
+
+func (x *StopFRPSRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_server_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopFRPSRequest.ProtoReflect.Descriptor instead.
+func (*StopFRPSRequest) Descriptor() ([]byte, []int) {
+	return file_api_server_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *StopFRPSRequest) GetServerId() string {
+	if x != nil && x.ServerId != nil {
+		return *x.ServerId
+	}
+	return ""
+}
+
+type StopFRPSResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status *Status `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+}
+
+func (x *StopFRPSResponse) Reset() {
+	*x = StopFRPSResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_server_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StopFRPSResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopFRPSResponse) ProtoMessage() {}
+
+func (x *StopFRPSResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_server_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopFRPSResponse.ProtoReflect.Descriptor instead.
+func (*StopFRPSResponse) Descriptor() ([]byte, []int) {
+	return file_api_server_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *StopFRPSResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+type StartFRPSRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ServerId *string `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3,oneof" json:"server_id,omitempty"`
+}
+
+func (x *StartFRPSRequest) Reset() {
+	*x = StartFRPSRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_server_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartFRPSRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartFRPSRequest) ProtoMessage() {}
+
+func (x *StartFRPSRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_server_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartFRPSRequest.ProtoReflect.Descriptor instead.
+func (*StartFRPSRequest) Descriptor() ([]byte, []int) {
+	return file_api_server_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *StartFRPSRequest) GetServerId() string {
+	if x != nil && x.ServerId != nil {
+		return *x.ServerId
+	}
+	return ""
+}
+
+type StartFRPSResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status *Status `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+}
+
+func (x *StartFRPSResponse) Reset() {
+	*x = StartFRPSResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_server_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartFRPSResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartFRPSResponse) ProtoMessage() {}
+
+func (x *StartFRPSResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_server_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartFRPSResponse.ProtoReflect.Descriptor instead.
+func (*StartFRPSResponse) Descriptor() ([]byte, []int) {
+	return file_api_server_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *StartFRPSResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
 var File_api_server_proto protoreflect.FileDescriptor
 
 var file_api_server_proto_rawDesc = []byte{
@@ -741,6 +929,24 @@ var file_api_server_proto_rawDesc = []byte{
 	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2b, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53,
 	0x74, 0x61, 0x74, 0x75, 0x73, 0x48, 0x00, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x88,
+	0x01, 0x01, 0x42, 0x09, 0x0a, 0x07, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x41, 0x0a,
+	0x0f, 0x53, 0x74, 0x6f, 0x70, 0x46, 0x52, 0x50, 0x53, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x20, 0x0a, 0x09, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x08, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x49, 0x64, 0x88,
+	0x01, 0x01, 0x42, 0x0c, 0x0a, 0x0a, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64,
+	0x22, 0x4a, 0x0a, 0x10, 0x53, 0x74, 0x6f, 0x70, 0x46, 0x52, 0x50, 0x53, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2b, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x48, 0x00, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x88, 0x01,
+	0x01, 0x42, 0x09, 0x0a, 0x07, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x42, 0x0a, 0x10,
+	0x53, 0x74, 0x61, 0x72, 0x74, 0x46, 0x52, 0x50, 0x53, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x20, 0x0a, 0x09, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x08, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x49, 0x64, 0x88,
+	0x01, 0x01, 0x42, 0x0c, 0x0a, 0x0a, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64,
+	0x22, 0x4b, 0x0a, 0x11, 0x53, 0x74, 0x61, 0x72, 0x74, 0x46, 0x52, 0x50, 0x53, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2b, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x48, 0x00, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x88,
 	0x01, 0x01, 0x42, 0x09, 0x0a, 0x07, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x07, 0x5a,
 	0x05, 0x2e, 0x2e, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
@@ -757,7 +963,7 @@ func file_api_server_proto_rawDescGZIP() []byte {
 	return file_api_server_proto_rawDescData
 }
 
-var file_api_server_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_api_server_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_api_server_proto_goTypes = []interface{}{
 	(*InitServerRequest)(nil),    // 0: api_server.InitServerRequest
 	(*InitServerResponse)(nil),   // 1: api_server.InitServerResponse
@@ -771,23 +977,29 @@ var file_api_server_proto_goTypes = []interface{}{
 	(*UpdateFRPSResponse)(nil),   // 9: api_server.UpdateFRPSResponse
 	(*RemoveFRPSRequest)(nil),    // 10: api_server.RemoveFRPSRequest
 	(*RemoveFRPSResponse)(nil),   // 11: api_server.RemoveFRPSResponse
-	(*Status)(nil),               // 12: common.Status
-	(*Server)(nil),               // 13: common.Server
+	(*StopFRPSRequest)(nil),      // 12: api_server.StopFRPSRequest
+	(*StopFRPSResponse)(nil),     // 13: api_server.StopFRPSResponse
+	(*StartFRPSRequest)(nil),     // 14: api_server.StartFRPSRequest
+	(*StartFRPSResponse)(nil),    // 15: api_server.StartFRPSResponse
+	(*Status)(nil),               // 16: common.Status
+	(*Server)(nil),               // 17: common.Server
 }
 var file_api_server_proto_depIdxs = []int32{
-	12, // 0: api_server.InitServerResponse.status:type_name -> common.Status
-	12, // 1: api_server.ListServersResponse.status:type_name -> common.Status
-	13, // 2: api_server.ListServersResponse.servers:type_name -> common.Server
-	12, // 3: api_server.GetServerResponse.status:type_name -> common.Status
-	13, // 4: api_server.GetServerResponse.server:type_name -> common.Server
-	12, // 5: api_server.DeleteServerResponse.status:type_name -> common.Status
-	12, // 6: api_server.UpdateFRPSResponse.status:type_name -> common.Status
-	12, // 7: api_server.RemoveFRPSResponse.status:type_name -> common.Status
-	8,  // [8:8] is the sub-list for method output_type
-	8,  // [8:8] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	16, // 0: api_server.InitServerResponse.status:type_name -> common.Status
+	16, // 1: api_server.ListServersResponse.status:type_name -> common.Status
+	17, // 2: api_server.ListServersResponse.servers:type_name -> common.Server
+	16, // 3: api_server.GetServerResponse.status:type_name -> common.Status
+	17, // 4: api_server.GetServerResponse.server:type_name -> common.Server
+	16, // 5: api_server.DeleteServerResponse.status:type_name -> common.Status
+	16, // 6: api_server.UpdateFRPSResponse.status:type_name -> common.Status
+	16, // 7: api_server.RemoveFRPSResponse.status:type_name -> common.Status
+	16, // 8: api_server.StopFRPSResponse.status:type_name -> common.Status
+	16, // 9: api_server.StartFRPSResponse.status:type_name -> common.Status
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_api_server_proto_init() }
@@ -941,6 +1153,54 @@ func file_api_server_proto_init() {
 				return nil
 			}
 		}
+		file_api_server_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StopFRPSRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_server_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StopFRPSResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_server_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartFRPSRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_server_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartFRPSResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_api_server_proto_msgTypes[0].OneofWrappers = []interface{}{}
 	file_api_server_proto_msgTypes[1].OneofWrappers = []interface{}{}
@@ -954,13 +1214,17 @@ func file_api_server_proto_init() {
 	file_api_server_proto_msgTypes[9].OneofWrappers = []interface{}{}
 	file_api_server_proto_msgTypes[10].OneofWrappers = []interface{}{}
 	file_api_server_proto_msgTypes[11].OneofWrappers = []interface{}{}
+	file_api_server_proto_msgTypes[12].OneofWrappers = []interface{}{}
+	file_api_server_proto_msgTypes[13].OneofWrappers = []interface{}{}
+	file_api_server_proto_msgTypes[14].OneofWrappers = []interface{}{}
+	file_api_server_proto_msgTypes[15].OneofWrappers = []interface{}{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_server_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

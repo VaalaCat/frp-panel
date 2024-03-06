@@ -14,7 +14,7 @@ func GlobalClientID(username, clientType, clientID string) string {
 	return fmt.Sprintf("%s.%s.%s", username, clientType, clientID)
 }
 
-func Wrapper[T CommonReq, U CommonResp](handler func(context.Context, *T) (*U, error)) func(c *gin.Context) {
+func Wrapper[T ReqType, U RespType](handler func(context.Context, *T) (*U, error)) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		req, err := GetProtoRequest[T](c)
 		if err != nil {
@@ -34,7 +34,7 @@ func Wrapper[T CommonReq, U CommonResp](handler func(context.Context, *T) (*U, e
 	}
 }
 
-func WrapperServerMsg[T CommonReq, U CommonResp](req *pb.ServerMessage, handler func(context.Context, *T) (*U, error)) *pb.ClientMessage {
+func WrapperServerMsg[T ReqType, U RespType](req *pb.ServerMessage, handler func(context.Context, *T) (*U, error)) *pb.ClientMessage {
 	r := new(T)
 	GetServerMessageRequest(req.GetData(), r, proto.Unmarshal)
 	if err := GetServerMessageRequest(req.GetData(), r, proto.Unmarshal); err != nil {

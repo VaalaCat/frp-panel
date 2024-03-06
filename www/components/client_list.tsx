@@ -66,6 +66,7 @@ export const ClientList: React.FC<ClientListProps> = ({ Clients }) => {
           status: client.config == undefined || client.config == '' ? 'invalid' : 'valid',
           secret: client.secret == undefined ? '' : client.secret,
           config: client.config,
+          stopped: client.stopped,
         } as ClientTableSchema
       }) ?? data,
     pageCount: Math.ceil(

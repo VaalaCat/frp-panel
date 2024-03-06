@@ -61,6 +61,8 @@ func ConfigureRouter(router *gin.Engine) {
 		{
 			frpcRouter.POST("/update", common.Wrapper(client.UpdateFrpcHander))
 			frpcRouter.POST("/delete", common.Wrapper(client.RemoveFrpcHandler))
+			frpcRouter.POST("/stop", common.Wrapper(client.StopFRPCHandler))
+			frpcRouter.POST("/start", common.Wrapper(client.StartFRPCHandler))
 		}
 		frpsRouter := v1.Group("/frps", middleware.JWTAuth, middleware.AuthCtx)
 		{

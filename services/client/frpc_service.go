@@ -95,6 +95,10 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 }
 
 func (c *Client) Run() {
+	if c.running {
+		return
+	}
+
 	shouldGracefulClose := c.Common.Transport.Protocol == "kcp" || c.Common.Transport.Protocol == "quic"
 	if shouldGracefulClose {
 		go handleTermSignal(c.cli)
