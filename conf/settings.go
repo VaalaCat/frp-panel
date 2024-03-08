@@ -59,11 +59,31 @@ func Get() *Config {
 
 func InitConfig() {
 	var (
-		err error
+		err        error
+		useEnvFile bool
 	)
 
-	if err = godotenv.Load(); err != nil {
-		logrus.WithError(err).Infof("Error loading .env file, will use runtime env")
+	envFiles := []string{
+		".env",
+		"/etc/frpp/.env",
+	}
+
+	for i, envFile := range envFiles {
+		if err = godotenv.Load(envFile); err == nil {
+			logrus.Infof("load env file success: %s", envFile)
+			useEnvFile = true
+			break
+		}
+		if i == len(envFiles)-1 {
+			logrus.Errorf("cannot load env file: %s, error: %v", envFile, err)
+			useEnvFile = false
+			break
+		}
+		logrus.Infof("cannot load env file: %s, error: %v, try next", envFile, err)
+	}
+
+	if !useEnvFile {
+		logrus.Info("use runtime env variables")
 	}
 
 	cfg := Config{}
