@@ -113,10 +113,10 @@ export const ServerID = ({ server }: { server: ServerTableSchema }) => {
         <div className="p-2 border rounded font-mono w-fit">
           {platformInfo === undefined ? '获取平台信息失败' : LinuxInstallCommand('server', server, platformInfo)}
         </div>
-        {/* <div>Windows</div>
-			<div className="p-2 border rounded font-mono w-fit">
-				{platformInfo === undefined ? "获取平台信息失败" : WindowsInstallCommand("server", server, platformInfo)}
-			</div> */}
+        <div>Windows安装到系统服务</div>
+        <div className="p-2 border rounded font-mono w-fit">
+          {platformInfo === undefined ? '获取平台信息失败' : WindowsInstallCommand('server', server, platformInfo)}
+        </div>
       </PopoverContent>
     </Popover>
   )

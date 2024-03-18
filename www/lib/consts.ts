@@ -32,11 +32,13 @@ export const WindowsInstallCommand = <T extends Client | Server>(
   item: T,
   info: GetPlatformInfoResponse,
 ) => {
-  return `Invoke-WebRequest -Uri 'https://github.com/your_repository/frp-panel/releases/latest/download/frp-panel-amd64.exe' -OutFile 'frp-panel.exe'
-	Move-Item .\\frp-panel.exe C:\\Tools\\frp-panel.exe
-	$command = "C:\\Tools\\${ExecCommandStr(type, item, info, 'frp-panel.exe')}"
-	Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\FRPPanel' -Name 'ImagePath' -Value "\`"$command\`""
-	New-Service -Name 'FRPPanel' -BinaryPathName 'C:\\Tools\\frp-panel.exe' -StartupType Automatic | Start-Service`
+  return `[Net.ServicePointManager]::SecurityProtocol = `+
+  `[Net.SecurityProtocolType]::Ssl3 -bor `+
+  `[Net.SecurityProtocolType]::Tls -bor ` +
+  `[Net.SecurityProtocolType]::Tls11 -bor ` +
+  `[Net.SecurityProtocolType]::Tls12;set-ExecutionPolicy RemoteSigned;`+
+  `Invoke-WebRequest https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.ps1 `+
+  `-OutFile C:\install.ps1;powershell.exe C:\install.ps1 ${ExecCommandStr(type, item, info, ' ')}`
 }
 
 export const LinuxInstallCommand = <T extends Client | Server>(

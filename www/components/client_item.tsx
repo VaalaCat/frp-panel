@@ -100,15 +100,15 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
       <PopoverTrigger asChild>
         <div className="font-mono">{client.id}</div>
       </PopoverTrigger>
-      <PopoverContent className="w-fit overflow-auto max-w-64">
+      <PopoverContent className="w-fit overflow-auto max-w-72 max-h-72">
         <div>Linux安装到systemd</div>
         <div className="p-2 border rounded font-mono w-fit">
           {platformInfo === undefined ? '获取平台信息失败' : LinuxInstallCommand('client', client, platformInfo)}
         </div>
-        {/* <div>Windows</div>
-            <div className="p-2 border rounded font-mono w-fit">
-                {platformInfo === undefined ? "获取平台信息失败" : WindowsInstallCommand("client", client, platformInfo)}
-            </div> */}
+        <div>Windows安装到系统服务</div>
+        <div className="p-2 border rounded font-mono w-fit">
+          {platformInfo === undefined ? "获取平台信息失败" : WindowsInstallCommand("client", client, platformInfo)}
+        </div>
       </PopoverContent>
     </Popover>
   )
