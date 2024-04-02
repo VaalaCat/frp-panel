@@ -76,7 +76,7 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 		logrus.Panic(err)
 	}
 
-	log.InitLog(commonCfg.Log.To, commonCfg.Log.Level, commonCfg.Log.MaxDays, commonCfg.Log.DisablePrintColor)
+	log.InitLogger(commonCfg.Log.To, commonCfg.Log.Level, int(commonCfg.Log.MaxDays), commonCfg.Log.DisablePrintColor)
 	cli, err := client.NewService(client.ServiceOptions{
 		Common:      commonCfg,
 		ProxyCfgs:   proxyCfgs,

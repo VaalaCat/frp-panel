@@ -85,6 +85,7 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 
 	cli.ConfigContent = rawCliConf
 	cli.ServerID = serverID
+	cli.Comment = req.GetComment()
 
 	if err := dao.UpdateClient(userInfo, cli); err != nil {
 		logrus.WithError(err).Errorf("cannot update client, id: [%s]", clientID)

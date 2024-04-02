@@ -1,5 +1,5 @@
 # Stage 1: Building frontend
-FROM node:18-alpine AS frontend
+FROM node:20-alpine AS frontend
 WORKDIR /app/www
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 RUN apk update --no-cache && apk add --no-cache tzdata git openssh
@@ -24,7 +24,7 @@ COPY www/*.json ./
 RUN ls && mkdir -p ../cmd/frpp && npm run build
 
 # Stage 2: Building binary
-FROM golang:1.21-alpine AS builder
+FROM golang:1.22-alpine AS builder
 WORKDIR /app
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 RUN apk update --no-cache && apk add --no-cache tzdata git

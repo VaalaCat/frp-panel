@@ -1,7 +1,7 @@
 import { HTTPProxyConfig, TCPProxyConfig, TypedProxyConfig, UDPProxyConfig, STCPProxyConfig } from '@/types/proxy'
 import * as z from 'zod'
 import React from 'react'
-import { ZodIPSchema, ZodPortSchema, ZodStringSchema } from '@/lib/consts'
+import { ZodPortSchema, ZodStringSchema } from '@/lib/consts'
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Control, FieldValues, useForm } from 'react-hook-form'
@@ -18,24 +18,24 @@ import { ServerConfig } from '@/types/server'
 import { ArrowRightIcon } from 'lucide-react'
 export const TCPConfigSchema = z.object({
   remotePort: ZodPortSchema,
-  localIP: ZodIPSchema.default('127.0.0.1'),
+  localIP: ZodStringSchema.default('127.0.0.1'),
   localPort: ZodPortSchema,
 })
 
 export const UDPConfigSchema = z.object({
   remotePort: ZodPortSchema.optional(),
-  localIP: ZodIPSchema.default('127.0.0.1'),
+  localIP: ZodStringSchema.default('127.0.0.1'),
   localPort: ZodPortSchema,
 })
 
 export const HTTPConfigSchema = z.object({
   localPort: ZodPortSchema,
-  localIP: ZodIPSchema.default('127.0.0.1'),
+  localIP: ZodStringSchema.default('127.0.0.1'),
   subDomain: ZodStringSchema,
 })
 
 export const STCPConfigSchema = z.object({
-  localIP: ZodIPSchema.default('127.0.0.1'),
+  localIP: ZodStringSchema.default('127.0.0.1'),
   localPort: ZodPortSchema,
   secretKey: ZodStringSchema,
 })

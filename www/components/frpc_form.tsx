@@ -83,6 +83,8 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
         serverId: serverID,
         clientId: clientID,
       })
+      await refetchClient()
+      $clientProxyConfigs.set([])
       toast({ title: '更新隧道状态', description: res.status?.code === RespCode.SUCCESS ? '更新成功' : '更新失败' })
     } catch (error) {
       console.error(error)

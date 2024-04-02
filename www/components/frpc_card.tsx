@@ -10,6 +10,7 @@ import { Switch } from './ui/switch'
 import { FRPCEditor } from './frpc_editor'
 import { FRPCForm } from './frpc_form'
 import { useSearchParams } from 'next/navigation'
+import { $clientProxyConfigs } from '@/store/proxy'
 
 export interface FRPCFormCardProps {
   clientID?: string
@@ -66,7 +67,9 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
     if (paramClientID) {
       setClientID(paramClientID)
       setServerID(clientList?.clients?.find((client) => client.id == paramClientID)?.serverId)
+      refetchClient()
     }
+    $clientProxyConfigs.set([])
   }, [paramClientID, clientList])
 
   return (
@@ -134,6 +137,12 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
             </SelectContent>
           </Select>
         </div>
+        {clientID && !advanceMode && <>
+        <Label className="text-sm font-medium">节点 {clientID} 的备注</Label>
+        <p className="text-sm text-muted-foreground">可以到高级模式修改备注哦！</p>
+        <p className="text-sm border rounded p-2 my-2">
+          {client?.client?.comment == undefined || client?.client?.comment === '' ? '空空如也' : client?.client?.comment}
+        </p></>}
         {clientID && serverID && !advanceMode && <FRPCForm clientID={clientID} serverID={serverID} />}
         {clientID && serverID && advanceMode && <FRPCEditor clientID={clientID} serverID={serverID} />}
       </CardContent>

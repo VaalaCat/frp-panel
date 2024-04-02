@@ -59,7 +59,7 @@ func NewServerHandler(svrCfg *v1.ServerConfig) *Server {
 		logrus.Panic(err)
 	}
 
-	log.InitLog(svrCfg.Log.To, svrCfg.Log.Level, svrCfg.Log.MaxDays, svrCfg.Log.DisablePrintColor)
+	log.InitLogger(svrCfg.Log.To, svrCfg.Log.Level, int(svrCfg.Log.MaxDays), svrCfg.Log.DisablePrintColor)
 
 	var svr *server.Service
 

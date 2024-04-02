@@ -22,6 +22,7 @@ type ClientEntity struct {
 	ConfigContent []byte `json:"config_content"`
 	ConnectSecret string `json:"connect_secret" gorm:"not null"`
 	Stopped       bool   `json:"stopped"`
+	Comment       string `json:"comment"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt `gorm:"index"`

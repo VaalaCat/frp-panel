@@ -11,7 +11,7 @@ var (
 )
 
 func InitCache() {
-	cacheSize := conf.Get().Master.CacheSize * 1024 * 1024 // 100 MB
+	cacheSize := conf.Get().Master.CacheSize * 1024 * 1024 // MB
 	cache = freecache.NewCache(cacheSize)
 	logrus.Infof("init cache success, size: %d MB", cacheSize/1024/1024)
 }

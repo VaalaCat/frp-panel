@@ -43,6 +43,7 @@ func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.Li
 			Config:   lo.ToPtr(string(c.ConfigContent)),
 			ServerId: lo.ToPtr(c.ServerID),
 			Stopped:  lo.ToPtr(c.Stopped),
+			Comment:  lo.ToPtr(c.Comment),
 		}
 	})
 

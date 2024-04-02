@@ -43,6 +43,7 @@ func GetClientHandler(ctx context.Context, req *pb.GetClientRequest) (*pb.GetCli
 			Config:   lo.ToPtr(string(client.ConfigContent)),
 			ServerId: lo.ToPtr(client.ServerID),
 			Stopped:  lo.ToPtr(client.Stopped),
+			Comment:  lo.ToPtr(client.Comment),
 		},
 	}, nil
 }

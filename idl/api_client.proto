@@ -46,6 +46,7 @@ message UpdateFRPCRequest {
   optional string client_id = 1;
   optional string server_id = 2;
   optional bytes config = 3;
+  optional string comment = 4;
 }
 
 message UpdateFRPCResponse {

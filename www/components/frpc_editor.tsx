@@ -19,6 +19,7 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
   })
 
   const [configContent, setConfigContent] = useState<string>('{}')
+  const [clientComment, setClientComment] = useState<string>('')
   const updateFrpc = useMutation({ mutationFn: updateFRPC })
   const [editorValue, setEditorValue] = useState<string>('')
 
@@ -28,6 +29,7 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
         clientId: clientID,
         config: Buffer.from(editorValue),
         serverId: serverID,
+        comment: clientComment,
       })
       if (res.status?.code !== RespCode.SUCCESS) {
         toast({ title: '更新失败' })
@@ -60,14 +62,25 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
           2,
         ),
       )
+      setClientComment(client?.client?.comment || '')
     } catch (error) {
       setConfigContent('{}')
       setEditorValue('{}')
+      setClientComment('')
     }
   }, [client, refetchClient])
 
   return (
     <div className="grid w-full gap-1.5">
+      <Label className="text-sm font-medium">节点 {clientID} 的备注</Label>
+      <Textarea
+        key={client?.client?.comment}
+        placeholder="备注"
+        id="message"
+        defaultValue={client?.client?.comment}
+        onChange={(e) => setClientComment(e.target.value)}
+        className="h-12"
+      />
       <Label className="text-sm font-medium">客户端 {clientID} 配置文件`frpc.json`内容</Label>
       <p className="text-sm text-muted-foreground">
         只需要配置proxies和visitors字段，认证信息和服务器连接信息会由系统补全

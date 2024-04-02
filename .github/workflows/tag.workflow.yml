@@ -19,7 +19,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.21.x"
+          go-version: "1.22.x"
       - name: npm install and build
         run: |
           cd www

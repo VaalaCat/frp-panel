@@ -3,17 +3,129 @@
 
 # FRP-Panel
 
-我们的目标就是做一个：   
-- 客户端配置可中心化管理   
-- 多服务端配置管理   
-- 可视化配置界面   
-- 简化运行所需要的配置   
+[English Version](README_en.md) | [中文文档](README.md)
+
+我们的目标就是做一个：
+- 客户端配置可中心化管理
+- 多服务端配置管理
+- 可视化配置界面
+- 简化运行所需要的配置
    
 的更强更完善的frp！
 
 - demo Video: [demo Video](doc/frp-panel-demo.mp4)
 
 ![](./doc/frp-panel-demo.gif)
+
+## 项目使用说明
+frp-panel可选docker和直接运行模式部署，直接部署请到release下载文件：[release](https://github.com/VaalaCat/frp-panel/releases)
+
+注意：二进制有两种，一种是仅客户端，一种是全功能可执行文件，客户端版只能执行client命令(无需client参数)
+
+客户端版的名字会带有client标识
+
+启动过后默认访问地址为 `http://IP:9000`
+
+默认第一个注册的用户是管理员。且默认不开放注册多用户，如果需要，请在Master启动命令或配置文件中添加参数：`APP_ENABLE_REGISTER=true`
+
+### docker   
+
+注意⚠️：client 和 server 的启动指令可能会随着项目更新而改变，虽然在项目迭代时会注意前后兼容，但仍难以完全适配，因此 client 和 server 的启动指令以 master 生成为准
+
+- master   
+   
+```bash
+docker run -d -p 9000:9000 \ # API控制台端口
+	-p 9001:9001 \ # rpc端口
+	-p 7000:7000 \ # frps 端口
+	-p 20000-20050:20000-20050 \ # 给frps预留的端口
+	--restart=unless-stopped \
+	-v /opt/frp-panel:/data \ # 数据存储位置
+	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
+	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
+	vaalacat/frp-panel
+# 或者
+docker run -d \
+	--network=host \
+	--restart=unless-stopped \
+	-v /opt/frp-panel:/data \
+	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
+	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
+	vaalacat/frp-panel
+```
+- client   
+   
+```bash
+docker run -d \
+	--network=host \
+	--restart=unless-stopped \
+	vaalacat/frp-panel client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
+```
+- server   
+   
+```bash
+docker run -d \
+	--network=host \
+	--restart=unless-stopped \
+	vaalacat/frp-panel server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
+```
+
+### 直接运行(Linux)
+- master   
+
+注意修改IP
+```powershell
+APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel master
+```
+- client
+   
+```powershell
+frp-panel client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
+```
+- server
+   
+```powershell
+frp-panel server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
+```
+### 直接运行(Windows)
+在下载的可执行文件同名文件夹下创建一个 `.env` 文件(注意不要有后缀名)，然后输入以下内容保存后运行对应命令，注意，client和server的对应参数需要在web页面复制
+
+- master: `frp-panel-amd64.exe master`
+```
+APP_GLOBAL_SECRET=your_secret
+MASTER_RPC_HOST=IP
+DB_DSN=data.db
+```
+
+client 和 server 要使用在 master WebUI复制的参数
+
+- client: `frp-panel-amd64.exe client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数`
+
+- server: `frp-panel-amd64.exe server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数`
+
+### 隧道高级模式配置
+
+本面板完全兼容frp原本的`json`格式配置，仅需要将配置文件内容粘贴到服务端/客户端高级模式编辑框内，更新即可，详细的使用参考：[frp文档](https://gofrp.org/zh-cn/docs/features/common/configure/)
+
+### 程序启动配置文件
+
+程序会按顺序读取以下文件内容作为配置文件：`.env`,`/etc/frpp/.env`
+
+### 服务管理
+
+如果您使用的是面板自带的安装脚本，对于Linux使用systemd控制，对于Windows使用nssm控制
+
+Linux安装后使用示例：
+```bash
+systemctl stop frpp
+systemctl start frpp
+```
+
+Windows安装后使用示例：
+```
+C:/frpp/nssm.exe stop frpp
+C:/frpp/nssm.exe remove frpp
+```
 
 ## 项目开发指南
 
@@ -93,89 +205,7 @@
 
 ![structure](doc/callvis.svg)
 
-## 项目使用说明
-frp-panel可选docker和直接运行模式部署，直接部署请到release下载文件：[release](https://github.com/VaalaCat/frp-panel/releases)
-
-注意：二进制有两种，一种是仅客户端，一种是全功能可执行文件，客户端版只能执行client命令
-
-启动过后默认访问地址为 http://IP:9000
-
-### docker   
-
-注意⚠️：client 和 server 的启动指令可能会随着项目更新而改变，虽然在项目迭代时会注意前后兼容，但仍难以完全适配，因此 client 和 server 的启动指令以 master 生成为准
-
-- master   
-   
-```bash
-docker run -d -p 9000:9000 \ # API控制台端口
-	-p 9001:9001 \ # rpc端口
-	-p 7000:7000 \ # frps 端口
-	-p 20000-20050:20000-20050 \ # 给frps预留的端口
-    --restart=unless-stopped \
-	-v /opt/frp-panel:/data \ # 数据存储位置
-	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
-	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
-	vaalacat/frp-panel
-# 或者
-docker run -d \
-	--network=host \
-    --restart=unless-stopped \
-	-v /opt/frp-panel:/data \
-	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
-	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
-	vaalacat/frp-panel
-```
-- client   
-   
-```bash
-docker run -d \
-	--network=host \
-    --restart=unless-stopped \
-	vaalacat/frp-panel client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
-```
-- server   
-   
-```bash
-docker run -d \
-	--network=host \
-    --restart=unless-stopped \
-	vaalacat/frp-panel server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
-```
-
-### 直接运行(Linux)
-- master   
-
-注意修改IP
-```
-APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel master
-```
-- client
-   
-```
-frp-panel client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
-```
-- server
-   
-```
-frp-panel server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
-```
-### 直接运行(Windows)
-在下载的可执行文件同名文件夹下创建一个 `.env` 文件(注意不要有后缀名)，然后输入以下内容保存后运行对应命令，注意，client和server的对应参数需要在web页面复制
-
-- master: `frp-panel-amd64.exe master`
-```
-APP_GLOBAL_SECRET=your_secret
-MASTER_RPC_HOST=IP
-DB_DSN=data.db
-```
-
-client 和 server 要使用在 master WebUI复制的参数
-
-- client: `frp-panel-amd64.exe client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数`
-
-- server: `frp-panel-amd64.exe server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数`
-
-### 配置说明
+### 本体配置说明
 
 [settings.go](conf/settings.go)
 这里有详细的配置参数解释，需要进一步修改配置请参考该文件

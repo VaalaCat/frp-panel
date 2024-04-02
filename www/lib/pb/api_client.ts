@@ -120,6 +120,10 @@ export interface UpdateFRPCRequest {
      * @generated from protobuf field: optional bytes config = 3;
      */
     config?: Uint8Array;
+    /**
+     * @generated from protobuf field: optional string comment = 4;
+     */
+    comment?: string;
 }
 /**
  * @generated from protobuf message api_client.UpdateFRPCResponse
@@ -594,7 +598,8 @@ class UpdateFRPCRequest$Type extends MessageType<UpdateFRPCRequest> {
         super("api_client.UpdateFRPCRequest", [
             { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "config", kind: "scalar", opt: true, T: 12 /*ScalarType.BYTES*/ }
+            { no: 3, name: "config", kind: "scalar", opt: true, T: 12 /*ScalarType.BYTES*/ },
+            { no: 4, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<UpdateFRPCRequest>): UpdateFRPCRequest {
@@ -617,6 +622,9 @@ class UpdateFRPCRequest$Type extends MessageType<UpdateFRPCRequest> {
                 case /* optional bytes config */ 3:
                     message.config = reader.bytes();
                     break;
+                case /* optional string comment */ 4:
+                    message.comment = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -638,6 +646,9 @@ class UpdateFRPCRequest$Type extends MessageType<UpdateFRPCRequest> {
         /* optional bytes config = 3; */
         if (message.config !== undefined)
             writer.tag(3, WireType.LengthDelimited).bytes(message.config);
+        /* optional string comment = 4; */
+        if (message.comment !== undefined)
+            writer.tag(4, WireType.LengthDelimited).string(message.comment);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
