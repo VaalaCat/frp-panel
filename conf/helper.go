@@ -17,6 +17,10 @@ import (
 
 func MasterDefaultSalt() string {
 	cfg := Get()
+	if cfg.Master.CompatibleMode {
+		logrus.Warnf("master compatible mode enabled, use frp as default salt, which is not recommended")
+		return "frp"
+	}
 	return utils.MD5(fmt.Sprintf("salt_%s:%d:%s",
 		cfg.Master.InternalFRPServerHost,
 		cfg.Master.InternalFRPServerPort,

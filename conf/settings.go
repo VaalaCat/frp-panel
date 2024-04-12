@@ -29,6 +29,7 @@ type Config struct {
 		CacheSize                 int    `env:"CACHE_SIZE" env-default:"10" env-description:"cache size in MB"`
 		RPCHost                   string `env:"RPC_HOST" env-default:"127.0.0.1" env-description:"master host, is a public ip or domain"`
 		RPCPort                   int    `env:"RPC_PORT" env-default:"9001" env-description:"master rpc port"`
+		CompatibleMode            bool   `env:"COMPATIBLE_MODE" env-default:"false" env-description:"compatible mode, for official frp client"`
 		InternalFRPServerHost     string `env:"INTERNAL_FRP_SERVER_HOST" env-description:"internal frp server host, used for client connection"`
 		InternalFRPServerPort     int    `env:"INTERNAL_FRP_SERVER_PORT" env-default:"9002" env-description:"internal frp server port, used for client connection"`
 		InternalFRPAuthServerHost string `env:"INTERNAL_FRP_AUTH_SERVER_HOST" env-default:"127.0.0.1" env-description:"internal frp auth server host"`
