@@ -3,6 +3,7 @@ package watcher
 import (
 	"github.com/go-co-op/gocron/v2"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 type Client interface {
@@ -21,7 +22,7 @@ func NewClient(f func(clientID, clientSecret string) error, clientID, clientSecr
 	}
 
 	_, err = s.NewJob(
-		gocron.CronJob("*/30 * * * * *", true),
+		gocron.DurationJob(time.Second*30),
 		gocron.NewTask(f, clientID, clientSecret),
 	)
 	if err != nil {
