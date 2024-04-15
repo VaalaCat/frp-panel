@@ -6,19 +6,30 @@ import (
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/imroc/req/v3"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 )
 
-func MasterCli(c context.Context) (pb.MasterClient, error) {
+var (
+	masterCli pb.MasterClient
+)
+
+func newMasterCli() {
 	conn, err := grpc.Dial(conf.RPCCallAddr(),
 		grpc.WithTransportCredentials(conf.ClientCred))
 	if err != nil {
-		return nil, err
+		logrus.Fatalf("did not connect: %v", err)
 	}
 
-	client := pb.NewMasterClient(conn)
-	return client, nil
+	masterCli = pb.NewMasterClient(conn)
+}
+
+func MasterCli(c context.Context) (pb.MasterClient, error) {
+	if masterCli == nil {
+		newMasterCli()
+	}
+	return masterCli, nil
 }
 
 func GetClientCert(clientID, clientSecret string, clientType pb.ClientType) []byte {

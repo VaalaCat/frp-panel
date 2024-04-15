@@ -1,9 +1,10 @@
 package watcher
 
 import (
+	"time"
+
 	"github.com/go-co-op/gocron/v2"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 type Client interface {
