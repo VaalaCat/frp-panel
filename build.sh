@@ -2,7 +2,7 @@
 bash ./codegen.sh
 mkdir -p dist
 rm -rf dist/*
-cd www && pnpm install && pnpm build && cd ..
+cd www && pnpm install --no-frozen-lockfile && pnpm build && cd ..
 echo "Building frp-panel full windows binaries..."
 CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o dist/frp-panel-amd64.exe cmd/frpp/*.go
 CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o dist/frp-panel-arm64.exe cmd/frpp/*.go
