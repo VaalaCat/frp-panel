@@ -187,6 +187,33 @@ func ListServers(userInfo models.UserInfo, page, pageSize int) ([]*models.Server
 	}), nil
 }
 
+func ListServersWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ServerEntity, error) {
+	if page < 1 || pageSize < 1 || len(keyword) == 0 {
+		return nil, fmt.Errorf("invalid page or page size or keyword")
+	}
+
+	db := models.GetDBManager().GetDefaultDB()
+	offset := (page - 1) * pageSize
+
+	var servers []*models.Server
+	err := db.Where(
+		&models.Server{
+			ServerEntity: &models.ServerEntity{
+				UserID:   userInfo.GetUserID(),
+				TenantID: userInfo.GetTenantID(),
+			},
+		},
+	).Where("server_id like ?", "%"+keyword+"%").
+		Offset(offset).Limit(pageSize).Find(&servers).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(servers, func(c *models.Server, _ int) *models.ServerEntity {
+		return c.ServerEntity
+	}), nil
+}
+
 func CountServers(userInfo models.UserInfo) (int64, error) {
 	db := models.GetDBManager().GetDefaultDB()
 	var count int64
@@ -204,18 +231,17 @@ func CountServers(userInfo models.UserInfo) (int64, error) {
 	return count, nil
 }
 
-func CountUnconfiguredServers(userInfo models.UserInfo) (int64, error) {
+func CountServersWithKeyword(userInfo models.UserInfo, keyword string) (int64, error) {
 	db := models.GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Server{}).Where(
 		&models.Server{
 			ServerEntity: &models.ServerEntity{
-				UserID:        userInfo.GetUserID(),
-				TenantID:      userInfo.GetTenantID(),
-				ConfigContent: []byte{},
+				UserID:   userInfo.GetUserID(),
+				TenantID: userInfo.GetTenantID(),
 			},
 		},
-	).Count(&count).Error
+	).Where("server_id like ?", "%"+keyword+"%").Count(&count).Error
 	if err != nil {
 		return 0, err
 	}

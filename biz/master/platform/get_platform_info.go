@@ -33,16 +33,6 @@ func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
 		return nil, err
 	}
 
-	unconfiguredServers, err := dao.CountUnconfiguredServers(userInfo)
-	if err != nil {
-		return nil, err
-	}
-
-	unconfiguredClients, err := dao.CountUnconfiguredClients(userInfo)
-	if err != nil {
-		return nil, err
-	}
-
 	configuredServers, err := dao.CountConfiguredServers(userInfo)
 	if err != nil {
 		return nil, err
@@ -51,6 +41,11 @@ func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	unconfiguredServers := totalServers - configuredServers
+
+	unconfiguredClients := totalClients - configuredClients
+
 	return &pb.GetPlatformInfoResponse{
 		Status:                  &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
 		TotalClientCount:        int32(totalClients),

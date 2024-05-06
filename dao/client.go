@@ -128,6 +128,30 @@ func ListClients(userInfo models.UserInfo, page, pageSize int) ([]*models.Client
 	}), nil
 }
 
+func ListClientsWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ClientEntity, error) {
+	if page < 1 || pageSize < 1 || len(keyword) == 0 {
+		return nil, fmt.Errorf("invalid page or page size or keyword")
+	}
+
+	db := models.GetDBManager().GetDefaultDB()
+	offset := (page - 1) * pageSize
+
+	var clients []*models.Client
+	err := db.Where(&models.Client{
+		ClientEntity: &models.ClientEntity{
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+		},
+	}).Where("client_id like ?", "%"+keyword+"%").Offset(offset).Limit(pageSize).Find(&clients).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(clients, func(c *models.Client, _ int) *models.ClientEntity {
+		return c.ClientEntity
+	}), nil
+}
+
 func GetAllClients(userInfo models.UserInfo) ([]*models.ClientEntity, error) {
 	db := models.GetDBManager().GetDefaultDB()
 	var clients []*models.Client
@@ -161,16 +185,15 @@ func CountClients(userInfo models.UserInfo) (int64, error) {
 	return count, nil
 }
 
-func CountUnconfiguredClients(userInfo models.UserInfo) (int64, error) {
+func CountClientsWithKeyword(userInfo models.UserInfo, keyword string) (int64, error) {
 	db := models.GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Client{}).Where(&models.Client{
 		ClientEntity: &models.ClientEntity{
-			UserID:        userInfo.GetUserID(),
-			TenantID:      userInfo.GetTenantID(),
-			ConfigContent: []byte{},
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
 		},
-	}).Count(&count).Error
+	}).Where("client_id like ?", "%"+keyword+"%").Count(&count).Error
 	if err != nil {
 		return 0, err
 	}

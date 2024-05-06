@@ -12,9 +12,14 @@ import (
 
 func ListServersHandler(c context.Context, req *pb.ListServersRequest) (*pb.ListServersResponse, error) {
 	var (
-		userInfo = common.GetUserInfo(c)
-		page     = int(req.GetPage())
-		pageSize = int(req.GetPageSize())
+		userInfo     = common.GetUserInfo(c)
+		page         = int(req.GetPage())
+		pageSize     = int(req.GetPageSize())
+		keyword      = req.GetKeyword()
+		servers      []*models.ServerEntity
+		serverCounts int64
+		hasKeyword   = len(keyword) > 0
+		err          error
 	)
 
 	if !userInfo.Valid() {
@@ -23,12 +28,20 @@ func ListServersHandler(c context.Context, req *pb.ListServersRequest) (*pb.List
 		}, nil
 	}
 
-	servers, err := dao.ListServers(userInfo, page, pageSize)
+	if hasKeyword {
+		servers, err = dao.ListServersWithKeyword(userInfo, page, pageSize, keyword)
+	} else {
+		servers, err = dao.ListServers(userInfo, page, pageSize)
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	serverCounts, err := dao.CountServers(userInfo)
+	if hasKeyword {
+		serverCounts, err = dao.CountServersWithKeyword(userInfo, keyword)
+	} else {
+		serverCounts, err = dao.CountServers(userInfo)
+	}
 	if err != nil {
 		return nil, err
 	}

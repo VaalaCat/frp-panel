@@ -24,14 +24,32 @@ func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.Li
 		}, nil
 	}
 
-	page := int(req.GetPage())
-	pageSize := int(req.GetPageSize())
-	clients, err := dao.ListClients(userInfo, page, pageSize)
+	var (
+		page         = int(req.GetPage())
+		pageSize     = int(req.GetPageSize())
+		keyword      = req.GetKeyword()
+		clients      []*models.ClientEntity
+		err          error
+		clientCounts int64
+		hasKeyword   = len(keyword) > 0
+	)
+
+	if hasKeyword {
+		clients, err = dao.ListClientsWithKeyword(userInfo, page, pageSize, keyword)
+	} else {
+		clients, err = dao.ListClients(userInfo, page, pageSize)
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	clientCounts, err := dao.CountClients(userInfo)
+	if hasKeyword {
+		clientCounts, err = dao.CountClientsWithKeyword(userInfo, keyword)
+	} else {
+		clientCounts, err = dao.CountClients(userInfo)
+	}
+
 	if err != nil {
 		return nil, err
 	}

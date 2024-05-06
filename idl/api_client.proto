@@ -17,6 +17,7 @@ message InitClientResponse {
 message ListClientsRequest {
   optional int32 page = 1;
   optional int32 page_size = 2;
+  optional string keyword = 3;
 }
 
 message ListClientsResponse {

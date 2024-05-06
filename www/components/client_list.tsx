@@ -19,9 +19,11 @@ import { listClient } from '@/api/client'
 
 export interface ClientListProps {
   Clients: Client[]
+  Keyword?: string
+  TriggerRefetch?: string
 }
 
-export const ClientList: React.FC<ClientListProps> = ({ Clients }) => {
+export const ClientList: React.FC<ClientListProps> = ({ Clients, Keyword, TriggerRefetch }) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const data = Clients.map(
@@ -42,6 +44,8 @@ export const ClientList: React.FC<ClientListProps> = ({ Clients }) => {
   const fetchDataOptions = {
     pageIndex,
     pageSize,
+    Keyword,
+    TriggerRefetch,
   }
   const pagination = React.useMemo(
     () => ({
@@ -54,7 +58,7 @@ export const ClientList: React.FC<ClientListProps> = ({ Clients }) => {
   const dataQuery = useQuery({
     queryKey: ['listClient', fetchDataOptions],
     queryFn: async () => {
-      return await listClient({ page: fetchDataOptions.pageIndex + 1, pageSize: fetchDataOptions.pageSize })
+      return await listClient({ page: fetchDataOptions.pageIndex + 1, pageSize: fetchDataOptions.pageSize, keyword: fetchDataOptions.Keyword })
     },
   })
 

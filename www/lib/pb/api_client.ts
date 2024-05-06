@@ -46,6 +46,10 @@ export interface ListClientsRequest {
      * @generated from protobuf field: optional int32 page_size = 2;
      */
     pageSize?: number;
+    /**
+     * @generated from protobuf field: optional string keyword = 3;
+     */
+    keyword?: string;
 }
 /**
  * @generated from protobuf message api_client.ListClientsResponse
@@ -292,7 +296,8 @@ class ListClientsRequest$Type extends MessageType<ListClientsRequest> {
     constructor() {
         super("api_client.ListClientsRequest", [
             { no: 1, name: "page", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
-            { no: 2, name: "page_size", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ }
+            { no: 2, name: "page_size", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "keyword", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<ListClientsRequest>): ListClientsRequest {
@@ -312,6 +317,9 @@ class ListClientsRequest$Type extends MessageType<ListClientsRequest> {
                 case /* optional int32 page_size */ 2:
                     message.pageSize = reader.int32();
                     break;
+                case /* optional string keyword */ 3:
+                    message.keyword = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -330,6 +338,9 @@ class ListClientsRequest$Type extends MessageType<ListClientsRequest> {
         /* optional int32 page_size = 2; */
         if (message.pageSize !== undefined)
             writer.tag(2, WireType.Varint).int32(message.pageSize);
+        /* optional string keyword = 3; */
+        if (message.keyword !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.keyword);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

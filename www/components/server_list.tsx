@@ -19,9 +19,11 @@ import { listServer } from '@/api/server'
 
 export interface ServerListProps {
   Servers: Server[]
+  Keyword?: string
+  TriggerRefetch?: string
 }
 
-export const ServerList: React.FC<ServerListProps> = ({ Servers }) => {
+export const ServerList: React.FC<ServerListProps> = ({ Servers, Keyword, TriggerRefetch }) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const data = Servers.map(
@@ -42,6 +44,8 @@ export const ServerList: React.FC<ServerListProps> = ({ Servers }) => {
   const fetchDataOptions = {
     pageIndex,
     pageSize,
+    Keyword,
+    TriggerRefetch,
   }
   const pagination = React.useMemo(
     () => ({
@@ -54,7 +58,7 @@ export const ServerList: React.FC<ServerListProps> = ({ Servers }) => {
   const dataQuery = useQuery({
     queryKey: ['listServer', fetchDataOptions],
     queryFn: async () => {
-      return await listServer({ page: fetchDataOptions.pageIndex + 1, pageSize: fetchDataOptions.pageSize })
+      return await listServer({ page: fetchDataOptions.pageIndex + 1, pageSize: fetchDataOptions.pageSize, keyword: fetchDataOptions.Keyword })
     },
   })
 
