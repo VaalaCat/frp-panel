@@ -45,18 +45,18 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
   const { data: serverList, refetch: refetchServers } = useQuery({
     queryKey: ['listServer'],
     queryFn: () => {
-      return listServer({ page: 1, pageSize: 500 })
+      return listServer({ page: 1, pageSize: 500, keyword: '' })
     },
   })
 
   const { data: clientList, refetch: refetchClients } = useQuery({
     queryKey: ['listClient'],
     queryFn: () => {
-      return listClient({ page: 1, pageSize: 500 })
+      return listClient({ page: 1, pageSize: 50, keyword: '' })
     },
   })
 
-  const { data: client, refetch: refetchClient } = useQuery({
+  const { data: client } = useQuery({
     queryKey: ['getClient', clientID],
     queryFn: () => {
       return getClient({ clientId: clientID })
@@ -66,11 +66,10 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
   useEffect(() => {
     if (paramClientID) {
       setClientID(paramClientID)
-      setServerID(clientList?.clients?.find((client) => client.id == paramClientID)?.serverId)
-      refetchClient()
+      setServerID(client?.client?.serverId)
     }
     $clientProxyConfigs.set([])
-  }, [paramClientID, clientList])
+  }, [paramClientID, client])
 
   return (
     <Card className="w-full">
@@ -138,11 +137,11 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
           </Select>
         </div>
         {clientID && !advanceMode && <>
-        <Label className="text-sm font-medium">节点 {clientID} 的备注</Label>
-        <p className="text-sm text-muted-foreground">可以到高级模式修改备注哦！</p>
-        <p className="text-sm border rounded p-2 my-2">
-          {client?.client?.comment == undefined || client?.client?.comment === '' ? '空空如也' : client?.client?.comment}
-        </p></>}
+          <Label className="text-sm font-medium">节点 {clientID} 的备注</Label>
+          <p className="text-sm text-muted-foreground">可以到高级模式修改备注哦！</p>
+          <p className="text-sm border rounded p-2 my-2">
+            {client?.client?.comment == undefined || client?.client?.comment === '' ? '空空如也' : client?.client?.comment}
+          </p></>}
         {clientID && serverID && !advanceMode && <FRPCForm clientID={clientID} serverID={serverID} />}
         {clientID && serverID && advanceMode && <FRPCEditor clientID={clientID} serverID={serverID} />}
       </CardContent>
