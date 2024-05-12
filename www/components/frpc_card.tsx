@@ -67,7 +67,9 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
   useEffect(() => {
     if (paramClientID) {
       setClientID(paramClientID)
-      setServerID(client?.client?.serverId)
+      if (client?.client?.serverId) {
+        setServerID(client?.client?.serverId)
+      }
     }
 
     if (!client || !client?.client || !client?.client?.config) return
@@ -79,7 +81,7 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
   }, [paramClientID])
 
   useEffect(() => {
-    if (clientID) {
+    if (clientID && client?.client?.serverId) {
       setServerID(client?.client?.serverId)
     }
   }, [clientID, paramClientID, client])
