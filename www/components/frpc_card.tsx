@@ -11,6 +11,7 @@ import { FRPCEditor } from './frpc_editor'
 import { FRPCForm } from './frpc_form'
 import { useSearchParams } from 'next/navigation'
 import { $clientProxyConfigs } from '@/store/proxy'
+import { ClientConfig } from '@/types/client'
 
 export interface FRPCFormCardProps {
   clientID?: string
@@ -68,8 +69,20 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
       setClientID(paramClientID)
       setServerID(client?.client?.serverId)
     }
-    $clientProxyConfigs.set([])
-  }, [paramClientID, client])
+
+    if (!client || !client?.client || !client?.client?.config) return
+    const proxyConfs = (JSON.parse(client?.client?.config) as ClientConfig).proxies
+    if (proxyConfs) {
+      $clientProxyConfigs.set(proxyConfs)
+    }
+
+  }, [paramClientID])
+
+  useEffect(() => {
+    if (clientID) {
+      setServerID(client?.client?.serverId)
+    }
+  }, [clientID, paramClientID, client])
 
   return (
     <Card className="w-full">

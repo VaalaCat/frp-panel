@@ -3,7 +3,7 @@ import { Textarea } from './ui/textarea'
 import { FRPCFormProps } from './frpc_form'
 import { getClient } from '@/api/client'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from './ui/button'
 import { updateFRPC } from '@/api/frp'
 import { useToast } from './ui/use-toast'
@@ -42,12 +42,11 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
   }
 
   useEffect(() => {
-    refetchClient()
-    try {
+    refetchClient().then((cliData) => {
       setConfigContent(
         JSON.stringify(
           JSON.parse(
-            client?.client?.config == undefined ? '{}' || client?.client?.config == '' : client?.client?.config,
+            cliData?.data?.client?.config == undefined ? '{}' || cliData?.data?.client?.config == '' : cliData?.data?.client?.config,
           ),
           null,
           2,
@@ -56,19 +55,19 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
       setEditorValue(
         JSON.stringify(
           JSON.parse(
-            client?.client?.config == undefined || client?.client?.config == '' ? '{}' : client?.client?.config,
+            cliData?.data?.client?.config == undefined || cliData?.data?.client?.config == '' ? '{}' : cliData?.data?.client?.config,
           ),
           null,
           2,
         ),
       )
-      setClientComment(client?.client?.comment || '')
-    } catch (error) {
+      setClientComment(cliData?.data?.client?.comment || '')
+    }).catch(() => {
       setConfigContent('{}')
       setEditorValue('{}')
       setClientComment('')
-    }
-  }, [client, refetchClient])
+    })
+  }, [clientID, refetchClient])
 
   return (
     <div className="grid w-full gap-1.5">
