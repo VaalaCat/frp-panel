@@ -152,7 +152,7 @@ export const ServerInfo = ({ server }: { server: ServerTableSchema }) => {
     clientsInfo.data?.clients[server.id]?.status === ClientStatus_Status.ONLINE ? 'text-green-500' : 'text-red-500'
 
   return (
-    <div className={`p-2 border rounded font-mono w-fit ${infoColor}`}>
+    <div className={`p-2 border rounded font-mono w-fit ${infoColor} text-nowrap`}>
       {`${clientsInfo.data?.clients[server.id].ping}ms, ${trans(clientsInfo.data?.clients[server.id])}`}
     </div>
   )

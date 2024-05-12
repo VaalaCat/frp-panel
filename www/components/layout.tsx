@@ -23,7 +23,7 @@ export const RootLayout = ({
       </div>
       <div className="flex">
         {sidebar}
-        <div className="my-2 ml-0 mr-2 max-w-full w-full">{children}</div>
+        <div className="my-2 ml-0 mr-2 max-w-[calc(100vw-100px)] w-full">{children}</div>
       </div>
       <Toaster />
     </main>

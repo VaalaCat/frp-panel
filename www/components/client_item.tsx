@@ -148,7 +148,7 @@ export const ClientInfo = ({ client }: { client: ClientTableSchema }) => {
       client.stopped ? 'text-yellow-500' : 'text-green-500') : 'text-red-500'
 
   return (
-    <div className={`p-2 border rounded font-mono w-fit ${infoColor}`}>
+    <div className={`p-2 border rounded font-mono w-fit ${infoColor} text-nowrap`}>
       {`${clientsInfo.data?.clients[client.id].ping}ms, ${trans(clientsInfo.data?.clients[client.id])}`}
     </div>
   )
