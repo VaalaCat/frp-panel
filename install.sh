@@ -19,6 +19,12 @@ case "$OS" in
             aarch64)
                 wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/latest/download/frp-panel-linux-arm64"
                 ;;
+            armv7l)
+                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/latest/download/frp-panel-linux-armv7l"
+                ;;
+            armv6l)
+                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/latest/download/frp-panel-linux-armv6l"
+                ;;
         esac
         ;;
     Darwin)
