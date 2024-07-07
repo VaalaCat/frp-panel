@@ -28,7 +28,7 @@ type ClientHandler interface {
 	AddVisitor(v1.VisitorConfigurer)
 	RemoveProxy(v1.ProxyConfigurer)
 	RemoveVisitor(v1.VisitorConfigurer)
-	GetProxyStatus(string) (*proxy.WorkingStatus, error)
+	GetProxyStatus(string) (*proxy.WorkingStatus, bool)
 	GetCommonCfg() *v1.ClientCommonConfig
 	GetProxyCfgs() map[string]v1.ProxyConfigurer
 	GetVisitorCfgs() map[string]v1.VisitorConfigurer
@@ -160,8 +160,8 @@ func (c *Client) RemoveVisitor(visitorCfg v1.VisitorConfigurer) {
 	c.cli.UpdateAllConfigurer(lo.Values(c.ProxyCfgs), lo.Values(c.VisitorCfgs))
 }
 
-func (c *Client) GetProxyStatus(name string) (*proxy.WorkingStatus, error) {
-	return c.cli.GetProxyStatus(name)
+func (c *Client) GetProxyStatus(name string) (*proxy.WorkingStatus, bool) {
+	return c.cli.StatusExporter().GetProxyStatus(name)
 }
 
 func (c *Client) GetCommonCfg() *v1.ClientCommonConfig {
