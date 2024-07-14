@@ -77,3 +77,12 @@ message StartFRPCRequest {
 message StartFRPCResponse {
   optional common.Status status = 1;
 }
+
+message GetProxyByCIDRequest {
+  optional string client_id = 1;
+}
+
+message GetProxyByCIDResponse {
+  optional common.Status status = 1;
+  repeated common.ProxyInfo proxy_infos = 2;
+}

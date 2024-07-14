@@ -77,9 +77,19 @@ message FRPAuthResponse {
   bool ok = 2;
 }
 
+message PushProxyInfoReq {
+  ServerBase base = 255;
+  repeated common.ProxyInfo proxy_infos = 1;
+}
+
+message PushProxyInfoResp {
+  common.Status status = 1;
+}
+
 service Master {
   rpc ServerSend(stream ClientMessage) returns(stream ServerMessage);
   rpc PullClientConfig(PullClientConfigReq) returns(PullClientConfigResp);
   rpc PullServerConfig(PullServerConfigReq) returns(PullServerConfigResp);
   rpc FRPCAuth(FRPAuthRequest) returns(FRPAuthResponse);
+  rpc PushProxyInfo(PushProxyInfoReq) returns(PushProxyInfoResp);
 }

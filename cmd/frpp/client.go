@@ -2,6 +2,7 @@ package main
 
 import (
 	bizclient "github.com/VaalaCat/frp-panel/biz/client"
+	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
@@ -43,7 +44,8 @@ func runClient() {
 	r := rpcclient.GetClientRPCSerivce()
 	defer r.Stop()
 
-	w := watcher.NewClient(bizclient.PullConfig, clientID, clientSecret)
+	w := watcher.NewClient()
+	w.AddTask(common.PullConfigDuration, bizclient.PullConfig, clientID, clientSecret)
 	defer w.Stop()
 
 	initClientOnce(clientID, clientSecret)

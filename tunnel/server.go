@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/VaalaCat/frp-panel/services/server"
+	"github.com/fatedier/frp/pkg/metrics"
 )
 
 type ServerController interface {
@@ -25,6 +26,8 @@ var (
 )
 
 func NewServerController() ServerController {
+	metrics.EnableMem()
+	metrics.EnablePrometheus()
 	return &serverController{
 		servers: &sync.Map{},
 	}

@@ -136,3 +136,9 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 	<-done
 	return nil
 }
+
+// PushProxyInfo implements pb.MasterServer.
+func (s *server) PushProxyInfo(ctx context.Context, req *pb.PushProxyInfoReq) (*pb.PushProxyInfoResp, error) {
+	logrus.Infof("push proxy info, req: [%+v]", req)
+	return masterserver.PushProxyInfo(ctx, req)
+}

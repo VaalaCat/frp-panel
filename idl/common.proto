@@ -57,3 +57,14 @@ message User {
 	optional string Token = 7;
   optional string RawPassword = 8;
 }
+
+message ProxyInfo {
+	optional string name = 1;
+	optional string type = 2;
+	optional string client_id = 3;
+	optional string server_id = 4;
+	optional int64 today_traffic_in = 5;
+	optional int64 today_traffic_out = 6;
+	optional int64 history_traffic_in = 7;
+	optional int64 history_traffic_out = 8;
+}

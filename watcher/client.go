@@ -10,28 +10,32 @@ import (
 type Client interface {
 	Run()
 	Stop()
+	AddTask(time.Duration, any, ...any) error
 }
 
 type client struct {
 	s gocron.Scheduler
 }
 
-func NewClient(f func(clientID, clientSecret string) error, clientID, clientSecret string) Client {
+func NewClient() Client {
 	s, err := gocron.NewScheduler()
 	if err != nil {
 		logrus.WithError(err).Fatalf("create scheduler error")
 	}
-
-	_, err = s.NewJob(
-		gocron.DurationJob(time.Second*30),
-		gocron.NewTask(f, clientID, clientSecret),
-	)
-	if err != nil {
-		logrus.WithError(err).Fatalf("create job error")
-	}
 	return &client{
 		s: s,
 	}
+}
+
+func (c *client) AddTask(duration time.Duration, function any, parameters ...any) error {
+	_, err := c.s.NewJob(
+		gocron.DurationJob(duration),
+		gocron.NewTask(function, parameters...),
+	)
+	if err != nil {
+		logrus.WithError(err).Fatalf("create task error")
+	}
+	return err
 }
 
 func (c *client) Run() {
