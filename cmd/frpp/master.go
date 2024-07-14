@@ -7,6 +7,7 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
 	bizserver "github.com/VaalaCat/frp-panel/biz/server"
 	"github.com/VaalaCat/frp-panel/cache"
+	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
@@ -111,7 +112,9 @@ func initDefaultInternalServer() (rpcclient.ClientRPCHandler, watcher.Client) {
 
 	r := rpcclient.GetClientRPCSerivce()
 
-	w := watcher.NewClient(bizserver.PullConfig, defaultServer.ServerID, defaultServer.ConnectSecret)
+	w := watcher.NewClient()
+	w.AddTask(common.PullConfigDuration, bizserver.PullConfig, defaultServer.ServerID, defaultServer.ConnectSecret)
+	w.AddTask(common.PushProxyInfoDuration, bizserver.PushProxyInfo, defaultServer.ServerID, defaultServer.ConnectSecret)
 
 	go initServerOnce(defaultServer.ServerID, defaultServer.ConnectSecret)
 	return r, w

@@ -17,6 +17,7 @@ type ServerHandler interface {
 	Stop()
 	GetCommonCfg() *v1.ServerConfig
 	GetMem() *mem.ServerStats
+	GetProxyStatsByType(v1.ProxyType) []*mem.ProxyStats
 }
 
 type Server struct {
@@ -97,4 +98,8 @@ func (s *Server) GetCommonCfg() *v1.ServerConfig {
 
 func (s *Server) GetMem() *mem.ServerStats {
 	return mem.StatsCollector.GetServer()
+}
+
+func (s *Server) GetProxyStatsByType(proxyType v1.ProxyType) []*mem.ProxyStats {
+	return mem.StatsCollector.GetProxiesByType(string(proxyType))
 }

@@ -77,3 +77,12 @@ message StartFRPSRequest {
 message StartFRPSResponse {
   optional common.Status status = 1;
 }
+
+message GetProxyBySIDRequest {
+  optional string server_id = 1;
+}
+
+message GetProxyBySIDResponse {
+  optional common.Status status = 1;
+  repeated common.ProxyInfo proxy_infos = 2;
+}

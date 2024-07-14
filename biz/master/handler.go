@@ -6,6 +6,7 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/biz/master/platform"
+	"github.com/VaalaCat/frp-panel/biz/master/proxy"
 	"github.com/VaalaCat/frp-panel/biz/master/server"
 	"github.com/VaalaCat/frp-panel/biz/master/user"
 	"github.com/VaalaCat/frp-panel/common"
@@ -68,6 +69,11 @@ func ConfigureRouter(router *gin.Engine) {
 		{
 			frpsRouter.POST("/update", common.Wrapper(server.UpdateFrpsHander))
 			frpsRouter.POST("/delete", common.Wrapper(server.RemoveFrpsHandler))
+		}
+		proxyRouter := v1.Group("/proxy", middleware.JWTAuth, middleware.AuthCtx)
+		{
+			proxyRouter.POST("/get_by_cid", common.Wrapper(proxy.GetProxyByCID))
+			proxyRouter.POST("/get_by_sid", common.Wrapper(proxy.GetProxyBySID))
 		}
 	}
 }

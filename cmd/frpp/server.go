@@ -2,6 +2,7 @@ package main
 
 import (
 	bizserver "github.com/VaalaCat/frp-panel/biz/server"
+	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
@@ -47,7 +48,9 @@ func runServer() {
 	r := rpcclient.GetClientRPCSerivce()
 	defer r.Stop()
 
-	w := watcher.NewClient(bizserver.PullConfig, clientID, clientSecret)
+	w := watcher.NewClient()
+	w.AddTask(common.PullConfigDuration, bizserver.PullConfig, clientID, clientSecret)
+	w.AddTask(common.PushProxyInfoDuration, bizserver.PushProxyInfo, clientID, clientSecret)
 	defer w.Stop()
 
 	initServerOnce(clientID, clientSecret)

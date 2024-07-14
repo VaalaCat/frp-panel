@@ -16,7 +16,7 @@ var (
 )
 
 func newMasterCli() {
-	conn, err := grpc.Dial(conf.RPCCallAddr(),
+	conn, err := grpc.NewClient(conf.RPCCallAddr(),
 		grpc.WithTransportCredentials(conf.ClientCred))
 	if err != nil {
 		logrus.Fatalf("did not connect: %v", err)

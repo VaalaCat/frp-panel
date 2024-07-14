@@ -21,7 +21,8 @@ type ReqType interface {
 		pb.GetUserInfoRequest | pb.UpdateUserInfoRequest |
 		pb.GetPlatformInfoRequest | pb.GetClientsStatusRequest |
 		pb.GetClientCertRequest |
-		pb.StartFRPCRequest | pb.StopFRPCRequest | pb.StartFRPSRequest | pb.StopFRPSRequest
+		pb.StartFRPCRequest | pb.StopFRPCRequest | pb.StartFRPSRequest | pb.StopFRPSRequest |
+		pb.GetProxyByCIDRequest | pb.GetProxyBySIDRequest
 }
 
 func GetProtoRequest[T ReqType](c *gin.Context) (r *T, err error) {

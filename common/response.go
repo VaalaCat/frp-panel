@@ -20,7 +20,8 @@ type RespType interface {
 		pb.GetUserInfoResponse | pb.UpdateUserInfoResponse |
 		pb.GetPlatformInfoResponse | pb.GetClientsStatusResponse |
 		pb.GetClientCertResponse |
-		pb.StartFRPCResponse | pb.StopFRPCResponse | pb.StartFRPSResponse | pb.StopFRPSResponse
+		pb.StartFRPCResponse | pb.StopFRPCResponse | pb.StartFRPSResponse | pb.StopFRPSResponse |
+		pb.GetProxyByCIDResponse | pb.GetProxyBySIDResponse
 }
 
 func OKResp[T RespType](c *gin.Context, origin *T) {
