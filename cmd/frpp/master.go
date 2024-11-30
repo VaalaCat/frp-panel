@@ -52,7 +52,7 @@ func runMaster() {
 	defer r.Stop()
 
 	tasks := watcher.NewClient()
-	tasks.AddCronTask("0 59 23 * * *", proxy.CollectDailyStats)
+	tasks.AddCronTask("0 0 3 * * *", proxy.CollectDailyStats)
 	defer tasks.Stop()
 
 	var wg conc.WaitGroup

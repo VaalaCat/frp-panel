@@ -38,10 +38,10 @@ export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
     } catch (error) {
       toast({ title: '更新失败' })
     }
+    refetchServer()
   }
 
   useEffect(() => {
-    refetchServer()
     try {
       setConfigContent(
         JSON.stringify(
@@ -71,7 +71,7 @@ export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
       setEditorValue('{}')
       setServerComment('')
     }
-  }, [serverResp, refetchServer])
+  }, [serverResp])
 
   return (
     <div className="grid w-full gap-1.5">

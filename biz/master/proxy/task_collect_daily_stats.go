@@ -30,8 +30,8 @@ func CollectDailyStats() error {
 			Type:       item.Type,
 			UserID:     item.UserID,
 			TenantID:   item.TenantID,
-			TrafficIn:  item.TodayTrafficIn,
-			TrafficOut: item.TodayTrafficOut,
+			TrafficIn:  item.HistoryTrafficIn,
+			TrafficOut: item.HistoryTrafficOut,
 		}
 	})
 
