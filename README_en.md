@@ -6,6 +6,7 @@
 [English Version](README_en.md) | [中文文档](README.md)
 
 Our goal is to create a more powerful and comprehensive frp that provides:
+
 - Centralized management of client configurations
 - Management of multiple server configurations
 - Visual configuration interface
@@ -16,6 +17,7 @@ Our goal is to create a more powerful and comprehensive frp that provides:
 ![](./doc/frp-panel-demo.gif)
 
 ## Project Usage Instructions
+
 frp-panel can be deployed in docker or direct run mode. For direct deployment, please download the files from the release: [release](https://github.com/VaalaCat/frp-panel/releases)
 
 Note: There are two types of binaries, one is for the client only, and the other is a full-featured executable file. The client version will have a "client" identifier in its name.
@@ -49,6 +51,7 @@ docker run -d \
     -e MASTER_RPC_HOST=0.0.0.0 \ # Change this to your server's external IP
     vaalacat/frp-panel
 ```
+
 - client
 
 ```bash
@@ -57,6 +60,7 @@ docker run -d \
     --restart=unless-stopped \
     vaalacat/frp-panel client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # Copy the parameters from the master WebUI
 ```
+
 - server
 
 ```bash
@@ -67,26 +71,33 @@ docker run -d \
 ```
 
 ### Direct Run (Linux)
+
 - master
 
 Note: Modify the IP
+
 ```powershell
 APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel master
 ```
+
 - client
 
 ```powershell
 frp-panel client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # Copy the parameters from the master WebUI
 ```
+
 - server
 
 ```powershell
 frp-panel server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # Copy the parameters from the master WebUI
 ```
+
 ### Direct Run (Windows)
+
 In the same folder as the downloaded executable, create a `.env` file (note that there should be no file extension), then enter the following content and save it before running the corresponding command. Note that the corresponding parameters for client and server need to be copied from the web page.
 
 - master: `frp-panel-amd64.exe master`
+
 ```
 APP_GLOBAL_SECRET=your_secret
 MASTER_RPC_HOST=IP
@@ -112,12 +123,14 @@ The program will read the contents of the following files in order as the config
 If you are using the installation script provided by the panel, systemd is used for Linux control, and nssm is used for Windows control.
 
 Examples of using Linux after installation:
+
 ```bash
 systemctl stop frpp
 systemctl start frpp
 ```
 
 Examples of using Windows after installation:
+
 ```
 C:/frpp/nssm.exe stop frpp
 C:/frpp/nssm.exe remove frpp
@@ -139,11 +152,13 @@ Overall, the architecture is quite simple.
 ### Development
 
 The project includes three roles:
+
 1. Master: The control node, accepts requests from the frontend and is responsible for managing Client and Server.
 2. Server: The server side, controlled by the control node, responsible for providing services to clients, including frps and rpc (for connecting to the Master) services.
 3. Client: The client side, controlled by the control node, including frpc and rpc (for connecting to the Master) services.
 
 Next, we will provide the functionality of each package in the project:
+
 ```
 .
 |-- biz                 # Main business logic
@@ -190,7 +205,7 @@ Next, we will provide the functionality of each package in the project:
 ### Debugging and Startup Methods:
 
 - master: `go run cmd/*.go master`
-> For client and server, please copy the content from the master webui 
+  > For client and server, please copy the content from the master webui
 - client: `go run cmd/*.go client -i <clientID> -s <clientSecret>`
 - server: `go run cmd/*.go server -i <serverID> -s <serverSecret>`
 
@@ -218,3 +233,4 @@ This file contains detailed explanations of the configuration parameters. Please
 ![](doc/edit_client_adv.png)
 ![](doc/edit_server.png)
 ![](doc/edit_server_adv.png)
+![](doc/traffic_statistics.png)

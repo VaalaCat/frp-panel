@@ -128,8 +128,12 @@ func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 		clients := queryResults[1].([]*models.Client)
 		oldProxyMap := queryResults[2].(map[string]*models.Proxy)
 
+		inputMap := map[string]*pb.ProxyInfo{}
 		proxyMap := map[string]*models.ProxyEntity{}
 		for _, proxyInfo := range inputs {
+			if proxyInfo == nil {
+				continue
+			}
 			proxyName := strings.TrimPrefix(proxyInfo.GetName(), user.UserName+".")
 			proxyMap[proxyName] = &models.ProxyEntity{
 				ServerID:        srv.ServerID,
@@ -140,6 +144,7 @@ func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 				TodayTrafficIn:  proxyInfo.GetTodayTrafficIn(),
 				TodayTrafficOut: proxyInfo.GetTodayTrafficOut(),
 			}
+			inputMap[proxyName] = proxyInfo
 		}
 
 		proxyEntityMap := map[string]*models.ProxyEntity{}
@@ -161,14 +166,16 @@ func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 			item := &models.Proxy{
 				ProxyEntity: p,
 			}
-			if proxy, ok := oldProxyMap[name]; ok {
-				item.ProxyID = proxy.ProxyID
-				if utils.IsSameDay(nowTime, proxy.UpdatedAt) {
-					item.HistoryTrafficIn = proxy.HistoryTrafficIn
-					item.HistoryTrafficOut = proxy.HistoryTrafficOut
-				} else {
-					item.HistoryTrafficIn = proxy.HistoryTrafficIn + proxy.TodayTrafficIn
-					item.HistoryTrafficOut = proxy.HistoryTrafficOut + proxy.TodayTrafficOut
+			if oldProxy, ok := oldProxyMap[name]; ok {
+				item.ProxyID = oldProxy.ProxyID
+				firstSync := inputMap[name].GetFirstSync()
+				isSameDay := utils.IsSameDay(nowTime, oldProxy.UpdatedAt)
+
+				item.HistoryTrafficIn = oldProxy.HistoryTrafficIn
+				item.HistoryTrafficOut = oldProxy.HistoryTrafficOut
+				if !isSameDay || firstSync {
+					item.HistoryTrafficIn += oldProxy.TodayTrafficIn
+					item.HistoryTrafficOut += oldProxy.TodayTrafficOut
 				}
 			}
 			return item

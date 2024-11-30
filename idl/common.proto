@@ -67,4 +67,5 @@ message ProxyInfo {
 	optional int64 today_traffic_out = 6;
 	optional int64 history_traffic_in = 7;
 	optional int64 history_traffic_out = 8;
+	optional bool first_sync = 9;
 }

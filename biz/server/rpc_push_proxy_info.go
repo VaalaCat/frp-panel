@@ -26,17 +26,20 @@ func PushProxyInfo(serverID, serverSecret string) error {
 	proxyInfos := []*pb.ProxyInfo{}
 
 	if cli := tunnel.GetServerController().Get(serverID); cli != nil {
+		firstSync := cli.IsFirstSync()
 		for _, proxyType := range proxyTypeList {
 			proxyStatsList := cli.GetProxyStatsByType(proxyType)
 			for _, proxyStats := range proxyStatsList {
-				if proxyStats != nil {
-					proxyInfos = append(proxyInfos, &pb.ProxyInfo{
-						Name:            lo.ToPtr(proxyStats.Name),
-						Type:            lo.ToPtr(proxyStats.Type),
-						TodayTrafficIn:  lo.ToPtr(proxyStats.TodayTrafficIn),
-						TodayTrafficOut: lo.ToPtr(proxyStats.TodayTrafficOut),
-					})
+				if proxyStats == nil {
+					continue
 				}
+				proxyInfos = append(proxyInfos, &pb.ProxyInfo{
+					Name:            lo.ToPtr(proxyStats.Name),
+					Type:            lo.ToPtr(proxyStats.Type),
+					TodayTrafficIn:  lo.ToPtr(proxyStats.TodayTrafficIn),
+					TodayTrafficOut: lo.ToPtr(proxyStats.TodayTrafficOut),
+					FirstSync:       lo.ToPtr(firstSync),
+				})
 			}
 		}
 	}
