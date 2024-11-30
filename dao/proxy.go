@@ -11,6 +11,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc/pool"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func GetProxyByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyEntity, error) {
@@ -22,6 +23,11 @@ func GetProxyByClientID(userInfo models.UserInfo, clientID string) ([]*models.Pr
 	err := db.
 		Where(&models.Proxy{ProxyEntity: &models.ProxyEntity{
 			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+			ClientID: clientID,
+		}}).
+		Or(&models.Proxy{ProxyEntity: &models.ProxyEntity{
+			UserID:   0,
 			TenantID: userInfo.GetTenantID(),
 			ClientID: clientID,
 		}}).
@@ -45,7 +51,11 @@ func GetProxyByServerID(userInfo models.UserInfo, serverID string) ([]*models.Pr
 			UserID:   userInfo.GetUserID(),
 			TenantID: userInfo.GetTenantID(),
 			ServerID: serverID,
-		}}).
+		}}).Or(&models.Proxy{ProxyEntity: &models.ProxyEntity{
+		UserID:   0,
+		TenantID: userInfo.GetTenantID(),
+		ServerID: serverID,
+	}}).
 		Find(&list).Error
 	if err != nil {
 		return nil, err
@@ -169,4 +179,33 @@ func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 		}
 		return nil
 	})
+}
+
+func AdminGetTenantProxies(tenantID int) ([]*models.ProxyEntity, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	list := []*models.Proxy{}
+	err := db.
+		Where(&models.Proxy{ProxyEntity: &models.ProxyEntity{
+			TenantID: tenantID,
+		}}).
+		Find(&list).Error
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(list, func(item *models.Proxy, _ int) *models.ProxyEntity {
+		return item.ProxyEntity
+	}), nil
+}
+
+func AdminGetAllProxies(tx *gorm.DB) ([]*models.ProxyEntity, error) {
+	db := tx
+	list := []*models.Proxy{}
+	err := db.Clauses(clause.Locking{Strength: "UPDATE"}).
+		Find(&list).Error
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(list, func(item *models.Proxy, _ int) *models.ProxyEntity {
+		return item.ProxyEntity
+	}), nil
 }

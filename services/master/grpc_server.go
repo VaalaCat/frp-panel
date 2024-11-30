@@ -42,19 +42,19 @@ func RunRpcServer(s *grpc.Server) {
 
 // PullClientConfig implements pb.MasterServer.
 func (s *server) PullClientConfig(ctx context.Context, req *pb.PullClientConfigReq) (*pb.PullClientConfigResp, error) {
-	logrus.Infof("pull client config, req: [%+v]", req)
+	logrus.Infof("pull client config, clientID: [%+v]", req.GetBase().GetClientId())
 	return client.RPCPullConfig(ctx, req)
 }
 
 // PullServerConfig implements pb.MasterServer.
 func (s *server) PullServerConfig(ctx context.Context, req *pb.PullServerConfigReq) (*pb.PullServerConfigResp, error) {
-	logrus.Infof("pull server config, req: [%+v]", req)
+	logrus.Infof("pull server config, serverID: [%+v]", req.GetBase().GetServerId())
 	return masterserver.RPCPullConfig(ctx, req)
 }
 
 // FRPCAuth implements pb.MasterServer.
 func (*server) FRPCAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPAuthResponse, error) {
-	logrus.Infof("frpc auth, req: [%+v]", req)
+	logrus.Infof("frpc auth, user: [%+v] ,serverID: [%+v]", req.GetUser(), req.GetBase().GetServerId())
 	return masterserver.FRPAuth(ctx, req)
 }
 
@@ -139,6 +139,6 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 
 // PushProxyInfo implements pb.MasterServer.
 func (s *server) PushProxyInfo(ctx context.Context, req *pb.PushProxyInfoReq) (*pb.PushProxyInfoResp, error) {
-	logrus.Infof("push proxy info, req: [%+v]", req)
+	logrus.Infof("push proxy info, req server: [%+v]", req.GetProxyInfos())
 	return masterserver.PushProxyInfo(ctx, req)
 }

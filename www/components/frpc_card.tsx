@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@radix-ui/react-label'
 import { useQuery } from '@tanstack/react-query'
 import { listServer } from '@/api/server'
@@ -10,8 +9,10 @@ import { Switch } from './ui/switch'
 import { FRPCEditor } from './frpc_editor'
 import { FRPCForm } from './frpc_form'
 import { useSearchParams } from 'next/navigation'
-import { $clientProxyConfigs } from '@/store/proxy'
 import { ClientConfig } from '@/types/client'
+import { TypedProxyConfig } from '@/types/proxy'
+import { ClientSelector } from './base/client-selector'
+import { ServerSelector } from './base/server-selector'
 
 export interface FRPCFormCardProps {
   clientID?: string
@@ -26,13 +27,7 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
   const [serverID, setServerID] = useState<string | undefined>()
   const searchParams = useSearchParams()
   const paramClientID = searchParams.get('clientID')
-  const handleServerChange = (value: string) => {
-    setServerID(value)
-  }
-
-  const handleClientChange = (value: string) => {
-    setClientID(value)
-  }
+  const [clientProxyConfigs, setClientProxyConfigs] = useState<TypedProxyConfig[]>([])
 
   useEffect(() => {
     if (defaultClientID) {
@@ -43,26 +38,42 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
     }
   }, [defaultClientID, defaultServerID])
 
-  const { data: serverList, refetch: refetchServers } = useQuery({
+  const { refetch: refetchServers } = useQuery({
     queryKey: ['listServer'],
     queryFn: () => {
       return listServer({ page: 1, pageSize: 500, keyword: '' })
     },
   })
 
-  const { data: clientList, refetch: refetchClients } = useQuery({
+  const { refetch: refetchClients } = useQuery({
     queryKey: ['listClient'],
     queryFn: () => {
       return listClient({ page: 1, pageSize: 50, keyword: '' })
     },
   })
 
-  const { data: client } = useQuery({
+  const { data: client, refetch: refetchClient } = useQuery({
     queryKey: ['getClient', clientID],
     queryFn: () => {
       return getClient({ clientId: clientID })
     },
   })
+
+  useEffect(() => {
+    if (!client || !client?.client) return
+    if (client?.client?.config == undefined) return
+
+    const clientConf = JSON.parse(client?.client?.config || '{}') as ClientConfig
+
+    const proxyConfs = clientConf.proxies
+    console.log('proxyConfs', proxyConfs)
+    if (proxyConfs) {
+      setClientProxyConfigs(proxyConfs)
+    }
+    if (clientConf != undefined && clientConf.proxies == undefined) {
+      setClientProxyConfigs([])
+    }
+  }, [client, refetchClient, setClientProxyConfigs])
 
   useEffect(() => {
     if (paramClientID) {
@@ -71,13 +82,6 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
         setServerID(client?.client?.serverId)
       }
     }
-
-    if (!client || !client?.client || !client?.client?.config) return
-    const proxyConfs = (JSON.parse(client?.client?.config) as ClientConfig).proxies
-    if (proxyConfs) {
-      $clientProxyConfigs.set(proxyConfs)
-    }
-
   }, [paramClientID])
 
   useEffect(() => {
@@ -103,62 +107,32 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
           </div>
           <Switch onCheckedChange={setAdvanceMode} />
         </div>
-        <div className="flex flex-col w-full pt-2">
+        <div className="flex flex-col w-full pt-2 space-y-2">
           <Label className="text-sm font-medium">服务端</Label>
-          <Select
-            onValueChange={handleServerChange}
-            value={serverID}
-            onOpenChange={() => {
-              refetchServers()
-              refetchClients()
-            }}
-          >
-            <SelectTrigger className="my-2">
-              <SelectValue placeholder="节点名称" />
-            </SelectTrigger>
-            <SelectContent>
-              {serverList?.servers.map(
-                (server) =>
-                  server.id && (
-                    <SelectItem key={server.id} value={server.id}>
-                      {server.id}
-                    </SelectItem>
-                  ),
-              )}
-            </SelectContent>
-          </Select>
+          <ServerSelector serverID={serverID} setServerID={setServerID} onOpenChange={refetchClients} />
           <Label className="text-sm font-medium">客户端</Label>
-          <Select
-            onValueChange={handleClientChange}
-            value={clientID}
-            onOpenChange={() => {
-              refetchServers()
-              refetchClients()
-            }}
-          >
-            <SelectTrigger className="my-2">
-              <SelectValue placeholder="节点名称" />
-            </SelectTrigger>
-            <SelectContent>
-              {clientList?.clients.map(
-                (client) =>
-                  client.id && (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.id}
-                    </SelectItem>
-                  ),
-              )}
-            </SelectContent>
-          </Select>
+          <ClientSelector clientID={clientID} setClientID={setClientID} onOpenChange={refetchServers} />
         </div>
-        {clientID && !advanceMode && <>
+        {clientID && !advanceMode && <div className='flex flex-col w-full pt-2 space-y-2'>
           <Label className="text-sm font-medium">节点 {clientID} 的备注</Label>
           <p className="text-sm text-muted-foreground">可以到高级模式修改备注哦！</p>
           <p className="text-sm border rounded p-2 my-2">
             {client?.client?.comment == undefined || client?.client?.comment === '' ? '空空如也' : client?.client?.comment}
-          </p></>}
-        {clientID && serverID && !advanceMode && <FRPCForm clientID={clientID} serverID={serverID} />}
-        {clientID && serverID && advanceMode && <FRPCEditor clientID={clientID} serverID={serverID} />}
+          </p></div>}
+        {clientID && serverID && !advanceMode && <FRPCForm
+          client={client?.client}
+          clientConfig={JSON.parse(client?.client?.config || '{}') as ClientConfig} refetchClient={refetchClient}
+          clientID={clientID} serverID={serverID}
+          clientProxyConfigs={clientProxyConfigs}
+          setClientProxyConfigs={setClientProxyConfigs} />
+        }
+        {clientID && serverID && advanceMode && <FRPCEditor
+          client={client?.client}
+          clientConfig={JSON.parse(client?.client?.config || '{}') as ClientConfig} refetchClient={refetchClient}
+          clientID={clientID} serverID={serverID}
+          clientProxyConfigs={clientProxyConfigs}
+          setClientProxyConfigs={setClientProxyConfigs} />
+        }
       </CardContent>
     </Card>
   )

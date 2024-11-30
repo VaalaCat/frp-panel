@@ -5,6 +5,7 @@ import (
 
 	bizmaster "github.com/VaalaCat/frp-panel/biz/master"
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
+	"github.com/VaalaCat/frp-panel/biz/master/proxy"
 	bizserver "github.com/VaalaCat/frp-panel/biz/server"
 	"github.com/VaalaCat/frp-panel/cache"
 	"github.com/VaalaCat/frp-panel/common"
@@ -50,11 +51,16 @@ func runMaster() {
 	defer w.Stop()
 	defer r.Stop()
 
+	tasks := watcher.NewClient()
+	tasks.AddCronTask("0 59 23 * * *", proxy.CollectDailyStats)
+	defer tasks.Stop()
+
 	var wg conc.WaitGroup
 	wg.Go(w.Run)
 	wg.Go(r.Run)
 	wg.Go(m.Run)
 	wg.Go(a.Run)
+	wg.Go(tasks.Run)
 	wg.Wait()
 }
 
@@ -113,8 +119,8 @@ func initDefaultInternalServer() (rpcclient.ClientRPCHandler, watcher.Client) {
 	r := rpcclient.GetClientRPCSerivce()
 
 	w := watcher.NewClient()
-	w.AddTask(common.PullConfigDuration, bizserver.PullConfig, defaultServer.ServerID, defaultServer.ConnectSecret)
-	w.AddTask(common.PushProxyInfoDuration, bizserver.PushProxyInfo, defaultServer.ServerID, defaultServer.ConnectSecret)
+	w.AddDurationTask(common.PullConfigDuration, bizserver.PullConfig, defaultServer.ServerID, defaultServer.ConnectSecret)
+	w.AddDurationTask(common.PushProxyInfoDuration, bizserver.PushProxyInfo, defaultServer.ServerID, defaultServer.ConnectSecret)
 
 	go initServerOnce(defaultServer.ServerID, defaultServer.ConnectSecret)
 	return r, w

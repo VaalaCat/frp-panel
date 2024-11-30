@@ -21,7 +21,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	golang.org/x/crypto v0.25.0
 	google.golang.org/grpc v1.65.0
-	google.golang.org/protobuf v1.34.2
+	google.golang.org/protobuf v1.35.2
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
@@ -51,6 +51,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/pprof v0.0.0-20231229205709-960ae82b1e42 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect

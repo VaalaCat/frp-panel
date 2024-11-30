@@ -1,22 +1,15 @@
 import { Label } from '@radix-ui/react-label'
 import { Textarea } from './ui/textarea'
 import { FRPCFormProps } from './frpc_form'
-import { getClient } from '@/api/client'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 import { updateFRPC } from '@/api/frp'
 import { useToast } from './ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
 
-export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
+export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client, refetchClient }) => {
   const { toast } = useToast()
-  const { data: client, refetch: refetchClient } = useQuery({
-    queryKey: ['getClient', clientID],
-    queryFn: () => {
-      return getClient({ clientId: clientID })
-    },
-  })
 
   const [configContent, setConfigContent] = useState<string>('{}')
   const [clientComment, setClientComment] = useState<string>('')
@@ -27,6 +20,7 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
     try {
       let res = await updateFrpc.mutateAsync({
         clientId: clientID,
+        //@ts-ignore
         config: Buffer.from(editorValue),
         serverId: serverID,
         comment: clientComment,
@@ -46,6 +40,7 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
       setConfigContent(
         JSON.stringify(
           JSON.parse(
+            //@ts-ignore
             cliData?.data?.client?.config == undefined ? '{}' || cliData?.data?.client?.config == '' : cliData?.data?.client?.config,
           ),
           null,
@@ -73,10 +68,10 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
     <div className="grid w-full gap-1.5">
       <Label className="text-sm font-medium">节点 {clientID} 的备注</Label>
       <Textarea
-        key={client?.client?.comment}
+        key={client?.comment}
         placeholder="备注"
         id="message"
-        defaultValue={client?.client?.comment}
+        defaultValue={client?.comment}
         onChange={(e) => setClientComment(e.target.value)}
         className="h-12"
       />

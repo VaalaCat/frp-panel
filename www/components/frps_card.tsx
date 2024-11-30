@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from './ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
-import { getServer, listServer } from '@/api/server'
+import { getServer } from '@/api/server'
 import { useQuery } from '@tanstack/react-query'
 import { Switch } from './ui/switch'
 import { FRPSEditor } from './frps_editor'
 import FRPSForm from './frps_form'
 import { useSearchParams } from 'next/navigation'
+import { ServerSelector } from './base/server-selector'
 
 export interface FRPSFormCardProps {
   serverID?: string
@@ -17,12 +17,6 @@ export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultSer
   const [serverID, setServerID] = useState<string | undefined>()
   const searchParams = useSearchParams()
   const paramServerID = searchParams.get('serverID')
-  const { data: serverList, refetch: refetchServers } = useQuery({
-    queryKey: ['listServer'],
-    queryFn: () => {
-      return listServer({ page: 1, pageSize: 100 })
-    },
-  })
   const { data: server, refetch: refetchServer } = useQuery({
     queryKey: ['getServer', serverID],
     queryFn: () => {
@@ -70,28 +64,7 @@ export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultSer
         </div>
         <div className="flex flex-col w-full pt-2">
           <Label className="text-sm font-medium">服务端</Label>
-          <Select
-            onValueChange={handleServerChange}
-            value={serverID}
-            onOpenChange={() => {
-              refetchServers()
-              refetchServer()
-            }}
-          >
-            <SelectTrigger className="my-2">
-              <SelectValue placeholder="节点名称" />
-            </SelectTrigger>
-            <SelectContent>
-              {serverList?.servers.map(
-                (serverItem) =>
-                  serverItem.id && (
-                    <SelectItem key={serverItem.id} value={serverItem.id}>
-                      {serverItem.id}
-                    </SelectItem>
-                  ),
-              )}
-            </SelectContent>
-          </Select>
+          <ServerSelector serverID={serverID} setServerID={handleServerChange} onOpenChange={refetchServer} />
         </div>
         {serverID && server && server.server && !advanceMode && <FRPSForm serverID={serverID} server={server.server} />}
         {serverID && server && server.server && advanceMode && (

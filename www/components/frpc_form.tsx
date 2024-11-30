@@ -4,51 +4,36 @@ import { useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@radix-ui/react-label'
 import { HTTPProxyForm, STCPProxyForm, TCPProxyForm, UDPProxyForm } from './proxy_form'
-import { useQuery } from '@tanstack/react-query'
-import { getClient } from '@/api/client'
-import { useStore } from '@nanostores/react'
-import { $clientProxyConfigs } from '@/store/proxy'
 import { Button } from './ui/button'
-import { RespCode } from '@/lib/pb/common'
+import { Client, RespCode } from '@/lib/pb/common'
 import { ClientConfig } from '@/types/client'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Input } from './ui/input'
 import { AccordionHeader } from '@radix-ui/react-accordion'
 import { useToast } from './ui/use-toast'
-import { useMutation } from '@tanstack/react-query'
+import { QueryObserverResult, RefetchOptions, useMutation } from '@tanstack/react-query'
 import { updateFRPC } from '@/api/frp'
 import { Card, CardContent } from './ui/card'
+import { GetClientResponse } from '@/lib/pb/api_client'
 
 export interface FRPCFormProps {
   clientID: string
   serverID: string
+  client?: Client
+  clientConfig: ClientConfig
+  refetchClient: (options?: RefetchOptions) => Promise<QueryObserverResult<GetClientResponse, Error>>
+  clientProxyConfigs: TypedProxyConfig[]
+  setClientProxyConfigs: React.Dispatch<React.SetStateAction<TypedProxyConfig[]>>
 }
 
-export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
+export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, refetchClient, clientProxyConfigs, setClientProxyConfigs }) => {
   const [proxyType, setProxyType] = useState<ProxyType>('http')
   const [proxyName, setProxyName] = useState<string | undefined>()
   const { toast } = useToast()
   const handleTypeChange = (value: string) => {
     setProxyType(value as ProxyType)
   }
-
-  const { data: client, refetch: refetchClient } = useQuery({
-    queryKey: ['getClient', clientID],
-    queryFn: () => {
-      return getClient({ clientId: clientID })
-    },
-  })
-
-  const clientProxyConfigs = useStore($clientProxyConfigs)
-
-  useEffect(() => {
-    if (!client || !client?.client || !client?.client?.config) return
-    const proxyConfs = (JSON.parse(client?.client?.config) as ClientConfig).proxies
-    if (proxyConfs) {
-      $clientProxyConfigs.set(proxyConfs)
-    }
-  }, [clientID, serverID, client])
 
   const handleAddProxy = () => {
     console.log('add proxy', proxyName, proxyType)
@@ -62,12 +47,12 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
       name: proxyName,
       type: proxyType,
     } as TypedProxyConfig
-    $clientProxyConfigs.set([...clientProxyConfigs, newProxy])
+    setClientProxyConfigs([...clientProxyConfigs, newProxy])
   }
 
   const handleDeleteProxy = (proxyName: string) => {
     const newProxies = clientProxyConfigs.filter((proxy) => proxy.name !== proxyName)
-    $clientProxyConfigs.set(newProxies)
+    setClientProxyConfigs(newProxies)
   }
 
   const updateFrpc = useMutation({ mutationFn: updateFRPC })
@@ -75,6 +60,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
   const handleUpdate = async () => {
     try {
       const res = await updateFrpc.mutateAsync({
+        //@ts-ignore
         config: Buffer.from(
           JSON.stringify({
             proxies: clientProxyConfigs,
@@ -95,7 +81,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
     <>
       <Popover>
         <PopoverTrigger asChild>
-          <Button className="my-2">新增</Button>
+          <Button className="my-2">新增隧道</Button>
         </PopoverTrigger>
         <PopoverContent>
           <Label className="text-sm font-medium">名称</Label>
@@ -121,7 +107,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
           </Button>
         </PopoverContent>
       </Popover>
-      <Accordion type="single" collapsible key={clientID + serverID + client}>
+      <Accordion type="single" defaultValue="proxies" collapsible key={clientID + serverID + client}>
         <AccordionItem value="proxies">
           <AccordionTrigger>
             <AccordionHeader className="flex flex-row justify-between w-full"><p>隧道配置</p> <p>点击展开{`${clientProxyConfigs.length}条隧道`}</p></AccordionHeader>
@@ -153,6 +139,8 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
                                 proxyName={item.name}
                                 serverID={serverID}
                                 clientID={clientID}
+                                clientProxyConfigs={clientProxyConfigs}
+                                setClientProxyConfigs={setClientProxyConfigs}
                               />
                             )}
                             {item.type === 'udp' && serverID && clientID && (
@@ -161,6 +149,8 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
                                 proxyName={item.name}
                                 serverID={serverID}
                                 clientID={clientID}
+                                clientProxyConfigs={clientProxyConfigs}
+                                setClientProxyConfigs={setClientProxyConfigs}
                               />
                             )}
                             {item.type === 'http' && serverID && clientID && (
@@ -169,6 +159,8 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
                                 proxyName={item.name}
                                 serverID={serverID}
                                 clientID={clientID}
+                                clientProxyConfigs={clientProxyConfigs}
+                                setClientProxyConfigs={setClientProxyConfigs}
                               />
                             )}
                             {item.type === 'stcp' && serverID && clientID && (
@@ -177,6 +169,8 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
                                 proxyName={item.name}
                                 serverID={serverID}
                                 clientID={clientID}
+                                clientProxyConfigs={clientProxyConfigs}
+                                setClientProxyConfigs={setClientProxyConfigs}
                               />
                             )}
                           </AccordionContent>
@@ -263,7 +257,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID }) => {
           handleUpdate()
         }}
       >
-        提交
+        提交变更
       </Button>
     </>
   )

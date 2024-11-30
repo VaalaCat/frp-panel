@@ -8,7 +8,6 @@ import { Control, FieldValues, useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { $clientProxyConfigs } from '@/store/proxy'
 import { useStore } from '@nanostores/react'
 import { YesIcon } from './ui/icon'
 import { Label } from './ui/label'
@@ -45,6 +44,8 @@ export interface ProxyFormProps {
   serverID: string
   proxyName: string
   defaultProxyConfig?: TypedProxyConfig
+  clientProxyConfigs: TypedProxyConfig[]
+  setClientProxyConfigs: React.Dispatch<React.SetStateAction<TypedProxyConfig[]>>
 }
 
 const IPField = ({
@@ -134,7 +135,7 @@ const SecretKeyField = ({
   )
 }
 
-export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName }) => {
+export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName, clientProxyConfigs, setClientProxyConfigs }) => {
   const defaultConfig = defaultProxyConfig as TCPProxyConfig
   const [_, setTCPConfig] = useState<TCPProxyConfig | undefined>()
   const form = useForm<z.infer<typeof TCPConfigSchema>>({
@@ -146,7 +147,6 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
     form.reset({})
   }, [form])
 
-  const clientProxyConfigs = useStore($clientProxyConfigs)
   const onSubmit = async (values: z.infer<typeof TCPConfigSchema>) => {
     handleSave()
     setTCPConfig({ type: 'tcp', ...values, name: proxyName })
@@ -156,7 +156,7 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
       }
       return proxyCfg
     })
-    $clientProxyConfigs.set(newProxiyConfigs)
+    setClientProxyConfigs(newProxiyConfigs)
   }
 
   const [isSaveDisabled, setSaveDisabled] = useState(false)
@@ -221,7 +221,7 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
   )
 }
 
-export const STCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName }) => {
+export const STCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName, clientProxyConfigs, setClientProxyConfigs }) => {
   const defaultConfig = defaultProxyConfig as STCPProxyConfig
   const [_, setSTCPConfig] = useState<STCPProxyConfig | undefined>()
   const form = useForm<z.infer<typeof STCPConfigSchema>>({
@@ -233,7 +233,6 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
     form.reset({})
   }, [form])
 
-  const clientProxyConfigs = useStore($clientProxyConfigs)
   const onSubmit = async (values: z.infer<typeof STCPConfigSchema>) => {
     handleSave()
     setSTCPConfig({ type: 'stcp', ...values, name: proxyName })
@@ -243,7 +242,7 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
       }
       return proxyCfg
     })
-    $clientProxyConfigs.set(newProxiyConfigs)
+    setClientProxyConfigs(newProxiyConfigs)
   }
 
   const [isSaveDisabled, setSaveDisabled] = useState(false)
@@ -287,7 +286,7 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
   )
 }
 
-export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName }) => {
+export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName, clientProxyConfigs, setClientProxyConfigs }) => {
   const [_, setUDPConfig] = useState<UDPProxyConfig | undefined>()
   const form = useForm<z.infer<typeof UDPConfigSchema>>({
     resolver: zodResolver(UDPConfigSchema),
@@ -298,7 +297,6 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
     form.reset({})
   }, [])
 
-  const clientProxyConfigs = useStore($clientProxyConfigs)
   const onSubmit = async (values: z.infer<typeof UDPConfigSchema>) => {
     handleSave()
     setUDPConfig({ type: 'udp', ...values, name: proxyName })
@@ -308,7 +306,7 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
       }
       return proxyCfg
     })
-    $clientProxyConfigs.set(newProxiyConfigs)
+    setClientProxyConfigs(newProxiyConfigs)
   }
 
   const [isSaveDisabled, setSaveDisabled] = useState(false)
@@ -387,7 +385,7 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
   )
 }
 
-export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName }) => {
+export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName, clientProxyConfigs, setClientProxyConfigs }) => {
   const [_, setHTTPConfig] = useState<HTTPProxyConfig | undefined>()
   const [serverConfig, setServerConfig] = useState<ServerConfig | undefined>()
   const form = useForm<z.infer<typeof HTTPConfigSchema>>({
@@ -399,7 +397,6 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
     form.reset({})
   }, [])
 
-  const clientProxyConfigs = useStore($clientProxyConfigs)
   const onSubmit = async (values: z.infer<typeof HTTPConfigSchema>) => {
     handleSave()
     setHTTPConfig({ ...values, type: 'http', name: proxyName })
@@ -409,7 +406,7 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
       }
       return proxyCfg
     })
-    $clientProxyConfigs.set(newProxiyConfigs)
+    setClientProxyConfigs(newProxiyConfigs)
   }
 
   const [isSaveDisabled, setSaveDisabled] = useState(false)

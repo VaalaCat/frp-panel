@@ -45,7 +45,7 @@ func runClient() {
 	defer r.Stop()
 
 	w := watcher.NewClient()
-	w.AddTask(common.PullConfigDuration, bizclient.PullConfig, clientID, clientSecret)
+	w.AddDurationTask(common.PullConfigDuration, bizclient.PullConfig, clientID, clientSecret)
 	defer w.Stop()
 
 	initClientOnce(clientID, clientSecret)

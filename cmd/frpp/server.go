@@ -49,8 +49,8 @@ func runServer() {
 	defer r.Stop()
 
 	w := watcher.NewClient()
-	w.AddTask(common.PullConfigDuration, bizserver.PullConfig, clientID, clientSecret)
-	w.AddTask(common.PushProxyInfoDuration, bizserver.PushProxyInfo, clientID, clientSecret)
+	w.AddDurationTask(common.PullConfigDuration, bizserver.PullConfig, clientID, clientSecret)
+	w.AddDurationTask(common.PushProxyInfoDuration, bizserver.PushProxyInfo, clientID, clientSecret)
 	defer w.Stop()
 
 	initServerOnce(clientID, clientSecret)

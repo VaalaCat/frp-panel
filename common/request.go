@@ -95,6 +95,11 @@ func GetServerMessageRequest[T ReqType](b []byte, r *T, trans func(b []byte, m p
 	case *pb.StartFRPSRequest:
 		return trans(b, ptr)
 	case *pb.StopFRPSRequest:
+		return trans(b, ptr)
+	case *pb.GetProxyByCIDRequest:
+		return trans(b, ptr)
+	case *pb.GetProxyBySIDRequest:
+		return trans(b, ptr)
 	default:
 	}
 	return fmt.Errorf("cannot unmarshal unknown type: %T", r)

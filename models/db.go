@@ -35,6 +35,9 @@ func (dbm *dbManagerImpl) Init() {
 		if err := db.AutoMigrate(&Proxy{}); err != nil {
 			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&Proxy{}).TableName())
 		}
+		if err := db.AutoMigrate(&HistoryProxyStats{}); err != nil {
+			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&HistoryProxyStats{}).TableName())
+		}
 	}
 }
 

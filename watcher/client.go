@@ -10,7 +10,8 @@ import (
 type Client interface {
 	Run()
 	Stop()
-	AddTask(time.Duration, any, ...any) error
+	AddDurationTask(time.Duration, any, ...any) error
+	AddCronTask(string, any, ...any) error
 }
 
 type client struct {
@@ -27,9 +28,20 @@ func NewClient() Client {
 	}
 }
 
-func (c *client) AddTask(duration time.Duration, function any, parameters ...any) error {
+func (c *client) AddDurationTask(duration time.Duration, function any, parameters ...any) error {
 	_, err := c.s.NewJob(
 		gocron.DurationJob(duration),
+		gocron.NewTask(function, parameters...),
+	)
+	if err != nil {
+		logrus.WithError(err).Fatalf("create task error")
+	}
+	return err
+}
+
+func (c *client) AddCronTask(cron string, function any, parameters ...any) error {
+	_, err := c.s.NewJob(
+		gocron.CronJob(cron, true),
 		gocron.NewTask(function, parameters...),
 	)
 	if err != nil {

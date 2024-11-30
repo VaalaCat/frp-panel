@@ -43,6 +43,13 @@ export const SideBar: React.FC<SideBarProps> = ({ items }) => {
         router.push('/serveredit')
       },
     },
+    {
+      id: 'clientstats',
+      label: '客户端统计',
+      eventHandler: () => {
+        router.push('/clientstats')
+      },
+    },
   ]
   return (
     <div className="w-48 h-full grid grid-cols-1 mt-1 min-w-24">
@@ -50,7 +57,7 @@ export const SideBar: React.FC<SideBarProps> = ({ items }) => {
         items.map((item) => (
           <Button
             className={`mx-2 my-1 justify-start ${
-              router.pathname.includes(item.id)
+              router.pathname==`/${item.id}`
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
                 : ''
             }`}
@@ -66,7 +73,7 @@ export const SideBar: React.FC<SideBarProps> = ({ items }) => {
         defaultItems.map((item) => (
           <Button
             className={`mx-2 my-1 justify-start ${
-              router.pathname.includes(item.id)
+              router.pathname==`/${item.id}`
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
                 : ''
             }`}
