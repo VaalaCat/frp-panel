@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"sync"
 
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
@@ -15,14 +16,16 @@ import (
 type ServerHandler interface {
 	Run()
 	Stop()
+	IsFirstSync() bool
 	GetCommonCfg() *v1.ServerConfig
 	GetMem() *mem.ServerStats
 	GetProxyStatsByType(v1.ProxyType) []*mem.ProxyStats
 }
 
 type Server struct {
-	srv    *server.Service
-	Common *v1.ServerConfig
+	srv       *server.Service
+	Common    *v1.ServerConfig
+	firstSync sync.Once
 }
 
 var (
@@ -69,8 +72,9 @@ func NewServerHandler(svrCfg *v1.ServerConfig) *Server {
 	}
 
 	return &Server{
-		srv:    svr,
-		Common: svrCfg,
+		srv:       svr,
+		Common:    svrCfg,
+		firstSync: sync.Once{},
 	}
 }
 
@@ -102,4 +106,12 @@ func (s *Server) GetMem() *mem.ServerStats {
 
 func (s *Server) GetProxyStatsByType(proxyType v1.ProxyType) []*mem.ProxyStats {
 	return mem.StatsCollector.GetProxiesByType(string(proxyType))
+}
+
+func (s *Server) IsFirstSync() bool {
+	result := false
+	s.firstSync.Do(func() {
+		result = true
+	})
+	return result
 }

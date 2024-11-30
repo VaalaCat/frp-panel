@@ -164,6 +164,10 @@ export interface ProxyInfo {
      * @generated from protobuf field: optional int64 history_traffic_out = 8;
      */
     historyTrafficOut?: bigint;
+    /**
+     * @generated from protobuf field: optional bool first_sync = 9;
+     */
+    firstSync?: boolean;
 }
 /**
  * @generated from protobuf enum common.RespCode
@@ -602,7 +606,8 @@ class ProxyInfo$Type extends MessageType<ProxyInfo> {
             { no: 5, name: "today_traffic_in", kind: "scalar", opt: true, T: 3 /*ScalarType.INT64*/, L: 0 /*LongType.BIGINT*/ },
             { no: 6, name: "today_traffic_out", kind: "scalar", opt: true, T: 3 /*ScalarType.INT64*/, L: 0 /*LongType.BIGINT*/ },
             { no: 7, name: "history_traffic_in", kind: "scalar", opt: true, T: 3 /*ScalarType.INT64*/, L: 0 /*LongType.BIGINT*/ },
-            { no: 8, name: "history_traffic_out", kind: "scalar", opt: true, T: 3 /*ScalarType.INT64*/, L: 0 /*LongType.BIGINT*/ }
+            { no: 8, name: "history_traffic_out", kind: "scalar", opt: true, T: 3 /*ScalarType.INT64*/, L: 0 /*LongType.BIGINT*/ },
+            { no: 9, name: "first_sync", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<ProxyInfo>): ProxyInfo {
@@ -640,6 +645,9 @@ class ProxyInfo$Type extends MessageType<ProxyInfo> {
                 case /* optional int64 history_traffic_out */ 8:
                     message.historyTrafficOut = reader.int64().toBigInt();
                     break;
+                case /* optional bool first_sync */ 9:
+                    message.firstSync = reader.bool();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -676,6 +684,9 @@ class ProxyInfo$Type extends MessageType<ProxyInfo> {
         /* optional int64 history_traffic_out = 8; */
         if (message.historyTrafficOut !== undefined)
             writer.tag(8, WireType.Varint).int64(message.historyTrafficOut);
+        /* optional bool first_sync = 9; */
+        if (message.firstSync !== undefined)
+            writer.tag(9, WireType.Varint).bool(message.firstSync);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
