@@ -74,6 +74,7 @@ export const ClientList: React.FC<ClientListProps> = ({ Clients, Keyword, Trigge
         } as ClientTableSchema
       }) ?? data,
     pageCount: Math.ceil(
+      // @ts-ignore
       (dataQuery.data?.total == undefined ? 0 : dataQuery.data?.total) / fetchDataOptions.pageSize ?? 0,
     ),
     columns: clientColumnsDef,

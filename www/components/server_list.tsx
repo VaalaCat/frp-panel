@@ -74,6 +74,7 @@ export const ServerList: React.FC<ServerListProps> = ({ Servers, Keyword, Trigge
         } as ServerTableSchema
       }) ?? data,
     pageCount: Math.ceil(
+      //@ts-ignore
       (dataQuery.data?.total == undefined ? 0 : dataQuery.data?.total) / fetchDataOptions.pageSize ?? 0,
     ),
     columns: serverColumnsDef,

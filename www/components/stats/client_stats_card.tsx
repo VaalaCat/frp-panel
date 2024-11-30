@@ -64,6 +64,7 @@ export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defa
         }} />
         <Label>隧道名称</Label>
         <ProxySelector
+          // @ts-ignore
           proxyNames={clientStatsList?.proxyInfos.map((proxyInfo) => proxyInfo.name).filter((value) => value !== undefined) || []}
           proxyName={proxyName}
           setProxyname={setProxyName} />
