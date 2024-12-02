@@ -1,31 +1,48 @@
-import { useStore } from '@nanostores/react'
-import { Providers } from './providers'
-import { Toaster } from './ui/toaster'
-import { Inter } from 'next/font/google'
-import { $language } from '@/lib/i18n'
+import { Toaster } from "@/components/ui/sonner"
+import { AppSidebar } from "@/components/app-sidebar"
+import { Separator } from "@/components/ui/separator"
+import {
+  SidebarInset,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ['latin'] })
-
-export const RootLayout = ({
+export function RootLayout({
   children,
-  header,
-  sidebar,
+  sidebarItems,
+  sidebarFooter,
+  mainHeader,
 }: {
-  children: React.ReactNode
-  header: React.ReactNode
-  sidebar?: React.ReactNode
-}) => {
-  const language = useStore($language)
+  children: React.ReactNode;
+  sidebarItems?: React.ReactNode;
+  sidebarFooter?: React.ReactNode;
+  mainHeader?: React.ReactNode
+}) {
+  const { open, isMobile } = useSidebar()
   return (
-    <main key={language} className={`${inter.className}`}>
-      <div>
-        <Providers>{header}</Providers>
-      </div>
-      <div className="flex">
-        {sidebar}
-        <div className="my-2 ml-0 mr-2 max-w-[calc(100vw-100px)] w-full">{children}</div>
-      </div>
-      <Toaster />
-    </main>
+    <>
+      <AppSidebar footer={sidebarFooter} >{sidebarItems} </AppSidebar>
+      <SidebarInset>
+        <div className={cn("relative flex flex-1 flex-col overflow-hidden transition-all",
+          isMobile && "w-[100dvw]",
+          !isMobile && open && "w-[calc(100dvw-var(--sidebar-width))]",
+          !isMobile && !open && "w-[calc(100dvw-var(--sidebar-width-icon))]"
+        )}>
+          <header className="flex flex-row h-12 items-center gap-2 w-full">
+            <div className="flex flex-row items-center gap-2 px-4 w-full">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              {mainHeader}
+            </div>
+          </header>
+          <div id="main-content"
+            className="h-[calc(100dvh_-_48px)] overflow-auto w-full pb-4 px-4 pt-2">
+            {children}
+          </div>
+        </div>
+        <Toaster />
+      </SidebarInset>
+    </>
   )
 }

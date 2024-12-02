@@ -1,6 +1,9 @@
 package rpcclient
 
 import (
+	"context"
+
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/sirupsen/logrus"
 )
@@ -30,8 +33,9 @@ func MustInitClientRPCSerivce(
 	event pb.Event,
 	handerFunc func(req *pb.ServerMessage) *pb.ClientMessage,
 ) {
+	ctx := context.Background()
 	if cliRpc != nil {
-		logrus.Warn("rpc client has been initialized")
+		logger.Logger(ctx).Warn("rpc client has been initialized")
 		return
 	}
 	cliRpc = NewClientRPCHandler(clientID, clientSecret, event, handerFunc)

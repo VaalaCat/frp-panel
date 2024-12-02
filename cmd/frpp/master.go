@@ -1,16 +1,19 @@
 package main
 
 import (
+	"context"
 	"embed"
 
 	bizmaster "github.com/VaalaCat/frp-panel/biz/master"
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
 	"github.com/VaalaCat/frp-panel/biz/master/proxy"
+	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
 	bizserver "github.com/VaalaCat/frp-panel/biz/server"
 	"github.com/VaalaCat/frp-panel/cache"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
@@ -32,9 +35,12 @@ import (
 var fs embed.FS
 
 func runMaster() {
+	c := context.Background()
 	crypto.DefaultSalt = conf.MasterDefaultSalt()
 
-	initDatabase()
+	streamlog.Init()
+
+	initDatabase(c)
 	cache.InitCache()
 	auth.InitAuth()
 	creds := dao.InitCert(conf.GetCertTemplate())
@@ -43,7 +49,7 @@ func runMaster() {
 	router := bizmaster.NewRouter(fs)
 	api.MustInitApiService(conf.MasterAPIListenAddr(), router)
 
-	logrus.Infof("start to run master")
+	logger.Logger(c).Infof("start to run master")
 	m := master.GetMasterSerivce()
 	a := api.GetAPIService()
 
@@ -64,8 +70,8 @@ func runMaster() {
 	wg.Wait()
 }
 
-func initDatabase() {
-	logrus.Infof("start to init database, type: %s", conf.Get().DB.Type)
+func initDatabase(c context.Context) {
+	logger.Logger(c).Infof("start to init database, type: %s", conf.Get().DB.Type)
 	models.MustInitDBManager(nil, conf.Get().DB.Type)
 
 	switch conf.Get().DB.Type {
@@ -74,21 +80,21 @@ func initDatabase() {
 			logrus.Panic(err)
 		} else {
 			models.GetDBManager().SetDB("sqlite3", sqlitedb)
-			logrus.Infof("init database success, data location: [%s]", conf.Get().DB.DSN)
+			logger.Logger(c).Infof("init database success, data location: [%s]", conf.Get().DB.DSN)
 		}
 	case "mysql":
 		if mysqlDB, err := gorm.Open(mysql.Open(conf.Get().DB.DSN), &gorm.Config{}); err != nil {
 			logrus.Panic(err)
 		} else {
 			models.GetDBManager().SetDB("mysql", mysqlDB)
-			logrus.Infof("init database success, data type: [%s]", "mysql")
+			logger.Logger(c).Infof("init database success, data type: [%s]", "mysql")
 		}
 	case "postgres":
 		if postgresDB, err := gorm.Open(postgres.Open(conf.Get().DB.DSN), &gorm.Config{}); err != nil {
 			logrus.Panic(err)
 		} else {
 			models.GetDBManager().SetDB("postgres", postgresDB)
-			logrus.Infof("init database success, data type: [%s]", "postgres")
+			logger.Logger(c).Infof("init database success, data type: [%s]", "postgres")
 		}
 	default:
 		logrus.Panicf("currently unsupported database type: %s", conf.Get().DB.Type)
@@ -115,6 +121,9 @@ func initDefaultInternalServer() (rpcclient.ClientRPCHandler, watcher.Client) {
 		pb.Event_EVENT_REGISTER_SERVER,
 		bizserver.HandleServerMessage,
 	)
+
+	conf.Get().Client.ID = defaultServer.ServerID
+	conf.Get().Client.Secret = defaultServer.ConnectSecret
 
 	r := rpcclient.GetClientRPCSerivce()
 

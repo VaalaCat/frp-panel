@@ -4,21 +4,21 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/server"
 	"github.com/VaalaCat/frp-panel/tunnel"
 	"github.com/VaalaCat/frp-panel/utils"
-	"github.com/sirupsen/logrus"
 )
 
 func UpdateFrpsHander(ctx context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPSResponse, error) {
-	logrus.Infof("update frps, req: [%+v]", req)
+	logger.Logger(ctx).Infof("update frps, req: [%+v]", req)
 
 	content := req.GetConfig()
 
 	s, err := utils.LoadServerConfig(content, true)
 	if err != nil {
-		logrus.WithError(err).Errorf("cannot load config")
+		logger.Logger(context.Background()).WithError(err).Errorf("cannot load config")
 		return &pb.UpdateFRPSResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
 		}, err
@@ -29,9 +29,9 @@ func UpdateFrpsHander(ctx context.Context, req *pb.UpdateFRPSRequest) (*pb.Updat
 		if !reflect.DeepEqual(cli.GetCommonCfg(), s) {
 			cli.Stop()
 			tunnel.GetClientController().Delete(serverID)
-			logrus.Infof("server %s config changed, will recreate it", serverID)
+			logger.Logger(ctx).Infof("server %s config changed, will recreate it", serverID)
 		} else {
-			logrus.Infof("server %s config not changed", serverID)
+			logger.Logger(ctx).Infof("server %s config not changed", serverID)
 			return &pb.UpdateFRPSResponse{
 				Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
 			}, nil

@@ -5,7 +5,7 @@ on:
       - "v*"
   workflow_dispatch:
 jobs:
-  build:
+  build-static:
     runs-on: ubuntu-latest
     steps:
       - name: Get version
@@ -40,6 +40,10 @@ jobs:
           automatic_release_tag: ${{ steps.get_version.outputs.VERSION }}
           files: |
             dist/*
+
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub

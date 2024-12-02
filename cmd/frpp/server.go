@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
+
 	bizserver "github.com/VaalaCat/frp-panel/biz/server"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/services/api"
@@ -17,11 +20,12 @@ import (
 
 func runServer() {
 	var (
+		c            = context.Background()
 		clientID     = conf.Get().Client.ID
 		clientSecret = conf.Get().Client.Secret
 	)
 	crypto.DefaultSalt = conf.Get().App.Secret
-	logrus.Infof("start to run server")
+	logger.Logger(c).Infof("start to run server")
 
 	if len(clientID) == 0 {
 		logrus.Fatal("client id cannot be empty")
@@ -65,6 +69,6 @@ func runServer() {
 func initServerOnce(clientID, clientSecret string) {
 	err := bizserver.PullConfig(clientID, clientSecret)
 	if err != nil {
-		logrus.WithError(err).Errorf("cannot pull server config, wait for retry")
+		logger.Logger(context.Background()).WithError(err).Errorf("cannot pull server config, wait for retry")
 	}
 }

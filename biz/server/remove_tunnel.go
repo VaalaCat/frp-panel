@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/tunnel"
-	"github.com/sirupsen/logrus"
 )
 
 func RemoveFrpsHandler(ctx context.Context, req *pb.RemoveFRPSRequest) (*pb.RemoveFRPSResponse, error) {
-	logrus.Infof("remove frps, req: [%+v]", req)
+	logger.Logger(ctx).Infof("remove frps, req: [%+v]", req)
 
 	if req.GetServerId() == "" {
 		return &pb.RemoveFRPSResponse{
@@ -20,7 +20,7 @@ func RemoveFrpsHandler(ctx context.Context, req *pb.RemoveFRPSRequest) (*pb.Remo
 
 	srv := tunnel.GetServerController().Get(req.GetServerId())
 	if srv == nil {
-		logrus.Infof("server not found, no need to remove")
+		logger.Logger(ctx).Infof("server not found, no need to remove")
 		return &pb.RemoveFRPSResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "server not found"},
 		}, nil

@@ -1,13 +1,17 @@
 package proxy
 
 import (
+	"context"
+
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/samber/lo"
-	"github.com/sirupsen/logrus"
 )
 
 func CollectDailyStats() error {
+	ctx := context.Background()
+
 	tx := models.GetDBManager().GetDefaultDB().Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -17,7 +21,7 @@ func CollectDailyStats() error {
 
 	proxies, err := dao.AdminGetAllProxies(tx)
 	if err != nil {
-		logrus.WithError(err).Error("CollectDailyStats cannot get proxies")
+		logger.Logger(context.Background()).WithError(err).Error("CollectDailyStats cannot get proxies")
 		return err
 	}
 
@@ -36,11 +40,11 @@ func CollectDailyStats() error {
 	})
 
 	if err := dao.AdminMSaveTodyStats(tx, proxyDailyStats); err != nil {
-		logrus.WithError(err).Error("CollectDailyStats cannot save stats")
+		logger.Logger(context.Background()).WithError(err).Error("CollectDailyStats cannot save stats")
 		return err
 	}
 
-	logrus.Infof("CollectDailyStats success")
+	logger.Logger(ctx).Infof("CollectDailyStats success")
 
 	return nil
 }

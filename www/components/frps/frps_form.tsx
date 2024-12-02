@@ -10,7 +10,7 @@ import { ZodIPSchema, ZodPortSchema, ZodStringSchema } from '@/lib/consts'
 import { RespCode, Server } from '@/lib/pb/common'
 import { updateFRPS } from '@/api/frp'
 import { useMutation } from '@tanstack/react-query'
-import { useToast } from './ui/use-toast'
+import { useToast } from '@/components/ui/use-toast'
 import { Label } from '@radix-ui/react-label'
 
 const ServerConfigSchema = z.object({
@@ -51,6 +51,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
     try {
       let resp = await updateFrps.mutateAsync({
         serverId: serverID,
+        // @ts-ignore
         config: Buffer.from(
           JSON.stringify({
             ...values,

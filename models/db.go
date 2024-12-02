@@ -1,7 +1,9 @@
 package models
 
 import (
-	"github.com/sirupsen/logrus"
+	"context"
+
+	"github.com/VaalaCat/frp-panel/logger"
 	"gorm.io/gorm"
 )
 
@@ -21,22 +23,22 @@ type dbManagerImpl struct {
 func (dbm *dbManagerImpl) Init() {
 	for _, db := range dbm.DBs {
 		if err := db.AutoMigrate(&Client{}); err != nil {
-			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&Client{}).TableName())
+			logger.Logger(context.Background()).WithError(err).Fatalf("cannot init db table [%s]", (&Client{}).TableName())
 		}
 		if err := db.AutoMigrate(&User{}); err != nil {
-			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&User{}).TableName())
+			logger.Logger(context.Background()).WithError(err).Fatalf("cannot init db table [%s]", (&User{}).TableName())
 		}
 		if err := db.AutoMigrate(&Server{}); err != nil {
-			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&Server{}).TableName())
+			logger.Logger(context.Background()).WithError(err).Fatalf("cannot init db table [%s]", (&Server{}).TableName())
 		}
 		if err := db.AutoMigrate(&Cert{}); err != nil {
-			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&Cert{}).TableName())
+			logger.Logger(context.Background()).WithError(err).Fatalf("cannot init db table [%s]", (&Cert{}).TableName())
 		}
 		if err := db.AutoMigrate(&Proxy{}); err != nil {
-			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&Proxy{}).TableName())
+			logger.Logger(context.Background()).WithError(err).Fatalf("cannot init db table [%s]", (&Proxy{}).TableName())
 		}
 		if err := db.AutoMigrate(&HistoryProxyStats{}); err != nil {
-			logrus.WithError(err).Fatalf("cannot init db table [%s]", (&HistoryProxyStats{}).TableName())
+			logger.Logger(context.Background()).WithError(err).Fatalf("cannot init db table [%s]", (&HistoryProxyStats{}).TableName())
 		}
 	}
 }

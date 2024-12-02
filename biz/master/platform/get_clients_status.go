@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
-	"github.com/sirupsen/logrus"
 )
 
 func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.GetClientsStatusResponse, error) {
@@ -39,7 +39,7 @@ func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.G
 		endTime := time.Now()
 		pingTime := endTime.Sub(startTime).Milliseconds()
 		if err != nil || tresp == nil {
-			logrus.WithError(err).Errorf("get client status error, client id: [%s]", clientID)
+			logger.Logger(context.Background()).WithError(err).Errorf("get client status error, client id: [%s]", clientID)
 			resps[clientID] = &pb.ClientStatus{
 				ClientType: req.GetClientType(),
 				ClientId:   clientID,

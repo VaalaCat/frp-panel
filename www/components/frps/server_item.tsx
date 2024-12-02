@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useToast } from './ui/use-toast'
+import { useToast } from '@/components/ui/use-toast'
 import React, { useState } from 'react'
 import { ClientEnvFile, ExecCommandStr, LinuxInstallCommand, WindowsInstallCommand } from '@/lib/consts'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -29,7 +29,7 @@ import { useRouter } from 'next/router'
 import { getUserInfo } from '@/api/user'
 import { useStore } from '@nanostores/react'
 import { $platformInfo } from '@/store/user'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getClientsStatus } from '@/api/platform'
 import { ClientType } from '@/lib/pb/common'
 import { ClientStatus, ClientStatus_Status } from '@/lib/pb/api_master'
@@ -78,7 +78,7 @@ export const columns: ColumnDef<ServerTableSchema>[] = [
   },
   {
     accessorKey: 'ip',
-    header: 'IP',
+    header: 'IP/域名',
     cell: ({ row }) => {
       const Server = row.original
       return <div className="font-mono">{Server.ip}</div>

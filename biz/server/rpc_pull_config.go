@@ -4,20 +4,21 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/services/server"
 	"github.com/VaalaCat/frp-panel/tunnel"
 	"github.com/VaalaCat/frp-panel/utils"
-	"github.com/sirupsen/logrus"
 )
 
 func PullConfig(serverID, serverSecret string) error {
-	logrus.Infof("start to pull server config, serverID: [%s]", serverID)
 	ctx := context.Background()
+	logger.Logger(ctx).Infof("start to pull server config, serverID: [%s]", serverID)
+
 	cli, err := rpc.MasterCli(ctx)
 	if err != nil {
-		logrus.WithError(err).Error("cannot get master server")
+		logger.Logger(context.Background()).WithError(err).Error("cannot get master server")
 		return err
 	}
 	resp, err := cli.PullServerConfig(ctx, &pb.PullServerConfigReq{
@@ -27,18 +28,18 @@ func PullConfig(serverID, serverSecret string) error {
 		},
 	})
 	if err != nil {
-		logrus.WithError(err).Error("cannot pull server config")
+		logger.Logger(context.Background()).WithError(err).Error("cannot pull server config")
 		return err
 	}
 
 	if len(resp.GetServer().GetConfig()) == 0 {
-		logrus.Infof("server [%s] config is empty, wait for server init", serverID)
+		logger.Logger(ctx).Infof("server [%s] config is empty, wait for server init", serverID)
 		return nil
 	}
 
 	s, err := utils.LoadServerConfig([]byte(resp.GetServer().GetConfig()), true)
 	if err != nil {
-		logrus.WithError(err).Error("cannot load server config")
+		logger.Logger(context.Background()).WithError(err).Error("cannot load server config")
 		return err
 	}
 
@@ -48,15 +49,15 @@ func PullConfig(serverID, serverSecret string) error {
 		if !reflect.DeepEqual(t.GetCommonCfg(), s) {
 			t.Stop()
 			ctrl.Delete(serverID)
-			logrus.Infof("server %s config changed, will recreate it", serverID)
+			logger.Logger(ctx).Infof("server %s config changed, will recreate it", serverID)
 		} else {
-			logrus.Infof("server %s config not changed", serverID)
+			logger.Logger(ctx).Infof("server %s config not changed", serverID)
 			return nil
 		}
 	}
 	ctrl.Add(serverID, server.NewServerHandler(s))
 	ctrl.Run(serverID)
 
-	logrus.Infof("pull server config success, serverID: [%s]", serverID)
+	logger.Logger(ctx).Infof("pull server config success, serverID: [%s]", serverID)
 	return nil
 }

@@ -3,11 +3,12 @@ package server
 import (
 	"net/http"
 
+	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
 	plugin "github.com/fatedier/frp/pkg/plugin/server"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 func NewRouter() *gin.Engine {
@@ -35,7 +36,7 @@ func MakeGinHandlerFunc(handler HandlerFunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		res, err := handler(ctx)
 		if err != nil {
-			logrus.Infof("handle %s error: %v", ctx.Request.URL.Path, err)
+			logger.Logger(ctx).Infof("handle %s error: %v", ctx.Request.URL.Path, err)
 			switch e := err.(type) {
 			case *HTTPError:
 				ctx.JSON(e.Code, &Response{Msg: e.Err.Error()})
@@ -60,7 +61,7 @@ func HandleLogin(ctx *gin.Context) (interface{}, error) {
 	}
 
 	var res plugin.Response
-	token := content.Metas["token"]
+	token := content.Metas[common.FRPAuthTokenKey]
 	if len(content.User) == 0 || len(token) == 0 {
 		res.Reject = true
 		res.RejectReason = "user or meta token can not be empty"

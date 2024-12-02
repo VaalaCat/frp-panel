@@ -1,11 +1,11 @@
 import { Label } from '@radix-ui/react-label'
-import { Textarea } from './ui/textarea'
+import { Textarea } from '@/components/ui/textarea'
 import { FRPCFormProps } from './frpc_form'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { Button } from './ui/button'
+import { Button } from '@/components/ui/button'
 import { updateFRPC } from '@/api/frp'
-import { useToast } from './ui/use-toast'
+import { useToast } from '@/components/ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
 
 export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client, refetchClient }) => {

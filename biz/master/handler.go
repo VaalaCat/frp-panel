@@ -8,6 +8,7 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/platform"
 	"github.com/VaalaCat/frp-panel/biz/master/proxy"
 	"github.com/VaalaCat/frp-panel/biz/master/server"
+	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
 	"github.com/VaalaCat/frp-panel/biz/master/user"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/middleware"
@@ -75,5 +76,6 @@ func ConfigureRouter(router *gin.Engine) {
 			proxyRouter.POST("/get_by_cid", common.Wrapper(proxy.GetProxyByCID))
 			proxyRouter.POST("/get_by_sid", common.Wrapper(proxy.GetProxyBySID))
 		}
+		v1.GET("/log", streamlog.GetLogHander)
 	}
 }
