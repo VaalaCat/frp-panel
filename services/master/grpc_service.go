@@ -1,6 +1,9 @@
 package master
 
 import (
+	"context"
+
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -20,8 +23,9 @@ var (
 )
 
 func MustInitMasterService(creds credentials.TransportCredentials) {
+	ctx := context.Background()
 	if cli != nil {
-		logrus.Warn("server has been initialized")
+		logger.Logger(ctx).Warn("server has been initialized")
 		return
 	}
 	cli = NewMasterHandler(creds)

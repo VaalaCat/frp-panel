@@ -16,5 +16,5 @@ package main
 // 		})
 // 	}
 // 	p.Wait()
-// 	logrus.Infof("finish server things")
+// 	logger.Logger(c).Infof("finish server things")
 // }

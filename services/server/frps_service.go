@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
 	"github.com/fatedier/frp/pkg/metrics/mem"
@@ -33,8 +34,9 @@ var (
 )
 
 func InitGlobalServerService(svrCfg *v1.ServerConfig) {
+	ctx := context.Background()
 	if srv != nil {
-		logrus.Warn("server has been initialized")
+		logger.Logger(ctx).Warn("server has been initialized")
 		return
 	}
 
@@ -57,7 +59,7 @@ func GetServerSerivce(svrCfg *v1.ServerConfig) ServerHandler {
 func NewServerHandler(svrCfg *v1.ServerConfig) *Server {
 	warning, err := validation.ValidateServerConfig(svrCfg)
 	if warning != nil {
-		logrus.WithError(err).Warnf("validate server config warning: %+v", warning)
+		logger.Logger(context.Background()).WithError(err).Warnf("validate server config warning: %+v", warning)
 	}
 	if err != nil {
 		logrus.Panic(err)
@@ -68,7 +70,7 @@ func NewServerHandler(svrCfg *v1.ServerConfig) *Server {
 	var svr *server.Service
 
 	if svr, err = server.NewService(svrCfg); err != nil {
-		logrus.WithError(err).Panic("cannot create server, exit and restart")
+		logger.Logger(context.Background()).WithError(err).Panic("cannot create server, exit and restart")
 	}
 
 	return &Server{
@@ -85,13 +87,14 @@ func (s *Server) Run() {
 }
 
 func (s *Server) Stop() {
+	c := context.Background()
 	wg := conc.NewWaitGroup()
 	wg.Go(func() {
 		err := s.srv.Close()
 		if err != nil {
-			logrus.Errorf("close server error: %v", err)
+			logger.Logger(c).Errorf("close server error: %v", err)
 		}
-		logrus.Infof("server closed")
+		logger.Logger(c).Infof("server closed")
 	})
 	wg.Wait()
 }

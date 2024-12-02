@@ -5,13 +5,13 @@ import (
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/samber/lo"
-	"github.com/sirupsen/logrus"
 )
 
 func GetClientHandler(ctx context.Context, req *pb.GetClientRequest) (*pb.GetClientResponse, error) {
-	logrus.Infof("get client, req: [%+v]", req)
+	logger.Logger(ctx).Infof("get client, req: [%+v]", req)
 
 	var (
 		userInfo = common.GetUserInfo(ctx)

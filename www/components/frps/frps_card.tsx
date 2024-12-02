@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from './ui/label'
+import { Label } from '@/components/ui/label'
 import { getServer } from '@/api/server'
 import { useQuery } from '@tanstack/react-query'
-import { Switch } from './ui/switch'
+import { Switch } from '@/components/ui/switch'
 import { FRPSEditor } from './frps_editor'
 import FRPSForm from './frps_form'
 import { useSearchParams } from 'next/navigation'
-import { ServerSelector } from './base/server-selector'
+import { ServerSelector } from '../base/server-selector'
 
 export interface FRPSFormCardProps {
   serverID?: string

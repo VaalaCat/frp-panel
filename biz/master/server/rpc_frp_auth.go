@@ -6,12 +6,12 @@ import (
 
 	"github.com/VaalaCat/frp-panel/cache"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/sirupsen/logrus"
 )
 
 func FRPAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPAuthResponse, error) {
-	logrus.Infof("frpc auth, req: [%+v]", req)
+	logger.Logger(ctx).Infof("frpc auth, req: [%+v]", req)
 	var (
 		err error
 	)
@@ -20,7 +20,7 @@ func FRPAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPAuthResponse, 
 	if err != nil {
 		u, err := dao.GetUserByUserName(req.User)
 		if err != nil || u == nil {
-			logrus.WithError(err).Errorf("invalid user: %s", req.User)
+			logger.Logger(context.Background()).WithError(err).Errorf("invalid user: %s", req.User)
 			return &pb.FRPAuthResponse{
 				Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
 				Ok:     false,
@@ -31,7 +31,7 @@ func FRPAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPAuthResponse, 
 	}
 
 	if string(userToken) != req.GetToken() {
-		logrus.Error("invalid token")
+		logger.Logger(ctx).Error("invalid token")
 		return &pb.FRPAuthResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "invalid token"},
 			Ok:     false,

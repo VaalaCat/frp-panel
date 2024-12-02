@@ -5,7 +5,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/re
 RUN apk update --no-cache && apk add --no-cache tzdata git openssh
 RUN npm config set registry https://registry.npmmirror.com
 COPY www/package*.json .
-RUN npm install
+RUN corepack enable && corepack prepare pnpm@latest-9 --activate && pnpm install
 
 COPY www/api/ ./api
 COPY www/components/ ./components
@@ -21,7 +21,7 @@ COPY www/*.ts ./
 COPY www/*.yaml ./
 COPY www/*.json ./
 
-RUN ls && mkdir -p ../cmd/frpp && npm run build
+RUN ls && mkdir -p ../cmd/frpp && pnpm build
 
 # Stage 2: Building binary
 FROM golang:1.22-alpine AS builder

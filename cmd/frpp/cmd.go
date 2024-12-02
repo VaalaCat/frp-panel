@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
+
 	"github.com/VaalaCat/frp-panel/conf"
-	"github.com/sirupsen/logrus"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -75,10 +77,11 @@ func initCommand() {
 }
 
 func initLogger() {
-	logrus.SetReportCaller(true)
+	logger.Instance().SetReportCaller(true)
 }
 
 func patchConfig(host, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int) {
+	c := context.Background()
 	if len(host) != 0 {
 		conf.Get().Master.RPCHost = host
 		conf.Get().Master.APIHost = host
@@ -101,7 +104,7 @@ func patchConfig(host, secret, clientID, clientSecret, apiScheme string, rpcPort
 	if len(clientSecret) != 0 {
 		conf.Get().Client.Secret = clientSecret
 	}
-	logrus.Infof("env config rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
+	logger.Logger(c).Infof("env config rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
 		conf.Get().Master.RPCHost, conf.Get().Master.RPCPort,
 		conf.Get().Master.APIHost, conf.Get().Master.APIPort,
 		conf.Get().Master.APIScheme)

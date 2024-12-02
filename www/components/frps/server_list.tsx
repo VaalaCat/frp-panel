@@ -1,6 +1,6 @@
-import { Client } from '@/lib/pb/common'
-import { ClientTableSchema, columns as clientColumnsDef } from './client_item'
-import { DataTable } from './data_table'
+import { Server } from '@/lib/pb/common'
+import { ServerTableSchema, columns as serverColumnsDef } from './server_item'
+import { DataTable } from '../base/data_table'
 
 import {
   getSortedRowModel,
@@ -15,25 +15,25 @@ import {
 
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { listClient } from '@/api/client'
+import { listServer } from '@/api/server'
 
-export interface ClientListProps {
-  Clients: Client[]
+export interface ServerListProps {
+  Servers: Server[]
   Keyword?: string
   TriggerRefetch?: string
 }
 
-export const ClientList: React.FC<ClientListProps> = ({ Clients, Keyword, TriggerRefetch }) => {
+export const ServerList: React.FC<ServerListProps> = ({ Servers, Keyword, TriggerRefetch }) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const data = Clients.map(
-    (client) =>
+  const data = Servers.map(
+    (server) =>
       ({
-        id: client.id == undefined ? '' : client.id,
-        status: client.config == undefined || client.config == '' ? 'invalid' : 'valid',
-        secret: client.secret == undefined ? '' : client.secret,
-        config: client.config,
-      }) as ClientTableSchema,
+        id: server.id == undefined ? '' : server.id,
+        status: server.config == undefined || server.config == '' ? 'invalid' : 'valid',
+        secret: server.secret == undefined ? '' : server.secret,
+        config: server.config,
+      }) as ServerTableSchema,
   )
 
   const [{ pageIndex, pageSize }, setPagination] = React.useState<PaginationState>({
@@ -56,28 +56,28 @@ export const ClientList: React.FC<ClientListProps> = ({ Clients, Keyword, Trigge
   )
 
   const dataQuery = useQuery({
-    queryKey: ['listClient', fetchDataOptions],
+    queryKey: ['listServer', fetchDataOptions],
     queryFn: async () => {
-      return await listClient({ page: fetchDataOptions.pageIndex + 1, pageSize: fetchDataOptions.pageSize, keyword: fetchDataOptions.Keyword })
+      return await listServer({ page: fetchDataOptions.pageIndex + 1, pageSize: fetchDataOptions.pageSize, keyword: fetchDataOptions.Keyword })
     },
   })
 
   const table = useReactTable({
     data:
-      dataQuery.data?.clients.map((client) => {
+      dataQuery.data?.servers.map((server) => {
         return {
-          id: client.id == undefined ? '' : client.id,
-          status: client.config == undefined || client.config == '' ? 'invalid' : 'valid',
-          secret: client.secret == undefined ? '' : client.secret,
-          config: client.config,
-          stopped: client.stopped,
-        } as ClientTableSchema
+          id: server.id == undefined ? '' : server.id,
+          status: server.config == undefined || server.config == '' ? 'invalid' : 'valid',
+          secret: server.secret == undefined ? '' : server.secret,
+          ip: server.ip,
+          config: server.config,
+        } as ServerTableSchema
       }) ?? data,
     pageCount: Math.ceil(
-      // @ts-ignore
+      //@ts-ignore
       (dataQuery.data?.total == undefined ? 0 : dataQuery.data?.total) / fetchDataOptions.pageSize ?? 0,
     ),
-    columns: clientColumnsDef,
+    columns: serverColumnsDef,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -92,5 +92,5 @@ export const ClientList: React.FC<ClientListProps> = ({ Clients, Keyword, Trigge
       columnFilters,
     },
   })
-  return <DataTable table={table} columns={clientColumnsDef} />
+  return <DataTable table={table} columns={serverColumnsDef} />
 }

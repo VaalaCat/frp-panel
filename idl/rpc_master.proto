@@ -20,6 +20,8 @@ enum Event {
   EVENT_START_FRPC = 12;
   EVENT_STOP_FRPS = 13;
   EVENT_START_FRPS = 14;
+  EVENT_START_STREAM_LOG = 15;
+  EVENT_STOP_STREAM_LOG = 16;
 }
 
 message ServerBase {
@@ -86,10 +88,27 @@ message PushProxyInfoResp {
   common.Status status = 1;
 }
 
+message PushServerStreamLogReq {
+  string log = 1;
+  ServerBase base = 255;
+}
+
+message PushClientStreamLogReq {
+  string log = 1;
+  ClientBase base = 255;
+}
+
+message PushStreamLogResp {
+  common.Status status = 1;
+  bool ok = 2;
+}
+
 service Master {
   rpc ServerSend(stream ClientMessage) returns(stream ServerMessage);
   rpc PullClientConfig(PullClientConfigReq) returns(PullClientConfigResp);
   rpc PullServerConfig(PullServerConfigReq) returns(PullServerConfigResp);
   rpc FRPCAuth(FRPAuthRequest) returns(FRPAuthResponse);
   rpc PushProxyInfo(PushProxyInfoReq) returns(PushProxyInfoResp);
+  rpc PushClientStreamLog(stream PushClientStreamLogReq) returns(PushStreamLogResp);
+  rpc PushServerStreamLog(stream PushServerStreamLogReq) returns(PushStreamLogResp);
 }

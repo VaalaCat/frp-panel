@@ -1,10 +1,9 @@
 import { Providers } from '@/components/providers'
 import { RootLayout } from '@/components/layout'
-import { ClientList } from '@/components/client_list'
+import { ClientList } from '@/components/frpc/client_list'
 import { Header } from '@/components/header'
-import { SideBar } from '@/components/sidebar'
-import { CreateClientDialog } from '@/components/client_create_dialog'
-import { IdInput } from '@/components/id_input'
+import { CreateClientDialog } from '@/components/frpc/client_create_dialog'
+import { IdInput } from '@/components/base/id_input'
 import { useState } from 'react'
 
 export default function ClientListPage() {
@@ -12,8 +11,8 @@ export default function ClientListPage() {
   const [triggerSearch, setTriggerSearch] = useState('')
 
   return (
-    <RootLayout header={<Header />} sidebar={<SideBar />}>
-      <Providers>
+    <Providers>
+      <RootLayout mainHeader={<Header />}>
         <div className="w-full">
           <div className="flex flex-1 flex-col">
             <div className="flex flex-1 flex-row mb-2 gap-2">
@@ -23,7 +22,7 @@ export default function ClientListPage() {
             <ClientList Clients={[]} Keyword={keyword} TriggerRefetch={triggerSearch} />
           </div>
         </div>
-      </Providers>
-    </RootLayout>
+      </RootLayout>
+    </Providers>
   )
 }

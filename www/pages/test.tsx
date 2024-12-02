@@ -1,11 +1,10 @@
-import { FRPCFormCard } from '@/components/frpc_card'
+import { FRPCFormCard } from '@/components/frpc/frpc_card'
 import { Providers } from '@/components/providers'
 import { APITest } from '@/components/apitest'
 import { Separator } from '@/components/ui/separator'
-import { FRPSFormCard } from '@/components/frps_card'
+import { FRPSFormCard } from '@/components/frps/frps_card'
 import { RootLayout } from '@/components/layout'
 import { Header } from '@/components/header'
-import { SideBar } from '@/components/sidebar'
 
 export default function Test() {
   return (

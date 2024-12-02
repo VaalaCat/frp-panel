@@ -5,14 +5,14 @@ import { useQuery } from '@tanstack/react-query'
 import { listServer } from '@/api/server'
 import { getClient, listClient } from '@/api/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Switch } from './ui/switch'
+import { Switch } from '@/components/ui/switch'
 import { FRPCEditor } from './frpc_editor'
 import { FRPCForm } from './frpc_form'
 import { useSearchParams } from 'next/navigation'
 import { ClientConfig } from '@/types/client'
 import { TypedProxyConfig } from '@/types/proxy'
-import { ClientSelector } from './base/client-selector'
-import { ServerSelector } from './base/server-selector'
+import { ClientSelector } from '../base/client-selector'
+import { ServerSelector } from '../base/server-selector'
 
 export interface FRPCFormCardProps {
   clientID?: string

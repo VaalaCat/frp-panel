@@ -1,9 +1,11 @@
 package conf
 
 import (
+	"context"
 	"fmt"
 	"os"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -62,6 +64,7 @@ func InitConfig() {
 	var (
 		err        error
 		useEnvFile bool
+		ctx        = context.Background()
 	)
 
 	envFiles := []string{
@@ -71,16 +74,16 @@ func InitConfig() {
 
 	for i, envFile := range envFiles {
 		if err = godotenv.Load(envFile); err == nil {
-			logrus.Infof("load env file success: %s", envFile)
+			logger.Logger(ctx).Infof("load env file success: %s", envFile)
 			useEnvFile = true
 			break
 		}
 		if i == len(envFiles)-1 {
-			logrus.Errorf("cannot load env file: %s, error: %v", envFile, err)
+			logger.Logger(ctx).Errorf("cannot load env file: %s, error: %v", envFile, err)
 			useEnvFile = false
 			break
 		}
-		logrus.Infof("cannot load env file: %s, error: %v, try next", envFile, err)
+		logger.Logger(ctx).Infof("cannot load env file: %s, error: %v, try next", envFile, err)
 	}
 
 	if !useEnvFile {

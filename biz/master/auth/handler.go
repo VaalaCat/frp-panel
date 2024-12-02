@@ -5,9 +5,9 @@ import (
 
 	"github.com/VaalaCat/frp-panel/cache"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/logger"
 	plugin "github.com/fatedier/frp/pkg/plugin/server"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 type Response struct {
@@ -29,7 +29,7 @@ func MakeGinHandlerFunc(handler HandlerFunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		res, err := handler(ctx)
 		if err != nil {
-			logrus.Infof("handle %s error: %v", ctx.Request.URL.Path, err)
+			logger.Logger(ctx).Infof("handle %s error: %v", ctx.Request.URL.Path, err)
 			switch e := err.(type) {
 			case *HTTPError:
 				ctx.JSON(e.Code, &Response{Msg: e.Err.Error()})

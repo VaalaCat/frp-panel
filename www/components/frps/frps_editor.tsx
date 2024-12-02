@@ -1,8 +1,8 @@
 import { Label } from '@radix-ui/react-label'
-import { Textarea } from './ui/textarea'
+import { Textarea } from '@/components/ui/textarea'
 import { FRPSFormProps } from './frps_form'
-import { Button } from './ui/button'
-import { useToast } from './ui/use-toast'
+import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { getServer } from '@/api/server'
 import { useEffect, useState } from 'react'
@@ -27,6 +27,7 @@ export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
     try {
       let res = await updateFrps.mutateAsync({
         serverId: serverID,
+        //@ts-ignore
         config: Buffer.from(editorValue),
         comment: serverComment,
       })

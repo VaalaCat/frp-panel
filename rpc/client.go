@@ -6,6 +6,7 @@ import (
 	"io"
 	"sync"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -15,13 +16,13 @@ import (
 func CallClient(c context.Context, clientID string, event pb.Event, msg proto.Message) (*pb.ClientMessage, error) {
 	sender := GetClientsManager().Get(clientID)
 	if sender == nil {
-		logrus.Errorf("cannot get client, id: [%s]", clientID)
+		logger.Logger(c).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, fmt.Errorf("cannot get client, id: [%s]", clientID)
 	}
 
 	data, err := proto.Marshal(msg)
 	if err != nil {
-		logrus.WithError(err).Errorf("cannot marshal")
+		logger.Logger(context.Background()).WithError(err).Errorf("cannot marshal")
 		return nil, err
 	}
 
@@ -35,7 +36,7 @@ func CallClient(c context.Context, clientID string, event pb.Event, msg proto.Me
 	recvMap.Store(req.SessionId, make(chan *pb.ClientMessage))
 	err = sender.Conn.Send(req)
 	if err != nil {
-		logrus.WithError(err).Errorf("cannot send")
+		logger.Logger(context.Background()).WithError(err).Errorf("cannot send")
 		GetClientsManager().Remove(clientID)
 		return nil, err
 	}
@@ -70,36 +71,37 @@ func init() {
 func Recv(clientID string) chan bool {
 	done := make(chan bool)
 	go func() {
+		c := context.Background()
 		for {
 			reciver := GetClientsManager().Get(clientID)
 			if reciver == nil {
-				logrus.Errorf("cannot get client")
+				logger.Logger(c).Errorf("cannot get client")
 				continue
 			}
 			resp, err := reciver.Conn.Recv()
 			if err == io.EOF {
-				logrus.Infof("finish client recv")
+				logger.Logger(c).Infof("finish client recv")
 				done <- true
 				return
 			}
 			if err != nil {
-				logrus.WithError(err).Errorf("cannot recv, usually means client disconnect")
+				logger.Logger(context.Background()).WithError(err).Errorf("cannot recv, usually means client disconnect")
 				done <- true
 				return
 			}
 
 			respChAny, ok := recvMap.Load(resp.SessionId)
 			if !ok {
-				logrus.Errorf("cannot load")
+				logger.Logger(c).Errorf("cannot load")
 				continue
 			}
 
 			respCh, ok := respChAny.(chan *pb.ClientMessage)
 			if !ok {
-				logrus.Errorf("cannot cast")
+				logger.Logger(c).Errorf("cannot cast")
 				continue
 			}
-			logrus.Infof("recv success, resp: %+v", resp)
+			logger.Logger(c).Infof("recv success, resp: %+v", resp)
 			respCh <- resp
 		}
 	}()

@@ -8,9 +8,11 @@ import (
 
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	masterserver "github.com/VaalaCat/frp-panel/biz/master/server"
+	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/sirupsen/logrus"
@@ -42,35 +44,37 @@ func RunRpcServer(s *grpc.Server) {
 
 // PullClientConfig implements pb.MasterServer.
 func (s *server) PullClientConfig(ctx context.Context, req *pb.PullClientConfigReq) (*pb.PullClientConfigResp, error) {
-	logrus.Infof("pull client config, clientID: [%+v]", req.GetBase().GetClientId())
+	logger.Logger(ctx).Infof("pull client config, clientID: [%+v]", req.GetBase().GetClientId())
 	return client.RPCPullConfig(ctx, req)
 }
 
 // PullServerConfig implements pb.MasterServer.
 func (s *server) PullServerConfig(ctx context.Context, req *pb.PullServerConfigReq) (*pb.PullServerConfigResp, error) {
-	logrus.Infof("pull server config, serverID: [%+v]", req.GetBase().GetServerId())
+	logger.Logger(ctx).Infof("pull server config, serverID: [%+v]", req.GetBase().GetServerId())
 	return masterserver.RPCPullConfig(ctx, req)
 }
 
 // FRPCAuth implements pb.MasterServer.
 func (*server) FRPCAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPAuthResponse, error) {
-	logrus.Infof("frpc auth, user: [%+v] ,serverID: [%+v]", req.GetUser(), req.GetBase().GetServerId())
+	logger.Logger(ctx).Infof("frpc auth, user: [%+v] ,serverID: [%+v]", req.GetUser(), req.GetBase().GetServerId())
 	return masterserver.FRPAuth(ctx, req)
 }
 
 // ServerSend implements pb.MasterServer.
 func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
-	logrus.Infof("server get a client connected")
+	ctx := context.Background()
+
+	logger.Logger(ctx).Infof("server get a client connected")
 	var done chan bool
 	for {
 		req, err := sender.Recv()
 		if err == io.EOF {
-			logrus.Infof("finish server send, client id: [%s]", req.GetClientId())
+			logger.Logger(ctx).Infof("finish server send, client id: [%s]", req.GetClientId())
 			return nil
 		}
 
 		if err != nil {
-			logrus.WithError(err).Errorf("cannot recv from client, id: [%s]", req.GetClientId())
+			logger.Logger(context.Background()).WithError(err).Errorf("cannot recv from client, id: [%s]", req.GetClientId())
 			return err
 		}
 
@@ -78,7 +82,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 
 		if req.GetEvent() == pb.Event_EVENT_REGISTER_CLIENT || req.GetEvent() == pb.Event_EVENT_REGISTER_SERVER {
 			if len(req.GetSecret()) == 0 {
-				logrus.Errorf("rpc auth token is empty")
+				logger.Logger(ctx).Errorf("rpc auth token is empty")
 				sender.Send(&pb.ServerMessage{
 					Event: req.GetEvent(),
 					Data:  []byte("rpc auth token is invalid"),
@@ -90,7 +94,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 			case pb.Event_EVENT_REGISTER_CLIENT:
 				cli, err := dao.AdminGetClientByClientID(req.GetClientId())
 				if err != nil {
-					logrus.WithError(err).Errorf("cannot get client, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
+					logger.Logger(context.Background()).WithError(err).Errorf("cannot get client, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
 					sender.Send(&pb.ServerMessage{
 						Event: req.GetEvent(),
 						Data:  []byte("rpc auth token is invalid"),
@@ -102,7 +106,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 			case pb.Event_EVENT_REGISTER_SERVER:
 				srv, err := dao.AdminGetServerByServerID(req.GetClientId())
 				if err != nil {
-					logrus.WithError(err).Errorf("cannot get server, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
+					logger.Logger(context.Background()).WithError(err).Errorf("cannot get server, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
 					sender.Send(&pb.ServerMessage{
 						Event: req.GetEvent(),
 						Data:  []byte("rpc auth token is invalid"),
@@ -114,7 +118,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 			}
 
 			if secret != req.GetSecret() {
-				logrus.Errorf("invalid secret, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
+				logger.Logger(ctx).Errorf("invalid secret, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
 				sender.Send(&pb.ServerMessage{
 					Event: req.GetEvent(),
 					Data:  []byte("rpc auth token is invalid"),
@@ -129,7 +133,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 				ClientId:  req.GetClientId(),
 				SessionId: req.GetClientId(),
 			})
-			logrus.Infof("register success, req: [%+v]", req)
+			logger.Logger(ctx).Infof("register success, req: [%+v]", req)
 			break
 		}
 	}
@@ -139,6 +143,14 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 
 // PushProxyInfo implements pb.MasterServer.
 func (s *server) PushProxyInfo(ctx context.Context, req *pb.PushProxyInfoReq) (*pb.PushProxyInfoResp, error) {
-	logrus.Infof("push proxy info, req server: [%+v]", req.GetProxyInfos())
+	logger.Logger(ctx).Infof("push proxy info, req server: [%+v]", req.GetProxyInfos())
 	return masterserver.PushProxyInfo(ctx, req)
+}
+
+func (s *server) PushClientStreamLog(sender pb.Master_PushClientStreamLogServer) error {
+	return streamlog.PushClientStreamLog(sender)
+}
+
+func (s *server) PushServerStreamLog(sender pb.Master_PushServerStreamLogServer) error {
+	return streamlog.PushServerStreamLog(sender)
 }

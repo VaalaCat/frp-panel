@@ -6,10 +6,10 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/utils"
-	"github.com/sirupsen/logrus"
 )
 
 func UpdateUserInfoHander(c context.Context, req *pb.UpdateUserInfoRequest) (*pb.UpdateUserInfoResponse, error) {
@@ -32,7 +32,7 @@ func UpdateUserInfoHander(c context.Context, req *pb.UpdateUserInfoRequest) (*pb
 	if newUserInfo.GetRawPassword() != "" {
 		hashedPassword, err := utils.HashPassword(newUserInfo.GetRawPassword())
 		if err != nil {
-			logrus.WithError(err).Errorf("cannot hash password")
+			logger.Logger(context.Background()).WithError(err).Errorf("cannot hash password")
 			return nil, err
 		}
 		newUserEntity.Password = hashedPassword
@@ -55,12 +55,12 @@ func UpdateUserInfoHander(c context.Context, req *pb.UpdateUserInfoRequest) (*pb
 	go func() {
 		newUser, err := dao.GetUserByUserID(userInfo.GetUserID())
 		if err != nil {
-			logrus.WithError(err).Errorf("cannot get user")
+			logger.Logger(context.Background()).WithError(err).Errorf("cannot get user")
 			return
 		}
 
 		if err := client.SyncTunnel(c, newUser); err != nil {
-			logrus.WithError(err).Errorf("cannot sync tunnel, user need to retry update")
+			logger.Logger(context.Background()).WithError(err).Errorf("cannot sync tunnel, user need to retry update")
 		}
 	}()
 

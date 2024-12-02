@@ -4,19 +4,19 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/client"
 	"github.com/VaalaCat/frp-panel/tunnel"
 	"github.com/VaalaCat/frp-panel/utils"
-	"github.com/sirupsen/logrus"
 )
 
 func UpdateFrpcHander(ctx context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPCResponse, error) {
-	logrus.Infof("update frpc, req: [%+v]", req)
+	logger.Logger(ctx).Infof("update frpc, req: [%+v]", req)
 	content := req.GetConfig()
 	c, p, v, err := utils.LoadClientConfig(content, false)
 	if err != nil {
-		logrus.WithError(err).Errorf("cannot load config")
+		logger.Logger(context.Background()).WithError(err).Errorf("cannot load config")
 		return &pb.UpdateFRPCResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
 		}, err
@@ -25,7 +25,7 @@ func UpdateFrpcHander(ctx context.Context, req *pb.UpdateFRPCRequest) (*pb.Updat
 	cli := tunnel.GetClientController().Get(req.GetClientId())
 	if cli != nil {
 		if reflect.DeepEqual(c, cli.GetCommonCfg()) {
-			logrus.Warnf("client common config not changed")
+			logger.Logger(ctx).Warnf("client common config not changed")
 			cli.Update(p, v)
 		} else {
 			cli.Stop()
@@ -33,11 +33,11 @@ func UpdateFrpcHander(ctx context.Context, req *pb.UpdateFRPCRequest) (*pb.Updat
 			tunnel.GetClientController().Add(req.GetClientId(), client.NewClientHandler(c, p, v))
 			tunnel.GetClientController().Run(req.GetClientId())
 		}
-		logrus.Infof("update client, id: [%s] success, running", req.GetClientId())
+		logger.Logger(ctx).Infof("update client, id: [%s] success, running", req.GetClientId())
 	} else {
 		tunnel.GetClientController().Add(req.GetClientId(), client.NewClientHandler(c, p, v))
 		tunnel.GetClientController().Run(req.GetClientId())
-		logrus.Infof("add new client, id: [%s], running", req.GetClientId())
+		logger.Logger(ctx).Infof("add new client, id: [%s], running", req.GetClientId())
 	}
 
 	return &pb.UpdateFRPCResponse{

@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/fatedier/frp/client"
 	"github.com/fatedier/frp/client/proxy"
@@ -50,8 +51,9 @@ var (
 func InitGlobalClientService(commonCfg *v1.ClientCommonConfig,
 	proxyCfgs []v1.ProxyConfigurer,
 	visitorCfgs []v1.VisitorConfigurer) {
+	ctx := context.Background()
 	if cli != nil {
-		logrus.Warn("client has been initialized")
+		logger.Logger(ctx).Warn("client has been initialized")
 		return
 	}
 	cli = NewClientHandler(commonCfg, proxyCfgs, visitorCfgs)
@@ -70,7 +72,7 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 
 	warning, err := validation.ValidateAllClientConfig(commonCfg, proxyCfgs, visitorCfgs)
 	if warning != nil {
-		logrus.WithError(err).Warnf("validate client config warning: %+v", warning)
+		logger.Logger(context.Background()).WithError(err).Warnf("validate client config warning: %+v", warning)
 	}
 	if err != nil {
 		logrus.Panic(err)
@@ -114,8 +116,9 @@ func (c *Client) Run() {
 	wg := conc.NewWaitGroup()
 	wg.Go(
 		func() {
-			if err := c.cli.Run(context.Background()); err != nil {
-				logrus.Errorf("run client error: %v", err)
+			ctx := context.Background()
+			if err := c.cli.Run(ctx); err != nil {
+				logger.Logger(ctx).Errorf("run client error: %v", err)
 			}
 		},
 	)

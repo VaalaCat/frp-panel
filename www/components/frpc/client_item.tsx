@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useToast } from './ui/use-toast'
+import { useToast } from '@/components/ui/use-toast'
 import React, { useState } from 'react'
 import { ClientEnvFile, ExecCommandStr, LinuxInstallCommand, WindowsInstallCommand } from '@/lib/consts'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -28,7 +28,7 @@ import { deleteClient, listClient } from '@/api/client'
 import { useRouter } from 'next/router'
 import { useStore } from '@nanostores/react'
 import { $platformInfo } from '@/store/user'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getClientsStatus } from '@/api/platform'
 import { ClientType } from '@/lib/pb/common'
 import { ClientStatus, ClientStatus_Status } from '@/lib/pb/api_master'

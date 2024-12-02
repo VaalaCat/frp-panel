@@ -1,9 +1,7 @@
 import { Inter } from 'next/font/google'
 import { Providers } from '@/components/providers'
 import { TbBuildingTunnel } from 'react-icons/tb'
-import { RootLayout } from '@/components/layout'
 import { LoginComponent } from '@/components/login'
-import { Header } from '@/components/header'
 import { useRouter } from 'next/router'
 import { Toaster } from '@/components/ui/toaster'
 

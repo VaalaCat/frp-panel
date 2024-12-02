@@ -3,12 +3,12 @@ package server
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/tunnel"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/samber/lo"
-	"github.com/sirupsen/logrus"
 )
 
 var proxyTypeList = []v1.ProxyType{
@@ -48,7 +48,7 @@ func PushProxyInfo(serverID, serverSecret string) error {
 		ctx := context.Background()
 		cli, err := rpc.MasterCli(ctx)
 		if err != nil {
-			logrus.WithError(err).Error("cannot get master server")
+			logger.Logger(context.Background()).WithError(err).Error("cannot get master server")
 			return err
 		}
 		_, err = cli.PushProxyInfo(ctx, &pb.PushProxyInfoReq{
@@ -59,7 +59,7 @@ func PushProxyInfo(serverID, serverSecret string) error {
 			ProxyInfos: proxyInfos,
 		})
 		if err != nil {
-			logrus.WithError(err).Error("cannot push proxy info")
+			logger.Logger(context.Background()).WithError(err).Error("cannot push proxy info")
 			return err
 		}
 	}

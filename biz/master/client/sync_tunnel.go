@@ -5,9 +5,9 @@ import (
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/samber/lo"
-	"github.com/sirupsen/logrus"
 )
 
 func SyncTunnel(ctx context.Context, userInfo models.UserInfo) error {
@@ -18,7 +18,7 @@ func SyncTunnel(ctx context.Context, userInfo models.UserInfo) error {
 	lo.ForEach(clis, func(cli *models.ClientEntity, _ int) {
 		cfg, err := cli.GetConfigContent()
 		if err != nil {
-			logrus.WithError(err).Errorf("cannot get client config content, id: [%s]", cli.ClientID)
+			logger.Logger(context.Background()).WithError(err).Errorf("cannot get client config content, id: [%s]", cli.ClientID)
 			return
 		}
 
@@ -27,15 +27,15 @@ func SyncTunnel(ctx context.Context, userInfo models.UserInfo) error {
 			common.FRPAuthTokenKey: userInfo.GetToken(),
 		}
 		if err := cli.SetConfigContent(*cfg); err != nil {
-			logrus.WithError(err).Errorf("cannot set client config content, id: [%s]", cli.ClientID)
+			logger.Logger(context.Background()).WithError(err).Errorf("cannot set client config content, id: [%s]", cli.ClientID)
 			return
 		}
 
 		if err := dao.UpdateClient(userInfo, cli); err != nil {
-			logrus.WithError(err).Errorf("cannot update client, id: [%s]", cli.ClientID)
+			logger.Logger(context.Background()).WithError(err).Errorf("cannot update client, id: [%s]", cli.ClientID)
 			return
 		}
-		logrus.Infof("update client success, id: [%s]", cli.ClientID)
+		logger.Logger(ctx).Infof("update client success, id: [%s]", cli.ClientID)
 	})
 	return nil
 }

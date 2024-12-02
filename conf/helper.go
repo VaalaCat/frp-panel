@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"context"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
@@ -10,15 +11,16 @@ import (
 	"time"
 
 	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/utils"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
-	"github.com/sirupsen/logrus"
 )
 
 func MasterDefaultSalt() string {
+	ctx := context.Background()
 	cfg := Get()
 	if cfg.Master.CompatibleMode {
-		logrus.Warnf("master compatible mode enabled, use frp as default salt, which is not recommended")
+		logger.Logger(ctx).Warnf("master compatible mode enabled, use frp as default salt, which is not recommended")
 		return "frp"
 	}
 	return utils.MD5(fmt.Sprintf("salt_%s:%d:%s",
@@ -73,7 +75,7 @@ func FRPsAuthOption(isDefault bool) v1.HTTPPluginOptions {
 		port,
 		cfg.Master.InternalFRPAuthServerPath))
 	if err != nil {
-		logrus.WithError(err).Fatalf("parse auth url error")
+		logger.Logger(context.Background()).WithError(err).Fatalf("parse auth url error")
 	}
 	return v1.HTTPPluginOptions{
 		Name: "multiuser",

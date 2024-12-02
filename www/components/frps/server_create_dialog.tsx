@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { initServer, listServer } from '@/api/server'
-import { Label } from './ui/label'
-import { Input } from './ui/input'
-import { Button } from './ui/button'
-import { useToast } from './ui/use-toast'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
 import {
   Dialog,
@@ -63,7 +63,7 @@ export const CreateServerDialog = () => {
 
         <Label>服务端ID</Label>
         <Input className="mt-2" value={serverID} onChange={(e) => setServerID(e.target.value)} />
-        <Label>IP地址</Label>
+        <Label>IP地址/域名</Label>
         <Input className="mt-2" value={serverIP} onChange={(e) => setServerIP(e.target.value)} />
         <DialogFooter>
           <Button onClick={handleNewServer}>创建</Button>
