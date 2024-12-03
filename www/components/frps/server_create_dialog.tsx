@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { initServer, listServer } from '@/api/server'
+import { useMutation } from '@tanstack/react-query'
+import { initServer } from '@/api/server'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -16,18 +16,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 
-export const CreateServerDialog = () => {
+export const CreateServerDialog = ({refetchTrigger}: {refetchTrigger?: (randStr: string) => void}) => {
   const [serverID, setServerID] = useState<string | undefined>()
   const [serverIP, setServerIP] = useState<string | undefined>()
-  const dataQuery = useQuery({
-    queryKey: ['listServer', { pageIndex: 0, pageSize: 10 }],
-    queryFn: async () => {
-      return await listServer({
-        page: 1,
-        pageSize: 10,
-      })
-    },
-  })
   const newServer = useMutation({
     mutationFn: initServer,
   })
@@ -42,7 +33,7 @@ export const CreateServerDialog = () => {
         return
       }
       toast({ title: '创建服务端成功' })
-      dataQuery.refetch()
+      refetchTrigger && refetchTrigger(JSON.stringify(Math.random()))
     } catch (error) {
       toast({ title: '创建服务端失败' })
     }
