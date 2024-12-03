@@ -54,6 +54,7 @@ type Config struct {
 var (
 	config     *Config
 	ClientCred credentials.TransportCredentials
+	Version    string
 )
 
 func Get() *Config {
@@ -79,11 +80,9 @@ func InitConfig() {
 			break
 		}
 		if i == len(envFiles)-1 {
-			logger.Logger(ctx).Errorf("cannot load env file: %s, error: %v", envFile, err)
 			useEnvFile = false
 			break
 		}
-		logger.Logger(ctx).Infof("cannot load env file: %s, error: %v, try next", envFile, err)
 	}
 
 	if !useEnvFile {

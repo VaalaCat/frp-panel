@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/logger"
+	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -30,50 +32,130 @@ func initCommand() {
 		Use:   "client [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
 		Short: "run managed frpc",
 		Run: func(cmd *cobra.Command, args []string) {
-			patchConfig(rpcHost, appSecret,
-				clientID, clientSecret,
-				apiScheme, rpcPort, apiPort)
-			runClient()
+			run := func() {
+				patchConfig(rpcHost, appSecret,
+					clientID, clientSecret,
+					apiScheme, rpcPort, apiPort)
+				runClient()
+			}
+			if srv, err := utils.CreateSystemService(args, run); err != nil {
+				run()
+			} else {
+				srv.Run()
+			}
 		},
 	}
 	serverCmd = &cobra.Command{
 		Use:   "server [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
 		Short: "run managed frps",
 		Run: func(cmd *cobra.Command, args []string) {
-			patchConfig(rpcHost, appSecret,
-				clientID, clientSecret,
-				apiScheme, rpcPort, apiPort)
-			runServer()
+			run := func() {
+				patchConfig(rpcHost, appSecret,
+					clientID, clientSecret,
+					apiScheme, rpcPort, apiPort)
+				runServer()
+			}
+			if srv, err := utils.CreateSystemService(args, run); err != nil {
+				run()
+			} else {
+				srv.Run()
+			}
 		},
 	}
 	masterCmd = &cobra.Command{
 		Use:   "master",
 		Short: "run frp-panel manager",
 		Run: func(cmd *cobra.Command, args []string) {
-			runMaster()
+			if srv, err := utils.CreateSystemService(args, runMaster); err != nil {
+				runMaster()
+			} else {
+				srv.Run()
+			}
 		},
 	}
 	rootCmd = &cobra.Command{
 		Use:   "frp-panel",
 		Short: "frp-panel is a frp panel QwQ",
 	}
-	rootCmd.AddCommand(clientCmd, serverCmd, masterCmd)
+
+	installServiceCmd := &cobra.Command{
+		Use:                   "install",
+		Short:                 "install frp-panel as service",
+		DisableFlagParsing:    true,
+		DisableFlagsInUseLine: true,
+		Run: func(cmd *cobra.Command, args []string) {
+			utils.ControlSystemService(args, "install", func() {})
+		},
+	}
+
+	uninstallServiceCmd := &cobra.Command{
+		Use:                   "uninstall",
+		Short:                 "uninstall frp-panel service",
+		DisableFlagParsing:    true,
+		DisableFlagsInUseLine: true,
+		Run: func(cmd *cobra.Command, args []string) {
+			utils.ControlSystemService(args, "uninstall", func() {})
+		},
+	}
+
+	startServiceCmd := &cobra.Command{
+		Use:                   "start",
+		Short:                 "start frp-panel service",
+		DisableFlagParsing:    true,
+		DisableFlagsInUseLine: true,
+		Run: func(cmd *cobra.Command, args []string) {
+			utils.ControlSystemService(args, "start", func() {})
+		},
+	}
+
+	stopServiceCmd := &cobra.Command{
+		Use:                   "stop",
+		Short:                 "stop frp-panel service",
+		DisableFlagParsing:    true,
+		DisableFlagsInUseLine: true,
+		Run: func(cmd *cobra.Command, args []string) {
+			utils.ControlSystemService(args, "stop", func() {})
+		},
+	}
+
+	restartServiceCmd := &cobra.Command{
+		Use:                   "restart",
+		Short:                 "restart frp-panel service",
+		DisableFlagParsing:    true,
+		DisableFlagsInUseLine: true,
+		Run: func(cmd *cobra.Command, args []string) {
+			utils.ControlSystemService(args, "restart", func() {})
+		},
+	}
+
+	versionCmd := &cobra.Command{
+		Use:   "version",
+		Short: "Print the version info of frp-panel",
+		Long:  `All software has versions. This is frp-panel's`,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(conf.GetVersion().String())
+		},
+	}
+
+	rootCmd.AddCommand(clientCmd, serverCmd, masterCmd, versionCmd,
+		installServiceCmd, uninstallServiceCmd,
+		startServiceCmd, stopServiceCmd, restartServiceCmd)
 	clientCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
 	serverCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
 	clientCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
 	serverCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
-	clientCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host")
-	serverCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host")
+	clientCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host, canbe ip or domain")
+	serverCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host, canbe ip or domain")
 	clientCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 	serverCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 
-	clientCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port")
-	serverCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port")
-	clientCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port")
-	serverCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port")
+	clientCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port, master rpc port, scheme is grpc")
+	serverCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port, master rpc port, scheme is grpc")
+	clientCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port, master api port, scheme is http/https")
+	serverCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port, master api port, scheme is http/https")
 
-	clientCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme")
-	serverCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme")
+	clientCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme, master api scheme, scheme is http/https")
+	serverCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme, master api scheme, scheme is http/https")
 }
 
 func initLogger() {

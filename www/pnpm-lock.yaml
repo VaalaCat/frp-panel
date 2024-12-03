@@ -14,6 +14,9 @@ importers:
       '@ltd/j-toml':
         specifier: ^1.38.0
         version: 1.38.0
+      '@nanostores/persistent':
+        specifier: ^0.10.2
+        version: 0.10.2(nanostores@0.9.5)
       '@nanostores/react':
         specifier: ^0.7.1
         version: 0.7.1(nanostores@0.9.5)(react@18.2.0)
@@ -277,6 +280,12 @@ packages:
 
   '@ltd/j-toml@1.38.0':
     resolution: {integrity: sha512-lYtBcmvHustHQtg4X7TXUu1Xa/tbLC3p2wLvgQI+fWVySguVZJF60Snxijw5EiohumxZbR10kWYFFebh1zotiw==}
+
+  '@nanostores/persistent@0.10.2':
+    resolution: {integrity: sha512-BEndnLhRC+yP7gXTESepBbSj8XNl8OXK9hu4xAgKC7MWJHKXnEqJMqY47LUyHxK6vYgFnisyHmqq+vq8AUFyIg==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    peerDependencies:
+      nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0
 
   '@nanostores/react@0.7.1':
     resolution: {integrity: sha512-EXQg9N4MdI4eJQz/AZLIx3hxQ6BuBmV4Q55bCd5YCSgEOAW7tGTsIZxpRXxvxLXzflNvHTBvfrDNY38TlSVBkQ==}
@@ -2736,6 +2745,10 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.4.15
 
   '@ltd/j-toml@1.38.0': {}
+
+  '@nanostores/persistent@0.10.2(nanostores@0.9.5)':
+    dependencies:
+      nanostores: 0.9.5
 
   '@nanostores/react@0.7.1(nanostores@0.9.5)(react@18.2.0)':
     dependencies:

@@ -3,7 +3,6 @@ import { RootLayout } from '@/components/layout'
 import { Header } from '@/components/header'
 import { useEffect, useState } from 'react'
 import { ClientSelector } from '@/components/base/client-selector'
-import { parseStreaming } from '@/lib/stream'
 import { Button } from '@/components/ui/button'
 import { getClientsStatus } from '@/api/platform'
 import { ClientType } from '@/lib/pb/common'
@@ -11,14 +10,14 @@ import dynamic from 'next/dynamic'
 import { BaseSelector } from '@/components/base/selector'
 import { ServerSelector } from '@/components/base/server-selector'
 import LoadingCircle from '@/components/base/status'
+import { ClientStatus } from '@/lib/pb/api_master'
 
-const LogTerminalComponent = dynamic(() => import('@/components/base/readonly-xterm'), {
+const TerminalComponentProps = dynamic(() => import('@/components/base/read-write-xterm'), {
   ssr: false
 })
 
 export default function ClientStatsPage() {
   const [clientID, setClientID] = useState<string | undefined>(undefined)
-  const [log, setLog] = useState<string | undefined>(undefined)
   const [clear, setClear] = useState<number>(0)
   const [enabled, setEnabled] = useState<boolean>(false)
   const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | null>(null);
@@ -41,22 +40,6 @@ export default function ClientStatsPage() {
     const abortController = new AbortController();
     setStatus("loading");
 
-    void parseStreaming(
-      abortController,
-      clientID!,
-      setLog,
-      (status: number) => {
-        if (status === 200) {
-          setStatus("success")
-        } else {
-          setStatus("error")
-        }
-      },
-      () => {
-        console.log("parseStreaming success")
-        setStatus("success")
-      }
-    );
     return () => {
       abortController.abort("unmount");
       setEnabled(false);
@@ -97,7 +80,15 @@ export default function ClientStatsPage() {
             {clientType === ClientType.FRPC && <ClientSelector clientID={clientID} setClientID={setClientID} />}
             {clientType === ClientType.FRPS && <ServerSelector serverID={clientID} setServerID={setClientID} />}
             <div className='flex-1 h-[calc(100dvh_-_180px)]'>
-              <LogTerminalComponent logs={log || ''} reset={clear} />
+              <TerminalComponentProps
+                setStatus={setStatus}
+                isLoading={!enabled}
+                clientStatus={{
+                  clientId: clientID,
+                  clientType: clientType,
+                  version: { platform: "linux" },
+                } as ClientStatus}
+                reset={clear} />
             </div>
           </div>
         </div>
