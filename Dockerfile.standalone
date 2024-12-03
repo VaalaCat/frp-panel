@@ -28,13 +28,13 @@ RUN ls && mkdir -p ../cmd/frpp && pnpm build
 FROM golang:1.22-alpine AS builder
 WORKDIR /app
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-RUN apk update --no-cache && apk add --no-cache tzdata git
+RUN apk update --no-cache && apk add --no-cache tzdata git bash
 COPY go.mod go.sum ./
 RUN CGO_ENABLED=0 GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct go mod download
 COPY . .
 RUN rm -rf /app/cmd/frpp/out
 COPY --from=frontend /app/www/out ./cmd/frpp/out
-RUN CGO_ENABLED=0 GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct go build -ldflags="-s -w" -o frp-panel cmd/frpp/*.go
+RUN ./build.sh --current --skip-frontend
 
 # Stage 3: Build image
 FROM alpine:latest
@@ -48,6 +48,6 @@ EXPOSE 9000
 # rpc port
 EXPOSE 9001
 
-ENV DB_DSN /data/data.db
+ENV DB_DSN=/data/data.db
 ENTRYPOINT ["/app/frp-panel"]
 CMD ["master"]

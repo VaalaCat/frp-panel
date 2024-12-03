@@ -1,13 +1,11 @@
 import * as React from "react"
 import {
-  MessagesSquare,
   SquareTerminal,
   ServerCogIcon,
   ServerIcon,
   MonitorSmartphoneIcon,
   MonitorCogIcon,
   ChartNetworkIcon,
-  icons,
   Scroll,
 } from "lucide-react"
 
@@ -22,11 +20,13 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { $userInfo } from "@/store/user"
+import { $platformInfo, $userInfo } from "@/store/user"
 import { useStore } from "@nanostores/react"
 import { TbBuildingTunnel } from "react-icons/tb"
 import { RegisterAndLogin } from "./header"
 import { useRouter } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
+import { getPlatformInfo } from "@/api/platform"
 
 const data = {
   teams: [
@@ -68,7 +68,12 @@ const data = {
       title: "实时日志",
       url: "/streamlog",
       icon: Scroll,
-    }
+    },
+    {
+      title: "控制台",
+      url: "/console",
+      icon: SquareTerminal,
+    },
   ]
 }
 
@@ -80,6 +85,15 @@ export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebar({ ...props }: AppSidebarProps) {
   const router = useRouter()
   const userInfo = useStore($userInfo)
+  const { data: platformInfo } = useQuery({
+    queryKey: ['platformInfo'],
+    queryFn: getPlatformInfo,
+  })
+
+  React.useEffect(() => {
+    $platformInfo.set(platformInfo)
+  }, [platformInfo])
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
