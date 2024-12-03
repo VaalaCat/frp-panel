@@ -33,6 +33,9 @@ import { getClientsStatus } from '@/api/platform'
 import { ClientType } from '@/lib/pb/common'
 import { ClientStatus, ClientStatus_Status } from '@/lib/pb/api_master'
 import { startFrpc, stopFrpc } from '@/api/frp'
+import { Badge } from '../ui/badge'
+import { ClientDetail } from '../base/client_detail'
+import { Input } from '../ui/input'
 
 export type ClientTableSchema = {
   id: string
@@ -70,7 +73,7 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
   },
   {
     accessorKey: 'info',
-    header: '运行信息',
+    header: '运行信息/版本信息',
     cell: ({ row }) => {
       const client = row.original
       return <ClientInfo client={client} />
@@ -100,15 +103,19 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
       <PopoverTrigger asChild>
         <div className="font-mono">{client.id}</div>
       </PopoverTrigger>
-      <PopoverContent className="w-fit overflow-auto max-w-72 max-h-72">
+      <PopoverContent className="w-fit overflow-auto max-w-72 max-h-72 text-nowrap">
+        <div>请点击命令框全选复制</div>
         <div>Linux安装到systemd</div>
-        <div className="p-2 border rounded font-mono w-fit">
-          {platformInfo === undefined ? '获取平台信息失败' : LinuxInstallCommand('client', client, platformInfo)}
-        </div>
+        <Input readOnly value={platformInfo === undefined
+          ? '获取平台信息失败'
+          : LinuxInstallCommand('client', client, platformInfo)}></Input>
         <div>Windows安装到系统服务</div>
-        <div className="p-2 border rounded font-mono w-fit">
-          {platformInfo === undefined ? "获取平台信息失败" : WindowsInstallCommand("client", client, platformInfo)}
-        </div>
+        <Input readOnly value={
+          platformInfo === undefined
+            ? "获取平台信息失败"
+            : WindowsInstallCommand("client", client, platformInfo)
+        }>
+        </Input>
       </PopoverContent>
     </Popover>
   )
@@ -148,8 +155,13 @@ export const ClientInfo = ({ client }: { client: ClientTableSchema }) => {
       client.stopped ? 'text-yellow-500' : 'text-green-500') : 'text-red-500'
 
   return (
-    <div className={`p-2 border rounded font-mono w-fit ${infoColor} text-nowrap`}>
-      {`${clientsInfo.data?.clients[client.id].ping}ms, ${trans(clientsInfo.data?.clients[client.id])}`}
+    <div className="flex items-center gap-2 flex-row">
+      <Badge variant={"secondary"} className={`p-2 border rounded font-mono w-fit ${infoColor} text-nowrap rounded-full h-6`}>
+        {`${clientsInfo.data?.clients[client.id].ping}ms,${trans(clientsInfo.data?.clients[client.id])}`}
+      </Badge>
+      {clientsInfo.data?.clients[client.id].version &&
+        <ClientDetail clientStatus={clientsInfo.data?.clients[client.id]} />
+      }
     </div>
   )
 }
@@ -174,7 +186,7 @@ export const ClientSecret = ({ client }: { client: ClientTableSchema }) => {
       </PopoverTrigger>
       <PopoverContent className="w-fit overflow-auto max-w-80">
         <div>运行命令(需要<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases'>点击这里</a>自行下载文件)</div>
-        <div className="p-2 border rounded font-mono w-fit">
+        <div className="p-2 border rounded font-mono w-full break-all">
           {platformInfo === undefined ? '获取平台信息失败' : ExecCommandStr('client', client, platformInfo)}
         </div>
       </PopoverContent>
@@ -191,26 +203,14 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
   const { toast } = useToast()
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
-  const fetchDataOptions = {
-    pageIndex: table.getState().pagination.pageIndex,
-    pageSize: table.getState().pagination.pageSize,
-  }
 
-  const dataQuery = useQuery({
-    queryKey: ['listClient', fetchDataOptions],
-    queryFn: async () => {
-      return await listClient({
-        page: fetchDataOptions.pageIndex + 1,
-        pageSize: fetchDataOptions.pageSize,
-      })
-    },
-  })
+  const refetchList = () => {}
 
   const removeClient = useMutation({
     mutationFn: deleteClient,
     onSuccess: () => {
       toast({ description: '删除成功' })
-      dataQuery.refetch()
+      refetchList()
     },
     onError: () => {
       toast({ description: '删除失败' })
@@ -221,7 +221,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
     mutationFn: stopFrpc,
     onSuccess: () => {
       toast({ description: '停止成功' })
-      dataQuery.refetch()
+      refetchList()
     },
     onError: () => {
       toast({ description: '停止失败' })
@@ -232,7 +232,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
     mutationFn: startFrpc,
     onSuccess: () => {
       toast({ description: '启动成功' })
-      dataQuery.refetch()
+      refetchList()
     },
     onError: () => {
       toast({ description: '启动失败' })

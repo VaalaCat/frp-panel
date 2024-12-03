@@ -37,20 +37,21 @@ frp-panel 可选 docker 和直接运行模式部署，直接部署请到 release
 - master
 
 ```bash
+# 推荐
+docker run -d \
+	--network=host \
+	--restart=unless-stopped \
+	-v /opt/frp-panel:/data \
+	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
+	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
+	vaalacat/frp-panel
+# 或者
 docker run -d -p 9000:9000 \ # API控制台端口
 	-p 9001:9001 \ # rpc端口
 	-p 7000:7000 \ # frps 端口
 	-p 20000-20050:20000-20050 \ # 给frps预留的端口
 	--restart=unless-stopped \
 	-v /opt/frp-panel:/data \ # 数据存储位置
-	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
-	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
-	vaalacat/frp-panel
-# 或者
-docker run -d \
-	--network=host \
-	--restart=unless-stopped \
-	-v /opt/frp-panel:/data \
 	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
 	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
 	vaalacat/frp-panel
@@ -80,19 +81,19 @@ docker run -d \
 
 注意修改 IP
 
-```powershell
+```bash
 APP_GLOBAL_SECRET=your_secret MASTER_RPC_HOST=0.0.0.0 frp-panel master
 ```
 
 - client
 
-```powershell
+```bash
 frp-panel client -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
 ```
 
 - server
 
-```powershell
+```bash
 frp-panel server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 在master WebUI复制的参数
 ```
 
@@ -100,13 +101,13 @@ frp-panel server -s xxxx -i xxxx -a xxxx -r 127.0.0.1 -c 9001 -p 9000 -e http # 
 
 在下载的可执行文件同名文件夹下创建一个 `.env` 文件(注意不要有后缀名)，然后输入以下内容保存后运行对应命令，注意，client 和 server 的对应参数需要在 web 页面复制
 
-- master: `frp-panel-amd64.exe master`
-
 ```
 APP_GLOBAL_SECRET=your_secret
 MASTER_RPC_HOST=IP
 DB_DSN=data.db
 ```
+
+- master: `frp-panel-amd64.exe master`
 
 client 和 server 要使用在 master WebUI 复制的参数
 
@@ -124,7 +125,7 @@ client 和 server 要使用在 master WebUI 复制的参数
 
 ### 服务管理
 
-如果您使用的是面板自带的安装脚本，对于 Linux 使用 systemd 控制，对于 Windows 使用 nssm 控制
+如果您使用的是面板自带的安装脚本，对于 Linux 使用 systemd 控制，对于 Windows 使用 本程序 控制
 
 Linux 安装后使用示例：
 
@@ -136,9 +137,41 @@ systemctl start frpp
 Windows 安装后使用示例：
 
 ```
-C:/frpp/nssm.exe stop frpp
-C:/frpp/nssm.exe remove frpp
+C:/frpp/frpp.exe start
+C:/frpp/frpp.exe stop
+C:/frpp/frpp.exe uninstall
 ```
+
+### 配置说明
+
+| 类型   | 环境变量名                             | 默认值               | 描述                                                             |
+|--------|-------------------------------------|--------------------|----------------------------------------------------------------|
+| string | `APP_SECRET`                       | -                  | 应用密钥，用于客户端和服务器的和Master的通信加密                        |
+| string | `APP_GLOBAL_SECRET`                | `frp-panel`        | 全局密钥，用于管理生成密钥，需妥善保管                                 |
+| int    | `APP_COOKIE_AGE`                   | `86400`            | Cookie 的有效期（秒），默认值为 1 天                                  |
+| string | `APP_COOKIE_NAME`                  | `frp-panel-cookie` | Cookie 名称                                                        |
+| string | `APP_COOKIE_PATH`                  | `/`                | Cookie 路径                                                       |
+| string | `APP_COOKIE_DOMAIN`                | -                  | Cookie 域                                                         |
+| bool   | `APP_COOKIE_SECURE`                | `false`            | Cookie 是否安全                                                   |
+| bool   | `APP_COOKIE_HTTP_ONLY`             | `true`             | Cookie 是否仅限 HTTP                                             |
+| bool   | `APP_ENABLE_REGISTER`              | `false`            | 是否启用注册，仅允许第一个管理员注册                               |
+| int    | `MASTER_API_PORT`                  | `9000`             | 主节点 API 端口                                                  |
+| string | `MASTER_API_HOST`                  | -                  | 主节点域名，可以在反向代理和CDN后                                 |
+| string | `MASTER_API_SCHEME`                | `http`             | 主节点 API 协议（注意，这里不影响主机行为，设置为https只是为了方便复制客户端启动命令，HTTPS需要自行反向代理）|
+| int    | `MASTER_CACHE_SIZE`                | `10`               | 缓存大小（MB）                                                   |
+| string | `MASTER_RPC_HOST`                  | `127.0.0.1`        | Master节点公共 IP 或域名                                          |
+| int    | `MASTER_RPC_PORT`                  | `9001`             | Master节点 RPC 端口                                            |
+| bool   | `MASTER_COMPATIBLE_MODE`           | `false`            | 兼容模式，用于官方 frp 客户端                                     |
+| string | `MASTER_INTERNAL_FRP_SERVER_HOST`  | -                  | Master内置 frps 服务器主机，用于客户端连接                                |
+| int    | `MASTER_INTERNAL_FRP_SERVER_PORT`  | `9002`             | Master内置 frps 服务器端口，用于客户端连接                                |
+| string | `MASTER_INTERNAL_FRP_AUTH_SERVER_HOST` | `127.0.0.1`    | Master内置 frps 认证服务器主机                                          |
+| int    | `MASTER_INTERNAL_FRP_AUTH_SERVER_PORT` | `8999`          | Master内置 frps 认证服务器端口                                          |
+| string | `MASTER_INTERNAL_FRP_AUTH_SERVER_PATH` | `/auth`         | Master内置 frps 认证服务器路径                                          |
+| int    | `SERVER_API_PORT`                  | `8999`             | 服务器 API 端口                                                  |
+| string | `DB_TYPE`                          | `sqlite3`         | 数据库类型，如 mysql postgres 或 sqlite3 等                                 |
+| string | `DB_DSN`                           | `data.db`         | 数据库 DSN，默认使用sqlite3，数据默认存储在可执行文件同目录下，对于 sqlite 是路径，其他数据库为 DSN，参见 [MySQL DSN](https://github.com/go-sql-driver/mysql#dsn-data-source-name) |
+| string | `CLIENT_ID`                        | -                  | 客户端 ID                                                        |
+| string | `CLIENT_SECRET`                   | -                  | 客户端密钥                                                       |
 
 ## 项目开发指南
 

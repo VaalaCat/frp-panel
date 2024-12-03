@@ -32,6 +32,18 @@ export interface ClientStatus {
      * @generated from protobuf field: int32 ping = 4;
      */
     ping: number; // 单位为毫秒
+    /**
+     * @generated from protobuf field: optional api_master.ClientVersion version = 5;
+     */
+    version?: ClientVersion;
+    /**
+     * @generated from protobuf field: optional string addr = 6;
+     */
+    addr?: string;
+    /**
+     * @generated from protobuf field: optional int32 connect_time = 7;
+     */
+    connectTime?: number; // 连接建立的时间
 }
 /**
  * @generated from protobuf enum api_master.ClientStatus.Status
@@ -53,6 +65,35 @@ export enum ClientStatus_Status {
      * @generated from protobuf enum value: STATUS_ERROR = 3;
      */
     ERROR = 3
+}
+/**
+ * @generated from protobuf message api_master.ClientVersion
+ */
+export interface ClientVersion {
+    /**
+     * @generated from protobuf field: string GitVersion = 1 [json_name = "GitVersion"];
+     */
+    gitVersion: string;
+    /**
+     * @generated from protobuf field: string GitCommit = 2 [json_name = "GitCommit"];
+     */
+    gitCommit: string;
+    /**
+     * @generated from protobuf field: string BuildDate = 3 [json_name = "BuildDate"];
+     */
+    buildDate: string;
+    /**
+     * @generated from protobuf field: string GoVersion = 4 [json_name = "GoVersion"];
+     */
+    goVersion: string;
+    /**
+     * @generated from protobuf field: string Compiler = 5 [json_name = "Compiler"];
+     */
+    compiler: string;
+    /**
+     * @generated from protobuf field: string Platform = 6 [json_name = "Platform"];
+     */
+    platform: string;
 }
 /**
  * @generated from protobuf message api_master.GetClientsStatusRequest
@@ -119,7 +160,10 @@ class ClientStatus$Type extends MessageType<ClientStatus> {
             { no: 1, name: "client_type", kind: "enum", T: () => ["common.ClientType", ClientType, "CLIENT_TYPE_"] },
             { no: 2, name: "client_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "status", kind: "enum", T: () => ["api_master.ClientStatus.Status", ClientStatus_Status, "STATUS_"] },
-            { no: 4, name: "ping", kind: "scalar", T: 5 /*ScalarType.INT32*/ }
+            { no: 4, name: "ping", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 5, name: "version", kind: "message", T: () => ClientVersion },
+            { no: 6, name: "addr", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 7, name: "connect_time", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ }
         ]);
     }
     create(value?: PartialMessage<ClientStatus>): ClientStatus {
@@ -149,6 +193,15 @@ class ClientStatus$Type extends MessageType<ClientStatus> {
                 case /* int32 ping */ 4:
                     message.ping = reader.int32();
                     break;
+                case /* optional api_master.ClientVersion version */ 5:
+                    message.version = ClientVersion.internalBinaryRead(reader, reader.uint32(), options, message.version);
+                    break;
+                case /* optional string addr */ 6:
+                    message.addr = reader.string();
+                    break;
+                case /* optional int32 connect_time */ 7:
+                    message.connectTime = reader.int32();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -173,6 +226,15 @@ class ClientStatus$Type extends MessageType<ClientStatus> {
         /* int32 ping = 4; */
         if (message.ping !== 0)
             writer.tag(4, WireType.Varint).int32(message.ping);
+        /* optional api_master.ClientVersion version = 5; */
+        if (message.version)
+            ClientVersion.internalBinaryWrite(message.version, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* optional string addr = 6; */
+        if (message.addr !== undefined)
+            writer.tag(6, WireType.LengthDelimited).string(message.addr);
+        /* optional int32 connect_time = 7; */
+        if (message.connectTime !== undefined)
+            writer.tag(7, WireType.Varint).int32(message.connectTime);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -183,6 +245,93 @@ class ClientStatus$Type extends MessageType<ClientStatus> {
  * @generated MessageType for protobuf message api_master.ClientStatus
  */
 export const ClientStatus = new ClientStatus$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ClientVersion$Type extends MessageType<ClientVersion> {
+    constructor() {
+        super("api_master.ClientVersion", [
+            { no: 1, name: "GitVersion", kind: "scalar", jsonName: "GitVersion", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "GitCommit", kind: "scalar", jsonName: "GitCommit", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "BuildDate", kind: "scalar", jsonName: "BuildDate", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "GoVersion", kind: "scalar", jsonName: "GoVersion", T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "Compiler", kind: "scalar", jsonName: "Compiler", T: 9 /*ScalarType.STRING*/ },
+            { no: 6, name: "Platform", kind: "scalar", jsonName: "Platform", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ClientVersion>): ClientVersion {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.gitVersion = "";
+        message.gitCommit = "";
+        message.buildDate = "";
+        message.goVersion = "";
+        message.compiler = "";
+        message.platform = "";
+        if (value !== undefined)
+            reflectionMergePartial<ClientVersion>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ClientVersion): ClientVersion {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string GitVersion = 1 [json_name = "GitVersion"];*/ 1:
+                    message.gitVersion = reader.string();
+                    break;
+                case /* string GitCommit = 2 [json_name = "GitCommit"];*/ 2:
+                    message.gitCommit = reader.string();
+                    break;
+                case /* string BuildDate = 3 [json_name = "BuildDate"];*/ 3:
+                    message.buildDate = reader.string();
+                    break;
+                case /* string GoVersion = 4 [json_name = "GoVersion"];*/ 4:
+                    message.goVersion = reader.string();
+                    break;
+                case /* string Compiler = 5 [json_name = "Compiler"];*/ 5:
+                    message.compiler = reader.string();
+                    break;
+                case /* string Platform = 6 [json_name = "Platform"];*/ 6:
+                    message.platform = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ClientVersion, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string GitVersion = 1 [json_name = "GitVersion"]; */
+        if (message.gitVersion !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.gitVersion);
+        /* string GitCommit = 2 [json_name = "GitCommit"]; */
+        if (message.gitCommit !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.gitCommit);
+        /* string BuildDate = 3 [json_name = "BuildDate"]; */
+        if (message.buildDate !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.buildDate);
+        /* string GoVersion = 4 [json_name = "GoVersion"]; */
+        if (message.goVersion !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.goVersion);
+        /* string Compiler = 5 [json_name = "Compiler"]; */
+        if (message.compiler !== "")
+            writer.tag(5, WireType.LengthDelimited).string(message.compiler);
+        /* string Platform = 6 [json_name = "Platform"]; */
+        if (message.platform !== "")
+            writer.tag(6, WireType.LengthDelimited).string(message.platform);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_master.ClientVersion
+ */
+export const ClientVersion = new ClientVersion$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class GetClientsStatusRequest$Type extends MessageType<GetClientsStatusRequest> {
     constructor() {

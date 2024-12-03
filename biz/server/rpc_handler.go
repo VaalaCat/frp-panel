@@ -6,8 +6,10 @@ import (
 	"runtime/debug"
 
 	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
+	"google.golang.org/protobuf/proto"
 )
 
 func HandleServerMessage(req *pb.ServerMessage) *pb.ClientMessage {
@@ -29,10 +31,13 @@ func HandleServerMessage(req *pb.ServerMessage) *pb.ClientMessage {
 		return common.WrapperServerMsg(req, StartSteamLogHandler)
 	case pb.Event_EVENT_STOP_STREAM_LOG:
 		return common.WrapperServerMsg(req, StopSteamLogHandler)
+	case pb.Event_EVENT_START_PTY_CONNECT:
+		return common.WrapperServerMsg(req, StartPTYConnect)
 	case pb.Event_EVENT_PING:
+		rawData, _ := proto.Marshal(conf.GetVersion().ToProto())
 		return &pb.ClientMessage{
 			Event: pb.Event_EVENT_PONG,
-			Data:  []byte("pong"),
+			Data:  rawData,
 		}
 	default:
 	}

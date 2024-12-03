@@ -8,6 +8,8 @@ import (
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
+	"github.com/samber/lo"
+	"google.golang.org/protobuf/proto"
 )
 
 func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.GetClientsStatusResponse, error) {
@@ -24,7 +26,8 @@ func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.G
 	)
 
 	for _, clientID := range clientIDs {
-		conn := rpc.GetClientsManager().Get(clientID)
+		mgr := rpc.GetClientsManager()
+		conn := mgr.Get(clientID)
 		if conn == nil {
 			resps[clientID] = &pb.ClientStatus{
 				ClientType: req.GetClientType(),
@@ -48,11 +51,22 @@ func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.G
 			}
 			continue
 		}
+
+		clientVersion := &pb.ClientVersion{}
+		proto.Unmarshal(tresp.GetData(), clientVersion)
+		connectTime, ok := mgr.ConnectTime(clientID)
+		if !ok {
+			connectTime = endTime
+		}
+
 		resps[clientID] = &pb.ClientStatus{
-			ClientType: req.GetClientType(),
-			ClientId:   clientID,
-			Status:     pb.ClientStatus_STATUS_ONLINE,
-			Ping:       int32(pingTime),
+			ClientType:  req.GetClientType(),
+			ClientId:    clientID,
+			Status:      pb.ClientStatus_STATUS_ONLINE,
+			Ping:        int32(pingTime),
+			Version:     clientVersion,
+			Addr:        lo.ToPtr(mgr.ClientAddr(clientID)),
+			ConnectTime: lo.ToPtr(int32(endTime.Sub(connectTime).Seconds())),
 		}
 	}
 

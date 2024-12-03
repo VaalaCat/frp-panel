@@ -16,7 +16,7 @@ export default function ClientListPage() {
         <div className="w-full">
           <div className="flex flex-1 flex-col">
             <div className="flex flex-1 flex-row mb-2 gap-2">
-              <CreateClientDialog />
+              <CreateClientDialog refetchTrigger={setTriggerSearch} />
               <IdInput setKeyword={setKeyword} keyword={keyword} refetchTrigger={setTriggerSearch} />
             </div>
             <ClientList Clients={[]} Keyword={keyword} TriggerRefetch={triggerSearch} />

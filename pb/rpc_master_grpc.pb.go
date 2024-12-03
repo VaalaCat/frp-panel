@@ -26,6 +26,7 @@ const (
 	Master_PushProxyInfo_FullMethodName       = "/master.Master/PushProxyInfo"
 	Master_PushClientStreamLog_FullMethodName = "/master.Master/PushClientStreamLog"
 	Master_PushServerStreamLog_FullMethodName = "/master.Master/PushServerStreamLog"
+	Master_PTYConnect_FullMethodName          = "/master.Master/PTYConnect"
 )
 
 // MasterClient is the client API for Master service.
@@ -39,6 +40,7 @@ type MasterClient interface {
 	PushProxyInfo(ctx context.Context, in *PushProxyInfoReq, opts ...grpc.CallOption) (*PushProxyInfoResp, error)
 	PushClientStreamLog(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[PushClientStreamLogReq, PushStreamLogResp], error)
 	PushServerStreamLog(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[PushServerStreamLogReq, PushStreamLogResp], error)
+	PTYConnect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[PTYClientMessage, PTYServerMessage], error)
 }
 
 type masterClient struct {
@@ -128,6 +130,19 @@ func (c *masterClient) PushServerStreamLog(ctx context.Context, opts ...grpc.Cal
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Master_PushServerStreamLogClient = grpc.ClientStreamingClient[PushServerStreamLogReq, PushStreamLogResp]
 
+func (c *masterClient) PTYConnect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[PTYClientMessage, PTYServerMessage], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Master_ServiceDesc.Streams[3], Master_PTYConnect_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[PTYClientMessage, PTYServerMessage]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Master_PTYConnectClient = grpc.BidiStreamingClient[PTYClientMessage, PTYServerMessage]
+
 // MasterServer is the server API for Master service.
 // All implementations must embed UnimplementedMasterServer
 // for forward compatibility.
@@ -139,6 +154,7 @@ type MasterServer interface {
 	PushProxyInfo(context.Context, *PushProxyInfoReq) (*PushProxyInfoResp, error)
 	PushClientStreamLog(grpc.ClientStreamingServer[PushClientStreamLogReq, PushStreamLogResp]) error
 	PushServerStreamLog(grpc.ClientStreamingServer[PushServerStreamLogReq, PushStreamLogResp]) error
+	PTYConnect(grpc.BidiStreamingServer[PTYClientMessage, PTYServerMessage]) error
 	mustEmbedUnimplementedMasterServer()
 }
 
@@ -169,6 +185,9 @@ func (UnimplementedMasterServer) PushClientStreamLog(grpc.ClientStreamingServer[
 }
 func (UnimplementedMasterServer) PushServerStreamLog(grpc.ClientStreamingServer[PushServerStreamLogReq, PushStreamLogResp]) error {
 	return status.Errorf(codes.Unimplemented, "method PushServerStreamLog not implemented")
+}
+func (UnimplementedMasterServer) PTYConnect(grpc.BidiStreamingServer[PTYClientMessage, PTYServerMessage]) error {
+	return status.Errorf(codes.Unimplemented, "method PTYConnect not implemented")
 }
 func (UnimplementedMasterServer) mustEmbedUnimplementedMasterServer() {}
 func (UnimplementedMasterServer) testEmbeddedByValue()                {}
@@ -284,6 +303,13 @@ func _Master_PushServerStreamLog_Handler(srv interface{}, stream grpc.ServerStre
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Master_PushServerStreamLogServer = grpc.ClientStreamingServer[PushServerStreamLogReq, PushStreamLogResp]
 
+func _Master_PTYConnect_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(MasterServer).PTYConnect(&grpc.GenericServerStream[PTYClientMessage, PTYServerMessage]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Master_PTYConnectServer = grpc.BidiStreamingServer[PTYClientMessage, PTYServerMessage]
+
 // Master_ServiceDesc is the grpc.ServiceDesc for Master service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -323,6 +349,12 @@ var Master_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "PushServerStreamLog",
 			Handler:       _Master_PushServerStreamLog_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "PTYConnect",
+			Handler:       _Master_PTYConnect_Handler,
+			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},

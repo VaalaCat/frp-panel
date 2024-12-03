@@ -33,6 +33,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { getClientsStatus } from '@/api/platform'
 import { ClientType } from '@/lib/pb/common'
 import { ClientStatus, ClientStatus_Status } from '@/lib/pb/api_master'
+import { Badge } from '../ui/badge'
+import { ClientDetail } from '../base/client_detail'
 
 export type ServerTableSchema = {
   id: string
@@ -70,7 +72,7 @@ export const columns: ColumnDef<ServerTableSchema>[] = [
   },
   {
     accessorKey: 'info',
-    header: '运行信息',
+    header: '运行信息/版本信息',
     cell: ({ row }) => {
       const Server = row.original
       return <ServerInfo server={Server} />
@@ -152,8 +154,13 @@ export const ServerInfo = ({ server }: { server: ServerTableSchema }) => {
     clientsInfo.data?.clients[server.id]?.status === ClientStatus_Status.ONLINE ? 'text-green-500' : 'text-red-500'
 
   return (
-    <div className={`p-2 border rounded font-mono w-fit ${infoColor} text-nowrap`}>
-      {`${clientsInfo.data?.clients[server.id].ping}ms, ${trans(clientsInfo.data?.clients[server.id])}`}
+    <div className="flex items-center gap-2 flex-row">
+      <Badge variant={"secondary"} className={`p-2 border rounded font-mono w-fit ${infoColor} text-nowrap rounded-full h-6`}>
+        {`${clientsInfo.data?.clients[server.id].ping}ms,${trans(clientsInfo.data?.clients[server.id])}`}
+      </Badge>
+      {clientsInfo.data?.clients[server.id].version &&
+        <ClientDetail clientStatus={clientsInfo.data?.clients[server.id]} />
+      }
     </div>
   )
 }
@@ -179,7 +186,7 @@ export const ServerSecret = ({ server }: { server: ServerTableSchema }) => {
       </PopoverTrigger>
       <PopoverContent className="w-fit overflow-auto max-w-48">
         <div>运行命令(需要<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases'>点击这里</a>自行下载文件)</div>
-        <div className="p-2 border rounded font-mono w-fit">
+        <div className="p-2 border rounded font-mono w-full break-all">
           {platformInfo === undefined ? '获取平台信息失败' : ExecCommandStr('server', server, platformInfo)}
         </div>
       </PopoverContent>
@@ -197,25 +204,13 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
 
-  const fetchDataOptions = {
-    pageIndex: table.getState().pagination.pageIndex,
-    pageSize: table.getState().pagination.pageSize,
-  }
+  const refetchList = () => {}
 
-  const dataQuery = useQuery({
-    queryKey: ['listServer', fetchDataOptions],
-    queryFn: async () => {
-      return await listServer({
-        page: fetchDataOptions.pageIndex + 1,
-        pageSize: fetchDataOptions.pageSize,
-      })
-    },
-  })
   const removeServer = useMutation({
     mutationFn: deleteServer,
     onSuccess: () => {
       toast({ description: '删除成功' })
-      dataQuery.refetch()
+      refetchList()
     },
     onError: () => {
       toast({ description: '删除失败' })

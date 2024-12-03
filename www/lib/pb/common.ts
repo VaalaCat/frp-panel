@@ -27,6 +27,10 @@ export interface Status {
  * @generated from protobuf message common.CommonRequest
  */
 export interface CommonRequest {
+    /**
+     * @generated from protobuf field: optional string data = 1;
+     */
+    data?: string;
 }
 /**
  * @generated from protobuf message common.CommonResponse
@@ -36,6 +40,10 @@ export interface CommonResponse {
      * @generated from protobuf field: optional common.Status status = 1;
      */
     status?: Status;
+    /**
+     * @generated from protobuf field: optional string data = 2;
+     */
+    data?: string;
 }
 /**
  * @generated from protobuf message common.Client
@@ -277,7 +285,9 @@ export const Status = new Status$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class CommonRequest$Type extends MessageType<CommonRequest> {
     constructor() {
-        super("common.CommonRequest", []);
+        super("common.CommonRequest", [
+            { no: 1, name: "data", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
     }
     create(value?: PartialMessage<CommonRequest>): CommonRequest {
         const message = globalThis.Object.create((this.messagePrototype!));
@@ -286,9 +296,28 @@ class CommonRequest$Type extends MessageType<CommonRequest> {
         return message;
     }
     internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CommonRequest): CommonRequest {
-        return target ?? this.create();
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string data */ 1:
+                    message.data = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
     }
     internalBinaryWrite(message: CommonRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string data = 1; */
+        if (message.data !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.data);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -303,7 +332,8 @@ export const CommonRequest = new CommonRequest$Type();
 class CommonResponse$Type extends MessageType<CommonResponse> {
     constructor() {
         super("common.CommonResponse", [
-            { no: 1, name: "status", kind: "message", T: () => Status }
+            { no: 1, name: "status", kind: "message", T: () => Status },
+            { no: 2, name: "data", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<CommonResponse>): CommonResponse {
@@ -320,6 +350,9 @@ class CommonResponse$Type extends MessageType<CommonResponse> {
                 case /* optional common.Status status */ 1:
                     message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
                     break;
+                case /* optional string data */ 2:
+                    message.data = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -335,6 +368,9 @@ class CommonResponse$Type extends MessageType<CommonResponse> {
         /* optional common.Status status = 1; */
         if (message.status)
             Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* optional string data = 2; */
+        if (message.data !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.data);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

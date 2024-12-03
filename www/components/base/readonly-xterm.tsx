@@ -3,7 +3,7 @@ import { FitAddon } from '@xterm/addon-fit'
 import { useEffect, useState } from 'react'
 import { useXTerm } from 'react-xtermjs'
 
-const TerminalComponent = ({ logs, reset }: { logs: string, reset: number }) => {
+const LogTerminalComponent = ({ logs, reset }: { logs: string, reset: number }) => {
   const { instance, ref } = useXTerm()
   const fitAddon = new FitAddon()
   const [prevLogs, setPrevLogs] = useState('')
@@ -57,4 +57,4 @@ const TerminalComponent = ({ logs, reset }: { logs: string, reset: number }) => 
   return <div ref={ref} style={{ height: '100%', width: '100%'}} />
 }
 
-export default TerminalComponent
+export default LogTerminalComponent

@@ -16,7 +16,7 @@ export default function ServerListPage() {
         <div className="w-full">
           <div className="flex flex-1 flex-col">
             <div className="flex flex-1 flex-row mb-2 gap-2">
-              <CreateServerDialog />
+              <CreateServerDialog refetchTrigger={setTriggerSearch}/>
               <IdInput setKeyword={setKeyword} keyword={keyword} refetchTrigger={setTriggerSearch} />
             </div>
             <ServerList Servers={[]} Keyword={keyword} TriggerRefetch={triggerSearch} />

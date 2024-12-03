@@ -4,6 +4,7 @@ go 1.22.1
 
 require (
 	github.com/coocood/freecache v1.2.4
+	github.com/creack/pty v1.1.24
 	github.com/fatedier/frp v0.61.0
 	github.com/fatedier/golib v0.5.0
 	github.com/gin-contrib/static v0.0.1
@@ -15,11 +16,13 @@ require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/imroc/req/v3 v3.42.3
 	github.com/joho/godotenv v1.5.1
+	github.com/kardianos/service v1.2.2
 	github.com/samber/lo v1.39.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cobra v1.8.0
 	golang.org/x/crypto v0.25.0
+	golang.org/x/term v0.22.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.35.2
 	gorm.io/driver/mysql v1.5.2
@@ -54,6 +57,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/pprof v0.0.0-20231229205709-960ae82b1e42 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect

@@ -18,17 +18,11 @@ import {
 } from '@/components/ui/dialog'
 import { useTranslation } from 'react-i18next'
 
-export const CreateClientDialog = () => {
+export const CreateClientDialog = ({refetchTrigger}: {refetchTrigger?: (randStr: string) => void}) => {
   const { t } = useTranslation()
   const [clientID, setClientID] = useState<string | undefined>()
   const newClient = useMutation({
     mutationFn: initClient,
-  })
-  const dataQuery = useQuery({
-    queryKey: ['listClient', { pageIndex: 0, pageSize: 10 }],
-    queryFn: async () => {
-      return await listClient({ page: 1, pageSize: 10 })
-    },
   })
   const { toast } = useToast()
 
@@ -41,7 +35,7 @@ export const CreateClientDialog = () => {
         return
       }
       toast({ title: t('创建客户端成功') })
-      dataQuery.refetch()
+      refetchTrigger && refetchTrigger(JSON.stringify(Math.random()))
     } catch (error) {
       toast({ title: t('创建客户端失败') })
     }
