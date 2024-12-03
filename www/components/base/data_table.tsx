@@ -43,7 +43,7 @@ export function DataTable<TData, TValue>({ columns, filterColumnName, table }: D
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className='text-nowrap'>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>

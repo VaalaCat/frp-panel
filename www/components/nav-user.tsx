@@ -22,8 +22,7 @@ import {
 import { User } from '@/lib/pb/common'
 import { Avatar } from "./ui/avatar"
 import { UserAvatar } from "./base/avatar"
-import { LOCAL_STORAGE_TOKEN_KEY } from "@/lib/consts"
-import { $userInfo } from "@/store/user"
+import { $token, $userInfo } from "@/store/user"
 import { logout } from "@/api/auth"
 
 export function NavUser({
@@ -74,7 +73,7 @@ export function NavUser({
               <div onClick={
                 async () => {
                   $userInfo.set(undefined)
-                  localStorage.removeItem(LOCAL_STORAGE_TOKEN_KEY)
+                  $token.set(undefined)
                   await logout()
                   window.location.reload()
                 }

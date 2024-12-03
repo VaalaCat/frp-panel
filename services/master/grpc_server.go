@@ -8,6 +8,7 @@ import (
 
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	masterserver "github.com/VaalaCat/frp-panel/biz/master/server"
+	"github.com/VaalaCat/frp-panel/biz/master/shell"
 	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
@@ -63,7 +64,6 @@ func (*server) FRPCAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPAut
 // ServerSend implements pb.MasterServer.
 func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 	ctx := context.Background()
-
 	logger.Logger(ctx).Infof("server get a client connected")
 	var done chan bool
 	for {
@@ -153,4 +153,8 @@ func (s *server) PushClientStreamLog(sender pb.Master_PushClientStreamLogServer)
 
 func (s *server) PushServerStreamLog(sender pb.Master_PushServerStreamLogServer) error {
 	return streamlog.PushServerStreamLog(sender)
+}
+
+func (s *server) PTYConnect(sender pb.Master_PTYConnectServer) error {
+	return shell.PTYConnect(sender)
 }
