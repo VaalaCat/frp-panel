@@ -24,10 +24,13 @@ message Status {
   string message = 2;
 }
 
-message CommonRequest {}
+message CommonRequest {
+  optional string data = 1;
+}
 
 message CommonResponse {
   optional Status status = 1;
+  optional string data = 2;
 }
 
 message Client {
