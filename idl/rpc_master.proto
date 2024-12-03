@@ -22,6 +22,7 @@ enum Event {
   EVENT_START_FRPS = 14;
   EVENT_START_STREAM_LOG = 15;
   EVENT_STOP_STREAM_LOG = 16;
+  EVENT_START_PTY_CONNECT = 17;
 }
 
 message ServerBase {
@@ -103,6 +104,23 @@ message PushStreamLogResp {
   bool ok = 2;
 }
 
+message PTYClientMessage {
+  optional string data = 1;
+  string session_id = 2;
+  bool done = 3;
+  oneof Base {
+    ServerBase server_base = 254;
+    ClientBase client_base = 255;
+  }
+}
+
+message PTYServerMessage {
+  optional string data = 1;
+  optional int32 height = 2;
+  optional int32 width = 3;
+  bool done = 4;
+}
+
 service Master {
   rpc ServerSend(stream ClientMessage) returns(stream ServerMessage);
   rpc PullClientConfig(PullClientConfigReq) returns(PullClientConfigResp);
@@ -111,4 +129,5 @@ service Master {
   rpc PushProxyInfo(PushProxyInfoReq) returns(PushProxyInfoResp);
   rpc PushClientStreamLog(stream PushClientStreamLogReq) returns(PushStreamLogResp);
   rpc PushServerStreamLog(stream PushServerStreamLogReq) returns(PushStreamLogResp);
+  rpc PTYConnect(stream PTYClientMessage) returns(stream PTYServerMessage);
 }
