@@ -90,12 +90,12 @@ message PushProxyInfoResp {
 }
 
 message PushServerStreamLogReq {
-  string log = 1;
+  bytes log = 1;
   ServerBase base = 255;
 }
 
 message PushClientStreamLogReq {
-  string log = 1;
+  bytes log = 1;
   ClientBase base = 255;
 }
 
@@ -105,7 +105,7 @@ message PushStreamLogResp {
 }
 
 message PTYClientMessage {
-  optional string data = 1;
+  optional bytes data = 1;
   string session_id = 2;
   bool done = 3;
   oneof Base {
@@ -115,7 +115,7 @@ message PTYClientMessage {
 }
 
 message PTYServerMessage {
-  optional string data = 1;
+  optional bytes data = 1;
   optional int32 height = 2;
   optional int32 width = 3;
   bool done = 4;

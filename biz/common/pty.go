@@ -9,7 +9,6 @@ import (
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/utils/pty"
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 	"github.com/sourcegraph/conc"
 )
 
@@ -34,7 +33,7 @@ func StartPTYConnect(c context.Context, req *pb.CommonRequest, initMsg *pb.PTYCl
 		return nil, err
 	}
 
-	if ack.GetData() != "ok" {
+	if string(ack.GetData()) != "ok" {
 		logger.Logger(c).Infof("ack error")
 		return nil, fmt.Errorf("ack error")
 	}
@@ -54,7 +53,7 @@ func HandlePTY(c context.Context, conn pb.Master_PTYConnectClient, sessionID str
 	if err != nil {
 		msg := fmt.Sprintf("failed to start tty: %s", err)
 		logger.Logger(c).WithError(err).Warn(msg)
-		conn.Send(&pb.PTYClientMessage{Data: &msg, SessionId: sessionID})
+		conn.Send(&pb.PTYClientMessage{Data: []byte(msg), SessionId: sessionID})
 		return
 	}
 
@@ -82,7 +81,7 @@ func HandlePTY(c context.Context, conn pb.Master_PTYConnectClient, sessionID str
 			readLength, err := ptyInstace.Read(buffer)
 			if err != nil {
 				logger.Logger(c).Warnf("failed to read from tty: %s", err)
-				if err := conn.Send(&pb.PTYClientMessage{Data: lo.ToPtr("bye!"), SessionId: sessionID}); err != nil {
+				if err := conn.Send(&pb.PTYClientMessage{Data: []byte("bye!"), SessionId: sessionID}); err != nil {
 					logger.Logger(c).Warnf("failed to send termination message from tty to master: %s", err)
 				}
 				if err := conn.CloseSend(); err != nil {
@@ -90,8 +89,8 @@ func HandlePTY(c context.Context, conn pb.Master_PTYConnectClient, sessionID str
 				}
 				return
 			}
-			str := string(buffer[:readLength])
-			if err := conn.Send(&pb.PTYClientMessage{Data: lo.ToPtr(str), SessionId: sessionID}); err != nil {
+			str := buffer[:readLength]
+			if err := conn.Send(&pb.PTYClientMessage{Data: str, SessionId: sessionID}); err != nil {
 				logger.Logger(c).Warnf("failed to send %v bytes from tty to master", readLength)
 				errorCounter++
 				continue

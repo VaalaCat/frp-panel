@@ -8,7 +8,6 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/server"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/samber/lo"
 )
 
 func PTYConnect(sender pb.Master_PTYConnectServer) error {
@@ -42,7 +41,7 @@ func PTYConnect(sender pb.Master_PTYConnectServer) error {
 
 	Mgr().Add(msg.GetSessionId(), sender)
 
-	if err := sender.Send(&pb.PTYServerMessage{Data: lo.ToPtr("ok")}); err != nil {
+	if err := sender.Send(&pb.PTYServerMessage{Data: []byte("ok")}); err != nil {
 		return err
 	}
 

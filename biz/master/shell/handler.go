@@ -93,7 +93,7 @@ func PTYHandler(c *gin.Context) {
 
 	defer func() {
 		logger.Logger(c).Info("gracefully stopping spawned tty...")
-		if err := cliConn.Send(&pb.PTYServerMessage{Data: lo.ToPtr("bye!"), Done: true}); err != nil {
+		if err := cliConn.Send(&pb.PTYServerMessage{Data: []byte("bye!"), Done: true}); err != nil {
 			logger.Logger(c).Warnf("failed to send close message: %s", err)
 		}
 
@@ -115,7 +115,7 @@ func PTYHandler(c *gin.Context) {
 
 	wg.Go(func() {
 		defer func() {
-			if err := cliConn.Send(&pb.PTYServerMessage{Data: lo.ToPtr("bye!"), Done: true}); err != nil {
+			if err := cliConn.Send(&pb.PTYServerMessage{Data: []byte("bye!"), Done: true}); err != nil {
 				logger.Logger(c).Warnf("failed to send close message: %s", err)
 			}
 
@@ -130,7 +130,7 @@ func PTYHandler(c *gin.Context) {
 				return
 			}
 			time.Sleep(keepalivePingTimeout / 2)
-			if time.Now().Sub(lastPongTime) > keepalivePingTimeout {
+			if time.Since(lastPongTime) > keepalivePingTimeout {
 				logger.Logger(c).Warn("failed to get response from ping, triggering disconnect now...")
 				return
 			}
@@ -151,10 +151,10 @@ func PTYHandler(c *gin.Context) {
 			cliMsg, err := cliConn.Recv()
 			if err != nil {
 				logger.Logger(c).Warnf("failed to read from client sender: %s", err)
-				if err := webConn.WriteMessage(websocket.TextMessage, []byte("bye!")); err != nil {
+				if err := webConn.WriteMessage(websocket.BinaryMessage, []byte("bye!")); err != nil {
 					logger.Logger(c).Warnf("failed to send termination message from client sender to xterm.js: %s", err)
 				}
-				if err := cliConn.Send(&pb.PTYServerMessage{Data: lo.ToPtr("bye!"), Done: true}); err != nil {
+				if err := cliConn.Send(&pb.PTYServerMessage{Data: []byte("bye!"), Done: true}); err != nil {
 					logger.Logger(c).Warnf("failed to send termination message from client sender to client: %s", err)
 				}
 				if err := webConn.Close(); err != nil {
@@ -184,7 +184,7 @@ func PTYHandler(c *gin.Context) {
 				if !connectionClosed {
 					logger.Logger(c).Warnf("failed to get next reader: %s", err)
 				}
-				if err := cliConn.Send(&pb.PTYServerMessage{Data: lo.ToPtr("bye!"), Done: true}); err != nil {
+				if err := cliConn.Send(&pb.PTYServerMessage{Data: []byte("bye!"), Done: true}); err != nil {
 					logger.Logger(c).Warnf("failed to send termination message from xterm.js to client: %s", err)
 				}
 				if err := webConn.Close(); err != nil {
@@ -201,7 +201,7 @@ func PTYHandler(c *gin.Context) {
 
 			msg := &pb.PTYServerMessage{}
 			if payload.Data != nil {
-				msg.Data = lo.ToPtr(*payload.Data)
+				msg.Data = []byte(*payload.Data)
 			}
 			if payload.Height != nil {
 				msg.Height = lo.ToPtr(int32(*payload.Height))
@@ -212,10 +212,10 @@ func PTYHandler(c *gin.Context) {
 
 			err = cliConn.Send(msg)
 			if err != nil {
-				logger.Logger(c).Warn(fmt.Sprintf("failed to write bytes to tty: %s", err))
+				logger.Logger(c).Warn(fmt.Sprintf("failed to write bytes to client: %s", err))
 				continue
 			}
-			logger.Logger(c).Tracef("messageType [%v] bytes written to tty...", messageType)
+			logger.Logger(c).Tracef("messageType [%v] bytes written to client...", messageType)
 		}
 	})
 

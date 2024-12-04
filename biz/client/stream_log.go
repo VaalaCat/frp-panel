@@ -31,7 +31,7 @@ func initStreamLog(h *common.HookMgr) {
 
 	h.AddStream(func(msg string) {
 		handler.Send(&pb.PushClientStreamLogReq{
-			Log: utils.EncodeBase64(msg),
+			Log: []byte(utils.EncodeBase64(msg)),
 			Base: &pb.ClientBase{
 				ClientId:     clientID,
 				ClientSecret: clientSecret,

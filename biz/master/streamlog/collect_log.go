@@ -67,7 +67,7 @@ func PushClientStreamLog(sender pb.Master_PushClientStreamLogServer) error {
 			return fmt.Errorf("push client stream log cannot find client, id: [%s]", req.GetBase().GetClientId())
 		}
 
-		ch <- req.GetLog()
+		ch <- string(req.GetLog())
 	}
 	return nil
 }
@@ -93,7 +93,7 @@ func PushServerStreamLog(sender pb.Master_PushServerStreamLogServer) error {
 		if !ok {
 			return fmt.Errorf("push server stream log cannot find server, id: [%s]", req.GetBase().GetServerId())
 		}
-		ch <- req.GetLog()
+		ch <- string(req.GetLog())
 	}
 	return nil
 }
