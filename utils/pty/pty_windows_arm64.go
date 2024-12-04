@@ -13,11 +13,8 @@ import (
 var _ PTYInterface = (*Pty)(nil)
 
 type Pty struct {
-	tty *conpty.ConPty
-}
-
-func DownloadDependency() error {
-	return nil
+	tty    *conpty.ConPty
+	closed bool
 }
 
 func getExecutableFilePath() (string, error) {
@@ -58,6 +55,10 @@ func (pty *Pty) Setsize(cols, rows uint32) error {
 }
 
 func (pty *Pty) Close() error {
+	if pty.closed {
+		return nil
+	}
+	pty.closed = true
 	if err := pty.tty.Close(); err != nil {
 		return err
 	}

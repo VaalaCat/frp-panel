@@ -204,7 +204,7 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
 
-  const refetchList = () => {}
+  const refetchList = () => { }
 
   const removeServer = useMutation({
     mutationFn: deleteServer,
@@ -251,7 +251,7 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
               }
             }}
           >
-            复制启动命令(也可点击列表中的密钥查看)
+            复制启动命令
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -264,7 +264,7 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
               })
             }}
           >
-            修改服务端配置
+            编辑隧道
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
@@ -278,7 +278,21 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
               }
             }}
           >
-            下载配置文件
+            下载配置
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push({ pathname: '/streamlog', query: { clientID: server.id, clientType: ClientType.FRPS.toString() } })
+            }}
+          >
+            实时日志
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push({ pathname: '/console', query: { clientID: server.id, clientType: ClientType.FRPS.toString() } })
+            }}
+          >
+            远程终端
           </DropdownMenuItem>
           <DialogTrigger asChild>
             <DropdownMenuItem className="text-destructive">删除</DropdownMenuItem>

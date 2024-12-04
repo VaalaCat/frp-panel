@@ -1,5 +1,5 @@
 import React from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { listClient } from '@/api/client'
 import { Combobox } from './combobox'
 
@@ -10,12 +10,14 @@ export interface ClientSelectorProps {
 }
 export const ClientSelector: React.FC<ClientSelectorProps> = ({ clientID, setClientID, onOpenChange }) => {
   const handleClientChange = (value: string) => { setClientID(value) }
+  const [keyword, setKeyword] = React.useState('')
 
   const { data: clientList, refetch: refetchClients } = useQuery({
-    queryKey: ['listClient'],
+    queryKey: ['listClient', keyword],
     queryFn: () => {
-      return listClient({ page: 1, pageSize: 50, keyword: '' })
+      return listClient({ page: 1, pageSize: 8, keyword: keyword })
     },
+    placeholderData: keepPreviousData,
   })
 
   return (
@@ -24,6 +26,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({ clientID, setCli
       dataList={clientList?.clients.map((client) => ({ value: client.id || '', label: client.id || '' })) || []}
       setValue={handleClientChange}
       value={clientID}
+      onKeyWordChange={setKeyword}
       onOpenChange={() => {
         onOpenChange && onOpenChange()
         refetchClients()

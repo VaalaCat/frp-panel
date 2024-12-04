@@ -273,7 +273,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
               }
             }}
           >
-            复制启动命令(也可点击列表中的密钥查看)
+            复制启动命令
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -281,7 +281,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
               router.push({ pathname: '/clientedit', query: { clientID: client.id } })
             }}
           >
-            修改客户端配置
+            修改配置
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
@@ -295,7 +295,21 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
               }
             }}
           >
-            下载配置文件
+            下载配置
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push({ pathname: '/streamlog', query: { clientID: client.id, clientType: ClientType.FRPC.toString() } })
+            }}
+          >
+            实时日志
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push({ pathname: '/console', query: { clientID: client.id, clientType: ClientType.FRPC.toString() } })
+            }}
+          >
+            远程终端
           </DropdownMenuItem>
           {!client.stopped && <DropdownMenuItem className="text-destructive" onClick={() => stopClient.mutate({ clientId: client.id })}>暂停</DropdownMenuItem>}
           {client.stopped && <DropdownMenuItem onClick={() => startClient.mutate({ clientId: client.id })}>启动</DropdownMenuItem>}

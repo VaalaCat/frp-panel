@@ -16,8 +16,9 @@ var _ PTYInterface = (*Pty)(nil)
 var defaultShells = []string{"fish", "zsh", "bash", "sh"}
 
 type Pty struct {
-	tty *os.File
-	cmd *exec.Cmd
+	tty    *os.File
+	cmd    *exec.Cmd
+	closed bool
 }
 
 func DownloadDependency() error {
@@ -76,6 +77,10 @@ func (pty *Pty) killChildProcess(c *exec.Cmd) error {
 }
 
 func (pty *Pty) Close() error {
+	if pty.closed {
+		return nil
+	}
+	pty.closed = true
 	if err := pty.tty.Close(); err != nil {
 		return err
 	}

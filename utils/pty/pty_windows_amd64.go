@@ -20,11 +20,13 @@ var _ PTYInterface = (*conPty)(nil)
 var isWin10 = IsWindows10()
 
 type winPTY struct {
-	tty *winpty.WinPTY
+	tty    *winpty.WinPTY
+	closed bool
 }
 
 type conPty struct {
-	tty *conpty.ConPty
+	tty    *conpty.ConPty
+	closed bool
 }
 
 func IsWindows10() bool {
@@ -91,6 +93,10 @@ func (w *winPTY) Setsize(cols, rows uint32) error {
 }
 
 func (w *winPTY) Close() error {
+	if w.closed {
+		return nil
+	}
+	w.closed = true
 	w.tty.Close()
 	return nil
 }
@@ -113,6 +119,10 @@ func (c *conPty) Setsize(cols, rows uint32) error {
 }
 
 func (c *conPty) Close() error {
+	if c.closed {
+		return nil
+	}
+	c.closed = true
 	if err := c.tty.Close(); err != nil {
 		return err
 	}

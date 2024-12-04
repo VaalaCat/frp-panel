@@ -2,7 +2,9 @@
 import { ClientStatus } from '@/lib/pb/api_master'
 import { terminalWebsocketUrl } from '@/lib/terminal'
 import { FitAddon } from '@xterm/addon-fit'
-import { useEffect, useState } from 'react'
+import { CanvasAddon } from "@xterm/addon-canvas";
+import { Unicode11Addon } from "@xterm/addon-unicode11";
+import { useEffect } from 'react'
 import { useXTerm } from 'react-xtermjs'
 
 export interface TerminalComponentProps {
@@ -14,6 +16,7 @@ export interface TerminalComponentProps {
 
 const TerminalComponent = ({ isLoading, clientStatus, reset, setStatus }: TerminalComponentProps) => {
   const { instance: terminal, ref } = useXTerm()
+  
   const fitAddon = new FitAddon()
 
   useEffect(() => {
@@ -23,7 +26,18 @@ const TerminalComponent = ({ isLoading, clientStatus, reset, setStatus }: Termin
   }, [reset, ref, terminal])
 
   useEffect(() => {
-    terminal?.loadAddon(fitAddon)
+    if (!terminal) {
+      return;
+    }
+    
+    terminal.options.allowProposedApi = true
+    terminal.options.cursorStyle = "block"
+
+    terminal.loadAddon(new CanvasAddon());
+    terminal.loadAddon(fitAddon)
+    terminal.loadAddon(new Unicode11Addon());
+    terminal.unicode.activeVersion = "11";
+
     const handleResize = () => fitAddon.fit()
 
     fitAddon.fit()
@@ -156,7 +170,16 @@ const TerminalComponent = ({ isLoading, clientStatus, reset, setStatus }: Termin
     setStatus,
   ]);
 
-  return <div ref={ref} style={{ height: '100%', width: '100%' }} />
+  return <div ref={ref} style={styles.terminal()} />
+}
+
+const styles = {
+	terminal: () => ({
+		width: "100%",
+    height: "100%",
+		overflow: "hidden",
+		flex: 1,
+	}),
 }
 
 export default TerminalComponent

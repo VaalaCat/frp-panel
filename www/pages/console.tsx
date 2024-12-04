@@ -11,22 +11,39 @@ import { BaseSelector } from '@/components/base/selector'
 import { ServerSelector } from '@/components/base/server-selector'
 import LoadingCircle from '@/components/base/status'
 import { ClientStatus } from '@/lib/pb/api_master'
+import { useSearchParams } from 'next/navigation'
 
-const TerminalComponentProps = dynamic(() => import('@/components/base/read-write-xterm'), {
+const TerminalComponent = dynamic(() => import('@/components/base/read-write-xterm'), {
   ssr: false
 })
 
-export default function ClientStatsPage() {
+export default function ConsolePage() {
   const [clientID, setClientID] = useState<string | undefined>(undefined)
   const [clear, setClear] = useState<number>(0)
   const [enabled, setEnabled] = useState<boolean>(false)
   const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | null>(null);
-  const [clientType, setClientType] = useState<ClientType>(ClientType.FRPC)
+  const [clientType, setClientType] = useState<ClientType>(ClientType.FRPS)
   const [status, setStatus] = useState<"loading" | "success" | "error" | undefined>()
 
+  const searchParams = useSearchParams()
+  const paramClientID = searchParams.get('clientID')
+  const paramClientType = searchParams.get('clientType')
+  
   useEffect(() => {
-    setClientID(undefined)
-  }, [clientType])
+    if (paramClientID) {
+      setClientID(paramClientID)
+    }
+    if (paramClientType) {
+      if (paramClientType == ClientType.FRPC.toString()) {
+        setClientType(ClientType.FRPC)
+      } else if (paramClientType == ClientType.FRPS.toString()) {
+        setClientType(ClientType.FRPS)
+      }
+    }
+    if (paramClientID && paramClientType) {
+      setEnabled(true)
+    }
+  }, [paramClientID, paramClientType])
 
   useEffect(() => {
     setClear(Math.random())
@@ -70,6 +87,11 @@ export default function ClientStatsPage() {
                 setEnabled(false)
                 setClear(Math.random());
               }}>断开</Button>
+              <Button
+              disabled={clientID === undefined || clientType === undefined}
+              onClick={() => window.open(`/terminal?clientType=${clientType.toString()}&clientID=${clientID}`)}>
+                独立窗口
+              </Button>
               <BaseSelector
                 dataList={[{ value: ClientType.FRPC.toString(), label: "frpc" }, { value: ClientType.FRPS.toString(), label: "frps" }]}
                 setValue={(value) => { if (value === ClientType.FRPC.toString()) { setClientType(ClientType.FRPC) } else { setClientType(ClientType.FRPS) } }}
@@ -80,7 +102,7 @@ export default function ClientStatsPage() {
             {clientType === ClientType.FRPC && <ClientSelector clientID={clientID} setClientID={setClientID} />}
             {clientType === ClientType.FRPS && <ServerSelector serverID={clientID} setServerID={setClientID} />}
             <div className='flex-1 h-[calc(100dvh_-_180px)]'>
-              <TerminalComponentProps
+              <TerminalComponent
                 setStatus={setStatus}
                 isLoading={!enabled}
                 clientStatus={{

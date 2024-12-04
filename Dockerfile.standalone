@@ -35,7 +35,7 @@ RUN CGO_ENABLED=0 go mod download
 COPY . .
 RUN rm -rf /app/cmd/frpp/out
 COPY --from=frontend /app/www/out ./cmd/frpp/out
-RUN ./build.sh --current --skip-frontend
+RUN rm -rf /app/dist/frp* && ./build.sh --skip-frontend --current 
 
 # Stage 3: Build image
 FROM alpine:latest

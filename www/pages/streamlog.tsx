@@ -11,23 +11,40 @@ import dynamic from 'next/dynamic'
 import { BaseSelector } from '@/components/base/selector'
 import { ServerSelector } from '@/components/base/server-selector'
 import LoadingCircle from '@/components/base/status'
+import { useSearchParams } from 'next/navigation'
 
 const LogTerminalComponent = dynamic(() => import('@/components/base/readonly-xterm'), {
   ssr: false
 })
 
-export default function ClientStatsPage() {
+export default function StreamLogPage() {
   const [clientID, setClientID] = useState<string | undefined>(undefined)
   const [log, setLog] = useState<string | undefined>(undefined)
   const [clear, setClear] = useState<number>(0)
   const [enabled, setEnabled] = useState<boolean>(false)
   const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | null>(null);
-  const [clientType, setClientType] = useState<ClientType>(ClientType.FRPC)
+  const [clientType, setClientType] = useState<ClientType>(ClientType.FRPS)
   const [status, setStatus] = useState<"loading" | "success" | "error" | undefined>()
 
+  const searchParams = useSearchParams()
+  const paramClientID = searchParams.get('clientID')
+  const paramClientType = searchParams.get('clientType')
+  
   useEffect(() => {
-    setClientID(undefined)
-  }, [clientType])
+    if (paramClientID) {
+      setClientID(paramClientID)
+    }
+    if (paramClientType) {
+      if (paramClientType == ClientType.FRPC.toString()) {
+        setClientType(ClientType.FRPC)
+      } else if (paramClientType == ClientType.FRPS.toString()) {
+        setClientType(ClientType.FRPS)
+      }
+    }
+    if (paramClientID && paramClientType) {
+      setEnabled(true)
+    }
+  }, [paramClientID, paramClientType])
 
   useEffect(() => {
     setClear(Math.random())

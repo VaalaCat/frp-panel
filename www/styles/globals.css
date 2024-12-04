@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "xterm.css";
+
 @layer base {
   :root {
     --background: 0 0% 100%;

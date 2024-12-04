@@ -2,8 +2,7 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { Label } from '@radix-ui/react-label'
 import { useQuery } from '@tanstack/react-query'
-import { listServer } from '@/api/server'
-import { getClient, listClient } from '@/api/client'
+import { getClient } from '@/api/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { FRPCEditor } from './frpc_editor'
@@ -37,20 +36,6 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
       setServerID(defaultServerID)
     }
   }, [defaultClientID, defaultServerID])
-
-  const { refetch: refetchServers } = useQuery({
-    queryKey: ['listServer'],
-    queryFn: () => {
-      return listServer({ page: 1, pageSize: 500, keyword: '' })
-    },
-  })
-
-  const { refetch: refetchClients } = useQuery({
-    queryKey: ['listClient'],
-    queryFn: () => {
-      return listClient({ page: 1, pageSize: 50, keyword: '' })
-    },
-  })
 
   const { data: client, refetch: refetchClient } = useQuery({
     queryKey: ['getClient', clientID],
@@ -109,9 +94,9 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
         </div>
         <div className="flex flex-col w-full pt-2 space-y-2">
           <Label className="text-sm font-medium">服务端</Label>
-          <ServerSelector serverID={serverID} setServerID={setServerID} onOpenChange={refetchClients} />
+          <ServerSelector serverID={serverID} setServerID={setServerID} />
           <Label className="text-sm font-medium">客户端</Label>
-          <ClientSelector clientID={clientID} setClientID={setClientID} onOpenChange={refetchServers} />
+          <ClientSelector clientID={clientID} setClientID={setClientID} />
         </div>
         {clientID && !advanceMode && <div className='flex flex-col w-full pt-2 space-y-2'>
           <Label className="text-sm font-medium">节点 {clientID} 的备注</Label>
