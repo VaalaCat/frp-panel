@@ -24,9 +24,8 @@ import { useToast } from '@/components/ui/use-toast'
 import React, { useState } from 'react'
 import { ClientEnvFile, ExecCommandStr, LinuxInstallCommand, WindowsInstallCommand } from '@/lib/consts'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { deleteServer, listServer } from '@/api/server'
+import { deleteServer } from '@/api/server'
 import { useRouter } from 'next/router'
-import { getUserInfo } from '@/api/user'
 import { useStore } from '@nanostores/react'
 import { $platformInfo } from '@/store/user'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -264,7 +263,7 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
               })
             }}
           >
-            编辑隧道
+            编辑服务端
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {

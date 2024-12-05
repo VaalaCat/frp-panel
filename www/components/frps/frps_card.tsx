@@ -66,7 +66,7 @@ export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultSer
           <Label className="text-sm font-medium">服务端</Label>
           <ServerSelector serverID={serverID} setServerID={handleServerChange} onOpenChange={refetchServer} />
         </div>
-        {serverID && server && server.server && !advanceMode && <FRPSForm serverID={serverID} server={server.server} />}
+        {serverID && server && server.server && !advanceMode && <FRPSForm key={serverID} serverID={serverID} server={server.server} />}
         {serverID && server && server.server && advanceMode && (
           <FRPSEditor serverID={serverID} server={server.server} />
         )}

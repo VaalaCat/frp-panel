@@ -3,7 +3,7 @@
 
 # FRP-Panel
 
-[English Version](README_en.md) | [中文文档](README.md)
+[English Version README](README_en.md) | [中文文档](README.md)
 
 我们的目标就是做一个：
 
@@ -30,6 +30,18 @@ frp-panel 可选 docker 和直接运行模式部署，直接部署请到 release
 
 默认第一个注册的用户是管理员。且默认不开放注册多用户，如果需要，请在 Master 启动命令或配置文件中添加参数：`APP_ENABLE_REGISTER=true`
 
+启动后在服务端列表中会有一个default，如果运行信息为“不在线”且为红色，则说明您的 `MASTER_RPC_HOST` 启动环境变量没有配置正确或端口外部访问不成功，请仔细检查配置重新部署。
+
+测试端口是否开放的方法，在服务器上运行：
+
+```shell
+python3 -m http.server 8080
+```
+
+然后在浏览器中访问：`http://IP:8080` (端口可以换成任意你想测试的端口)，访问成功则为端口开放
+
+程序的默认存储数据路径和程序文件同目录，如需修改请参考下方的配置表格
+
 ### docker
 
 注意 ⚠️：client 和 server 的启动指令可能会随着项目更新而改变，虽然在项目迭代时会注意前后兼容，但仍难以完全适配，因此 client 和 server 的启动指令以 master 生成为准
@@ -38,14 +50,17 @@ frp-panel 可选 docker 和直接运行模式部署，直接部署请到 release
 
 ```bash
 # 推荐
+# MASTER_RPC_HOST要改成你服务器的外部IP
+# APP_GLOBAL_SECRET注意不要泄漏，客户端和服务端的是通过Master生成的
 docker run -d \
 	--network=host \
 	--restart=unless-stopped \
 	-v /opt/frp-panel:/data \
-	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
-	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
+	-e APP_GLOBAL_SECRET=your_secret \
+	-e MASTER_RPC_HOST=0.0.0.0 \
 	vaalacat/frp-panel
 # 或者
+# 运行时记得删除命令中的中文
 docker run -d -p 9000:9000 \ # API控制台端口
 	-p 9001:9001 \ # rpc端口
 	-p 7000:7000 \ # frps 端口

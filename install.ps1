@@ -21,6 +21,7 @@ if (Test-Path "C:\frpp") {
     Write-Host "frp panel client already exists, delete and reinstall" -BackgroundColor DarkGreen -ForegroundColor White
     C:/frpp/frpp.exe stop
     C:/frpp/frpp.exe uninstall
+    Start-Sleep -Seconds 3
     Remove-Item "C:\frpp\frpp.exe" -Recurse
 }
 
@@ -41,6 +42,7 @@ if($region -eq "CN" -or [string]::IsNullOrEmpty($ipapi)){
 }
 echo $download
 Invoke-WebRequest $download -OutFile "C:\frpp.exe"
+New-Item -Path "C:\frpp" -ItemType Directory -ErrorAction SilentlyContinue
 Move-Item -Path "C:\frpp.exe" -Destination "C:\frpp\frpp.exe"
 C:\frpp\frpp.exe install $args
 C:\frpp\frpp.exe start

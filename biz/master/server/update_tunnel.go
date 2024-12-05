@@ -46,6 +46,9 @@ func UpdateFrpsHander(c context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateF
 	}
 
 	srv.Comment = req.GetComment()
+	if len(req.GetServerIp()) > 0 {
+		srv.ServerIP = req.GetServerIp()
+	}
 
 	if err := dao.UpdateServer(userInfo, srv); err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot update server, id: [%s]", serverID)

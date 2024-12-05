@@ -133,6 +133,10 @@ export interface UpdateFRPSRequest {
      * @generated from protobuf field: optional string comment = 3;
      */
     comment?: string;
+    /**
+     * @generated from protobuf field: optional string server_ip = 4;
+     */
+    serverIp?: string;
 }
 /**
  * @generated from protobuf message api_server.UpdateFRPSResponse
@@ -650,7 +654,8 @@ class UpdateFRPSRequest$Type extends MessageType<UpdateFRPSRequest> {
         super("api_server.UpdateFRPSRequest", [
             { no: 1, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "config", kind: "scalar", opt: true, T: 12 /*ScalarType.BYTES*/ },
-            { no: 3, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 3, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "server_ip", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<UpdateFRPSRequest>): UpdateFRPSRequest {
@@ -673,6 +678,9 @@ class UpdateFRPSRequest$Type extends MessageType<UpdateFRPSRequest> {
                 case /* optional string comment */ 3:
                     message.comment = reader.string();
                     break;
+                case /* optional string server_ip */ 4:
+                    message.serverIp = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -694,6 +702,9 @@ class UpdateFRPSRequest$Type extends MessageType<UpdateFRPSRequest> {
         /* optional string comment = 3; */
         if (message.comment !== undefined)
             writer.tag(3, WireType.LengthDelimited).string(message.comment);
+        /* optional string server_ip = 4; */
+        if (message.serverIp !== undefined)
+            writer.tag(4, WireType.LengthDelimited).string(message.serverIp);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

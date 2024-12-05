@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func MD5(input string) string {
+func MD5[T []byte | string](input T) string {
 	data := []byte(input)
 	hash := md5.Sum(data)
 	hashString := hex.EncodeToString(hash[:])

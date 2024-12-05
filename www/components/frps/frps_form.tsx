@@ -19,6 +19,7 @@ const ServerConfigSchema = z.object({
   proxyBindAddr: ZodIPSchema.optional(),
   vhostHTTPPort: ZodPortSchema.optional(),
   subDomainHost: ZodStringSchema.optional(),
+  publicHost: ZodStringSchema.optional(),
 })
 
 export const ServerConfigZodSchema = ServerConfigSchema
@@ -29,7 +30,6 @@ export interface FRPSFormProps {
 }
 
 const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
-  const [_, setFrpsConfig] = useState<ServerConfig | undefined>()
   const form = useForm<z.infer<typeof ServerConfigZodSchema>>({
     resolver: zodResolver(ServerConfigZodSchema),
   })
@@ -38,7 +38,6 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
   const updateFrps = useMutation({ mutationFn: updateFRPS })
 
   useEffect(() => {
-    setFrpsConfig(undefined)
     form.reset({})
   }, [])
 
@@ -47,26 +46,28 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
   }, [server])
 
   const onSubmit = async (values: z.infer<typeof ServerConfigZodSchema>) => {
-    setFrpsConfig({ ...values })
     try {
+      const {publicHost, ...rest} = values
       let resp = await updateFrps.mutateAsync({
+        serverIp: publicHost,
         serverId: serverID,
         // @ts-ignore
         config: Buffer.from(
           JSON.stringify({
-            ...values,
+            ...rest,
           } as ServerConfig),
         ),
       })
       toast({
-        title: resp.status?.code === RespCode.SUCCESS ? '创建成功' : '创建失败',
+        title: resp.status?.code === RespCode.SUCCESS ? '修改成功' : '修改失败',
         description: resp.status?.message,
       })
     } catch (error) {
       console.error(error)
-      toast({ title: '创建服务端状态', description: '创建失败' })
+      toast({ title: '修改服务端状态', description: '创建失败' })
     }
   }
+
   return (
     <div className="flex flex-col w-full pt-2">
       <Label className="text-sm font-medium">节点 {serverID} 的备注</Label>
@@ -77,6 +78,20 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
       {serverID && (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="publicHost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>公网地址</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+              defaultValue={server?.ip}
+            />
             <FormField
               control={form.control}
               name="bindPort"

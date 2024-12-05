@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/utils"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"gorm.io/gorm"
 )
@@ -47,4 +48,13 @@ func (s *ServerEntity) SetConfigContent(cfg *v1.ServerConfig) error {
 	}
 	s.ConfigContent = raw
 	return nil
+}
+
+func (s *ServerEntity) ConfigEqual(cfg *v1.ServerConfig) bool {
+	raw, err := json.Marshal(cfg)
+	if err != nil {
+		return false
+	}
+
+	return utils.MD5(s.ConfigContent) == utils.MD5(raw)
 }
