@@ -9,7 +9,9 @@ RUN corepack enable && corepack prepare pnpm@latest-9 --activate && pnpm install
 
 COPY www/api/ ./api
 COPY www/components/ ./components
+COPY www/config/ ./config
 COPY www/hooks/ ./hooks
+COPY www/i18n/ ./i18n
 COPY www/lib/ ./lib
 COPY www/pages/ ./pages
 COPY www/public/ ./public

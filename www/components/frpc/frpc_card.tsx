@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { Label } from '@radix-ui/react-label'
@@ -12,15 +14,18 @@ import { ClientConfig } from '@/types/client'
 import { TypedProxyConfig } from '@/types/proxy'
 import { ClientSelector } from '../base/client-selector'
 import { ServerSelector } from '../base/server-selector'
+import { useTranslation } from 'react-i18next'
 
 export interface FRPCFormCardProps {
   clientID?: string
   serverID?: string
 }
+
 export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
   clientID: defaultClientID,
   serverID: defaultServerID,
 }: FRPCFormCardProps) => {
+  const { t } = useTranslation()
   const [advanceMode, setAdvanceMode] = useState<boolean>(false)
   const [clientID, setClientID] = useState<string | undefined>()
   const [serverID, setServerID] = useState<string | undefined>()
@@ -78,31 +83,31 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>编辑隧道</CardTitle>
+        <CardTitle>{t('frpc.form.title')}</CardTitle>
         <CardDescription>
-          <div>注意⚠️：选择的「服务端」必须提前配置！</div>
-          <div>选择客户端和服务端以编辑隧道</div>
+          <div>{t('frpc.form.description.warning')}</div>
+          <div>{t('frpc.form.description.instruction')}</div>
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className=" flex items-center space-x-4 rounded-md border p-4">
+        <div className="flex items-center space-x-4 rounded-md border p-4">
           <div className="flex-1 space-y-1">
-            <p className="text-sm font-medium leading-none">高级模式</p>
-            <p className="text-sm text-muted-foreground">编辑客户端原始配置文件</p>
+            <p className="text-sm font-medium leading-none">{t('frpc.form.advanced.title')}</p>
+            <p className="text-sm text-muted-foreground">{t('frpc.form.advanced.description')}</p>
           </div>
           <Switch onCheckedChange={setAdvanceMode} />
         </div>
         <div className="flex flex-col w-full pt-2 space-y-2">
-          <Label className="text-sm font-medium">服务端</Label>
+          <Label className="text-sm font-medium">{t('frpc.form.server')}</Label>
           <ServerSelector serverID={serverID} setServerID={setServerID} />
-          <Label className="text-sm font-medium">客户端</Label>
+          <Label className="text-sm font-medium">{t('frpc.form.client')}</Label>
           <ClientSelector clientID={clientID} setClientID={setClientID} />
         </div>
         {clientID && !advanceMode && <div className='flex flex-col w-full pt-2 space-y-2'>
-          <Label className="text-sm font-medium">节点 {clientID} 的备注</Label>
-          <p className="text-sm text-muted-foreground">可以到高级模式修改备注哦！</p>
+          <Label className="text-sm font-medium">{t('frpc.form.comment.title', { id: clientID })}</Label>
+          <p className="text-sm text-muted-foreground">{t('frpc.form.comment.hint')}</p>
           <p className="text-sm border rounded p-2 my-2">
-            {client?.client?.comment == undefined || client?.client?.comment === '' ? '空空如也' : client?.client?.comment}
+            {client?.client?.comment == undefined || client?.client?.comment === '' ? t('frpc.form.comment.empty') : client?.client?.comment}
           </p></div>}
         {clientID && serverID && !advanceMode && <FRPCForm
           client={client?.client}

@@ -9,25 +9,28 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { useTranslation } from "react-i18next"
 
 export function ProxyTrafficBarChart({ proxyInfo }:{ proxyInfo: ProxyInfo }) {
+  const { t } = useTranslation()
+  
   const data = [
     {
-      name: "入站",
-      Today: Number(proxyInfo.todayTrafficIn),
-      History: Number(proxyInfo.historyTrafficIn),
+      name: t('traffic.chart.inbound'),
+      [t('traffic.chart.today')]: Number(proxyInfo.todayTrafficIn),
+      [t('traffic.chart.history')]: Number(proxyInfo.historyTrafficIn),
     },
     {
-      name: "出站",
-      Today: Number(proxyInfo.todayTrafficOut),
-      History: Number(proxyInfo.historyTrafficOut),
+      name: t('traffic.chart.outbound'),
+      [t('traffic.chart.today')]: Number(proxyInfo.todayTrafficOut),
+      [t('traffic.chart.history')]: Number(proxyInfo.historyTrafficOut),
     },
   ]
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>流量详情</CardTitle>
+        <CardTitle>{t('traffic.chart.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={{}} className="h-[300px] w-full font-mono">
@@ -42,8 +45,8 @@ export function ProxyTrafficBarChart({ proxyInfo }:{ proxyInfo: ProxyInfo }) {
               <YAxis tickFormatter={(value) => formatBytes(Number(value))} />
               <Tooltip labelClassName="font-mono" wrapperClassName="font-mono" formatter={(value) => formatBytes(Number(value))} />
               <Legend />
-              <Bar dataKey="Today" fill="hsl(var(--chart-1))" radius={4} />
-              <Bar dataKey="History" fill="hsl(var(--chart-2))" radius={4} />
+              <Bar dataKey={t('traffic.chart.today')} fill="hsl(var(--chart-1))" radius={4} />
+              <Bar dataKey={t('traffic.chart.history')} fill="hsl(var(--chart-2))" radius={4} />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
@@ -51,4 +54,3 @@ export function ProxyTrafficBarChart({ proxyInfo }:{ proxyInfo: ProxyInfo }) {
     </Card>
   )
 }
-

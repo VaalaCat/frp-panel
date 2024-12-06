@@ -16,6 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { CaretSortIcon, PlusIcon } from "@radix-ui/react-icons"
+import { useTranslation } from "react-i18next"
 
 export function TeamSwitcher({
   teams,
@@ -29,6 +30,7 @@ export function TeamSwitcher({
   const { isMobile } = useSidebar()
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
   const router = useRouter()
+  const { t } = useTranslation()
 
   return (
     <SidebarMenu>
@@ -58,7 +60,7 @@ export function TeamSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              租户
+              {t('team.title')}
             </DropdownMenuLabel>
             {teams.map((team, index) => (
               <DropdownMenuItem
@@ -85,7 +87,7 @@ export function TeamSwitcher({
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                 <PlusIcon className="size-4" />
               </div>
-              <div className="font-medium text-muted-foreground">添加租户</div>
+              <div className="font-medium text-muted-foreground">{t('team.add')}</div>
             </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>

@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button'
 import { updateFRPC } from '@/api/frp'
 import { useToast } from '@/components/ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
+import { useTranslation } from 'react-i18next'
 
 export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client, refetchClient }) => {
+  const { t } = useTranslation()
   const { toast } = useToast()
 
   const [configContent, setConfigContent] = useState<string>('{}')
@@ -26,12 +28,12 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client
         comment: clientComment,
       })
       if (res.status?.code !== RespCode.SUCCESS) {
-        toast({ title: '更新失败' })
+        toast({ title: t('client.operation.update_failed') })
         return
       }
-      toast({ title: '更新成功' })
+      toast({ title: t('client.operation.update_success') })
     } catch (error) {
-      toast({ title: '更新失败' })
+      toast({ title: t('client.operation.update_failed') })
     }
   }
 
@@ -66,22 +68,22 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client
 
   return (
     <div className="grid w-full gap-1.5">
-      <Label className="text-sm font-medium">节点 {clientID} 的备注</Label>
+      <Label className="text-sm font-medium">{t('client.editor.comment_title', { id: clientID })}</Label>
       <Textarea
         key={client?.comment}
-        placeholder="备注"
+        placeholder={t('client.editor.comment_placeholder')}
         id="message"
         defaultValue={client?.comment}
         onChange={(e) => setClientComment(e.target.value)}
         className="h-12"
       />
-      <Label className="text-sm font-medium">客户端 {clientID} 配置文件`frpc.json`内容</Label>
+      <Label className="text-sm font-medium">{t('client.editor.config_title', { id: clientID })}</Label>
       <p className="text-sm text-muted-foreground">
-        只需要配置proxies和visitors字段，认证信息和服务器连接信息会由系统补全
+        {t('client.editor.config_description')}
       </p>
       <Textarea
         key={configContent}
-        placeholder="配置文件内容"
+        placeholder={t('client.editor.config_placeholder')}
         id="message"
         defaultValue={configContent}
         onChange={(e) => setEditorValue(e.target.value)}
@@ -89,7 +91,7 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client
       />
       <div className="grid grid-cols-2 gap-2 mt-1">
         <Button size="sm" onClick={handleSubmit}>
-          提交
+          {t('common.submit')}
         </Button>
         {/* <Button variant="outline" size="sm" onClick={async () => {
 				await refetchClient()

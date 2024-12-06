@@ -12,6 +12,7 @@ import { updateFRPS } from '@/api/frp'
 import { useMutation } from '@tanstack/react-query'
 import { useToast } from '@/components/ui/use-toast'
 import { Label } from '@radix-ui/react-label'
+import { useTranslation } from 'react-i18next'
 
 const ServerConfigSchema = z.object({
   bindAddr: ZodIPSchema.default('0.0.0.0').optional(),
@@ -30,6 +31,7 @@ export interface FRPSFormProps {
 }
 
 const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
+  const { t } = useTranslation()
   const form = useForm<z.infer<typeof ServerConfigZodSchema>>({
     resolver: zodResolver(ServerConfigZodSchema),
   })
@@ -59,21 +61,24 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
         ),
       })
       toast({
-        title: resp.status?.code === RespCode.SUCCESS ? '修改成功' : '修改失败',
+        title: resp.status?.code === RespCode.SUCCESS ? t('server.operation.update_success') : t('server.operation.update_failed'),
         description: resp.status?.message,
       })
     } catch (error) {
       console.error(error)
-      toast({ title: '修改服务端状态', description: '创建失败' })
+      toast({ 
+        title: t('server.operation.update_title'), 
+        description: t('server.operation.update_failed')
+      })
     }
   }
 
   return (
     <div className="flex flex-col w-full pt-2">
-      <Label className="text-sm font-medium">节点 {serverID} 的备注</Label>
-      <p className="text-sm text-muted-foreground">可以到高级模式修改备注哦！</p>
+      <Label className="text-sm font-medium">{t('server.form.comment_title', { id: serverID })}</Label>
+      <p className="text-sm text-muted-foreground">{t('server.form.comment_hint')}</p>
       <p className="text-sm border rounded p-2 my-2">
-        {server?.comment == undefined || server?.comment === '' ? '空空如也' : server?.comment}
+        {server?.comment == undefined || server?.comment === '' ? t('server.form.comment_empty') : server?.comment}
       </p>
       {serverID && (
         <Form {...form}>
@@ -83,7 +88,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
               name="publicHost"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>公网地址</FormLabel>
+                  <FormLabel>{t('server.form.public_host')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -97,7 +102,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
               name="bindPort"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>FRPs 监听端口</FormLabel>
+                  <FormLabel>{t('server.form.bind_port')}</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
@@ -111,7 +116,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
               name="bindAddr"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>FRPs 监听地址</FormLabel>
+                  <FormLabel>{t('server.form.bind_addr')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -125,7 +130,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
               name="proxyBindAddr"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>代理监听地址</FormLabel>
+                  <FormLabel>{t('server.form.proxy_bind_addr')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -138,7 +143,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
               name="vhostHTTPPort"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>HTTP 监听端口</FormLabel>
+                  <FormLabel>{t('server.form.vhost_http_port')}</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
@@ -151,7 +156,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
               name="subDomainHost"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>域名后缀</FormLabel>
+                  <FormLabel>{t('server.form.subdomain_host')}</FormLabel>
                   <FormControl>
                     <Input placeholder="example.com" {...field} />
                   </FormControl>
@@ -159,7 +164,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
                 </FormItem>
               )}
             />
-            <Button type="submit">提交</Button>
+            <Button type="submit">{t('common.submit')}</Button>
           </form>
         </Form>
       )}

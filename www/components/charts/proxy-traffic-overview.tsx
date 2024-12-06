@@ -2,13 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProxyInfo } from "@/lib/pb/common"
 import { formatBytes } from "@/lib/utils"
 import { CloudDownload, CloudUpload } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 export function ProxyTrafficOverview({ proxyInfo }: { proxyInfo: ProxyInfo }) {
+  const { t } = useTranslation()
+  
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="tracking-tight text-sm font-medium">今日入站流量</CardTitle>
+          <CardTitle className="tracking-tight text-sm font-medium">{t('traffic.today.inbound')}</CardTitle>
           <CloudUpload className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -17,7 +20,7 @@ export function ProxyTrafficOverview({ proxyInfo }: { proxyInfo: ProxyInfo }) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="tracking-tight text-sm font-medium">今日出站流量</CardTitle>
+          <CardTitle className="tracking-tight text-sm font-medium">{t('traffic.today.outbound')}</CardTitle>
           <CloudDownload className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -26,7 +29,7 @@ export function ProxyTrafficOverview({ proxyInfo }: { proxyInfo: ProxyInfo }) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="tracking-tight text-sm font-medium">历史入站流量</CardTitle>
+          <CardTitle className="tracking-tight text-sm font-medium">{t('traffic.history.inbound')}</CardTitle>
           <CloudUpload className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -35,7 +38,7 @@ export function ProxyTrafficOverview({ proxyInfo }: { proxyInfo: ProxyInfo }) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="tracking-tight text-sm font-medium">历史出站流量</CardTitle>
+          <CardTitle className="tracking-tight text-sm font-medium">{t('traffic.history.outbound')}</CardTitle>
           <CloudDownload className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>

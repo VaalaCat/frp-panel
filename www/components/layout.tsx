@@ -6,7 +6,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
 export function RootLayout({
   children,
@@ -20,21 +20,22 @@ export function RootLayout({
   mainHeader?: React.ReactNode
 }) {
   const { open, isMobile } = useSidebar()
+
   return (
     <>
-      <AppSidebar footer={sidebarFooter} >{sidebarItems} </AppSidebar>
+      <AppSidebar footer={sidebarFooter}>{sidebarItems}</AppSidebar>
       <SidebarInset>
         <div className={cn("relative flex flex-1 flex-col overflow-hidden transition-all",
           isMobile && "w-[100dvw]",
           !isMobile && open && "w-[calc(100dvw-var(--sidebar-width))]",
           !isMobile && !open && "w-[calc(100dvw-var(--sidebar-width-icon))]"
         )}>
-          <header className="flex flex-row h-12 items-center gap-2 w-full">
-            <div className="flex flex-row items-center gap-2 px-4 w-full">
+          <header className="flex flex-row h-12 items-center gap-2 w-full pr-4">
+            <div className="flex flex-row items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
               <Separator orientation="vertical" className="mr-2 h-4" />
-              {mainHeader}
             </div>
+            {mainHeader}
           </header>
           <div id="main-content"
             className="h-[calc(100dvh_-_48px)] overflow-auto w-full pb-4 px-4 pt-2">
