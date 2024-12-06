@@ -1,37 +1,45 @@
-import i18n from 'i18next'
+import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { atom } from 'nanostores'
+import enTranslations from '../i18n/locales/en.json'
+import zhTranslations from '../i18n/locales/zh.json'
 
 const LANGUAGE_KEY = 'LANGUAGE'
 
-const resources = {
-  en: {
-    translation: {
-      新建: 'New',
-    },
-  },
-  zh: {
-    translation: {
-      新建: '新建',
-    },
-  },
-} as const
+// Get initial language from localStorage or default to 'zh'
+const getInitialLanguage = () => {
+  if (typeof window === 'undefined') return 'zh'
+  return localStorage.getItem(LANGUAGE_KEY) || 'zh'
+}
 
-export const $language = atom('zh')
+export const $language = atom(getInitialLanguage())
+
+const i18n = i18next.createInstance()
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: {
+      en: {
+        translation: enTranslations,
+      },
+      zh: {
+        translation: zhTranslations,
+      },
+    },
+    lng: getInitialLanguage(),
+    fallbackLng: 'zh',
+    interpolation: {
+      escapeValue: false,
+    },
+  })
 
 export const setLanguage = async (lng: 'en' | 'zh') => {
   await i18n.changeLanguage(lng)
   $language.set(lng)
-  globalThis.localStorage && localStorage.setItem(LANGUAGE_KEY, lng)
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(LANGUAGE_KEY, lng)
+  }
 }
-
-i18n.use(initReactI18next).init({
-  resources,
-  lng: $language.get(),
-
-  interpolation: {
-    escapeValue: false,
-  },
-})
 
 export default i18n

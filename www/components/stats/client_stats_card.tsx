@@ -11,11 +11,13 @@ import { ProxySelector } from '../base/proxy-selector'
 import { ProxyInfo } from '@/lib/pb/common'
 import { Button } from '../ui/button'
 import { CheckCircle2, CircleX, RefreshCcw } from "lucide-react"
+import { useTranslation } from 'react-i18next';
 
 export interface ClientStatsCardProps {
   clientID?: string
 }
 export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defaultClientID }: ClientStatsCardProps = {}) => {
+  const { t } = useTranslation();
   const [clientID, setClientID] = useState<string | undefined>()
   const [proxyName, setProxyName] = useState<string | undefined>()
   const [status, setStatus] = useState<"loading" | "success" | "error" | undefined>()
@@ -75,20 +77,20 @@ export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defa
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>客户端统计</CardTitle>
+        <CardTitle>{t('client.stats.title')}</CardTitle>
         <CardDescription>
           <div>
-            按照客户端名称对所有隧道的流量使用统计
+            {t('client.stats.description')}
           </div>
         </CardDescription>
       </CardHeader>
       <CardContent className='space-y-4 flex flex-col flex-1'>
-        <Label>客户端</Label>
+        <Label>{t('client.stats.label')}</Label>
         <ClientSelector clientID={clientID} setClientID={handleClientChange} onOpenChange={() => {
           refetchClientStats()
           setProxyName(undefined)
         }} />
-        <Label>隧道名称</Label>
+        <Label>{t('proxy.stats.label')}</Label>
         <ProxySelector
           // @ts-ignore
           proxyNames={Array.from(new Set(clientStatsList?.proxyInfos.map((proxyInfo) => proxyInfo.name).filter((value) => value !== undefined))) || []}
@@ -96,7 +98,8 @@ export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defa
           setProxyname={setProxyName} />
         <div className="w-full grid gap-4 grid-cols-1">
           {clientStatsList && clientStatsList.proxyInfos.length > 0 &&
-            ProxyStatusCard(mergeProxyInfos(clientStatsList.proxyInfos).find((proxyInfo) => proxyInfo.name === proxyName))}
+          <ProxyStatusCard
+            proxyInfo={mergeProxyInfos(clientStatsList.proxyInfos).find((proxyInfo) => proxyInfo.name === proxyName)} />}
         </div>
       </CardContent>
       <CardFooter>
@@ -118,29 +121,35 @@ export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defa
           {status === "loading" && <RefreshCcw className="w-4 h-4 animate-spin" />}
           {status === "success" && <CheckCircle2 className="w-4 h-4" />}
           {status === "error" && <CircleX className="w-4 h-4" />}
-          <p>刷新数据</p></Button>
+          <p>{t('refresh.data')}</p></Button>
       </CardFooter>
     </Card>
   )
 }
 
-const ProxyStatusCard = (proxyInfo: ProxyInfo | undefined) => {
-  return (<>{proxyInfo &&
+const ProxyStatusCard: React.FC<{ proxyInfo: ProxyInfo | undefined }> = ({ proxyInfo }) => {
+  const { t } = useTranslation();
+  
+  if (!proxyInfo) {
+    return null;
+  }
+
+  return (
     <div key={proxyInfo.name} className="flex flex-col space-y-4">
-      <Label>{`隧道 ${proxyInfo.name} 流量使用`}</Label>
+      <Label>{t('proxy.stats.tunnel_traffic', { name: proxyInfo.name })}</Label>
       <ProxyTrafficOverview proxyInfo={proxyInfo} />
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
         <ProxyTrafficPieChart
-          title='今日流量统计'
-          chartLabel='今日总流量'
+          title={t('proxy.stats.today_traffic_title')}
+          chartLabel={t('proxy.stats.today_traffic_total')}
           trafficIn={proxyInfo.todayTrafficIn || BigInt(0)}
           trafficOut={proxyInfo.todayTrafficOut || BigInt(0)} />
         <ProxyTrafficPieChart
-          title='历史流量统计'
-          chartLabel='历史总流量'
+          title={t('proxy.stats.history_traffic_title')}
+          chartLabel={t('proxy.stats.history_traffic_total')}
           trafficIn={proxyInfo.historyTrafficIn || BigInt(0)}
           trafficOut={proxyInfo.historyTrafficOut || BigInt(0)} />
       </div>
     </div>
-  }</>)
+  );
 }

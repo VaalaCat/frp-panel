@@ -18,6 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import React from 'react'
 import { Input } from '@/components/ui/input'
 import { DataTablePagination } from './data_table_pagination'
+import { useTranslation } from 'react-i18next'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -27,12 +28,14 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>({ columns, filterColumnName, table }: DataTableProps<TData, TValue>) {
+  const { t } = useTranslation()
+
   return (
     <div>
       {filterColumnName && (
         <div className="flex flex-1 items-center py-4">
           <Input
-            placeholder={`根据 ${filterColumnName} 筛选`}
+            placeholder={t('table.filter.placeholder', { column: filterColumnName })}
             value={(table.getColumn(filterColumnName)?.getFilterValue() as string) ?? ''}
             onChange={(event) => table.getColumn(filterColumnName)?.setFilterValue(event.target.value)}
             className="max-w-sm"
@@ -66,7 +69,7 @@ export function DataTable<TData, TValue>({ columns, filterColumnName, table }: D
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  没有数据
+                  {t('table.noData')}
                 </TableCell>
               </TableRow>
             )}

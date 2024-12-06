@@ -2,7 +2,7 @@ import { ZodStringSchema } from '@/lib/consts'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/ui/form'
 import { Input } from './ui/input'
 import { login } from '@/api/auth'
 import { Button } from './ui/button'
@@ -14,13 +14,15 @@ import { useState } from 'react'
 import { useToast } from './ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
 import { useRouter } from 'next/router'
+import { useTranslation } from 'react-i18next';
 
 export const LoginSchema = z.object({
   username: ZodStringSchema,
   password: ZodStringSchema,
 })
 
-export const LoginComponent = () => {
+export function LoginComponent() {
+  const { t } = useTranslation();
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
   })
@@ -30,21 +32,21 @@ export const LoginComponent = () => {
   const [loginAlert, setLoginAlert] = useState(false)
 
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
-    toast({ title: '登录中，请稍候' })
+    toast({ title: t('auth.loggingIn') })
     try {
       const res = await login({ ...values })
       if (res.status?.code === RespCode.SUCCESS) {
-        toast({ title: '登录成功，正在跳转到首页' })
+        toast({ title: t('auth.loginSuccess') })
         setTimeout(() => {
           router.push('/')
         }, 3000)
         setLoginAlert(false)
       } else {
-        toast({ title: '登录失败' })
+        toast({ title: t('auth.loginFailed') })
         setLoginAlert(true)
       }
     } catch (e) {
-      toast({ title: '登录失败' })
+      toast({ title: t('auth.loginFailed') })
       console.log('login error', e)
       setLoginAlert(true)
     }
@@ -59,8 +61,9 @@ export const LoginComponent = () => {
             name="username"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>{t('auth.usernamePlaceholder')}</FormLabel>
                 <FormControl>
-                  <Input type="text" placeholder="用户名" {...field} />
+                  <Input type="text" placeholder={t('auth.usernamePlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -71,8 +74,9 @@ export const LoginComponent = () => {
             name="password"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>{t('auth.password')}</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="密码" {...field} />
+                  <Input type="password" placeholder={t('auth.passwordPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -81,11 +85,13 @@ export const LoginComponent = () => {
           {loginAlert && (
             <Alert variant="destructive">
               <ExclamationTriangleIcon className="h-4 w-4" />
-              <AlertTitle>错误</AlertTitle>
-              <AlertDescription>登录失败，请重试</AlertDescription>
+              <AlertTitle>{t('auth.error')}</AlertTitle>
+              <AlertDescription>{t('auth.loginFailed')}</AlertDescription>
             </Alert>
           )}
-          <Button type="submit">登录</Button>
+          <Button className="w-full" type="submit">
+            {t('common.login')}
+          </Button>
         </form>
       </Form>
     </div>

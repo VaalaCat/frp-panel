@@ -2,10 +2,10 @@
 
 import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { useDebouncedCallback } from 'use-debounce';
+import { useDebouncedCallback } from 'use-debounce'
+import { useTranslation } from 'react-i18next'
 import {
   Command,
   CommandEmpty,
@@ -33,14 +33,30 @@ export interface ComboboxProps {
   isLoading?: boolean
 }
 
-export function Combobox({ value, setValue, dataList, placeholder, notFoundText, onOpenChange, className, keyword, onKeyWordChange, isLoading }: ComboboxProps) {
+export function Combobox({ 
+  value, 
+  setValue, 
+  dataList, 
+  placeholder, 
+  notFoundText, 
+  onOpenChange, 
+  className, 
+  keyword, 
+  onKeyWordChange, 
+  isLoading 
+}: ComboboxProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = React.useState(false)
   const debounced = useDebouncedCallback(
-		(v) => {
-			onKeyWordChange && onKeyWordChange(v as string);
-		},
-		500,
-	);
+    (v) => {
+      onKeyWordChange && onKeyWordChange(v as string);
+    },
+    500,
+  );
+
+  const defaultPlaceholder = t('selector.common.placeholder')
+  const defaultNotFoundText = t('selector.common.notFound')
+  const loadingText = t('selector.common.loading')
 
   return (
     <Popover open={open} onOpenChange={(open) => {
@@ -55,15 +71,19 @@ export function Combobox({ value, setValue, dataList, placeholder, notFoundText,
         >
           {value
             ? (dataList.find((item) => item.value === value)?.label || value)
-            : (placeholder||"请选择...")}
+            : (placeholder || defaultPlaceholder)}
           <ChevronsUpDown className="opacity-50 h-[12px] w-[12px]" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         <Command>
-          <CommandInput value={keyword} onValueChange={(v) => debounced(v)} placeholder={`${placeholder||"请选择..."}`} />
+          <CommandInput 
+            value={keyword} 
+            onValueChange={(v) => debounced(v)} 
+            placeholder={placeholder || defaultPlaceholder} 
+          />
           <CommandList>
-            <CommandEmpty>{isLoading ? "加载中..." : notFoundText||"未找到结果"}</CommandEmpty>
+            <CommandEmpty>{isLoading ? loadingText : (notFoundText || defaultNotFoundText)}</CommandEmpty>
             <CommandGroup>
               {dataList.map((item) => (
                 <CommandItem

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 type Status = 'loading' | 'success' | 'error' ;
 
@@ -13,16 +13,6 @@ const statusColors: Record<Status, { outer: string; inner: string }> = {
 };
 
 const LoadingCircle: React.FC<LoadingCircleProps> = ({ status }) => {
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setIsVisible((prev) => !prev);
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
   let { outer, inner } = { outer: 'bg-gray-200', inner: 'bg-gray-500' }
   if (status) {
     const { outer: o, inner: i } = statusColors[status];
@@ -32,8 +22,18 @@ const LoadingCircle: React.FC<LoadingCircleProps> = ({ status }) => {
 
   return (
     <div className="relative flex w-6 h-6">
-      <div className={`absolute w-6 h-6 rounded-full ${outer} transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-50'}`}>
-        <div className={`absolute top-1 left-1 w-4 h-4 rounded-full ${inner} transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-50'}`} />
+      <div 
+        className={`absolute w-6 h-6 rounded-full ${outer} animate-[ping_1.5s_ease-in-out_infinite]`}
+        style={{ animationDelay: '0.2s' }}
+      />
+      <div 
+        className={`absolute w-6 h-6 rounded-full ${outer} animate-[ping_1.5s_ease-in-out_infinite]`}
+        style={{ animationDelay: '0.4s' }}
+      />
+      <div className={`absolute w-6 h-6 rounded-full ${outer}`}>
+        <div 
+          className={`absolute top-1 left-1 w-4 h-4 rounded-full ${inner} animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]`} 
+        />
       </div>
     </div>
   );

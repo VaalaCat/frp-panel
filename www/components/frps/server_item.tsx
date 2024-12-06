@@ -34,11 +34,14 @@ import { ClientType } from '@/lib/pb/common'
 import { ClientStatus, ClientStatus_Status } from '@/lib/pb/api_master'
 import { Badge } from '../ui/badge'
 import { ClientDetail } from '../base/client_detail'
+import { useTranslation } from 'react-i18next'
+import { Input } from '@/components/ui/input'
 
 export type ServerTableSchema = {
   id: string
   status: 'invalid' | 'valid'
   secret: string
+  stopped: boolean
   info?: string
   ip: string
   config?: string
@@ -47,76 +50,130 @@ export type ServerTableSchema = {
 export const columns: ColumnDef<ServerTableSchema>[] = [
   {
     accessorKey: 'id',
-    header: 'ID(点击查看安装命令)',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('server.id')
+    },
     cell: ({ row }) => {
       return <ServerID server={row.original} />
     },
   },
   {
     accessorKey: 'status',
-    header: '是否配置',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('server.status')
+    },
     cell: ({ row }) => {
-      const Server = row.original
-      return (
-        <div className={`font-mono ${Server.status === 'valid' ? 'text-green-500' : 'text-red-500'} min-w-12`}>
-          {
-            {
-              valid: '已配置',
-              invalid: '未配置',
-            }[Server.status]
-          }
-        </div>
-      )
+      function Cell({ server }: { server: ServerTableSchema }) {
+        const { t } = useTranslation()
+        return (
+          <div className={`font-medium ${server.status === 'valid' ? 'text-green-500' : 'text-red-500'} min-w-12`}>
+            {server.status === 'valid' ? t('server.status_configured') : t('server.status_unconfigured')}
+          </div>
+        )
+      }
+      return <Cell server={row.original} />
     },
   },
   {
     accessorKey: 'info',
-    header: '运行信息/版本信息',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('server.info')
+    },
     cell: ({ row }) => {
-      const Server = row.original
-      return <ServerInfo server={Server} />
+      const server = row.original
+      return <ServerInfo server={server} />
     },
   },
   {
     accessorKey: 'ip',
-    header: 'IP/域名',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('server.ip')
+    },
     cell: ({ row }) => {
-      const Server = row.original
-      return <div className="font-mono">{Server.ip}</div>
+      return row.original.ip
     },
   },
   {
     accessorKey: 'secret',
-    header: '连接密钥(点击查看启动命令)',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('server.secret')
+    },
     cell: ({ row }) => {
-      const Server = row.original
-      return <ServerSecret server={Server} />
+      const server = row.original
+      return <ServerSecret server={server} />
     },
   },
   {
     id: 'action',
     cell: ({ row, table }) => {
-      const Server = row.original
-      return <ServerActions server={Server} table={table} />
+      const server = row.original
+      return <ServerActions server={server} table={table as Table<ServerTableSchema>} />
     },
   },
 ]
 
 export const ServerID = ({ server }: { server: ServerTableSchema }) => {
+  const { t } = useTranslation()
   const platformInfo = useStore($platformInfo)
+
+  if (!platformInfo) {
+    return (
+      <Button variant="link" className="px-0">
+        {server.id}
+      </Button>
+    )
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="font-mono">{server.id}</div>
+        <Button variant="link" className="px-0 font-mono">
+          {server.id}
+        </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-fit overflow-auto max-w-72 max-h-72">
-        <div>Linux安装到systemd</div>
-        <div className="p-2 border rounded font-mono w-fit">
-          {platformInfo === undefined ? '获取平台信息失败' : LinuxInstallCommand('server', server, platformInfo)}
-        </div>
-        <div>Windows安装到系统服务</div>
-        <div className="p-2 border rounded font-mono w-fit">
-          {platformInfo === undefined ? '获取平台信息失败' : WindowsInstallCommand('server', server, platformInfo)}
+      <PopoverContent className="w-80">
+        <div className="grid gap-4">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">{t('server.install.title')}</h4>
+            <p className="text-sm text-muted-foreground">{t('server.install.description')}</p>
+          </div>
+          <div className="grid gap-2">
+            <div className="grid grid-cols-2 items-center gap-4">
+              <Input
+                readOnly
+                value={WindowsInstallCommand('server', server, platformInfo)}
+                className="flex-1"
+              />
+              <Button
+                onClick={() => navigator.clipboard.writeText(WindowsInstallCommand('server', server, platformInfo))}
+                disabled={!platformInfo}
+                size="sm"
+                variant="outline"
+              >
+                {t('server.install.windows')}
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 items-center gap-4">
+              <Input
+                readOnly
+                value={LinuxInstallCommand('server', server, platformInfo)}
+                className="flex-1"
+              />
+              <Button
+                onClick={() => navigator.clipboard.writeText(LinuxInstallCommand('server', server, platformInfo))}
+                disabled={!platformInfo}
+                size="sm"
+                variant="outline"
+              >
+                {t('server.install.linux')}
+              </Button>
+            </div>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
@@ -124,8 +181,9 @@ export const ServerID = ({ server }: { server: ServerTableSchema }) => {
 }
 
 export const ServerInfo = ({ server }: { server: ServerTableSchema }) => {
-  const clientsInfo = useQuery({
-    queryKey: ['getClientsStatus', [server.id]],
+  const { t } = useTranslation()
+  const { data: clientsStatus } = useQuery({
+    queryKey: ['clientsStatus', server.id],
     queryFn: async () => {
       return await getClientsStatus({
         clientIds: [server.id],
@@ -135,58 +193,87 @@ export const ServerInfo = ({ server }: { server: ServerTableSchema }) => {
   })
 
   const trans = (info: ClientStatus | undefined) => {
-    let statusText: '在线' | '离线' | '错误' | '未知' = '未知'
+    let statusText: 'server.status_online' | 'server.status_offline' |
+      'server.status_error' | 'server.status_pause' |
+      'server.status_unknown' = 'server.status_unknown'
     if (info === undefined) {
       return statusText
     }
     if (info.status === ClientStatus_Status.ONLINE) {
-      statusText = '在线'
+      statusText = 'server.status_online'
+      if (server.stopped) {
+        statusText = 'server.status_pause'
+      }
     } else if (info.status === ClientStatus_Status.OFFLINE) {
-      statusText = '离线'
+      statusText = 'server.status_offline'
     } else if (info.status === ClientStatus_Status.ERROR) {
-      statusText = '错误'
+      statusText = 'server.status_error'
     }
     return statusText
   }
 
   const infoColor =
-    clientsInfo.data?.clients[server.id]?.status === ClientStatus_Status.ONLINE ? 'text-green-500' : 'text-red-500'
+    clientsStatus?.clients[server.id]?.status === ClientStatus_Status.ONLINE ? (
+      server.stopped ? 'text-yellow-500' : 'text-green-500') : 'text-red-500'
 
   return (
     <div className="flex items-center gap-2 flex-row">
       <Badge variant={"secondary"} className={`p-2 border rounded font-mono w-fit ${infoColor} text-nowrap rounded-full h-6`}>
-        {`${clientsInfo.data?.clients[server.id].ping}ms,${trans(clientsInfo.data?.clients[server.id])}`}
+        {`${clientsStatus?.clients[server.id]?.ping}ms,${t(trans(clientsStatus?.clients[server.id]))}`}
       </Badge>
-      {clientsInfo.data?.clients[server.id].version &&
-        <ClientDetail clientStatus={clientsInfo.data?.clients[server.id]} />
+      {clientsStatus?.clients[server.id]?.version &&
+        <ClientDetail clientStatus={clientsStatus?.clients[server.id]} />
       }
     </div>
   )
 }
 
 export const ServerSecret = ({ server }: { server: ServerTableSchema }) => {
-  const [showSecrect, setShowSecrect] = useState<boolean>(false)
-  const fakeSecret = Array.from({ length: server.secret.length })
-    .map(() => '*')
-    .join('')
-  const { toast } = useToast()
+  const { t } = useTranslation()
   const platformInfo = useStore($platformInfo)
+
+  if (!platformInfo) {
+    return (
+      <Button variant="link" className="px-0">
+        {server.secret}
+      </Button>
+    )
+  }
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div
-          onMouseEnter={() => setShowSecrect(true)}
-          onMouseLeave={() => setShowSecrect(false)}
-          className="font-medium hover:rounded hover:bg-slate-100 p-2 font-mono whitespace-nowrap"
-        >
-          {showSecrect ? server.secret : fakeSecret}
+        <div className="group relative cursor-pointer inline-block font-mono text-nowrap">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {server.secret}
+          </span>
+          <span className="absolute inset-0 opacity-100 group-hover:opacity-0 transition-opacity duration-200">
+            {'*'.repeat(server.secret.length)}
+          </span>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-fit overflow-auto max-w-48">
-        <div>运行命令(需要<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases'>点击这里</a>自行下载文件)</div>
-        <div className="p-2 border rounded font-mono w-full break-all">
-          {platformInfo === undefined ? '获取平台信息失败' : ExecCommandStr('server', server, platformInfo)}
+      <PopoverContent className="w-[32rem] max-w-[95vw]">
+        <div className="grid gap-4">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">{t('server.start.title')}</h4>
+            <p className="text-sm text-muted-foreground">
+              {t('server.install.description')} (<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases' target="_blank" rel="noopener noreferrer">{t('common.download')}</a>)
+            </p>
+          </div>
+          <div className="grid gap-2">
+            <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-x-auto whitespace-pre-wrap break-all">
+              {ExecCommandStr('server', server, platformInfo)}
+            </pre>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full"
+              onClick={() => navigator.clipboard.writeText(ExecCommandStr('server', server, platformInfo))}
+              disabled={!platformInfo}
+            >
+              {t('common.copy')}
+            </Button>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
@@ -199,30 +286,31 @@ export interface ServerItemProps {
 }
 
 export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
 
-  const refetchList = () => { }
+  const refetchList = () => {}
 
   const removeServer = useMutation({
     mutationFn: deleteServer,
     onSuccess: () => {
-      toast({ description: '删除成功' })
+      toast({ description: t('server.delete.success') })
       refetchList()
     },
     onError: () => {
-      toast({ description: '删除失败' })
+      toast({ description: t('server.delete.failed') })
     },
   })
 
   const createAndDownloadFile = (fileName: string, content: string) => {
-    var aTag = document.createElement('a');
-    var blob = new Blob([content]);
-    aTag.download = fileName;
-    aTag.href = URL.createObjectURL(blob);
-    aTag.click();
-    URL.revokeObjectURL(aTag.href);
+    const aTag = document.createElement('a')
+    const blob = new Blob([content])
+    aTag.download = fileName
+    aTag.href = URL.createObjectURL(blob)
+    aTag.click()
+    URL.revokeObjectURL(aTag.href)
   }
 
   return (
@@ -230,88 +318,82 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">打开菜单</span>
+            <span className="sr-only">{t('server.actions_menu.open_menu')}</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>操作</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('server.actions_menu.title')}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
               try {
                 if (platformInfo) {
                   navigator.clipboard.writeText(ExecCommandStr('server', server, platformInfo))
-                  toast({ description: '复制成功，如果复制不成功，请点击ID字段手动复制' })
+                  toast({ description: t('server.actions_menu.copy_success') })
                 } else {
-                  toast({ description: '获取平台信息失败，如果复制不成功，请点击ID字段手动复制' })
+                  toast({ description: t('server.actions_menu.copy_failed') })
                 }
               } catch (error) {
-                toast({ description: '获取平台信息失败，如果复制不成功，请点击ID字段手动复制' })
+                toast({ description: t('server.actions_menu.copy_failed') })
               }
             }}
           >
-            复制启动命令
+            {t('server.actions_menu.copy_command')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => {
-              router.push({
-                pathname: '/serveredit',
-                query: {
-                  serverID: server.id,
-                },
-              })
+              router.push({ pathname: '/serveredit', query: { serverID: server.id } })
             }}
           >
-            编辑服务端
+            {t('server.actions_menu.edit_config')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               try {
                 if (platformInfo) {
-                  createAndDownloadFile(`.env`, ClientEnvFile(server, platformInfo))
+                  createAndDownloadFile('.env', ClientEnvFile(server, platformInfo))
                 }
-              }
-              catch (error) {
-                toast({ description: '获取平台信息失败' })
+              } catch (error) {
+                toast({ description: t('server.actions_menu.download_failed') })
               }
             }}
           >
-            下载配置
+            {t('server.actions_menu.download_config')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              router.push({ pathname: '/streamlog', query: { clientID: server.id, clientType: ClientType.FRPS.toString() } })
+              router.push({ pathname: '/streamlog', query: { serverID: server.id, clientType: ClientType.FRPS.toString() } })
             }}
           >
-            实时日志
+            {t('server.actions_menu.realtime_log')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              router.push({ pathname: '/console', query: { clientID: server.id, clientType: ClientType.FRPS.toString() } })
+              router.push({ pathname: '/console', query: { serverID: server.id, clientType: ClientType.FRPS.toString() } })
             }}
           >
-            远程终端
+            {t('server.actions_menu.remote_terminal')}
           </DropdownMenuItem>
           <DialogTrigger asChild>
-            <DropdownMenuItem className="text-destructive">删除</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">{t('server.actions_menu.delete')}</DropdownMenuItem>
           </DialogTrigger>
         </DropdownMenuContent>
       </DropdownMenu>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>确定删除该服务端?</DialogTitle>
+          <DialogTitle>{t('server.delete.title')}</DialogTitle>
           <DialogDescription>
-            <p className="text-destructive">此操作无法撤消。您确定要永久从我们的服务器中删除该客户端?</p>
+            <p className="text-destructive">{t('server.delete.description')}</p>
             <p className="text-gray-500 border-l-4 border-gray-500 pl-4 py-2">
-              删除后运行中的服务端将无法通过现有参数再次连接，如果您需要停止服务端的服务，可以选择清空配置
+              {t('server.delete.warning')}
             </p>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
             <Button type="submit" onClick={() => removeServer.mutate({ serverId: server.id })}>
-              确定
+              {t('server.delete.confirm')}
             </Button>
           </DialogClose>
         </DialogFooter>

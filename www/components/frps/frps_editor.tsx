@@ -8,8 +8,10 @@ import { getServer } from '@/api/server'
 import { useEffect, useState } from 'react'
 import { updateFRPS } from '@/api/frp'
 import { RespCode } from '@/lib/pb/common'
+import { useTranslation } from 'react-i18next'
 
 export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const { data: serverResp, refetch: refetchServer } = useQuery({
     queryKey: ['getServer', serverID],
@@ -32,12 +34,12 @@ export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
         comment: serverComment,
       })
       if (res.status?.code !== RespCode.SUCCESS) {
-        toast({ title: '更新失败' })
+        toast({ title: t('server.operation.update_failed') })
         return
       }
-      toast({ title: '更新成功' })
+      toast({ title: t('server.operation.update_success') })
     } catch (error) {
-      toast({ title: '更新失败' })
+      toast({ title: t('server.operation.update_failed') })
     }
     refetchServer()
   }
@@ -76,20 +78,20 @@ export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
 
   return (
     <div className="grid w-full gap-1.5">
-      <Label className="text-sm font-medium">节点 {serverID} 的备注</Label>
+      <Label className="text-sm font-medium">{t('server.editor.comment', { id: serverID })}</Label>
       <Textarea
         key={serverResp?.server?.comment}
-        placeholder="备注"
+        placeholder={t('server.editor.comment_placeholder')}
         id="message"
         defaultValue={serverResp?.server?.comment}
         onChange={(e) => setServerComment(e.target.value)}
         className="h-12"
       />
-      <Label className="text-sm font-medium">节点 {serverID} 配置文件`frps.json`内容</Label>
-      <p className="text-sm text-muted-foreground">只需要配置端口和IP等字段，认证信息会由系统补全</p>
+      <Label className="text-sm font-medium">{t('server.editor.config_title', { id: serverID })}</Label>
+      <p className="text-sm text-muted-foreground">{t('server.editor.config_description')}</p>
       <Textarea
         key={configContent}
-        placeholder="配置文件内容"
+        placeholder={t('server.editor.config_placeholder')}
         id="message"
         defaultValue={configContent}
         onChange={(e) => setEditorValue(e.target.value)}
@@ -97,7 +99,7 @@ export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
       />
       <div className="grid grid-cols-2 gap-2 mt-1">
         <Button size="sm" onClick={handleSubmit}>
-          提交
+          {t('common.submit')}
         </Button>
       </div>
     </div>

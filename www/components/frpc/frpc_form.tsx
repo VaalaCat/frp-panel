@@ -16,6 +16,7 @@ import { QueryObserverResult, RefetchOptions, useMutation } from '@tanstack/reac
 import { updateFRPC } from '@/api/frp'
 import { Card, CardContent } from '@/components/ui/card'
 import { GetClientResponse } from '@/lib/pb/api_client'
+import { useTranslation } from 'react-i18next'
 
 export interface FRPCFormProps {
   clientID: string
@@ -28,9 +29,11 @@ export interface FRPCFormProps {
 }
 
 export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, refetchClient, clientProxyConfigs, setClientProxyConfigs }) => {
+  const { t } = useTranslation()
   const [proxyType, setProxyType] = useState<ProxyType>('http')
   const [proxyName, setProxyName] = useState<string | undefined>()
   const { toast } = useToast()
+  
   const handleTypeChange = (value: string) => {
     setProxyType(value as ProxyType)
   }
@@ -40,7 +43,10 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
     if (!proxyName) return
     if (!proxyType) return
     if (clientProxyConfigs.findIndex((proxy) => proxy.name === proxyName) !== -1) {
-      toast({ title: '创建隧道状态', description: '名称重复' })
+      toast({ 
+        title: t('proxy.status.create'), 
+        description: t('proxy.status.name_exists') 
+      })
       return
     }
     const newProxy = {
@@ -70,10 +76,16 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
         clientId: clientID,
       })
       await refetchClient()
-      toast({ title: '更新隧道状态', description: res.status?.code === RespCode.SUCCESS ? '更新成功' : '更新失败' })
+      toast({ 
+        title: t('proxy.status.update'), 
+        description: res.status?.code === RespCode.SUCCESS ? t('proxy.status.success') : t('proxy.status.error') 
+      })
     } catch (error) {
       console.error(error)
-      toast({ title: '更新隧道状态', description: '更新失败' })
+      toast({ 
+        title: t('proxy.status.update'), 
+        description: t('proxy.status.error') 
+      })
     }
   }
 
@@ -81,36 +93,39 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
     <>
       <Popover>
         <PopoverTrigger asChild>
-          <Button className="my-2">新增隧道</Button>
+          <Button className="my-2">{t('proxy.form.add')}</Button>
         </PopoverTrigger>
         <PopoverContent>
-          <Label className="text-sm font-medium">名称</Label>
+          <Label className="text-sm font-medium">{t('proxy.form.name')}</Label>
           <Input
             onChange={(e) => {
               setProxyName(e.target.value)
             }}
           />
           <Select onValueChange={handleTypeChange} defaultValue={proxyType}>
-            <Label className="text-sm font-medium">协议</Label>
+            <Label className="text-sm font-medium">{t('proxy.form.protocol')}</Label>
             <SelectTrigger className="my-2">
-              <SelectValue placeholder="类型" />
+              <SelectValue placeholder={t('proxy.form.type')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="http">http</SelectItem>
-              <SelectItem value="tcp">tcp</SelectItem>
-              <SelectItem value="udp">udp</SelectItem>
-              <SelectItem value="stcp">stcp</SelectItem>
+              <SelectItem value="http">{t('proxy.type.http')}</SelectItem>
+              <SelectItem value="tcp">{t('proxy.type.tcp')}</SelectItem>
+              <SelectItem value="udp">{t('proxy.type.udp')}</SelectItem>
+              <SelectItem value="stcp">{t('proxy.type.stcp')}</SelectItem>
             </SelectContent>
           </Select>
           <Button variant={'outline'} onClick={handleAddProxy}>
-            确定
+            {t('proxy.form.confirm')}
           </Button>
         </PopoverContent>
       </Popover>
       <Accordion type="single" defaultValue="proxies" collapsible key={clientID + serverID + client}>
         <AccordionItem value="proxies">
           <AccordionTrigger>
-            <AccordionHeader className="flex flex-row justify-between w-full"><p>隧道配置</p> <p>点击展开{`${clientProxyConfigs.length}条隧道`}</p></AccordionHeader>
+            <AccordionHeader className="flex flex-row justify-between w-full">
+              <p>{t('proxy.form.config')}</p>
+              <p>{t('proxy.form.expand', { count: clientProxyConfigs.length })}</p>
+            </AccordionHeader>
           </AccordionTrigger>
           <AccordionContent className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
             {clientProxyConfigs.map((item) => {
@@ -121,17 +136,17 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
                       <Accordion type="single" collapsible>
                         <AccordionItem value={item.name}>
                           <AccordionHeader className="flex flex-row justify-between">
-                            <div>隧道名称：{item.name}</div>
+                            <div>{t('proxy.form.tunnel_name')}: {item.name}</div>
                             <Button
                               variant={'outline'}
                               onClick={() => {
                                 handleDeleteProxy(item.name)
                               }}
                             >
-                              删除
+                              {t('proxy.form.delete')}
                             </Button>
                           </AccordionHeader>
-                          <AccordionTrigger>类型:「{item.type}」</AccordionTrigger>
+                          <AccordionTrigger>{t('proxy.form.type_label', { type: item.type })}</AccordionTrigger>
                           <AccordionContent>
                             {item.type === 'tcp' && serverID && clientID && (
                               <TCPProxyForm
@@ -183,73 +198,6 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
             })}
           </AccordionContent>
         </AccordionItem>
-        {/* <AccordionItem value="visitors">
-          <AccordionTrigger>
-            <AccordionHeader className="flex flex-row justify-between">Visitor 配置</AccordionHeader>
-          </AccordionTrigger>
-          <AccordionContent className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-            {clientProxyConfigs.map((item) => {
-              return (
-                <Card key={item.name}>
-                  <CardContent>
-                    <div className="flex flex-col w-full pt-2">
-                      <Accordion type="single" collapsible>
-                        <AccordionItem value={item.name}>
-                          <AccordionHeader className="flex flex-row justify-between">
-                            <div>隧道名称：{item.name}</div>
-                            <Button
-                              variant={'outline'}
-                              onClick={() => {
-                                handleDeleteProxy(item.name)
-                              }}
-                            >
-                              删除
-                            </Button>
-                          </AccordionHeader>
-                          <AccordionTrigger>类型:「{item.type}」</AccordionTrigger>
-                          <AccordionContent>
-                            {item.type === 'tcp' && serverID && clientID && (
-                              <TCPProxyForm
-                                defaultProxyConfig={item}
-                                proxyName={item.name}
-                                serverID={serverID}
-                                clientID={clientID}
-                              />
-                            )}
-                            {item.type === 'udp' && serverID && clientID && (
-                              <UDPProxyForm
-                                defaultProxyConfig={item}
-                                proxyName={item.name}
-                                serverID={serverID}
-                                clientID={clientID}
-                              />
-                            )}
-                            {item.type === 'http' && serverID && clientID && (
-                              <HTTPProxyForm
-                                defaultProxyConfig={item}
-                                proxyName={item.name}
-                                serverID={serverID}
-                                clientID={clientID}
-                              />
-                            )}
-                            {item.type === 'stcp' && serverID && clientID && (
-                              <STCPProxyForm
-                                defaultProxyConfig={item}
-                                proxyName={item.name}
-                                serverID={serverID}
-                                clientID={clientID}
-                              />
-                            )}
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </AccordionContent>
-        </AccordionItem> */}
       </Accordion>
       <Button
         className="mt-2"
@@ -257,7 +205,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
           handleUpdate()
         }}
       >
-        提交变更
+        {t('proxy.form.submit')}
       </Button>
     </>
   )

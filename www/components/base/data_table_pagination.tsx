@@ -1,20 +1,18 @@
 import { ChevronLeftIcon, ChevronRightIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons'
 import { Table } from '@tanstack/react-table'
-
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useTranslation } from 'react-i18next'
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
 }
 
 export function DataTablePagination<TData>({ table }: DataTablePaginationProps<TData>) {
+  const { t } = useTranslation()
+  
   return (
     <div className="flex items-center justify-between px-2">
-      {/* <div className="flex-1 text-sm text-muted-foreground">
-				{table.getFilteredSelectedRowModel().rows.length} of{" "}
-				{table.getFilteredRowModel().rows.length} row(s) selected.
-			</div> */}
       <div className="flex items-center justify-between w-full space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <Select
@@ -34,10 +32,13 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
               ))}
             </SelectContent>
           </Select>
-          <p className="text-sm font-medium">行 每页</p>
+          <p className="text-sm font-medium">{t('table.pagination.rowsPerPage')}</p>
         </div>
         <div className="flex w-[120px] items-center justify-center text-sm font-medium">
-          第 {table.getState().pagination.pageIndex + 1} 页, 共 {table.getPageCount()}页
+          {t('table.pagination.page', {
+            current: table.getState().pagination.pageIndex + 1,
+            total: table.getPageCount()
+          })}
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -46,7 +47,7 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
-            <span className="sr-only">第一页</span>
+            <span className="sr-only">{t('table.pagination.navigation.first')}</span>
             <DoubleArrowLeftIcon className="h-4 w-4" />
           </Button>
           <Button
@@ -55,7 +56,7 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <span className="sr-only">前一页</span>
+            <span className="sr-only">{t('table.pagination.navigation.previous')}</span>
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
           <Button
@@ -64,7 +65,7 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <span className="sr-only">下一页</span>
+            <span className="sr-only">{t('table.pagination.navigation.next')}</span>
             <ChevronRightIcon className="h-4 w-4" />
           </Button>
           <Button
@@ -73,7 +74,7 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
-            <span className="sr-only">最后页</span>
+            <span className="sr-only">{t('table.pagination.navigation.last')}</span>
             <DoubleArrowRightIcon className="h-4 w-4" />
           </Button>
         </div>
