@@ -1,4 +1,4 @@
-import { ColumnDef, Table } from '@tanstack/react-table'
+import { ColumnDef, Table, TableMeta } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
 import {
   Dialog,
@@ -34,8 +34,10 @@ import { ClientType } from '@/lib/pb/common'
 import { ClientStatus, ClientStatus_Status } from '@/lib/pb/api_master'
 import { startFrpc, stopFrpc } from '@/api/frp'
 import { Badge } from '../ui/badge'
+import { Label } from '@/components/ui/label'
 import { ClientDetail } from '../base/client_detail'
 import { Input } from '../ui/input'
+import { useTranslation } from 'react-i18next'
 
 export type ClientTableSchema = {
   id: string
@@ -46,34 +48,45 @@ export type ClientTableSchema = {
   config?: string
 }
 
+export interface TableMetaType extends TableMeta<ClientTableSchema> {
+  refetch: () => void
+}
+
 export const columns: ColumnDef<ClientTableSchema>[] = [
   {
     accessorKey: 'id',
-    header: 'ID(点击查看安装命令)',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('client.id')
+    },
     cell: ({ row }) => {
       return <ClientID client={row.original} />
     },
   },
   {
     accessorKey: 'status',
-    header: '是否配置',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('client.status')
+    },
     cell: ({ row }) => {
-      const client = row.original
-      return (
-        <div className={`font-medium ${client.status === 'valid' ? 'text-green-500' : 'text-red-500'} min-w-12`}>
-          {
-            {
-              valid: '已配置',
-              invalid: '未配置',
-            }[client.status]
-          }
-        </div>
-      )
+      function Cell({ client }: { client: ClientTableSchema }) {
+        const { t } = useTranslation()
+        return (
+          <div className={`font-medium ${client.status === 'valid' ? 'text-green-500' : 'text-red-500'} min-w-12`}>
+            {client.status === 'valid' ? t('client.status_configured') : t('client.status_unconfigured')}
+          </div>
+        )
+      }
+      return <Cell client={row.original} />
     },
   },
   {
     accessorKey: 'info',
-    header: '运行信息/版本信息',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('client.info')
+    },
     cell: ({ row }) => {
       const client = row.original
       return <ClientInfo client={client} />
@@ -81,7 +94,10 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
   },
   {
     accessorKey: 'secret',
-    header: '连接密钥(点击查看启动命令)',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('client.secret')
+    },
     cell: ({ row }) => {
       const client = row.original
       return <ClientSecret client={client} />
@@ -91,39 +107,78 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
     id: 'action',
     cell: ({ row, table }) => {
       const client = row.original
-      return <ClientActions client={client} table={table} />
+      return <ClientActions client={client} table={table as Table<ClientTableSchema> & { options: { meta: TableMetaType } }} />
     },
   },
 ]
 
 export const ClientID = ({ client }: { client: ClientTableSchema }) => {
+  const { t } = useTranslation()
   const platformInfo = useStore($platformInfo)
+
+  if (!platformInfo) {
+    return (
+      <Button variant="link" className="px-0">
+        {client.id}
+      </Button>
+    )
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="font-mono">{client.id}</div>
+        <Button variant="link" className="px-0 font-mono">
+          {client.id}
+        </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-fit overflow-auto max-w-72 max-h-72 text-nowrap">
-        <div>请点击命令框全选复制</div>
-        <div>Linux安装到systemd</div>
-        <Input readOnly value={platformInfo === undefined
-          ? '获取平台信息失败'
-          : LinuxInstallCommand('client', client, platformInfo)}></Input>
-        <div>Windows安装到系统服务</div>
-        <Input readOnly value={
-          platformInfo === undefined
-            ? "获取平台信息失败"
-            : WindowsInstallCommand("client", client, platformInfo)
-        }>
-        </Input>
+      <PopoverContent className="w-80">
+        <div className="grid gap-4">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">{t('client.install.title')}</h4>
+            <p className="text-sm text-muted-foreground">{t('client.install.description')}</p>
+          </div>
+          <div className="grid gap-2">
+            <div className="grid grid-cols-2 items-center gap-4">
+              <Input
+                readOnly
+                value={WindowsInstallCommand('frpc', client, platformInfo)}
+                className="flex-1"
+              />
+              <Button
+                onClick={() => navigator.clipboard.writeText(WindowsInstallCommand('frpc', client, platformInfo))}
+                disabled={!platformInfo}
+                size="sm"
+                variant="outline"
+              >
+                {t('client.install.windows')}
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 items-center gap-4">
+              <Input
+                readOnly
+                value={LinuxInstallCommand('frpc', client, platformInfo)}
+                className="flex-1"
+              />
+              <Button
+                onClick={() => navigator.clipboard.writeText(LinuxInstallCommand('frpc', client, platformInfo))}
+                disabled={!platformInfo}
+                size="sm"
+                variant="outline"
+              >
+                {t('client.install.linux')}
+              </Button>
+            </div>
+          </div>
+        </div>
       </PopoverContent>
     </Popover>
   )
 }
 
 export const ClientInfo = ({ client }: { client: ClientTableSchema }) => {
-  const clientsInfo = useQuery({
-    queryKey: ['getClientsStatus', [client.id]],
+  const { t } = useTranslation()
+  const { data: clientsStatus } = useQuery({
+    queryKey: ['clientsStatus', client.id],
     queryFn: async () => {
       return await getClientsStatus({
         clientIds: [client.id],
@@ -133,61 +188,87 @@ export const ClientInfo = ({ client }: { client: ClientTableSchema }) => {
   })
 
   const trans = (info: ClientStatus | undefined) => {
-    let statusText: '在线' | '离线' | '错误' | '暂停' | '未知' = '未知'
+    let statusText: 'client.status_online' | 'client.status_offline' |
+      'client.status_error' | 'client.status_pause' |
+      'client.status_unknown' = 'client.status_unknown'
     if (info === undefined) {
       return statusText
     }
     if (info.status === ClientStatus_Status.ONLINE) {
-      statusText = '在线'
+      statusText = 'client.status_online'
       if (client.stopped) {
-        statusText = '暂停'
+        statusText = 'client.status_pause'
       }
     } else if (info.status === ClientStatus_Status.OFFLINE) {
-      statusText = '离线'
+      statusText = 'client.status_offline'
     } else if (info.status === ClientStatus_Status.ERROR) {
-      statusText = '错误'
+      statusText = 'client.status_error'
     }
     return statusText
   }
 
   const infoColor =
-    clientsInfo.data?.clients[client.id]?.status === ClientStatus_Status.ONLINE ? (
+    clientsStatus?.clients[client.id]?.status === ClientStatus_Status.ONLINE ? (
       client.stopped ? 'text-yellow-500' : 'text-green-500') : 'text-red-500'
 
   return (
     <div className="flex items-center gap-2 flex-row">
       <Badge variant={"secondary"} className={`p-2 border rounded font-mono w-fit ${infoColor} text-nowrap rounded-full h-6`}>
-        {`${clientsInfo.data?.clients[client.id].ping}ms,${trans(clientsInfo.data?.clients[client.id])}`}
+        {`${clientsStatus?.clients[client.id].ping}ms,${t(trans(clientsStatus?.clients[client.id]))}`}
       </Badge>
-      {clientsInfo.data?.clients[client.id].version &&
-        <ClientDetail clientStatus={clientsInfo.data?.clients[client.id]} />
+      {clientsStatus?.clients[client.id].version &&
+        <ClientDetail clientStatus={clientsStatus?.clients[client.id]} />
       }
     </div>
   )
 }
 
 export const ClientSecret = ({ client }: { client: ClientTableSchema }) => {
-  const [showSecrect, setShowSecrect] = useState<boolean>(false)
-  const fakeSecret = Array.from({ length: client.secret.length })
-    .map(() => '*')
-    .join('')
+  const { t } = useTranslation()
   const platformInfo = useStore($platformInfo)
-  const { toast } = useToast()
+
+  if (!platformInfo) {
+    return (
+      <Button variant="link" className="px-0">
+        {client.secret}
+      </Button>
+    )
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div
-          onMouseEnter={() => setShowSecrect(true)}
-          onMouseLeave={() => setShowSecrect(false)}
-          className="font-medium hover:rounded hover:bg-slate-100 p-2 font-mono whitespace-nowrap"
-        >
-          {showSecrect ? client.secret : fakeSecret}
+        <div className="group relative cursor-pointer inline-block font-mono text-nowrap">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {client.secret}
+          </span>
+          <span className="absolute inset-0 opacity-100 group-hover:opacity-0 transition-opacity duration-200">
+            {'*'.repeat(client.secret.length)}
+          </span>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-fit overflow-auto max-w-80">
-        <div>运行命令(需要<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases'>点击这里</a>自行下载文件)</div>
-        <div className="p-2 border rounded font-mono w-full break-all">
-          {platformInfo === undefined ? '获取平台信息失败' : ExecCommandStr('client', client, platformInfo)}
+      <PopoverContent className="w-[32rem] max-w-[95vw]">
+        <div className="grid gap-4">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">{t('client.start.title')}</h4>
+            <p className="text-sm text-muted-foreground">
+              {t('client.install.description')} (<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases' target="_blank" rel="noopener noreferrer">{t('common.download')}</a>)
+            </p>
+          </div>
+          <div className="grid gap-2">
+            <pre className="bg-muted p-3 rounded-md font-mono text-sm overflow-x-auto whitespace-pre-wrap break-all">
+              {ExecCommandStr('client', client, platformInfo)}
+            </pre>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full"
+              onClick={() => navigator.clipboard.writeText(ExecCommandStr('client', client, platformInfo))}
+              disabled={!platformInfo}
+            >
+              {t('common.copy')}
+            </Button>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
@@ -200,52 +281,54 @@ export interface ClientItemProps {
 }
 
 export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
 
+  // placeholder for refetch
   const refetchList = () => {}
 
   const removeClient = useMutation({
     mutationFn: deleteClient,
     onSuccess: () => {
-      toast({ description: '删除成功' })
+      toast({ description: t('client.delete.success') })
       refetchList()
     },
     onError: () => {
-      toast({ description: '删除失败' })
+      toast({ description: t('client.delete.failed') })
     },
   })
 
   const stopClient = useMutation({
     mutationFn: stopFrpc,
     onSuccess: () => {
-      toast({ description: '停止成功' })
+      toast({ description: t('client.operation.stop_success') })
       refetchList()
     },
     onError: () => {
-      toast({ description: '停止失败' })
+      toast({ description: t('client.operation.stop_failed') })
     },
   })
 
   const startClient = useMutation({
     mutationFn: startFrpc,
     onSuccess: () => {
-      toast({ description: '启动成功' })
+      toast({ description: t('client.operation.start_success') })
       refetchList()
     },
     onError: () => {
-      toast({ description: '启动失败' })
+      toast({ description: t('client.operation.start_failed') })
     },
   })
 
   const createAndDownloadFile = (fileName: string, content: string) => {
-    var aTag = document.createElement('a');
-    var blob = new Blob([content]);
-    aTag.download = fileName;
-    aTag.href = URL.createObjectURL(blob);
-    aTag.click();
-    URL.revokeObjectURL(aTag.href);
+    const aTag = document.createElement('a')
+    const blob = new Blob([content])
+    aTag.download = fileName
+    aTag.href = URL.createObjectURL(blob)
+    aTag.click()
+    URL.revokeObjectURL(aTag.href)
   }
 
   return (
@@ -253,27 +336,27 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">打开菜单</span>
+            <span className="sr-only">{t('client.actions_menu.open_menu')}</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>操作</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('client.actions_menu.title')}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
               try {
                 if (platformInfo) {
                   navigator.clipboard.writeText(ExecCommandStr('client', client, platformInfo))
-                  toast({ description: '复制成功，如果复制不成功，请点击ID字段手动复制' })
+                  toast({ description: t('client.actions_menu.copy_success') })
                 } else {
-                  toast({ description: '获取平台信息失败，如果复制不成功，请点击ID字段手动复制' })
+                  toast({ description: t('client.actions_menu.copy_failed') })
                 }
               } catch (error) {
-                toast({ description: '获取平台信息失败，如果复制不成功，请点击ID字段手动复制' })
+                toast({ description: t('client.actions_menu.copy_failed') })
               }
             }}
           >
-            复制启动命令
+            {t('client.actions_menu.copy_command')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -281,61 +364,68 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
               router.push({ pathname: '/clientedit', query: { clientID: client.id } })
             }}
           >
-            修改配置
+            {t('client.actions_menu.edit_config')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               try {
                 if (platformInfo) {
-                  createAndDownloadFile(`.env`, ClientEnvFile(client, platformInfo))
+                  createAndDownloadFile('.env', ClientEnvFile(client, platformInfo))
                 }
-              }
-              catch (error) {
-                toast({ description: '获取平台信息失败' })
+              } catch (error) {
+                toast({ description: t('client.actions_menu.download_failed') })
               }
             }}
           >
-            下载配置
+            {t('client.actions_menu.download_config')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               router.push({ pathname: '/streamlog', query: { clientID: client.id, clientType: ClientType.FRPC.toString() } })
             }}
           >
-            实时日志
+            {t('client.actions_menu.realtime_log')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               router.push({ pathname: '/console', query: { clientID: client.id, clientType: ClientType.FRPC.toString() } })
             }}
           >
-            远程终端
+            {t('client.actions_menu.remote_terminal')}
           </DropdownMenuItem>
-          {!client.stopped && <DropdownMenuItem className="text-destructive" onClick={() => stopClient.mutate({ clientId: client.id })}>暂停</DropdownMenuItem>}
-          {client.stopped && <DropdownMenuItem onClick={() => startClient.mutate({ clientId: client.id })}>启动</DropdownMenuItem>}
+          {!client.stopped && (
+            <DropdownMenuItem className="text-destructive" onClick={() => stopClient.mutate({ clientId: client.id })}>
+              {t('client.actions_menu.pause')}
+            </DropdownMenuItem>
+          )}
+          {client.stopped && (
+            <DropdownMenuItem onClick={() => startClient.mutate({ clientId: client.id })}>
+              {t('client.actions_menu.resume')}
+            </DropdownMenuItem>
+          )}
           <DialogTrigger asChild>
-            <DropdownMenuItem className="text-destructive">删除</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">{t('client.actions_menu.delete')}</DropdownMenuItem>
           </DialogTrigger>
         </DropdownMenuContent>
       </DropdownMenu>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>确定删除该客户端?</DialogTitle>
+          <DialogTitle>{t('client.delete.title')}</DialogTitle>
           <DialogDescription>
-            <p className="text-destructive">此操作无法撤消。您确定要永久从我们的服务器中删除该客户端?</p>
+            <p className="text-destructive">{t('client.delete.description')}</p>
             <p className="text-gray-500 border-l-4 border-gray-500 pl-4 py-2">
-              删除后运行中的客户端将无法通过现有参数再次连接，如果您需要删除客户端对外的连接，可以选择暂停客户端
+              {t('client.delete.warning')}
             </p>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
             <Button type="submit" onClick={() => removeClient.mutate({ clientId: client.id })}>
-              确定
+              {t('client.delete.confirm')}
             </Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>
-    </Dialog >
+    </Dialog>
   )
 }

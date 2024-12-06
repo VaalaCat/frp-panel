@@ -27,63 +27,17 @@ import { RegisterAndLogin } from "./header"
 import { useRouter } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { getPlatformInfo } from "@/api/platform"
-
-const data = {
-  teams: [
-    {
-      name: "Frp-Panel",
-      logo: TbBuildingTunnel,
-      plan: "Community Edition",
-      url: "/",
-    },
-  ],
-  navMain: [
-    {
-      title: "客户端",
-      url: "/clients",
-      icon: MonitorSmartphoneIcon,
-      isActive: true,
-    },
-    {
-      title: "服务端",
-      url: "/servers",
-      icon: ServerIcon,
-    },
-    {
-      title: "编辑隧道",
-      url: "/clientedit",
-      icon: MonitorCogIcon,
-    },
-    {
-      title: "编辑服务端",
-      url: "/serveredit",
-      icon: ServerCogIcon,
-    },
-    {
-      title: "流量统计",
-      url: "/clientstats",
-      icon: ChartNetworkIcon,
-    },
-    {
-      title: "实时日志",
-      url: "/streamlog",
-      icon: Scroll,
-    },
-    {
-      title: "控制台",
-      url: "/console",
-      icon: SquareTerminal,
-    },
-  ]
-}
+import { teams, getNavItems } from '@/config/nav'
+import { useTranslation } from 'react-i18next'
 
 export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  chrildren?: React.ReactNode
+  children?: React.ReactNode
   footer?: React.ReactNode
 }
 
 export function AppSidebar({ ...props }: AppSidebarProps) {
   const router = useRouter()
+  const { t } = useTranslation()
   const userInfo = useStore($userInfo)
   const { data: platformInfo } = useQuery({
     queryKey: ['platformInfo'],
@@ -107,12 +61,12 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold font-mono">
-              Frp-Panel
+              {t('app.title')}
             </span>
-            <span className="truncate text-xs font-mono">frp隧道面板</span>
+            <span className="truncate text-xs font-mono">{t('app.subtitle')}</span>
           </div>
         </SidebarMenuButton>
-        <NavMain items={data.navMain} />
+        <NavMain items={getNavItems(t)} />
       </SidebarHeader>
       <SidebarContent>
         {props.children}

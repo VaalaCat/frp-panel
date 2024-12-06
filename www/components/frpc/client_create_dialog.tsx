@@ -1,3 +1,5 @@
+"use client"
+
 import i18n from '@/lib/i18n'
 import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -27,17 +29,17 @@ export const CreateClientDialog = ({refetchTrigger}: {refetchTrigger?: (randStr:
   const { toast } = useToast()
 
   const handleNewClient = async () => {
-    toast({ title: t('已提交创建请求') })
+    toast({ title: t('client.create.submitting') })
     try {
       let resp = await newClient.mutateAsync({ clientId: clientID })
       if (resp.status?.code !== RespCode.SUCCESS) {
-        toast({ title: t('创建客户端失败') })
+        toast({ title: t('client.create.error') })
         return
       }
-      toast({ title: t('创建客户端成功') })
+      toast({ title: t('client.create.success') })
       refetchTrigger && refetchTrigger(JSON.stringify(Math.random()))
     } catch (error) {
-      toast({ title: t('创建客户端失败') })
+      toast({ title: t('client.create.error') })
     }
   }
 
@@ -45,19 +47,19 @@ export const CreateClientDialog = ({refetchTrigger}: {refetchTrigger?: (randStr:
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size={'sm'}>
-          {t('新建')}
+          {t('client.create.button')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('新建客户端')}</DialogTitle>
-          <DialogDescription>{t('创建新的客户端用于连接，客户端ID必须唯一')}</DialogDescription>
+          <DialogTitle>{t('client.create.title')}</DialogTitle>
+          <DialogDescription>{t('client.create.description')}</DialogDescription>
         </DialogHeader>
 
-        <Label>{t('客户端ID')}</Label>
+        <Label>{t('client.create.id')}</Label>
         <Input className="mt-2" value={clientID} onChange={(e) => setClientID(e.target.value)} />
         <DialogFooter>
-          <Button onClick={handleNewClient}>{t('创建')}</Button>
+          <Button onClick={handleNewClient}>{t('client.create.submit')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

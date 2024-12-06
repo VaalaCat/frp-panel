@@ -6,12 +6,13 @@ import {
   UpdateUserInfoRequest,
   UpdateUserInfoResponse,
 } from '@/lib/pb/api_user'
-import { $userInfo } from '@/store/user'
+import { $statusOnline, $userInfo } from '@/store/user'
 import { BaseResponse } from '@/types/api'
 
 export const getUserInfo = async (req: GetUserInfoRequest) => {
   const res = await http.post(API_PATH + '/user/get', GetUserInfoRequest.toJson(req))
   $userInfo.set(GetUserInfoResponse.fromJson((res.data as BaseResponse).body).userInfo)
+  $statusOnline.set(!!GetUserInfoResponse.fromJson((res.data as BaseResponse).body).userInfo)
   return GetUserInfoResponse.fromJson((res.data as BaseResponse).body)
 }
 
