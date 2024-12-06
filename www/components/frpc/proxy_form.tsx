@@ -8,13 +8,15 @@ import { Control, FieldValues, useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useStore } from '@nanostores/react'
 import { YesIcon } from '@/components/ui/icon'
-import { Label } from '@/components/ui/label'
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { getServer } from '@/api/server'
 import { ServerConfig } from '@/types/server'
 import { ArrowRightIcon } from 'lucide-react'
+
 export const TCPConfigSchema = z.object({
   remotePort: ZodPortSchema,
   localIP: ZodStringSchema.default('127.0.0.1'),
@@ -59,13 +61,15 @@ const IPField = ({
   label: string
   defaultValue?: string
 }) => {
+  const { t } = useTranslation()
+
   return (
     <FormField
       name={name}
       control={control}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>{t(label)}</FormLabel>
           <FormControl>
             <Input placeholder="127.0.0.1" {...field} />
           </FormControl>
@@ -88,13 +92,15 @@ const PortField = ({
   label: string
   defaultValue?: number
 }) => {
+  const { t } = useTranslation()
+
   return (
     <FormField
       name={name}
       control={control}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>{t(label)}</FormLabel>
           <FormControl>
             <Input placeholder="8080" {...field} />
           </FormControl>
@@ -117,13 +123,15 @@ const SecretKeyField = ({
   label: string
   defaultValue?: string
 }) => {
+  const { t } = useTranslation()
+
   return (
     <FormField
       name={name}
       control={control}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>{t(label)}</FormLabel>
           <FormControl>
             <Input placeholder="secret key" {...field} />
           </FormControl>
@@ -168,6 +176,8 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
     }, 3000)
   }
 
+  const { t } = useTranslation()
+
   const { data: server } = useQuery({
     queryKey: ['getServer', serverID],
     queryFn: () => {
@@ -178,7 +188,7 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <Label className="text-sm font-medium">访问方式</Label>
+        <Label className="text-sm font-medium">{t('proxy.form.access_method')}</Label>
         {server?.server?.ip && defaultConfig.remotePort && defaultConfig.localIP && defaultConfig.localPort && (
           <div className="flex items-center space-x-2">
             <Input
@@ -197,24 +207,24 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
         <PortField
           control={form.control}
           name="localPort"
-          label="本地端口"
+          label="proxy.form.local_port"
           defaultValue={defaultConfig?.localPort || 1234}
         />
         <IPField
           control={form.control}
           name="localIP"
-          label="转发地址"
+          label="proxy.form.local_ip"
           defaultValue={defaultConfig?.localIP || '127.0.0.1'}
         />
         <PortField
           control={form.control}
           name="remotePort"
-          label="远端端口"
+          label="proxy.form.remote_port"
           defaultValue={defaultConfig?.remotePort || 4321}
         />
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'}>
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
-          暂存修改
+          {t('proxy.form.save_changes')}
         </Button>
       </form>
     </Form>
@@ -254,6 +264,8 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
     }, 3000)
   }
 
+  const { t } = useTranslation()
+
   const { data: server } = useQuery({
     queryKey: ['getServer', serverID],
     queryFn: () => {
@@ -267,19 +279,19 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
         <PortField
           control={form.control}
           name="localPort"
-          label="本地端口"
+          label="proxy.form.local_port"
           defaultValue={defaultConfig?.localPort || 1234}
         />
         <IPField
           control={form.control}
           name="localIP"
-          label="转发地址"
+          label="proxy.form.local_ip"
           defaultValue={defaultConfig?.localIP || '127.0.0.1'}
         />
-        <SecretKeyField control={form.control} name="secretKey" label="密钥" defaultValue={defaultConfig?.secretKey} />
+        <SecretKeyField control={form.control} name="secretKey" label="proxy.form.secret_key" defaultValue={defaultConfig?.secretKey} />
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'}>
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
-          暂存修改
+          {t('proxy.form.save_changes')}
         </Button>
       </form>
     </Form>
@@ -318,6 +330,8 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
     }, 3000)
   }
 
+  const { t } = useTranslation()
+
   const { data: server } = useQuery({
     queryKey: ['getServer', serverID],
     queryFn: () => {
@@ -328,7 +342,7 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <Label className="text-sm font-medium">访问方式</Label>
+        <Label className="text-sm font-medium">{t('proxy.form.access_method')}</Label>
         <p className="text-sm border rounded p-2 my-2 font-mono overflow-auto">
           {`${server?.server?.ip}:${(defaultProxyConfig as UDPProxyConfig).remotePort} -> ${
             defaultProxyConfig?.localIP
@@ -339,7 +353,7 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
           name="localPort"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> 本地端口 </FormLabel>
+              <FormLabel>{t('proxy.form.local_port')}</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
@@ -353,7 +367,7 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
           name="localIP"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> 转发地址 </FormLabel>
+              <FormLabel>{t('proxy.form.local_ip')}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -367,7 +381,7 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
           name="remotePort"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> 远端端口 </FormLabel>
+              <FormLabel>{t('proxy.form.remote_port')}</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
@@ -378,7 +392,7 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
         />
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'}>
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
-          暂存修改
+          {t('proxy.form.save_changes')}
         </Button>
       </form>
     </Form>
@@ -418,6 +432,8 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
     }, 3000)
   }
 
+  const { t } = useTranslation()
+
   const { data: server } = useQuery({
     queryKey: ['getServer', serverID],
     queryFn: () => {
@@ -434,7 +450,7 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <Label className="text-sm font-medium">访问方式</Label>
+        <Label className="text-sm font-medium">{t('proxy.form.access_method')}</Label>
         <p className="text-sm border rounded p-2 my-2 font-mono overflow-auto">
           {`http://${(defaultProxyConfig as HTTPProxyConfig).subdomain}.${serverConfig?.subDomainHost}:${
             serverConfig?.vhostHTTPPort
@@ -445,7 +461,7 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
           name="localPort"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> 本地端口 </FormLabel>
+              <FormLabel>{t('proxy.form.local_port')}</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
@@ -459,7 +475,7 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
           name="localIP"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> 转发地址 </FormLabel>
+              <FormLabel>{t('proxy.form.local_ip')}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -473,7 +489,7 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
           name="subDomain"
           render={({ field }) => (
             <FormItem>
-              <FormLabel> 远端子域名 </FormLabel>
+              <FormLabel>{t('proxy.form.subdomain')}</FormLabel>
               <FormControl>
                 <Input type="text" {...field} />
               </FormControl>
@@ -484,7 +500,7 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
         />
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'}>
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
-          暂存修改
+          {t('proxy.form.save_changes')}
         </Button>
       </form>
     </Form>

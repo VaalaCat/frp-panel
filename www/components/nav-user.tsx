@@ -24,12 +24,14 @@ import { Avatar } from "./ui/avatar"
 import { UserAvatar } from "./base/avatar"
 import { $token, $userInfo } from "@/store/user"
 import { logout } from "@/api/auth"
+import { useTranslation } from 'react-i18next';
 
-export function NavUser({
-  user,
-}: {
+export interface NavUserProps {
   user: User
-}) {
+}
+
+export function NavUser({ user }: NavUserProps) {
+  const { t } = useTranslation();
   const { isMobile } = useSidebar()
 
   return (
@@ -45,8 +47,8 @@ export function NavUser({
                 <UserAvatar className="w-8 h-8" userInfo={user} />
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{user.userName}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-semibold">{user?.userName}</span>
+                <span className="truncate text-xs">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -63,8 +65,8 @@ export function NavUser({
                   <UserAvatar className="w-8 h-8" userInfo={user} />
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.userName}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-semibold">{user?.userName}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -77,7 +79,7 @@ export function NavUser({
                   await logout()
                   window.location.reload()
                 }
-              } className="w-full flex flex-row space-x-2 items-center"><LogOut className="h-4 w-4" /><p>登出</p></div>
+              } className="w-full flex flex-row space-x-2 items-center"><LogOut className="h-4 w-4" /><p>{t('common.logout')}</p></div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

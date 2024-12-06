@@ -9,15 +9,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-
-const chartConfig = {
-  trafficIn: {
-    label: "入站",
-  },
-  trafficOut: {
-    label: "出站",
-  },
-} satisfies ChartConfig
+import { useTranslation } from "react-i18next"
 
 export function ProxyTrafficPieChart({ trafficIn, trafficOut, title, chartLabel }:
   { trafficIn: bigint,
@@ -25,6 +17,17 @@ export function ProxyTrafficPieChart({ trafficIn, trafficOut, title, chartLabel 
     title: string,
     chartLabel: string,
   }) {
+  const { t } = useTranslation()
+
+  const chartConfig = {
+    trafficIn: {
+      label: t('traffic.chart.pie.inbound'),
+    },
+    trafficOut: {
+      label: t('traffic.chart.pie.outbound'),
+    },
+  } satisfies ChartConfig
+
   const data = [
     { type: "trafficIn", data: Number(trafficIn), fill: "hsl(var(--chart-1))" },
     { type: "trafficOut", data: Number(trafficOut), fill: "hsl(var(--chart-2))" }]
@@ -71,4 +74,3 @@ export function ProxyTrafficPieChart({ trafficIn, trafficOut, title, chartLabel 
     </Card>
   )
 }
-

@@ -1,3 +1,5 @@
+"use client"
+
 import { Providers } from '@/components/providers'
 import { RootLayout } from '@/components/layout'
 import { Header } from '@/components/header'
@@ -12,12 +14,17 @@ import { ServerSelector } from '@/components/base/server-selector'
 import LoadingCircle from '@/components/base/status'
 import { ClientStatus } from '@/lib/pb/api_master'
 import { useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent } from '@/components/ui/card'
+import { PlayCircle, StopCircle, RefreshCcw, Eraser, ExternalLink } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const TerminalComponent = dynamic(() => import('@/components/base/read-write-xterm'), {
   ssr: false
 })
 
 export default function ConsolePage() {
+  const { t } = useTranslation();
   const [clientID, setClientID] = useState<string | undefined>(undefined)
   const [clear, setClear] = useState<number>(0)
   const [enabled, setEnabled] = useState<boolean>(false)
@@ -63,57 +70,126 @@ export default function ConsolePage() {
     };
   }, [clientID, enabled]);
 
+  const handleConnect = () => {
+    if (enabled) {
+      setEnabled(false)
+      setStatus('error')
+    } else {
+      if (timeoutID) {
+        clearTimeout(timeoutID)
+      }
+      setTimeoutID(setTimeout(() => {
+        setEnabled(true)
+        setStatus('success')
+      }, 10))
+    }
+  }
+
+  const handleRefresh = () => {
+    if (!clientID) {
+      return;
+    }
+    setClear(Math.random());
+    getClientsStatus({ clientIds: [clientID!], clientType: clientType })
+  }
+
+  const handleNewWindow = () => {
+    window.open(`/terminal?clientType=${clientType.toString()}&clientID=${clientID}`)
+  }
+
   return (
     <Providers>
       <RootLayout mainHeader={<Header />}>
-        <div className="w-full">
-          <div className="flex-1 flex-col space-y-2">
-            <div className="flex flex-1 flex-row gap-2 items-center">
-              <div className='items-center'>
+        <Card className="w-full h-[calc(100dvh_-_80px)] flex flex-col">
+          <CardContent className="p-3 flex-1 flex flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 shrink-0"> 
+              <div className="flex items-center gap-1.5">
                 <LoadingCircle status={status} />
+                <Button
+                  disabled={!clientID}
+                  variant={enabled ? "destructive" : "default"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleConnect}
+                >
+                  {enabled ? (
+                    <StopCircle className="h-3.5 w-3.5" />
+                  ) : (
+                    <PlayCircle className="h-3.5 w-3.5" />
+                  )}
+                </Button>
+                
+                <Button
+                  disabled={!clientID}
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleRefresh}
+                >
+                  <RefreshCcw className="h-3.5 w-3.5" />
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setClear(Math.random())}
+                >
+                  <Eraser className="h-3.5 w-3.5" />
+                </Button>
+
+                <Button
+                  disabled={!clientID}
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleNewWindow}
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (enabled) { setEnabled(false) }
-                  if (timeoutID) { clearTimeout(timeoutID) }
-                  setTimeoutID(setTimeout(() => { setEnabled(true) }, 10))
-                }}>连接</Button>
-              <Button onClick={() => {
-                setClear(Math.random());
-                getClientsStatus({ clientIds: [clientID!], clientType: clientType })
-              }}>刷新</Button>
-              <Button variant="destructive" onClick={() => {
-                setEnabled(false)
-                setClear(Math.random());
-              }}>断开</Button>
-              <Button
-              disabled={clientID === undefined || clientType === undefined}
-              onClick={() => window.open(`/terminal?clientType=${clientType.toString()}&clientID=${clientID}`)}>
-                独立窗口
-              </Button>
-              <BaseSelector
-                dataList={[{ value: ClientType.FRPC.toString(), label: "frpc" }, { value: ClientType.FRPS.toString(), label: "frps" }]}
-                setValue={(value) => { if (value === ClientType.FRPC.toString()) { setClientType(ClientType.FRPC) } else { setClientType(ClientType.FRPS) } }}
-                value={clientType.toString()}
-                label="客户端类型"
-              />
+
+              <div className="flex items-center gap-1.5">
+                <BaseSelector
+                  dataList={[
+                    { value: ClientType.FRPC.toString(), label: "frpc" },
+                    { value: ClientType.FRPS.toString(), label: "frps" }
+                  ]}
+                  setValue={(value) => {
+                    setClientType(value === ClientType.FRPC.toString() ? ClientType.FRPC : ClientType.FRPS)
+                  }}
+                  value={clientType.toString()}
+                  label={t('common.clientType')}
+                  className="h-8"
+                />
+              </div>
             </div>
-            {clientType === ClientType.FRPC && <ClientSelector clientID={clientID} setClientID={setClientID} />}
-            {clientType === ClientType.FRPS && <ServerSelector serverID={clientID} setServerID={setClientID} />}
-            <div className='flex-1 h-[calc(100dvh_-_180px)]'>
-              <TerminalComponent
-                setStatus={setStatus}
-                isLoading={!enabled}
-                clientStatus={{
-                  clientId: clientID,
-                  clientType: clientType,
-                  version: { platform: "linux" },
-                } as ClientStatus}
-                reset={clear} />
+
+            <div className="flex flex-col gap-1.5 min-h-0 flex-1"> 
+              {clientType === ClientType.FRPC && (
+                <ClientSelector clientID={clientID} setClientID={setClientID} />
+              )}
+              {clientType === ClientType.FRPS && (
+                <ServerSelector serverID={clientID} setServerID={setClientID} />
+              )}
+              
+              <div className={cn(
+                'flex-1 min-h-0 overflow-hidden',
+                'border rounded-lg overflow-hidden'
+              )}>
+                <TerminalComponent
+                  setStatus={setStatus}
+                  isLoading={!enabled}
+                  clientStatus={{
+                    clientId: clientID,
+                    clientType: clientType,
+                    version: { platform: "linux" },
+                  } as ClientStatus}
+                  reset={clear} />
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </RootLayout>
     </Providers>
   )

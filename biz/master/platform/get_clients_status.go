@@ -56,7 +56,7 @@ func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.G
 		proto.Unmarshal(tresp.GetData(), clientVersion)
 		connectTime, ok := mgr.ConnectTime(clientID)
 		if !ok {
-			connectTime = endTime
+			connectTime = time.Time{}
 		}
 
 		resps[clientID] = &pb.ClientStatus{
@@ -66,7 +66,7 @@ func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.G
 			Ping:        int32(pingTime),
 			Version:     clientVersion,
 			Addr:        lo.ToPtr(mgr.ClientAddr(clientID)),
-			ConnectTime: lo.ToPtr(int32(endTime.Sub(connectTime).Seconds())),
+			ConnectTime: lo.ToPtr(int32(connectTime.UnixMilli())),
 		}
 	}
 
