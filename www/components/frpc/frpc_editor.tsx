@@ -5,13 +5,12 @@ import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { updateFRPC } from '@/api/frp'
-import { useToast } from '@/components/ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client, refetchClient }) => {
   const { t } = useTranslation()
-  const { toast } = useToast()
 
   const [configContent, setConfigContent] = useState<string>('{}')
   const [clientComment, setClientComment] = useState<string>('')
@@ -28,12 +27,16 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client
         comment: clientComment,
       })
       if (res.status?.code !== RespCode.SUCCESS) {
-        toast({ title: t('client.operation.update_failed') })
+        toast(t('client.operation.update_failed', {
+          error: res.status?.message,
+        }))
         return
       }
-      toast({ title: t('client.operation.update_success') })
+      toast(t('client.operation.update_success'))
     } catch (error) {
-      toast({ title: t('client.operation.update_failed') })
+      toast(t('client.operation.update_failed'), {
+        description: JSON.stringify(error),
+      })
     }
   }
 

@@ -10,9 +10,9 @@ import { ZodIPSchema, ZodPortSchema, ZodStringSchema } from '@/lib/consts'
 import { RespCode, Server } from '@/lib/pb/common'
 import { updateFRPS } from '@/api/frp'
 import { useMutation } from '@tanstack/react-query'
-import { useToast } from '@/components/ui/use-toast'
 import { Label } from '@radix-ui/react-label'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 const ServerConfigSchema = z.object({
   bindAddr: ZodIPSchema.default('0.0.0.0').optional(),
@@ -35,7 +35,6 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
   const form = useForm<z.infer<typeof ServerConfigZodSchema>>({
     resolver: zodResolver(ServerConfigZodSchema),
   })
-  const { toast } = useToast()
 
   const updateFrps = useMutation({ mutationFn: updateFRPS })
 
@@ -60,14 +59,12 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
           } as ServerConfig),
         ),
       })
-      toast({
-        title: resp.status?.code === RespCode.SUCCESS ? t('server.operation.update_success') : t('server.operation.update_failed'),
+      toast(resp.status?.code === RespCode.SUCCESS ? t('server.operation.update_success') : t('server.operation.update_failed'),{
         description: resp.status?.message,
       })
     } catch (error) {
       console.error(error)
-      toast({ 
-        title: t('server.operation.update_title'), 
+      toast(t('server.operation.update_title'), {
         description: t('server.operation.update_failed')
       })
     }

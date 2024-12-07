@@ -20,7 +20,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useToast } from '@/components/ui/use-toast'
 import React, { useState } from 'react'
 import { ClientEnvFile, ExecCommandStr, LinuxInstallCommand, WindowsInstallCommand } from '@/lib/consts'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -38,6 +37,7 @@ import { Label } from '@/components/ui/label'
 import { ClientDetail } from '../base/client_detail'
 import { Input } from '../ui/input'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 export type ClientTableSchema = {
   id: string
@@ -141,11 +141,11 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
             <div className="grid grid-cols-2 items-center gap-4">
               <Input
                 readOnly
-                value={WindowsInstallCommand('frpc', client, platformInfo)}
+                value={WindowsInstallCommand('client', client, platformInfo)}
                 className="flex-1"
               />
               <Button
-                onClick={() => navigator.clipboard.writeText(WindowsInstallCommand('frpc', client, platformInfo))}
+                onClick={() => navigator.clipboard.writeText(WindowsInstallCommand('client', client, platformInfo))}
                 disabled={!platformInfo}
                 size="sm"
                 variant="outline"
@@ -156,11 +156,11 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
             <div className="grid grid-cols-2 items-center gap-4">
               <Input
                 readOnly
-                value={LinuxInstallCommand('frpc', client, platformInfo)}
+                value={LinuxInstallCommand('client', client, platformInfo)}
                 className="flex-1"
               />
               <Button
-                onClick={() => navigator.clipboard.writeText(LinuxInstallCommand('frpc', client, platformInfo))}
+                onClick={() => navigator.clipboard.writeText(LinuxInstallCommand('client', client, platformInfo))}
                 disabled={!platformInfo}
                 size="sm"
                 variant="outline"
@@ -282,7 +282,6 @@ export interface ClientItemProps {
 
 export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
   const { t } = useTranslation()
-  const { toast } = useToast()
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
 
@@ -292,33 +291,39 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
   const removeClient = useMutation({
     mutationFn: deleteClient,
     onSuccess: () => {
-      toast({ description: t('client.delete.success') })
+      toast(t('client.delete.success'))
       refetchList()
     },
-    onError: () => {
-      toast({ description: t('client.delete.failed') })
+    onError: (e) => {
+      toast(t('client.delete.failed'), {
+        description: e.message,
+      })
     },
   })
 
   const stopClient = useMutation({
     mutationFn: stopFrpc,
     onSuccess: () => {
-      toast({ description: t('client.operation.stop_success') })
+      toast(t('client.operation.stop_success'))
       refetchList()
     },
-    onError: () => {
-      toast({ description: t('client.operation.stop_failed') })
+    onError: (e) => {
+      toast(t('client.operation.stop_failed'), {
+        description: e.message,
+      })
     },
   })
 
   const startClient = useMutation({
     mutationFn: startFrpc,
     onSuccess: () => {
-      toast({ description: t('client.operation.start_success') })
+      toast(t('client.operation.start_success'))
       refetchList()
     },
-    onError: () => {
-      toast({ description: t('client.operation.start_failed') })
+    onError: (e) => {
+      toast(t('client.operation.start_failed'), {
+        description: e.message,
+      })
     },
   })
 
@@ -347,12 +352,14 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
               try {
                 if (platformInfo) {
                   navigator.clipboard.writeText(ExecCommandStr('client', client, platformInfo))
-                  toast({ description: t('client.actions_menu.copy_success') })
+                  toast(t('client.actions_menu.copy_success'))
                 } else {
-                  toast({ description: t('client.actions_menu.copy_failed') })
+                  toast(t('client.actions_menu.copy_failed'))
                 }
               } catch (error) {
-                toast({ description: t('client.actions_menu.copy_failed') })
+                toast(t('client.actions_menu.copy_failed'),{
+                  description: JSON.stringify(error)
+                })
               }
             }}
           >
@@ -373,7 +380,9 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
                   createAndDownloadFile('.env', ClientEnvFile(client, platformInfo))
                 }
               } catch (error) {
-                toast({ description: t('client.actions_menu.download_failed') })
+                toast(t('client.actions_menu.download_failed'), {
+                  description: JSON.stringify(error)
+                })
               }
             }}
           >

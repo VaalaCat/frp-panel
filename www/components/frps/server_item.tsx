@@ -20,7 +20,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useToast } from '@/components/ui/use-toast'
 import React, { useState } from 'react'
 import { ClientEnvFile, ExecCommandStr, LinuxInstallCommand, WindowsInstallCommand } from '@/lib/consts'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -36,6 +35,7 @@ import { Badge } from '../ui/badge'
 import { ClientDetail } from '../base/client_detail'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 
 export type ServerTableSchema = {
   id: string
@@ -287,20 +287,21 @@ export interface ServerItemProps {
 
 export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
   const { t } = useTranslation()
-  const { toast } = useToast()
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
 
-  const refetchList = () => {}
+  const refetchList = () => { }
 
   const removeServer = useMutation({
     mutationFn: deleteServer,
     onSuccess: () => {
-      toast({ description: t('server.delete.success') })
+      toast(t('server.delete.success'))
       refetchList()
     },
-    onError: () => {
-      toast({ description: t('server.delete.failed') })
+    onError: (e) => {
+      toast(t('server.delete.failed'), {
+        description: e.message,
+      })
     },
   })
 
@@ -329,12 +330,12 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
               try {
                 if (platformInfo) {
                   navigator.clipboard.writeText(ExecCommandStr('server', server, platformInfo))
-                  toast({ description: t('server.actions_menu.copy_success') })
+                  toast(t('server.actions_menu.copy_success'))
                 } else {
-                  toast({ description: t('server.actions_menu.copy_failed') })
+                  toast(t('server.actions_menu.copy_failed'))
                 }
               } catch (error) {
-                toast({ description: t('server.actions_menu.copy_failed') })
+                toast(t('server.actions_menu.copy_failed'))
               }
             }}
           >
@@ -355,7 +356,9 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
                   createAndDownloadFile('.env', ClientEnvFile(server, platformInfo))
                 }
               } catch (error) {
-                toast({ description: t('server.actions_menu.download_failed') })
+                toast(t('server.actions_menu.download_failed'), {
+                  description: JSON.stringify(error),
+                })
               }
             }}
           >

@@ -7,7 +7,6 @@ import { initClient, listClient } from '@/api/client'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
 import {
   Dialog,
@@ -19,6 +18,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 export const CreateClientDialog = ({refetchTrigger}: {refetchTrigger?: (randStr: string) => void}) => {
   const { t } = useTranslation()
@@ -26,20 +26,23 @@ export const CreateClientDialog = ({refetchTrigger}: {refetchTrigger?: (randStr:
   const newClient = useMutation({
     mutationFn: initClient,
   })
-  const { toast } = useToast()
 
   const handleNewClient = async () => {
-    toast({ title: t('client.create.submitting') })
+    toast(t('client.create.submitting'))
     try {
       let resp = await newClient.mutateAsync({ clientId: clientID })
       if (resp.status?.code !== RespCode.SUCCESS) {
-        toast({ title: t('client.create.error') })
+        toast(t('client.create.error'),{
+          description: resp.status?.message
+        })
         return
       }
-      toast({ title: t('client.create.success') })
+      toast(t('client.create.success'))
       refetchTrigger && refetchTrigger(JSON.stringify(Math.random()))
     } catch (error) {
-      toast({ title: t('client.create.error') })
+      toast(t('client.create.error'), {
+        description: JSON.stringify(error)
+      })
     }
   }
 

@@ -13,21 +13,17 @@ export const Header = ({ title }: { title?: string }) => {
   const router = useRouter()
   const isOnline = useStore($statusOnline)
   const token = useStore($token)
-  const [isInitializing, setIsInitializing] = useState(true)
   const currentPath = router.pathname
 
-  useEffect(() => {
-    // 设置5秒延迟，等待状态初始化
-    const timer = setTimeout(() => {
-      setIsInitializing(false)
-    }, 5000)
-
-    return () => clearTimeout(timer)
-  }, [isOnline, token])
+  const {isPending} = useQuery({
+    queryKey: ['userInfo', currentPath],
+    queryFn: getUserInfo,
+    retry: false,
+  })
 
   useEffect(() => {
     // 只有在初始化完成后才进行状态检查和跳转
-    if (!isInitializing) {
+    if (!isPending) {
       console.log('isInitializing', isOnline, token, currentPath)
       // 如果用户未登录且不在登录/注册页面，则跳转到登录页
       const isAuthPage = ['/login', '/register'].includes(currentPath)
@@ -35,7 +31,7 @@ export const Header = ({ title }: { title?: string }) => {
         router.push('/login')
       }
     }
-  }, [token, isOnline, router, isInitializing, currentPath])
+  }, [token, isOnline, router, isPending, currentPath])
 
   return (
     <div className="flex w-full justify-between items-center gap-2">
@@ -60,14 +56,14 @@ export const RegisterAndLogin = () => {
     $platformInfo.set(platformInfo.data)
   }, [platformInfo])
 
-  const userInfoQuery = useQuery({
+  const {data: userInfoQuery} = useQuery({
     queryKey: ['userInfo'],
     queryFn: getUserInfo,
   })
 
   useEffect(() => {
-    $userInfo.set(userInfoQuery.data?.userInfo)
-    $statusOnline.set(!!userInfoQuery.data?.userInfo)
+    $userInfo.set(userInfoQuery?.userInfo)
+    $statusOnline.set(!!userInfoQuery?.userInfo)
   }, [userInfoQuery])
 
   return (

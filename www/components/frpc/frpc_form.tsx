@@ -11,12 +11,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Input } from '@/components/ui/input'
 import { AccordionHeader } from '@radix-ui/react-accordion'
-import { useToast } from '@/components/ui/use-toast'
 import { QueryObserverResult, RefetchOptions, useMutation } from '@tanstack/react-query'
 import { updateFRPC } from '@/api/frp'
 import { Card, CardContent } from '@/components/ui/card'
 import { GetClientResponse } from '@/lib/pb/api_client'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 export interface FRPCFormProps {
   clientID: string
@@ -32,8 +32,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
   const { t } = useTranslation()
   const [proxyType, setProxyType] = useState<ProxyType>('http')
   const [proxyName, setProxyName] = useState<string | undefined>()
-  const { toast } = useToast()
-  
+
   const handleTypeChange = (value: string) => {
     setProxyType(value as ProxyType)
   }
@@ -43,9 +42,8 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
     if (!proxyName) return
     if (!proxyType) return
     if (clientProxyConfigs.findIndex((proxy) => proxy.name === proxyName) !== -1) {
-      toast({ 
-        title: t('proxy.status.create'), 
-        description: t('proxy.status.name_exists') 
+      toast(t('proxy.status.create'), {
+        description: t('proxy.status.name_exists')
       })
       return
     }
@@ -76,15 +74,13 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
         clientId: clientID,
       })
       await refetchClient()
-      toast({ 
-        title: t('proxy.status.update'), 
-        description: res.status?.code === RespCode.SUCCESS ? t('proxy.status.success') : t('proxy.status.error') 
+      toast(t('proxy.status.update'), {
+        description: res.status?.code === RespCode.SUCCESS ? t('proxy.status.success') : t('proxy.status.error')
       })
     } catch (error) {
       console.error(error)
-      toast({ 
-        title: t('proxy.status.update'), 
-        description: t('proxy.status.error') 
+      toast(t('proxy.status.update'), {
+        description: t('proxy.status.error') + JSON.stringify(error)
       })
     }
   }

@@ -11,10 +11,10 @@ import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useState } from 'react'
-import { useToast } from './ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner'
 
 export const LoginSchema = z.object({
   username: ZodStringSchema,
@@ -26,27 +26,30 @@ export function LoginComponent() {
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
   })
-  const { toast } = useToast()
   const router = useRouter()
 
   const [loginAlert, setLoginAlert] = useState(false)
 
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
-    toast({ title: t('auth.loggingIn') })
+    toast(t('auth.loggingIn'))
     try {
       const res = await login({ ...values })
       if (res.status?.code === RespCode.SUCCESS) {
-        toast({ title: t('auth.loginSuccess') })
+        toast(t('auth.loginSuccess'))
         setTimeout(() => {
           router.push('/')
         }, 3000)
         setLoginAlert(false)
       } else {
-        toast({ title: t('auth.loginFailed') })
+        toast(t('auth.loginFailed'), {
+          description: res.status?.message
+        })
         setLoginAlert(true)
       }
     } catch (e) {
-      toast({ title: t('auth.loginFailed') })
+      toast(t('auth.loginFailed'), {
+        description: (e as Error).message
+      })
       console.log('login error', e)
       setLoginAlert(true)
     }

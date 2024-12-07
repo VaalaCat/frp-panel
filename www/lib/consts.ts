@@ -18,7 +18,7 @@ export const ZodEmailSchema = z.string().min(1, { message: i18next.t('validation
 // .refine((e) => e === "abcd@fg.com", "This email is not in our database")
 
 export const ExecCommandStr = <T extends Client | Server>(
-  type: string,
+  type: "client" | "server",
   item: T,
   info: GetPlatformInfoResponse,
   fileName?: string,
@@ -28,7 +28,7 @@ export const ExecCommandStr = <T extends Client | Server>(
 }
 
 export const WindowsInstallCommand = <T extends Client | Server>(
-  type: string,
+  type: "client" | "server",
   item: T,
   info: GetPlatformInfoResponse,
 ) => {
@@ -42,7 +42,7 @@ export const WindowsInstallCommand = <T extends Client | Server>(
 }
 
 export const LinuxInstallCommand = <T extends Client | Server>(
-  type: string,
+  type: "client" | "server",
   item: T,
   info: GetPlatformInfoResponse,
 ) => {

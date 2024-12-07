@@ -2,17 +2,16 @@ import { Label } from '@radix-ui/react-label'
 import { Textarea } from '@/components/ui/textarea'
 import { FRPSFormProps } from './frps_form'
 import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/use-toast'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { getServer } from '@/api/server'
 import { useEffect, useState } from 'react'
 import { updateFRPS } from '@/api/frp'
 import { RespCode } from '@/lib/pb/common'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
   const { t } = useTranslation()
-  const { toast } = useToast()
   const { data: serverResp, refetch: refetchServer } = useQuery({
     queryKey: ['getServer', serverID],
     queryFn: () => {
@@ -34,12 +33,16 @@ export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
         comment: serverComment,
       })
       if (res.status?.code !== RespCode.SUCCESS) {
-        toast({ title: t('server.operation.update_failed') })
+        toast(t('server.operation.update_failed', {
+          description: res.status?.message,
+        }))
         return
       }
-      toast({ title: t('server.operation.update_success') })
+      toast(t('server.operation.update_success'))
     } catch (error) {
-      toast({ title: t('server.operation.update_failed') })
+      toast(t('server.operation.update_failed', {
+        description: JSON.stringify(error),
+      }))
     }
     refetchServer()
   }

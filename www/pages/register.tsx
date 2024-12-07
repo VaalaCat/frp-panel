@@ -3,7 +3,6 @@ import { Providers } from '@/components/providers'
 import { TbBuildingTunnel } from 'react-icons/tb'
 import { RegisterComponent } from '@/components/register'
 import { useRouter } from 'next/router'
-import { Toaster } from '@/components/ui/toaster'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import Link from 'next/link'
@@ -91,7 +90,6 @@ export default function RegisterPage() {
             </div>
           </div>
         </div>
-        <Toaster />
       </Providers>
     </main>
   )

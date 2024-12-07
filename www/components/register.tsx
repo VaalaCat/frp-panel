@@ -11,11 +11,10 @@ import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useState } from 'react'
-import { useToast } from './ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
 import { useRouter } from 'next/router'
-import { Toast } from './ui/toast'
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner'
 
 export const RegisterSchema = z.object({
   username: ZodStringSchema,
@@ -28,7 +27,6 @@ export function RegisterComponent() {
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
   })
-  const { toast } = useToast()
   const router = useRouter()
 
   const [registerAlert, setRegisterAlert] = useState(false)
@@ -37,20 +35,24 @@ export function RegisterComponent() {
   }
 
   const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
-    toast({ title: t('auth.registering') })
+    toast('auth.registering')
     try {
       const res = await register({ ...values })
       if (res.status?.code === RespCode.SUCCESS) {
-        toast({ title: t('auth.registerSuccess') })
+        toast(t('auth.registerSuccess'))
         setRegisterAlert(false)
         await sleep(3000)
         router.push('/login')
       } else {
-        toast({ title: t('auth.registerFailed') })
+        toast(t('auth.registerFailed'), {
+          description: res.status?.message
+        })
         setRegisterAlert(true)
       }
     } catch (e) {
-      toast({ title: t('auth.registerFailed') })
+      toast(t('auth.registerFailed'), {
+        description: (e as Error).message
+      })
       console.log('register error', e)
       setRegisterAlert(true)
     }

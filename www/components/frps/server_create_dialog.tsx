@@ -6,7 +6,6 @@ import { initServer } from '@/api/server'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/use-toast'
 import { RespCode } from '@/lib/pb/common'
 import {
   Dialog,
@@ -18,6 +17,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 export const CreateServerDialog = ({refetchTrigger}: {refetchTrigger?: (randStr: string) => void}) => {
   const { t } = useTranslation()
@@ -26,20 +26,23 @@ export const CreateServerDialog = ({refetchTrigger}: {refetchTrigger?: (randStr:
   const newServer = useMutation({
     mutationFn: initServer,
   })
-  const { toast } = useToast()
 
   const handleNewServer = async () => {
-    toast({ title: t('server.create.submitting') })
+    toast(t('server.create.submitting'))
     try {
       let resp = await newServer.mutateAsync({ serverId: serverID, serverIp: serverIP })
       if (resp.status?.code !== RespCode.SUCCESS) {
-        toast({ title: t('server.create.error') })
+        toast(t('server.create.error'), {
+          description: resp.status?.message,
+        })
         return
       }
-      toast({ title: t('server.create.success') })
+      toast(t('server.create.success'))
       refetchTrigger && refetchTrigger(JSON.stringify(Math.random()))
     } catch (error) {
-      toast({ title: t('server.create.error') })
+      toast(t('server.create.error'), {
+        description: JSON.stringify(error),
+      })
     }
   }
 
