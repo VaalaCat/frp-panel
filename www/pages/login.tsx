@@ -1,4 +1,3 @@
-import { Inter } from 'next/font/google'
 import { Providers } from '@/components/providers'
 import { TbBuildingTunnel } from 'react-icons/tb'
 import { LoginComponent } from '@/components/login'
@@ -7,14 +6,12 @@ import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import Link from 'next/link'
 
-const inter = Inter({ subsets: ['latin'] })
-
 export default function LoginPage() {
   const router = useRouter()
   const { t } = useTranslation();
   
   return (
-    <main className={`${inter.className} min-h-screen`}>
+    <main className={`min-h-screen`}>
       <Providers>
         {/* Fixed Language Switcher */}
         <div className="fixed top-4 right-4 z-50">
