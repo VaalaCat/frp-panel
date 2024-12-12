@@ -79,7 +79,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
       </p>
       {serverID && (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-0.5">
             <FormField
               control={form.control}
               name="publicHost"

@@ -1,19 +1,23 @@
 import * as z from 'zod'
 import { Client, Server } from './pb/common'
 import { GetPlatformInfoResponse } from './pb/api_user'
-import i18next from 'i18next';
 
 export const API_PATH = '/api/v1'
 export const SET_TOKEN_HEADER = 'x-set-authorization'
 export const X_CLIENT_REQUEST_ID = 'x-client-request-id'
 export const LOCAL_STORAGE_TOKEN_KEY = 'token'
 export const ZodPortSchema = z.coerce
-  .number()
-  .min(1, { message: i18next.t('validation.portRange.min') })
-  .max(65535, { message: i18next.t('validation.portRange.max') })
-export const ZodIPSchema = z.string().regex(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/, { message: i18next.t('validation.ipAddress') })
-export const ZodStringSchema = z.string().min(1, { message: i18next.t('validation.required') })
-export const ZodEmailSchema = z.string().min(1, { message: i18next.t('validation.required') }).email({ message: i18next.t('auth.email.invalid') })
+  .number({required_error: 'validation.required'})
+  .min(1, { message: 'validation.portRange.min' })
+  .max(65535, { message: 'validation.portRange.max' })
+
+export const ZodIPSchema = z.string({required_error: 'validation.required'})
+  .regex(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/, { message: 'validation.ipAddress' })
+export const ZodStringSchema = z.string({required_error: 'validation.required'})
+  .min(1, { message: 'validation.required' })
+export const ZodEmailSchema = z.string({required_error: 'validation.required'})
+  .min(1, { message: 'validation.required' })
+  .email({ message: 'auth.email.invalid' })
 
 // .refine((e) => e === "abcd@fg.com", "This email is not in our database")
 
@@ -32,13 +36,13 @@ export const WindowsInstallCommand = <T extends Client | Server>(
   item: T,
   info: GetPlatformInfoResponse,
 ) => {
-  return `[Net.ServicePointManager]::SecurityProtocol = `+
-  `[Net.SecurityProtocolType]::Ssl3 -bor `+
-  `[Net.SecurityProtocolType]::Tls -bor ` +
-  `[Net.SecurityProtocolType]::Tls11 -bor ` +
-  `[Net.SecurityProtocolType]::Tls12;set-ExecutionPolicy RemoteSigned;`+
-  `Invoke-WebRequest https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.ps1 `+
-  `-OutFile C:\install.ps1;powershell.exe C:\install.ps1 ${ExecCommandStr(type, item, info, ' ')}`
+  return `[Net.ServicePointManager]::SecurityProtocol = ` +
+    `[Net.SecurityProtocolType]::Ssl3 -bor ` +
+    `[Net.SecurityProtocolType]::Tls -bor ` +
+    `[Net.SecurityProtocolType]::Tls11 -bor ` +
+    `[Net.SecurityProtocolType]::Tls12;set-ExecutionPolicy RemoteSigned;` +
+    `Invoke-WebRequest https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.ps1 ` +
+    `-OutFile C:\install.ps1;powershell.exe C:\install.ps1 ${ExecCommandStr(type, item, info, ' ')}`
 }
 
 export const LinuxInstallCommand = <T extends Client | Server>(
