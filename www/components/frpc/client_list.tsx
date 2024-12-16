@@ -14,8 +14,11 @@ import {
 } from '@tanstack/react-table'
 
 import React from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { listClient } from '@/api/client'
+import { ClientConfigured } from '@/lib/consts'
+import { useStore } from '@nanostores/react'
+import { $clientTableRefetchTrigger } from '@/store/refetch-trigger'
 
 export interface ClientListProps {
   Clients: Client[]
@@ -26,13 +29,16 @@ export interface ClientListProps {
 export const ClientList: React.FC<ClientListProps> = ({ Clients, Keyword, TriggerRefetch }) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const globalRefetchTrigger = useStore($clientTableRefetchTrigger)
+
   const data = Clients.map(
     (client) =>
       ({
         id: client.id == undefined ? '' : client.id,
-        status: client.config == undefined || client.config == '' ? 'invalid' : 'valid',
+        status: ClientConfigured(client) ? 'valid' : 'invalid',
         secret: client.secret == undefined ? '' : client.secret,
         config: client.config,
+        originClient: client,
       }) as ClientTableSchema,
   )
 
@@ -46,6 +52,7 @@ export const ClientList: React.FC<ClientListProps> = ({ Clients, Keyword, Trigge
     pageSize,
     Keyword,
     TriggerRefetch,
+    globalRefetchTrigger,
   }
   const pagination = React.useMemo(
     () => ({
@@ -60,6 +67,7 @@ export const ClientList: React.FC<ClientListProps> = ({ Clients, Keyword, Trigge
     queryFn: async () => {
       return await listClient({ page: fetchDataOptions.pageIndex + 1, pageSize: fetchDataOptions.pageSize, keyword: fetchDataOptions.Keyword })
     },
+    placeholderData: keepPreviousData,
   })
 
   const table = useReactTable({
@@ -67,10 +75,11 @@ export const ClientList: React.FC<ClientListProps> = ({ Clients, Keyword, Trigge
       dataQuery.data?.clients.map((client) => {
         return {
           id: client.id == undefined ? '' : client.id,
-          status: client.config == undefined || client.config == '' ? 'invalid' : 'valid',
+          status: ClientConfigured(client) ? 'valid' : 'invalid',
           secret: client.secret == undefined ? '' : client.secret,
           config: client.config,
           stopped: client.stopped,
+          originClient: client,
         } as ClientTableSchema
       }) ?? data,
     pageCount: Math.ceil(

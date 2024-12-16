@@ -66,7 +66,7 @@ func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.G
 			Ping:        int32(pingTime),
 			Version:     clientVersion,
 			Addr:        lo.ToPtr(mgr.ClientAddr(clientID)),
-			ConnectTime: lo.ToPtr(int32(connectTime.UnixMilli())),
+			ConnectTime: lo.ToPtr(connectTime.UnixMilli()),
 		}
 	}
 

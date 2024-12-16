@@ -1,10 +1,12 @@
 package dao
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/utils"
@@ -14,44 +16,54 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func GetProxyByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyEntity, error) {
+func GetProxyStatsByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyStatsEntity, error) {
 	if clientID == "" {
 		return nil, fmt.Errorf("invalid client id")
 	}
 	db := models.GetDBManager().GetDefaultDB()
-	list := []*models.Proxy{}
+	list := []*models.ProxyStats{}
 	err := db.
-		Where(&models.Proxy{ProxyEntity: &models.ProxyEntity{
+		Where(&models.ProxyStats{ProxyStatsEntity: &models.ProxyStatsEntity{
 			UserID:   userInfo.GetUserID(),
 			TenantID: userInfo.GetTenantID(),
 			ClientID: clientID,
 		}}).
-		Or(&models.Proxy{ProxyEntity: &models.ProxyEntity{
+		Or(&models.ProxyStats{ProxyStatsEntity: &models.ProxyStatsEntity{
 			UserID:   0,
 			TenantID: userInfo.GetTenantID(),
 			ClientID: clientID,
+		}}).
+		Or(&models.ProxyStats{ProxyStatsEntity: &models.ProxyStatsEntity{
+			UserID:         userInfo.GetUserID(),
+			TenantID:       userInfo.GetTenantID(),
+			OriginClientID: clientID,
+		}}).
+		Or(&models.ProxyStats{ProxyStatsEntity: &models.ProxyStatsEntity{
+			UserID:         0,
+			TenantID:       userInfo.GetTenantID(),
+			OriginClientID: clientID,
 		}}).
 		Find(&list).Error
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(list, func(item *models.Proxy, _ int) *models.ProxyEntity {
-		return item.ProxyEntity
+	return lo.Map(list, func(item *models.ProxyStats, _ int) *models.ProxyStatsEntity {
+		return item.ProxyStatsEntity
 	}), nil
 }
 
-func GetProxyByServerID(userInfo models.UserInfo, serverID string) ([]*models.ProxyEntity, error) {
+func GetProxyStatsByServerID(userInfo models.UserInfo, serverID string) ([]*models.ProxyStatsEntity, error) {
 	if serverID == "" {
 		return nil, fmt.Errorf("invalid server id")
 	}
 	db := models.GetDBManager().GetDefaultDB()
-	list := []*models.Proxy{}
+	list := []*models.ProxyStats{}
 	err := db.
-		Where(&models.Proxy{ProxyEntity: &models.ProxyEntity{
+		Where(&models.ProxyStats{ProxyStatsEntity: &models.ProxyStatsEntity{
 			UserID:   userInfo.GetUserID(),
 			TenantID: userInfo.GetTenantID(),
 			ServerID: serverID,
-		}}).Or(&models.Proxy{ProxyEntity: &models.ProxyEntity{
+		}}).Or(&models.ProxyStats{ProxyStatsEntity: &models.ProxyStatsEntity{
 		UserID:   0,
 		TenantID: userInfo.GetTenantID(),
 		ServerID: serverID,
@@ -60,12 +72,12 @@ func GetProxyByServerID(userInfo models.UserInfo, serverID string) ([]*models.Pr
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(list, func(item *models.Proxy, _ int) *models.ProxyEntity {
-		return item.ProxyEntity
+	return lo.Map(list, func(item *models.ProxyStats, _ int) *models.ProxyStatsEntity {
+		return item.ProxyStatsEntity
 	}), nil
 }
 
-func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
+func AdminUpdateProxyStats(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 	if srv.ServerID == "" {
 		return fmt.Errorf("invalid server id")
 	}
@@ -105,15 +117,15 @@ func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 		)
 		p.Go(
 			func() error {
-				oldProxy := []*models.Proxy{}
+				oldProxy := []*models.ProxyStats{}
 				if err := tx.
-					Where(&models.Proxy{ProxyEntity: &models.ProxyEntity{
+					Where(&models.ProxyStats{ProxyStatsEntity: &models.ProxyStatsEntity{
 						UserID:   srv.UserID,
 						ServerID: srv.ServerID,
 					}}).Find(&oldProxy).Error; err != nil {
 					return err
 				}
-				oldProxyMap := lo.SliceToMap(oldProxy, func(p *models.Proxy) (string, *models.Proxy) {
+				oldProxyMap := lo.SliceToMap(oldProxy, func(p *models.ProxyStats) (string, *models.ProxyStats) {
 					return p.Name, p
 				})
 				queryResults[2] = oldProxyMap
@@ -126,16 +138,16 @@ func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 
 		user := queryResults[0].(models.User)
 		clients := queryResults[1].([]*models.Client)
-		oldProxyMap := queryResults[2].(map[string]*models.Proxy)
+		oldProxyMap := queryResults[2].(map[string]*models.ProxyStats)
 
 		inputMap := map[string]*pb.ProxyInfo{}
-		proxyMap := map[string]*models.ProxyEntity{}
+		proxyMap := map[string]*models.ProxyStatsEntity{}
 		for _, proxyInfo := range inputs {
 			if proxyInfo == nil {
 				continue
 			}
 			proxyName := strings.TrimPrefix(proxyInfo.GetName(), user.UserName+".")
-			proxyMap[proxyName] = &models.ProxyEntity{
+			proxyMap[proxyName] = &models.ProxyStatsEntity{
 				ServerID:        srv.ServerID,
 				Name:            proxyName,
 				Type:            proxyInfo.GetType(),
@@ -147,7 +159,7 @@ func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 			inputMap[proxyName] = proxyInfo
 		}
 
-		proxyEntityMap := map[string]*models.ProxyEntity{}
+		proxyEntityMap := map[string]*models.ProxyStatsEntity{}
 		for _, client := range clients {
 			cliCfg, err := client.GetConfigContent()
 			if err != nil || cliCfg == nil {
@@ -156,15 +168,16 @@ func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 			for _, cfg := range cliCfg.Proxies {
 				if proxy, ok := proxyMap[cfg.GetBaseConfig().Name]; ok {
 					proxy.ClientID = client.ClientID
+					proxy.OriginClientID = client.OriginClientID
 					proxyEntityMap[proxy.Name] = proxy
 				}
 			}
 		}
 
 		nowTime := time.Now()
-		results := lo.Values(lo.MapValues(proxyEntityMap, func(p *models.ProxyEntity, name string) *models.Proxy {
-			item := &models.Proxy{
-				ProxyEntity: p,
+		results := lo.Values(lo.MapValues(proxyEntityMap, func(p *models.ProxyStatsEntity, name string) *models.ProxyStats {
+			item := &models.ProxyStats{
+				ProxyStatsEntity: p,
 			}
 			if oldProxy, ok := oldProxyMap[name]; ok {
 				item.ProxyID = oldProxy.ProxyID
@@ -188,31 +201,346 @@ func AdminUpdateProxy(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 	})
 }
 
-func AdminGetTenantProxies(tenantID int) ([]*models.ProxyEntity, error) {
+func AdminGetTenantProxyStats(tenantID int) ([]*models.ProxyStatsEntity, error) {
 	db := models.GetDBManager().GetDefaultDB()
-	list := []*models.Proxy{}
+	list := []*models.ProxyStats{}
 	err := db.
-		Where(&models.Proxy{ProxyEntity: &models.ProxyEntity{
+		Where(&models.ProxyStats{ProxyStatsEntity: &models.ProxyStatsEntity{
 			TenantID: tenantID,
 		}}).
 		Find(&list).Error
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(list, func(item *models.Proxy, _ int) *models.ProxyEntity {
-		return item.ProxyEntity
+	return lo.Map(list, func(item *models.ProxyStats, _ int) *models.ProxyStatsEntity {
+		return item.ProxyStatsEntity
 	}), nil
 }
 
-func AdminGetAllProxies(tx *gorm.DB) ([]*models.ProxyEntity, error) {
+func AdminGetAllProxyStats(tx *gorm.DB) ([]*models.ProxyStatsEntity, error) {
 	db := tx
-	list := []*models.Proxy{}
+	list := []*models.ProxyStats{}
 	err := db.Clauses(clause.Locking{Strength: "UPDATE"}).
 		Find(&list).Error
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(list, func(item *models.Proxy, _ int) *models.ProxyEntity {
-		return item.ProxyEntity
+	return lo.Map(list, func(item *models.ProxyStats, _ int) *models.ProxyStatsEntity {
+		return item.ProxyStatsEntity
 	}), nil
+}
+
+func AdminCreateProxyConfig(proxyCfg *models.ProxyConfig) error {
+	db := models.GetDBManager().GetDefaultDB()
+	return db.Create(proxyCfg).Error
+}
+
+// RebuildProxyConfigFromClient rebuild proxy from client
+func RebuildProxyConfigFromClient(userInfo models.UserInfo, client *models.Client) error {
+	db := models.GetDBManager().GetDefaultDB()
+
+	pxyCfgs, err := utils.LoadProxiesFromContent(client.ConfigContent)
+	if err != nil {
+		return err
+	}
+
+	proxyConfigEntities := []*models.ProxyConfig{}
+
+	for _, pxyCfg := range pxyCfgs {
+		proxyCfg := &models.ProxyConfig{
+			ProxyConfigEntity: &models.ProxyConfigEntity{},
+		}
+		if oldProxyCfg, err := GetProxyConfigByOriginClientIDAndName(userInfo, client.ClientID, pxyCfg.GetBaseConfig().Name); err == nil {
+			logger.Logger(context.Background()).WithError(err).Warnf("proxy config already exist, will be override, clientID: [%s], name: [%s]",
+				client.ClientID, pxyCfg.GetBaseConfig().Name)
+			proxyCfg.Model = oldProxyCfg.Model
+		}
+
+		if err := proxyCfg.FillClientConfig(client.ClientEntity); err != nil {
+			return err
+		}
+
+		if err := proxyCfg.FillTypedProxyConfig(pxyCfg); err != nil {
+			return err
+		}
+
+		proxyConfigEntities = append(proxyConfigEntities, proxyCfg)
+	}
+
+	if err := DeleteProxyConfigsByClientIDOrOriginClientID(userInfo, client.ClientID); err != nil {
+		return err
+	}
+
+	if len(proxyConfigEntities) == 0 {
+		return nil
+	}
+
+	return db.Save(proxyConfigEntities).Error
+}
+
+func AdminGetProxyConfigByClientIDAndName(clientID string, name string) (*models.ProxyConfig, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	proxyCfg := &models.ProxyConfig{}
+	err := db.
+		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+			ClientID: clientID,
+			Name:     name,
+		}}).
+		First(proxyCfg).Error
+	if err != nil {
+		return nil, err
+	}
+	return proxyCfg, nil
+}
+
+func GetProxyConfigsByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyConfigEntity, error) {
+	if clientID == "" {
+		return nil, fmt.Errorf("invalid client id")
+	}
+	db := models.GetDBManager().GetDefaultDB()
+	list := []*models.ProxyConfig{}
+	err := db.
+		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+			ClientID: clientID,
+		}}).
+		Find(&list).Error
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(list, func(item *models.ProxyConfig, _ int) *models.ProxyConfigEntity {
+		return item.ProxyConfigEntity
+	}), nil
+}
+
+func GetProxyConfigByFilter(userInfo models.UserInfo, proxyConfig *models.ProxyConfigEntity) (*models.ProxyConfig, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	filter := &models.ProxyConfigEntity{}
+
+	if len(proxyConfig.ClientID) != 0 {
+		filter.ClientID = proxyConfig.ClientID
+	}
+	if len(proxyConfig.OriginClientID) != 0 {
+		filter.OriginClientID = proxyConfig.OriginClientID
+	}
+	if len(proxyConfig.Name) != 0 {
+		filter.Name = proxyConfig.Name
+	}
+	if len(proxyConfig.Type) != 0 {
+		filter.Type = proxyConfig.Type
+	}
+	if len(proxyConfig.ServerID) != 0 {
+		filter.ServerID = proxyConfig.ServerID
+	}
+
+	filter.UserID = userInfo.GetUserID()
+	filter.TenantID = userInfo.GetTenantID()
+
+	respProxyCfg := &models.ProxyConfig{}
+	err := db.
+		Where(&models.ProxyConfig{ProxyConfigEntity: filter}).
+		First(respProxyCfg).Error
+	if err != nil {
+		return nil, err
+	}
+	return respProxyCfg, nil
+}
+
+func ListProxyConfigsWithFilters(userInfo models.UserInfo, page, pageSize int, filters *models.ProxyConfigEntity) ([]*models.ProxyConfig, error) {
+	if page < 1 || pageSize < 1 {
+		return nil, fmt.Errorf("invalid page or page size")
+	}
+
+	db := models.GetDBManager().GetDefaultDB()
+	offset := (page - 1) * pageSize
+
+	filters.UserID = userInfo.GetUserID()
+	filters.TenantID = userInfo.GetTenantID()
+
+	var proxyConfigs []*models.ProxyConfig
+	err := db.Where(&models.ProxyConfig{
+		ProxyConfigEntity: filters,
+	}).Where(filters).Offset(offset).Limit(pageSize).Find(&proxyConfigs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return proxyConfigs, nil
+}
+
+func AdminListProxyConfigsWithFilters(filters *models.ProxyConfigEntity) ([]*models.ProxyConfig, error) {
+	db := models.GetDBManager().GetDefaultDB()
+
+	var proxyConfigs []*models.ProxyConfig
+	err := db.Where(&models.ProxyConfig{
+		ProxyConfigEntity: filters,
+	}).Where(filters).Find(&proxyConfigs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return proxyConfigs, nil
+}
+
+func ListProxyConfigsWithFiltersAndKeyword(userInfo models.UserInfo, page, pageSize int, filters *models.ProxyConfigEntity, keyword string) ([]*models.ProxyConfig, error) {
+	if page < 1 || pageSize < 1 || len(keyword) == 0 {
+		return nil, fmt.Errorf("invalid page or page size or keyword")
+	}
+
+	db := models.GetDBManager().GetDefaultDB()
+	offset := (page - 1) * pageSize
+
+	filters.UserID = userInfo.GetUserID()
+	filters.TenantID = userInfo.GetTenantID()
+
+	var proxyConfigs []*models.ProxyConfig
+	err := db.Where(&models.ProxyConfig{
+		ProxyConfigEntity: filters,
+	}).Where(filters).Where("name like ?", "%"+keyword+"%").Offset(offset).Limit(pageSize).Find(&proxyConfigs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return proxyConfigs, nil
+}
+
+func ListProxyConfigsWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ProxyConfig, error) {
+	return ListProxyConfigsWithFiltersAndKeyword(userInfo, page, pageSize, &models.ProxyConfigEntity{}, keyword)
+}
+
+func ListProxyConfigs(userInfo models.UserInfo, page, pageSize int) ([]*models.ProxyConfig, error) {
+	return ListProxyConfigsWithFilters(userInfo, page, pageSize, &models.ProxyConfigEntity{})
+}
+
+func CreateProxyConfig(userInfo models.UserInfo, proxyCfg *models.ProxyConfigEntity) error {
+	db := models.GetDBManager().GetDefaultDB()
+	proxyCfg.UserID = userInfo.GetUserID()
+	proxyCfg.TenantID = userInfo.GetTenantID()
+	return db.Create(&models.ProxyConfig{ProxyConfigEntity: proxyCfg}).Error
+}
+
+func UpdateProxyConfig(userInfo models.UserInfo, proxyCfg *models.ProxyConfig) error {
+	if proxyCfg.ID == 0 {
+		return fmt.Errorf("invalid proxy config id")
+	}
+	db := models.GetDBManager().GetDefaultDB()
+	proxyCfg.UserID = userInfo.GetUserID()
+	proxyCfg.TenantID = userInfo.GetTenantID()
+	return db.Where(&models.ProxyConfig{
+		ProxyConfigEntity: &models.ProxyConfigEntity{
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+			ClientID: proxyCfg.ClientID,
+		},
+		Model: &gorm.Model{
+			ID: proxyCfg.ID,
+		},
+	}).Save(proxyCfg).Error
+}
+
+func DeleteProxyConfig(userInfo models.UserInfo, clientID, name string) error {
+	if clientID == "" || name == "" {
+		return fmt.Errorf("invalid client id or name")
+	}
+	db := models.GetDBManager().GetDefaultDB()
+	return db.Unscoped().
+		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+			ClientID: clientID,
+			Name:     name,
+		}}).
+		Delete(&models.ProxyConfig{}).Error
+}
+
+func DeleteProxyConfigsByClientIDOrOriginClientID(userInfo models.UserInfo, clientID string) error {
+	if clientID == "" {
+		return fmt.Errorf("invalid client id")
+	}
+	db := models.GetDBManager().GetDefaultDB()
+	return db.Unscoped().
+		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+			ClientID: clientID,
+		}}).
+		Or(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+			UserID:         userInfo.GetUserID(),
+			TenantID:       userInfo.GetTenantID(),
+			OriginClientID: clientID,
+		}}).
+		Delete(&models.ProxyConfig{}).Error
+}
+
+func DeleteProxyConfigsByClientID(userInfo models.UserInfo, clientID string) error {
+	if clientID == "" {
+		return fmt.Errorf("invalid client id")
+	}
+	db := models.GetDBManager().GetDefaultDB()
+	return db.Unscoped().
+		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+			ClientID: clientID,
+		}}).
+		Delete(&models.ProxyConfig{}).Error
+}
+
+func GetProxyConfigByOriginClientIDAndName(userInfo models.UserInfo, clientID string, name string) (*models.ProxyConfig, error) {
+	if clientID == "" || name == "" {
+		return nil, fmt.Errorf("invalid client id or name")
+	}
+	db := models.GetDBManager().GetDefaultDB()
+	item := &models.ProxyConfig{}
+	err := db.
+		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+			UserID:         userInfo.GetUserID(),
+			TenantID:       userInfo.GetTenantID(),
+			OriginClientID: clientID,
+			Name:           name,
+		}}).
+		First(&item).Error
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
+}
+
+func CountProxyConfigs(userInfo models.UserInfo) (int64, error) {
+	return CountProxyConfigsWithFilters(userInfo, &models.ProxyConfigEntity{})
+}
+
+func CountProxyConfigsWithFilters(userInfo models.UserInfo, filters *models.ProxyConfigEntity) (int64, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	filters.UserID = userInfo.GetUserID()
+	filters.TenantID = userInfo.GetTenantID()
+
+	var count int64
+	err := db.Model(&models.ProxyConfig{}).Where(&models.ProxyConfig{
+		ProxyConfigEntity: filters,
+	}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func CountProxyConfigsWithFiltersAndKeyword(userInfo models.UserInfo, filters *models.ProxyConfigEntity, keyword string) (int64, error) {
+	if len(keyword) == 0 {
+		return CountProxyConfigsWithFilters(userInfo, filters)
+	}
+
+	db := models.GetDBManager().GetDefaultDB()
+	filters.UserID = userInfo.GetUserID()
+	filters.TenantID = userInfo.GetTenantID()
+
+	var count int64
+	err := db.Model(&models.ProxyConfig{}).Where(&models.ProxyConfig{
+		ProxyConfigEntity: filters,
+	}).Where("name like ?", "%"+keyword+"%").Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }

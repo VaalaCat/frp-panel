@@ -1,23 +1,36 @@
 import * as z from 'zod'
 import { Client, Server } from './pb/common'
 import { GetPlatformInfoResponse } from './pb/api_user'
+import { TypedProxyConfig } from '@/types/proxy'
 
 export const API_PATH = '/api/v1'
 export const SET_TOKEN_HEADER = 'x-set-authorization'
 export const X_CLIENT_REQUEST_ID = 'x-client-request-id'
 export const LOCAL_STORAGE_TOKEN_KEY = 'token'
 export const ZodPortSchema = z.coerce
-  .number({required_error: 'validation.required'})
+  .number({ required_error: 'validation.required' })
   .min(1, { message: 'validation.portRange.min' })
   .max(65535, { message: 'validation.portRange.max' })
 
-export const ZodIPSchema = z.string({required_error: 'validation.required'})
+export const ZodIPSchema = z.string({ required_error: 'validation.required' })
   .regex(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/, { message: 'validation.ipAddress' })
-export const ZodStringSchema = z.string({required_error: 'validation.required'})
+export const ZodStringSchema = z.string({ required_error: 'validation.required' })
   .min(1, { message: 'validation.required' })
-export const ZodEmailSchema = z.string({required_error: 'validation.required'})
+export const ZodEmailSchema = z.string({ required_error: 'validation.required' })
   .min(1, { message: 'validation.required' })
   .email({ message: 'auth.email.invalid' })
+
+export const TypedProxyConfigValid = (typedProxyCfg: TypedProxyConfig | undefined): boolean => {
+  return (typedProxyCfg?.localPort && typedProxyCfg.localIP && typedProxyCfg.name && typedProxyCfg.type) ? true : false
+}
+
+export const ClientConfigured = (client: Client | undefined): boolean => {
+  if (client == undefined) {
+    return false
+  }
+  return !((client.config == undefined || client.config == '') &&
+    (client.clientIds == undefined || client.clientIds.length == 0))
+}
 
 // .refine((e) => e === "abcd@fg.com", "This email is not in our database")
 

@@ -22,7 +22,9 @@ type ReqType interface {
 		pb.GetPlatformInfoRequest | pb.GetClientsStatusRequest |
 		pb.GetClientCertRequest |
 		pb.StartFRPCRequest | pb.StopFRPCRequest | pb.StartFRPSRequest | pb.StopFRPSRequest |
-		pb.GetProxyByCIDRequest | pb.GetProxyBySIDRequest
+		pb.GetProxyStatsByClientIDRequest | pb.GetProxyStatsByServerIDRequest |
+		pb.CreateProxyConfigRequest | pb.ListProxyConfigsRequest | pb.UpdateProxyConfigRequest |
+		pb.DeleteProxyConfigRequest | pb.GetProxyConfigRequest
 }
 
 func GetProtoRequest[T ReqType](c *gin.Context) (r *T, err error) {
@@ -47,60 +49,14 @@ func GetProtoRequest[T ReqType](c *gin.Context) (r *T, err error) {
 }
 
 func GetServerMessageRequest[T ReqType](b []byte, r *T, trans func(b []byte, m protoreflect.ProtoMessage) error) (err error) {
-	switch ptr := any(r).(type) {
-	case *pb.CommonRequest:
-		return trans(b, ptr)
-	case *pb.UpdateFRPCRequest:
-		return trans(b, ptr)
-	case *pb.RemoveFRPCRequest:
-		return trans(b, ptr)
-	case *pb.UpdateFRPSRequest:
-		return trans(b, ptr)
-	case *pb.RemoveFRPSRequest:
-		return trans(b, ptr)
-	case *pb.RegisterRequest:
-		return trans(b, ptr)
-	case *pb.LoginRequest:
-		return trans(b, ptr)
-	case *pb.InitClientRequest:
-		return trans(b, ptr)
-	case *pb.ListClientsRequest:
-		return trans(b, ptr)
-	case *pb.GetClientRequest:
-		return trans(b, ptr)
-	case *pb.DeleteClientRequest:
-		return trans(b, ptr)
-	case *pb.InitServerRequest:
-		return trans(b, ptr)
-	case *pb.ListServersRequest:
-		return trans(b, ptr)
-	case *pb.GetServerRequest:
-		return trans(b, ptr)
-	case *pb.DeleteServerRequest:
-		return trans(b, ptr)
-	case *pb.GetUserInfoRequest:
-		return trans(b, ptr)
-	case *pb.UpdateUserInfoRequest:
-		return trans(b, ptr)
-	case *pb.GetPlatformInfoRequest:
-		return trans(b, ptr)
-	case *pb.GetClientsStatusRequest:
-		return trans(b, ptr)
-	case *pb.GetClientCertRequest:
-		return trans(b, ptr)
-	case *pb.StartFRPCRequest:
-		return trans(b, ptr)
-	case *pb.StopFRPCRequest:
-		return trans(b, ptr)
-	case *pb.StartFRPSRequest:
-		return trans(b, ptr)
-	case *pb.StopFRPSRequest:
-		return trans(b, ptr)
-	case *pb.GetProxyByCIDRequest:
-		return trans(b, ptr)
-	case *pb.GetProxyBySIDRequest:
-		return trans(b, ptr)
-	default:
+	msg, ok := any(r).(protoreflect.ProtoMessage)
+	if !ok {
+		return fmt.Errorf("type does not implement protoreflect.ProtoMessage")
 	}
-	return fmt.Errorf("cannot unmarshal unknown type: %T", r)
+
+	err = trans(b, msg)
+	if err != nil {
+		return err
+	}
+	return nil
 }

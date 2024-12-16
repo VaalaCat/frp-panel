@@ -10,8 +10,8 @@ import (
 	"github.com/VaalaCat/frp-panel/pb"
 )
 
-// GetProxyBySID get proxy info by server id
-func GetProxyBySID(c context.Context, req *pb.GetProxyBySIDRequest) (*pb.GetProxyBySIDResponse, error) {
+// GetProxyStatsByServerID get proxy info by server id
+func GetProxyStatsByServerID(c context.Context, req *pb.GetProxyStatsByServerIDRequest) (*pb.GetProxyStatsByServerIDResponse, error) {
 	logger.Logger(c).Infof("get proxy by server id, req: [%+v]", req)
 	var (
 		serverID = req.GetServerId()
@@ -22,13 +22,13 @@ func GetProxyBySID(c context.Context, req *pb.GetProxyBySIDRequest) (*pb.GetProx
 		return nil, fmt.Errorf("request invalid")
 	}
 
-	proxyList, err := dao.GetProxyByServerID(userInfo, serverID)
+	proxyList, err := dao.GetProxyStatsByServerID(userInfo, serverID)
 	if proxyList == nil || err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot get proxy, server id: [%s]", serverID)
 		return nil, err
 	}
-	return &pb.GetProxyBySIDResponse{
+	return &pb.GetProxyStatsByServerIDResponse{
 		Status:     &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
-		ProxyInfos: convertProxyList(proxyList),
+		ProxyInfos: convertProxyStatsList(proxyList),
 	}, nil
 }

@@ -35,7 +35,7 @@ export function RegisterComponent() {
   }
 
   const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
-    toast('auth.registering')
+    toast(t('auth.registering'))
     try {
       const res = await register({ ...values })
       if (res.status?.code === RespCode.SUCCESS) {

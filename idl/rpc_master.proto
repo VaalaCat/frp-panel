@@ -23,6 +23,7 @@ enum Event {
   EVENT_START_STREAM_LOG = 15;
   EVENT_STOP_STREAM_LOG = 16;
   EVENT_START_PTY_CONNECT = 17;
+  EVENT_GET_PROXY_INFO = 18;
 }
 
 message ServerBase {

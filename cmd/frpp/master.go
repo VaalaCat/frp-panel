@@ -74,6 +74,10 @@ func initDatabase(c context.Context) {
 	logger.Logger(c).Infof("start to init database, type: %s", conf.Get().DB.Type)
 	models.MustInitDBManager(nil, conf.Get().DB.Type)
 
+	if conf.Get().IsDebug {
+		models.GetDBManager().SetDebug(true)
+	}
+
 	switch conf.Get().DB.Type {
 	case "sqlite3":
 		if sqlitedb, err := gorm.Open(sqlite.Open(conf.Get().DB.DSN), &gorm.Config{}); err != nil {

@@ -28,6 +28,7 @@ message ListClientsResponse {
 
 message GetClientRequest {
   optional string client_id = 1;
+  optional string server_id = 2;
 }
 
 message GetClientResponse {
@@ -78,11 +79,69 @@ message StartFRPCResponse {
   optional common.Status status = 1;
 }
 
-message GetProxyByCIDRequest {
+message GetProxyStatsByClientIDRequest {
   optional string client_id = 1;
 }
 
-message GetProxyByCIDResponse {
+message GetProxyStatsByClientIDResponse {
   optional common.Status status = 1;
   repeated common.ProxyInfo proxy_infos = 2;
+}
+
+message ListProxyConfigsRequest {
+  optional int32 page = 1;
+  optional int32 page_size = 2;
+  optional string keyword = 3;
+  optional string client_id = 4;
+  optional string server_id = 5;
+}
+
+message ListProxyConfigsResponse {
+  optional common.Status status = 1;
+  optional int32 total = 2;
+  repeated common.ProxyConfig proxy_configs = 3;
+}
+
+message CreateProxyConfigRequest {
+  optional string client_id = 1;
+  optional string server_id = 2;
+  optional bytes config = 3;
+  optional bool overwrite = 4;
+}
+
+message CreateProxyConfigResponse {
+  optional common.Status status = 1;
+}
+
+message DeleteProxyConfigRequest {
+  optional string client_id = 1;
+  optional string server_id = 2;
+  optional string name = 3;
+}
+
+message DeleteProxyConfigResponse {
+  optional common.Status status = 1;
+}
+
+message UpdateProxyConfigRequest {
+  optional string client_id = 1;
+  optional string server_id = 2;
+  optional string name = 3;
+  optional bytes config = 4;
+}
+
+message UpdateProxyConfigResponse {
+  optional common.Status status = 1;
+}
+
+message GetProxyConfigRequest {
+  optional string client_id = 1;
+  optional string server_id = 2;
+  optional string name = 3;
+}
+
+message GetProxyConfigResponse {
+  optional common.Status status = 1;
+  optional common.ProxyConfig proxy_config = 2;
+  optional common.ProxyWorkingStatus working_status = 3;
 }

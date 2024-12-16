@@ -41,9 +41,9 @@ export interface ClientStatus {
      */
     addr?: string;
     /**
-     * @generated from protobuf field: optional int32 connect_time = 7;
+     * @generated from protobuf field: optional int64 connect_time = 7;
      */
-    connectTime?: number; // 连接建立的时间
+    connectTime?: bigint; // 连接建立的时间
 }
 /**
  * @generated from protobuf enum api_master.ClientStatus.Status
@@ -163,7 +163,7 @@ class ClientStatus$Type extends MessageType<ClientStatus> {
             { no: 4, name: "ping", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 5, name: "version", kind: "message", T: () => ClientVersion },
             { no: 6, name: "addr", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 7, name: "connect_time", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ }
+            { no: 7, name: "connect_time", kind: "scalar", opt: true, T: 3 /*ScalarType.INT64*/, L: 0 /*LongType.BIGINT*/ }
         ]);
     }
     create(value?: PartialMessage<ClientStatus>): ClientStatus {
@@ -199,8 +199,8 @@ class ClientStatus$Type extends MessageType<ClientStatus> {
                 case /* optional string addr */ 6:
                     message.addr = reader.string();
                     break;
-                case /* optional int32 connect_time */ 7:
-                    message.connectTime = reader.int32();
+                case /* optional int64 connect_time */ 7:
+                    message.connectTime = reader.int64().toBigInt();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -232,9 +232,9 @@ class ClientStatus$Type extends MessageType<ClientStatus> {
         /* optional string addr = 6; */
         if (message.addr !== undefined)
             writer.tag(6, WireType.LengthDelimited).string(message.addr);
-        /* optional int32 connect_time = 7; */
+        /* optional int64 connect_time = 7; */
         if (message.connectTime !== undefined)
-            writer.tag(7, WireType.Varint).int32(message.connectTime);
+            writer.tag(7, WireType.Varint).int64(message.connectTime);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

@@ -14,8 +14,10 @@ import {
 } from '@tanstack/react-table'
 
 import React from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { listServer } from '@/api/server'
+import { $serverTableRefetchTrigger } from '@/store/refetch-trigger'
+import { useStore } from '@nanostores/react'
 
 export interface ServerListProps {
   Servers: Server[]
@@ -26,6 +28,8 @@ export interface ServerListProps {
 export const ServerList: React.FC<ServerListProps> = ({ Servers, Keyword, TriggerRefetch }) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const globalRefetchTrigger = useStore($serverTableRefetchTrigger)
+
   const data = Servers.map(
     (server) =>
       ({
@@ -46,6 +50,7 @@ export const ServerList: React.FC<ServerListProps> = ({ Servers, Keyword, Trigge
     pageSize,
     Keyword,
     TriggerRefetch,
+    globalRefetchTrigger,
   }
   const pagination = React.useMemo(
     () => ({
@@ -60,6 +65,7 @@ export const ServerList: React.FC<ServerListProps> = ({ Servers, Keyword, Trigge
     queryFn: async () => {
       return await listServer({ page: fetchDataOptions.pageIndex + 1, pageSize: fetchDataOptions.pageSize, keyword: fetchDataOptions.Keyword })
     },
+    placeholderData: keepPreviousData,
   })
 
   const table = useReactTable({

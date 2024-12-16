@@ -40,6 +40,8 @@ message Client {
   optional string comment = 5; // 用户自定义的备注
   optional string server_id = 6;
   optional bool stopped = 7;
+  repeated string client_ids = 8; // some client can connected to more than one server, make a shadow client to handle this
+  optional string origin_client_id = 9;
 }
 
 message Server {
@@ -71,4 +73,22 @@ message ProxyInfo {
 	optional int64 history_traffic_in = 7;
 	optional int64 history_traffic_out = 8;
 	optional bool first_sync = 9;
+}
+
+message ProxyConfig {
+  optional uint32 id = 1;
+	optional string name = 2;
+	optional string type = 3;
+	optional string client_id = 4;
+	optional string server_id = 5;
+  optional string config = 6;
+  optional string origin_client_id = 7;
+}
+
+message ProxyWorkingStatus {
+  optional string name = 1;
+  optional string type = 2;
+  optional string status = 3;
+  optional string err = 4;
+  optional string remote_addr = 5;
 }

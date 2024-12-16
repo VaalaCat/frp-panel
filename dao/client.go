@@ -5,6 +5,7 @@ import (
 
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/samber/lo"
+	"gorm.io/gorm"
 )
 
 func ValidateClientSecret(clientID, clientSecret string) (*models.ClientEntity, error) {
@@ -63,6 +64,56 @@ func GetClientByClientID(userInfo models.UserInfo, clientID string) (*models.Cli
 	return c.ClientEntity, nil
 }
 
+func GetClientByFilter(userInfo models.UserInfo, client *models.ClientEntity, shadow *bool) (*models.ClientEntity, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	filter := &models.ClientEntity{}
+	if len(client.ClientID) != 0 {
+		filter.ClientID = client.ClientID
+	}
+	if len(client.OriginClientID) != 0 {
+		filter.OriginClientID = client.OriginClientID
+	}
+	if len(client.ConnectSecret) != 0 {
+		filter.ConnectSecret = client.ConnectSecret
+	}
+	if len(client.ServerID) != 0 {
+		filter.ServerID = client.ServerID
+	}
+	if shadow != nil {
+		filter.IsShadow = *shadow
+	}
+	c := &models.Client{}
+
+	err := db.
+		Where(&models.Client{ClientEntity: &models.ClientEntity{
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+		}}).
+		Where(filter).
+		First(c).Error
+	if err != nil {
+		return nil, err
+	}
+	return c.ClientEntity, nil
+}
+
+func GetClientByOriginClientID(originClientID string) (*models.ClientEntity, error) {
+	if originClientID == "" {
+		return nil, fmt.Errorf("invalid origin client id")
+	}
+	db := models.GetDBManager().GetDefaultDB()
+	c := &models.Client{}
+	err := db.
+		Where(&models.Client{ClientEntity: &models.ClientEntity{
+			OriginClientID: originClientID,
+		}}).
+		First(c).Error
+	if err != nil {
+		return nil, err
+	}
+	return c.ClientEntity, nil
+}
+
 func CreateClient(userInfo models.UserInfo, client *models.ClientEntity) error {
 	client.UserID = userInfo.GetUserID()
 	client.TenantID = userInfo.GetTenantID()
@@ -84,11 +135,13 @@ func DeleteClient(userInfo models.UserInfo, clientID string) error {
 			UserID:   userInfo.GetUserID(),
 			TenantID: userInfo.GetTenantID(),
 		},
-	}).Delete(&models.Client{
+	}).Or(&models.Client{
 		ClientEntity: &models.ClientEntity{
-			ClientID: clientID,
+			OriginClientID: clientID,
+			UserID:         userInfo.GetUserID(),
+			TenantID:       userInfo.GetTenantID(),
 		},
-	}).Error
+	}).Delete(&models.Client{}).Error
 }
 
 func UpdateClient(userInfo models.UserInfo, client *models.ClientEntity) error {
@@ -118,7 +171,14 @@ func ListClients(userInfo models.UserInfo, page, pageSize int) ([]*models.Client
 			UserID:   userInfo.GetUserID(),
 			TenantID: userInfo.GetTenantID(),
 		},
-	}).Offset(offset).Limit(pageSize).Find(&clients).Error
+	}).
+		Where(
+			db.Where(
+				normalClientFilter(db),
+			).Or(
+				"is_shadow = ?", true,
+			),
+		).Offset(offset).Limit(pageSize).Find(&clients).Error
 	if err != nil {
 		return nil, err
 	}
@@ -129,6 +189,8 @@ func ListClients(userInfo models.UserInfo, page, pageSize int) ([]*models.Client
 }
 
 func ListClientsWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ClientEntity, error) {
+	// 只获取没shadow且config有东西
+	// 或isShadow的client
 	if page < 1 || pageSize < 1 || len(keyword) == 0 {
 		return nil, fmt.Errorf("invalid page or page size or keyword")
 	}
@@ -137,12 +199,13 @@ func ListClientsWithKeyword(userInfo models.UserInfo, page, pageSize int, keywor
 	offset := (page - 1) * pageSize
 
 	var clients []*models.Client
-	err := db.Where(&models.Client{
-		ClientEntity: &models.ClientEntity{
+	err := db.Where("client_id like ?", "%"+keyword+"%").
+		Where(&models.Client{ClientEntity: &models.ClientEntity{
 			UserID:   userInfo.GetUserID(),
 			TenantID: userInfo.GetTenantID(),
-		},
-	}).Where("client_id like ?", "%"+keyword+"%").Offset(offset).Limit(pageSize).Find(&clients).Error
+		}}).
+		Where(normalClientFilter(db)).
+		Offset(offset).Limit(pageSize).Find(&clients).Error
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +241,8 @@ func CountClients(userInfo models.UserInfo) (int64, error) {
 			UserID:   userInfo.GetUserID(),
 			TenantID: userInfo.GetTenantID(),
 		},
-	}).Count(&count).Error
+	}).
+		Where(normalClientFilter(db)).Count(&count).Error
 	if err != nil {
 		return 0, err
 	}
@@ -193,7 +257,8 @@ func CountClientsWithKeyword(userInfo models.UserInfo, keyword string) (int64, e
 			UserID:   userInfo.GetUserID(),
 			TenantID: userInfo.GetTenantID(),
 		},
-	}).Where("client_id like ?", "%"+keyword+"%").Count(&count).Error
+	}).
+		Where(normalClientFilter(db)).Where("client_id like ?", "%"+keyword+"%").Count(&count).Error
 	if err != nil {
 		return 0, err
 	}
@@ -209,13 +274,67 @@ func CountConfiguredClients(userInfo models.UserInfo) (int64, error) {
 				UserID:   userInfo.GetUserID(),
 				TenantID: userInfo.GetTenantID(),
 			}}).
-		Not(&models.Client{
+		Where(normalClientFilter(db)).
+		Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func CountClientsInShadow(userInfo models.UserInfo, clientID string) (int64, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var count int64
+	err := db.Model(&models.Client{}).
+		Where(&models.Client{
 			ClientEntity: &models.ClientEntity{
-				ConfigContent: []byte{},
+				UserID:         userInfo.GetUserID(),
+				TenantID:       userInfo.GetTenantID(),
+				OriginClientID: clientID,
 			}}).
 		Count(&count).Error
 	if err != nil {
 		return 0, err
 	}
 	return count, nil
+}
+
+func GetClientIDsInShadowByClientID(userInfo models.UserInfo, clientID string) ([]string, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var clients []*models.Client
+	err := db.Where(&models.Client{
+		ClientEntity: &models.ClientEntity{
+			UserID:         userInfo.GetUserID(),
+			TenantID:       userInfo.GetTenantID(),
+			OriginClientID: clientID,
+		}}).Find(&clients).Error
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(clients, func(c *models.Client, _ int) string {
+		return c.ClientID
+	}), nil
+}
+
+func AdminGetClientIDsInShadowByClientID(clientID string) ([]string, error) {
+	db := models.GetDBManager().GetDefaultDB()
+	var clients []*models.Client
+	err := db.Where(&models.Client{
+		ClientEntity: &models.ClientEntity{
+			OriginClientID: clientID,
+		}}).Find(&clients).Error
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(clients, func(c *models.Client, _ int) string {
+		return c.ClientID
+	}), nil
+}
+
+func normalClientFilter(db *gorm.DB) *gorm.DB {
+	// 1. 没shadow过的老client
+	// 2. shadow过的shadow client
+	return db.Where("origin_client_id is NULL").
+		Or("is_shadow = ?", true).
+		Or("LENGTH(origin_client_id) = ?", 0)
 }

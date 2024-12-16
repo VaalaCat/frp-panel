@@ -11,11 +11,12 @@
   "nav": {
     "clients": "Clients",
     "servers": "Servers",
-    "editClient": "Edit Tunnel",
+    "editClient": "Edit Client",
     "editServer": "Edit Server",
     "trafficStats": "Traffic Stats",
     "realTimeLog": "Real-time Log",
     "console": "Console",
+    "editTunnel": "Edit Tunnel",
     "user": {
       "profile": "Profile",
       "settings": "Settings"
@@ -65,7 +66,6 @@
     "info": "Information",
     "download": "Click here to download",
     "copy": "Copy",
-    "download": "Download",
     "submit": "Submit",
     "cancel": "Cancel",
     "save": "Save",
@@ -114,7 +114,10 @@
     "totalServers": "Total Servers",
     "totalClients": "Total Clients",
     "unit": "",
-    "menuHint": "Please modify in the left menu"
+    "menuHint": "Please modify in the left menu",
+    "refresh": {
+      "data": "Refresh Data"
+    }
   },
   "server": {
     "configuration": "Server Configuration",
@@ -151,7 +154,7 @@
     },
     "start": {
       "title": "Start Command",
-      "description": "Copy and run the following command to start frps",
+      "description": "Copy and run the following command to start frp-panel server",
       "copy": "Copy Command"
     },
     "actions_menu": {
@@ -245,7 +248,7 @@
     },
     "start": {
       "title": "Start Command",
-      "description": "Copy and run the following command to start frpc",
+      "description": "Copy and run the following command to start frp-panel client",
       "copy": "Copy Command"
     },
     "actions_menu": {
@@ -340,7 +343,43 @@
       "save_success": "Save successful",
       "save_error": "Save failed",
       "save_changes": "Save Changes",
-      "submit": "Submit Changes"
+      "submit": "Submit Changes",
+      "default_port": "Default Port",
+      "port_placeholder": "Port (1-65535)",
+      "ip_placeholder": "IP Address (eg. 127.0.0.1)",
+      "subdomain_placeholder": "Input Subdomain",
+      "secret_placeholder": "Input Secret Key",
+      "route": "Route"
+    },
+    "config": {
+      "create": "Create",
+      "create_success": "Create successful",
+      "create_failed": "Create failed",
+      "select_server": "Select Server",
+      "select_client": "Select Client",
+      "select_proxy_type": "Select Tunnel Type",
+      "proxy_name": "Tunnel Name",
+      "invalid_config": "Invalid configuration",
+      "submit": "Submit"
+    },
+    "action": {
+      "delete_success": "Delete Successful",
+      "delete_failed": "Delete Failed",
+      "edit": "Edit",
+      "delete": "Delete",
+      "delete_tunnel": "Delete Tunnel",
+      "delete_attention_title": "Tunnel will be permanently deleted, please confirm",
+      "delete_attention_description": "After deletion, Tunnel will not be recovered, please be careful",
+      "delete_attention_confirm": "Confirm",
+      "title": "Tunnel Operation"
+    },
+    "item": {
+      "client_id": "Client ID",
+      "proxy_name": "Tunnel Name",
+      "proxy_type": "Tunnel Type",
+      "server_id": "Server ID",
+      "status": "Status",
+      "visit_preview": "Visit Preview"
     },
     "type": {
       "http": "HTTP",
@@ -379,10 +418,10 @@
   },
   "frpc": {
     "form": {
-      "title": "Edit Tunnel",
+      "title": "Edit Client",
       "description": {
         "warning": "Warning⚠️: The selected 'Server' must be configured in advance!",
-        "instruction": "Select client and server to edit tunnel"
+        "instruction": "Select client and server to edit configuration"
       },
       "advanced": {
         "title": "Advanced Mode",
@@ -428,9 +467,13 @@
     }
   },
   "input": {
+    "list": {
+      "placeholder": "Please enter ...",
+      "add": "Add"
+    },
     "search": "Search",
-    "id": {
-      "placeholder": "Enter ID"
+    "keyword": {
+      "placeholder": "Enter keyword"
     }
   },
   "table": {

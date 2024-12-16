@@ -15,6 +15,7 @@ import { TypedProxyConfig } from '@/types/proxy'
 import { ClientSelector } from '../base/client-selector'
 import { ServerSelector } from '../base/server-selector'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 export interface FRPCFormCardProps {
   clientID?: string
@@ -42,12 +43,19 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
     }
   }, [defaultClientID, defaultServerID])
 
-  const { data: client, refetch: refetchClient } = useQuery({
-    queryKey: ['getClient', clientID],
+  const { data: client, refetch: refetchClient, error } = useQuery({
+    queryKey: ['getClient', clientID, serverID],
     queryFn: () => {
-      return getClient({ clientId: clientID })
+      return getClient({ clientId: clientID, serverId: serverID })
     },
+    retry: false,
   })
+
+  useEffect(() => {
+    if (error) {
+      setClientProxyConfigs([])
+    }
+  }, [error])
 
   useEffect(() => {
     if (!client || !client?.client) return
@@ -56,7 +64,6 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
     const clientConf = JSON.parse(client?.client?.config || '{}') as ClientConfig
 
     const proxyConfs = clientConf.proxies
-    console.log('proxyConfs', proxyConfs)
     if (proxyConfs) {
       setClientProxyConfigs(proxyConfs)
     }

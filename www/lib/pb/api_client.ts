@@ -10,6 +10,8 @@ import { UnknownFieldHandler } from "@protobuf-ts/runtime";
 import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
+import { ProxyWorkingStatus } from "./common";
+import { ProxyConfig } from "./common";
 import { ProxyInfo } from "./common";
 import { Client } from "./common";
 import { Status } from "./common";
@@ -77,6 +79,10 @@ export interface GetClientRequest {
      * @generated from protobuf field: optional string client_id = 1;
      */
     clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 2;
+     */
+    serverId?: string;
 }
 /**
  * @generated from protobuf message api_client.GetClientResponse
@@ -194,18 +200,18 @@ export interface StartFRPCResponse {
     status?: Status;
 }
 /**
- * @generated from protobuf message api_client.GetProxyByCIDRequest
+ * @generated from protobuf message api_client.GetProxyStatsByClientIDRequest
  */
-export interface GetProxyByCIDRequest {
+export interface GetProxyStatsByClientIDRequest {
     /**
      * @generated from protobuf field: optional string client_id = 1;
      */
     clientId?: string;
 }
 /**
- * @generated from protobuf message api_client.GetProxyByCIDResponse
+ * @generated from protobuf message api_client.GetProxyStatsByClientIDResponse
  */
-export interface GetProxyByCIDResponse {
+export interface GetProxyStatsByClientIDResponse {
     /**
      * @generated from protobuf field: optional common.Status status = 1;
      */
@@ -214,6 +220,168 @@ export interface GetProxyByCIDResponse {
      * @generated from protobuf field: repeated common.ProxyInfo proxy_infos = 2;
      */
     proxyInfos: ProxyInfo[];
+}
+/**
+ * @generated from protobuf message api_client.ListProxyConfigsRequest
+ */
+export interface ListProxyConfigsRequest {
+    /**
+     * @generated from protobuf field: optional int32 page = 1;
+     */
+    page?: number;
+    /**
+     * @generated from protobuf field: optional int32 page_size = 2;
+     */
+    pageSize?: number;
+    /**
+     * @generated from protobuf field: optional string keyword = 3;
+     */
+    keyword?: string;
+    /**
+     * @generated from protobuf field: optional string client_id = 4;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 5;
+     */
+    serverId?: string;
+}
+/**
+ * @generated from protobuf message api_client.ListProxyConfigsResponse
+ */
+export interface ListProxyConfigsResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+    /**
+     * @generated from protobuf field: optional int32 total = 2;
+     */
+    total?: number;
+    /**
+     * @generated from protobuf field: repeated common.ProxyConfig proxy_configs = 3;
+     */
+    proxyConfigs: ProxyConfig[];
+}
+/**
+ * @generated from protobuf message api_client.CreateProxyConfigRequest
+ */
+export interface CreateProxyConfigRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 2;
+     */
+    serverId?: string;
+    /**
+     * @generated from protobuf field: optional bytes config = 3;
+     */
+    config?: Uint8Array;
+    /**
+     * @generated from protobuf field: optional bool overwrite = 4;
+     */
+    overwrite?: boolean;
+}
+/**
+ * @generated from protobuf message api_client.CreateProxyConfigResponse
+ */
+export interface CreateProxyConfigResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.DeleteProxyConfigRequest
+ */
+export interface DeleteProxyConfigRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 2;
+     */
+    serverId?: string;
+    /**
+     * @generated from protobuf field: optional string name = 3;
+     */
+    name?: string;
+}
+/**
+ * @generated from protobuf message api_client.DeleteProxyConfigResponse
+ */
+export interface DeleteProxyConfigResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.UpdateProxyConfigRequest
+ */
+export interface UpdateProxyConfigRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 2;
+     */
+    serverId?: string;
+    /**
+     * @generated from protobuf field: optional string name = 3;
+     */
+    name?: string;
+    /**
+     * @generated from protobuf field: optional bytes config = 4;
+     */
+    config?: Uint8Array;
+}
+/**
+ * @generated from protobuf message api_client.UpdateProxyConfigResponse
+ */
+export interface UpdateProxyConfigResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.GetProxyConfigRequest
+ */
+export interface GetProxyConfigRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 2;
+     */
+    serverId?: string;
+    /**
+     * @generated from protobuf field: optional string name = 3;
+     */
+    name?: string;
+}
+/**
+ * @generated from protobuf message api_client.GetProxyConfigResponse
+ */
+export interface GetProxyConfigResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+    /**
+     * @generated from protobuf field: optional common.ProxyConfig proxy_config = 2;
+     */
+    proxyConfig?: ProxyConfig;
+    /**
+     * @generated from protobuf field: optional common.ProxyWorkingStatus working_status = 3;
+     */
+    workingStatus?: ProxyWorkingStatus;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class InitClientRequest$Type extends MessageType<InitClientRequest> {
@@ -439,7 +607,8 @@ export const ListClientsResponse = new ListClientsResponse$Type();
 class GetClientRequest$Type extends MessageType<GetClientRequest> {
     constructor() {
         super("api_client.GetClientRequest", [
-            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<GetClientRequest>): GetClientRequest {
@@ -456,6 +625,9 @@ class GetClientRequest$Type extends MessageType<GetClientRequest> {
                 case /* optional string client_id */ 1:
                     message.clientId = reader.string();
                     break;
+                case /* optional string server_id */ 2:
+                    message.serverId = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -471,6 +643,9 @@ class GetClientRequest$Type extends MessageType<GetClientRequest> {
         /* optional string client_id = 1; */
         if (message.clientId !== undefined)
             writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 2; */
+        if (message.serverId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.serverId);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -1016,19 +1191,19 @@ class StartFRPCResponse$Type extends MessageType<StartFRPCResponse> {
  */
 export const StartFRPCResponse = new StartFRPCResponse$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class GetProxyByCIDRequest$Type extends MessageType<GetProxyByCIDRequest> {
+class GetProxyStatsByClientIDRequest$Type extends MessageType<GetProxyStatsByClientIDRequest> {
     constructor() {
-        super("api_client.GetProxyByCIDRequest", [
+        super("api_client.GetProxyStatsByClientIDRequest", [
             { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
-    create(value?: PartialMessage<GetProxyByCIDRequest>): GetProxyByCIDRequest {
+    create(value?: PartialMessage<GetProxyStatsByClientIDRequest>): GetProxyStatsByClientIDRequest {
         const message = globalThis.Object.create((this.messagePrototype!));
         if (value !== undefined)
-            reflectionMergePartial<GetProxyByCIDRequest>(this, message, value);
+            reflectionMergePartial<GetProxyStatsByClientIDRequest>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyByCIDRequest): GetProxyByCIDRequest {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyStatsByClientIDRequest): GetProxyStatsByClientIDRequest {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
@@ -1047,7 +1222,7 @@ class GetProxyByCIDRequest$Type extends MessageType<GetProxyByCIDRequest> {
         }
         return message;
     }
-    internalBinaryWrite(message: GetProxyByCIDRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: GetProxyStatsByClientIDRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* optional string client_id = 1; */
         if (message.clientId !== undefined)
             writer.tag(1, WireType.LengthDelimited).string(message.clientId);
@@ -1058,25 +1233,25 @@ class GetProxyByCIDRequest$Type extends MessageType<GetProxyByCIDRequest> {
     }
 }
 /**
- * @generated MessageType for protobuf message api_client.GetProxyByCIDRequest
+ * @generated MessageType for protobuf message api_client.GetProxyStatsByClientIDRequest
  */
-export const GetProxyByCIDRequest = new GetProxyByCIDRequest$Type();
+export const GetProxyStatsByClientIDRequest = new GetProxyStatsByClientIDRequest$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class GetProxyByCIDResponse$Type extends MessageType<GetProxyByCIDResponse> {
+class GetProxyStatsByClientIDResponse$Type extends MessageType<GetProxyStatsByClientIDResponse> {
     constructor() {
-        super("api_client.GetProxyByCIDResponse", [
+        super("api_client.GetProxyStatsByClientIDResponse", [
             { no: 1, name: "status", kind: "message", T: () => Status },
             { no: 2, name: "proxy_infos", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => ProxyInfo }
         ]);
     }
-    create(value?: PartialMessage<GetProxyByCIDResponse>): GetProxyByCIDResponse {
+    create(value?: PartialMessage<GetProxyStatsByClientIDResponse>): GetProxyStatsByClientIDResponse {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.proxyInfos = [];
         if (value !== undefined)
-            reflectionMergePartial<GetProxyByCIDResponse>(this, message, value);
+            reflectionMergePartial<GetProxyStatsByClientIDResponse>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyByCIDResponse): GetProxyByCIDResponse {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyStatsByClientIDResponse): GetProxyStatsByClientIDResponse {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
@@ -1098,7 +1273,7 @@ class GetProxyByCIDResponse$Type extends MessageType<GetProxyByCIDResponse> {
         }
         return message;
     }
-    internalBinaryWrite(message: GetProxyByCIDResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: GetProxyStatsByClientIDResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* optional common.Status status = 1; */
         if (message.status)
             Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
@@ -1112,6 +1287,593 @@ class GetProxyByCIDResponse$Type extends MessageType<GetProxyByCIDResponse> {
     }
 }
 /**
- * @generated MessageType for protobuf message api_client.GetProxyByCIDResponse
+ * @generated MessageType for protobuf message api_client.GetProxyStatsByClientIDResponse
  */
-export const GetProxyByCIDResponse = new GetProxyByCIDResponse$Type();
+export const GetProxyStatsByClientIDResponse = new GetProxyStatsByClientIDResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ListProxyConfigsRequest$Type extends MessageType<ListProxyConfigsRequest> {
+    constructor() {
+        super("api_client.ListProxyConfigsRequest", [
+            { no: 1, name: "page", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
+            { no: 2, name: "page_size", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "keyword", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ListProxyConfigsRequest>): ListProxyConfigsRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<ListProxyConfigsRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ListProxyConfigsRequest): ListProxyConfigsRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional int32 page */ 1:
+                    message.page = reader.int32();
+                    break;
+                case /* optional int32 page_size */ 2:
+                    message.pageSize = reader.int32();
+                    break;
+                case /* optional string keyword */ 3:
+                    message.keyword = reader.string();
+                    break;
+                case /* optional string client_id */ 4:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string server_id */ 5:
+                    message.serverId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ListProxyConfigsRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional int32 page = 1; */
+        if (message.page !== undefined)
+            writer.tag(1, WireType.Varint).int32(message.page);
+        /* optional int32 page_size = 2; */
+        if (message.pageSize !== undefined)
+            writer.tag(2, WireType.Varint).int32(message.pageSize);
+        /* optional string keyword = 3; */
+        if (message.keyword !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.keyword);
+        /* optional string client_id = 4; */
+        if (message.clientId !== undefined)
+            writer.tag(4, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 5; */
+        if (message.serverId !== undefined)
+            writer.tag(5, WireType.LengthDelimited).string(message.serverId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.ListProxyConfigsRequest
+ */
+export const ListProxyConfigsRequest = new ListProxyConfigsRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ListProxyConfigsResponse$Type extends MessageType<ListProxyConfigsResponse> {
+    constructor() {
+        super("api_client.ListProxyConfigsResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status },
+            { no: 2, name: "total", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "proxy_configs", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => ProxyConfig }
+        ]);
+    }
+    create(value?: PartialMessage<ListProxyConfigsResponse>): ListProxyConfigsResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.proxyConfigs = [];
+        if (value !== undefined)
+            reflectionMergePartial<ListProxyConfigsResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ListProxyConfigsResponse): ListProxyConfigsResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                case /* optional int32 total */ 2:
+                    message.total = reader.int32();
+                    break;
+                case /* repeated common.ProxyConfig proxy_configs */ 3:
+                    message.proxyConfigs.push(ProxyConfig.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ListProxyConfigsResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* optional int32 total = 2; */
+        if (message.total !== undefined)
+            writer.tag(2, WireType.Varint).int32(message.total);
+        /* repeated common.ProxyConfig proxy_configs = 3; */
+        for (let i = 0; i < message.proxyConfigs.length; i++)
+            ProxyConfig.internalBinaryWrite(message.proxyConfigs[i], writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.ListProxyConfigsResponse
+ */
+export const ListProxyConfigsResponse = new ListProxyConfigsResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CreateProxyConfigRequest$Type extends MessageType<CreateProxyConfigRequest> {
+    constructor() {
+        super("api_client.CreateProxyConfigRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "config", kind: "scalar", opt: true, T: 12 /*ScalarType.BYTES*/ },
+            { no: 4, name: "overwrite", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ }
+        ]);
+    }
+    create(value?: PartialMessage<CreateProxyConfigRequest>): CreateProxyConfigRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<CreateProxyConfigRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CreateProxyConfigRequest): CreateProxyConfigRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string server_id */ 2:
+                    message.serverId = reader.string();
+                    break;
+                case /* optional bytes config */ 3:
+                    message.config = reader.bytes();
+                    break;
+                case /* optional bool overwrite */ 4:
+                    message.overwrite = reader.bool();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CreateProxyConfigRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 2; */
+        if (message.serverId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.serverId);
+        /* optional bytes config = 3; */
+        if (message.config !== undefined)
+            writer.tag(3, WireType.LengthDelimited).bytes(message.config);
+        /* optional bool overwrite = 4; */
+        if (message.overwrite !== undefined)
+            writer.tag(4, WireType.Varint).bool(message.overwrite);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.CreateProxyConfigRequest
+ */
+export const CreateProxyConfigRequest = new CreateProxyConfigRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CreateProxyConfigResponse$Type extends MessageType<CreateProxyConfigResponse> {
+    constructor() {
+        super("api_client.CreateProxyConfigResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<CreateProxyConfigResponse>): CreateProxyConfigResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<CreateProxyConfigResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CreateProxyConfigResponse): CreateProxyConfigResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CreateProxyConfigResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.CreateProxyConfigResponse
+ */
+export const CreateProxyConfigResponse = new CreateProxyConfigResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class DeleteProxyConfigRequest$Type extends MessageType<DeleteProxyConfigRequest> {
+    constructor() {
+        super("api_client.DeleteProxyConfigRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<DeleteProxyConfigRequest>): DeleteProxyConfigRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<DeleteProxyConfigRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: DeleteProxyConfigRequest): DeleteProxyConfigRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string server_id */ 2:
+                    message.serverId = reader.string();
+                    break;
+                case /* optional string name */ 3:
+                    message.name = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: DeleteProxyConfigRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 2; */
+        if (message.serverId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.serverId);
+        /* optional string name = 3; */
+        if (message.name !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.name);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.DeleteProxyConfigRequest
+ */
+export const DeleteProxyConfigRequest = new DeleteProxyConfigRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class DeleteProxyConfigResponse$Type extends MessageType<DeleteProxyConfigResponse> {
+    constructor() {
+        super("api_client.DeleteProxyConfigResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<DeleteProxyConfigResponse>): DeleteProxyConfigResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<DeleteProxyConfigResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: DeleteProxyConfigResponse): DeleteProxyConfigResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: DeleteProxyConfigResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.DeleteProxyConfigResponse
+ */
+export const DeleteProxyConfigResponse = new DeleteProxyConfigResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class UpdateProxyConfigRequest$Type extends MessageType<UpdateProxyConfigRequest> {
+    constructor() {
+        super("api_client.UpdateProxyConfigRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "config", kind: "scalar", opt: true, T: 12 /*ScalarType.BYTES*/ }
+        ]);
+    }
+    create(value?: PartialMessage<UpdateProxyConfigRequest>): UpdateProxyConfigRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<UpdateProxyConfigRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: UpdateProxyConfigRequest): UpdateProxyConfigRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string server_id */ 2:
+                    message.serverId = reader.string();
+                    break;
+                case /* optional string name */ 3:
+                    message.name = reader.string();
+                    break;
+                case /* optional bytes config */ 4:
+                    message.config = reader.bytes();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: UpdateProxyConfigRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 2; */
+        if (message.serverId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.serverId);
+        /* optional string name = 3; */
+        if (message.name !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.name);
+        /* optional bytes config = 4; */
+        if (message.config !== undefined)
+            writer.tag(4, WireType.LengthDelimited).bytes(message.config);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.UpdateProxyConfigRequest
+ */
+export const UpdateProxyConfigRequest = new UpdateProxyConfigRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class UpdateProxyConfigResponse$Type extends MessageType<UpdateProxyConfigResponse> {
+    constructor() {
+        super("api_client.UpdateProxyConfigResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<UpdateProxyConfigResponse>): UpdateProxyConfigResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<UpdateProxyConfigResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: UpdateProxyConfigResponse): UpdateProxyConfigResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: UpdateProxyConfigResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.UpdateProxyConfigResponse
+ */
+export const UpdateProxyConfigResponse = new UpdateProxyConfigResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetProxyConfigRequest$Type extends MessageType<GetProxyConfigRequest> {
+    constructor() {
+        super("api_client.GetProxyConfigRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GetProxyConfigRequest>): GetProxyConfigRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<GetProxyConfigRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyConfigRequest): GetProxyConfigRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string server_id */ 2:
+                    message.serverId = reader.string();
+                    break;
+                case /* optional string name */ 3:
+                    message.name = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetProxyConfigRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 2; */
+        if (message.serverId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.serverId);
+        /* optional string name = 3; */
+        if (message.name !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.name);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.GetProxyConfigRequest
+ */
+export const GetProxyConfigRequest = new GetProxyConfigRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetProxyConfigResponse$Type extends MessageType<GetProxyConfigResponse> {
+    constructor() {
+        super("api_client.GetProxyConfigResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status },
+            { no: 2, name: "proxy_config", kind: "message", T: () => ProxyConfig },
+            { no: 3, name: "working_status", kind: "message", T: () => ProxyWorkingStatus }
+        ]);
+    }
+    create(value?: PartialMessage<GetProxyConfigResponse>): GetProxyConfigResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<GetProxyConfigResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyConfigResponse): GetProxyConfigResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                case /* optional common.ProxyConfig proxy_config */ 2:
+                    message.proxyConfig = ProxyConfig.internalBinaryRead(reader, reader.uint32(), options, message.proxyConfig);
+                    break;
+                case /* optional common.ProxyWorkingStatus working_status */ 3:
+                    message.workingStatus = ProxyWorkingStatus.internalBinaryRead(reader, reader.uint32(), options, message.workingStatus);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetProxyConfigResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* optional common.ProxyConfig proxy_config = 2; */
+        if (message.proxyConfig)
+            ProxyConfig.internalBinaryWrite(message.proxyConfig, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        /* optional common.ProxyWorkingStatus working_status = 3; */
+        if (message.workingStatus)
+            ProxyWorkingStatus.internalBinaryWrite(message.workingStatus, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.GetProxyConfigResponse
+ */
+export const GetProxyConfigResponse = new GetProxyConfigResponse$Type();

@@ -28,7 +28,7 @@ func UpdateFrpsHander(ctx context.Context, req *pb.UpdateFRPSRequest) (*pb.Updat
 	if cli := tunnel.GetServerController().Get(serverID); cli != nil {
 		if !reflect.DeepEqual(cli.GetCommonCfg(), s) {
 			cli.Stop()
-			tunnel.GetClientController().Delete(serverID)
+			tunnel.GetServerController().Delete(serverID)
 			logger.Logger(ctx).Infof("server %s config changed, will recreate it", serverID)
 		} else {
 			logger.Logger(ctx).Infof("server %s config not changed", serverID)

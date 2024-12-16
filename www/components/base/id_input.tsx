@@ -16,16 +16,15 @@ export const IdInput: React.FC<IdInputProps> = ({ setKeyword, keyword, refetchTr
   const [input, setInput] = useState(keyword)
 
   return (
-    <div className="flex flex-1 flex-row gap-2">
-      <Input 
-        className="max-w-40 h-auto" 
+    <div className="flex flex-row gap-2 items-center">
+      <Input
+        className="text-sm" 
         defaultValue={keyword} 
-        placeholder={t('input.id.placeholder')}
+        placeholder={t('input.keyword.placeholder')}
         onChange={(e) => setInput(e.target.value)}
       />
-      <Button 
+      <Button
         variant="outline" 
-        size="sm" 
         onClick={() => {
           setKeyword(input)
           refetchTrigger && refetchTrigger(JSON.stringify(Math.random()))

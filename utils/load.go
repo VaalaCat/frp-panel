@@ -19,6 +19,26 @@ func LoadConfigureFromContent(content []byte, c any, strict bool) error {
 	return config.LoadConfigure(ans, c, strict)
 }
 
+func LoadProxiesFromContent(content []byte) ([]v1.TypedProxyConfig, error) {
+	allCfg := &v1.ClientConfig{}
+
+	if err := LoadConfigureFromContent(content, allCfg, true); err != nil {
+		return nil, err
+	}
+
+	return allCfg.Proxies, nil
+}
+
+func LoadVisitorsFromContent(content []byte) ([]v1.TypedVisitorConfig, error) {
+	allCfg := &v1.ClientConfig{}
+
+	if err := LoadConfigureFromContent(content, allCfg, true); err != nil {
+		return nil, err
+	}
+
+	return allCfg.Visitors, nil
+}
+
 func LoadClientConfigNormal(content []byte, strict bool) (*v1.ClientConfig, error) {
 	var (
 		cliCfg *v1.ClientCommonConfig

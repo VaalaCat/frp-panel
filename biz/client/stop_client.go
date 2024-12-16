@@ -11,7 +11,8 @@ import (
 func StopFRPCHandler(ctx context.Context, req *pb.StopFRPCRequest) (*pb.StopFRPCResponse, error) {
 	logger.Logger(ctx).Infof("client get a stop client request, origin is: [%+v]", req)
 
-	tunnel.GetClientController().Stop(req.GetClientId())
+	tunnel.GetClientController().StopAll()
+	tunnel.GetClientController().DeleteAll()
 
 	return &pb.StopFRPCResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},

@@ -1,17 +1,6 @@
 import * as React from "react"
-import {
-  SquareTerminal,
-  ServerCogIcon,
-  ServerIcon,
-  MonitorSmartphoneIcon,
-  MonitorCogIcon,
-  ChartNetworkIcon,
-  Scroll,
-} from "lucide-react"
-
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +16,7 @@ import { RegisterAndLogin } from "./header"
 import { useRouter } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { getPlatformInfo } from "@/api/platform"
-import { teams, getNavItems } from '@/config/nav'
+import { getNavItems } from '@/config/nav'
 import { useTranslation } from 'react-i18next'
 
 export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {

@@ -14,6 +14,10 @@ func GlobalClientID(username, clientType, clientID string) string {
 	return fmt.Sprintf("%s.%s.%s", username, clientType, clientID)
 }
 
+func ShadowedClientID(clientID string, shadowCount int64) string {
+	return fmt.Sprintf("%s@%d", clientID, shadowCount)
+}
+
 func Wrapper[T ReqType, U RespType](handler func(context.Context, *T) (*U, error)) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		req, err := GetProtoRequest[T](c)

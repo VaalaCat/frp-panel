@@ -7,6 +7,7 @@ import (
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/google/uuid"
 )
 
@@ -23,7 +24,7 @@ func InitServerHandler(c context.Context, req *pb.InitServerRequest) (*pb.InitSe
 		}, nil
 	}
 
-	if len(userServerID) == 0 || len(serverIP) == 0 {
+	if len(userServerID) == 0 || len(serverIP) == 0 || !utils.IsClientIDPermited(userServerID) {
 		return &pb.InitServerResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "request invalid"},
 		}, nil

@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@radix-ui/react-label'
-import { HTTPProxyForm, STCPProxyForm, TCPProxyForm, UDPProxyForm } from './proxy_form'
+import { HTTPProxyForm, STCPProxyForm, TCPProxyForm, TypedProxyForm, UDPProxyForm } from './proxy_form'
 import { Button } from '@/components/ui/button'
 import { Client, RespCode } from '@/lib/pb/common'
 import { ClientConfig } from '@/types/client'
@@ -123,73 +123,35 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
               <p>{t('proxy.form.expand', { count: clientProxyConfigs.length })}</p>
             </AccordionHeader>
           </AccordionTrigger>
-          <AccordionContent className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-            {clientProxyConfigs.map((item) => {
+          <AccordionContent className="grid gap-2 grid-cols-1">
+            {clientProxyConfigs.map((item, index) => {
               return (
-                <Card key={item.name}>
-                  <CardContent>
-                    <div className="flex flex-col w-full pt-2">
-                      <Accordion type="single" collapsible>
-                        <AccordionItem value={item.name}>
-                          <AccordionHeader className="flex flex-row justify-between">
-                            <div>{t('proxy.form.tunnel_name')}: {item.name}</div>
-                            <Button
-                              variant={'outline'}
-                              onClick={() => {
-                                handleDeleteProxy(item.name)
-                              }}
-                            >
-                              {t('proxy.form.delete')}
-                            </Button>
-                          </AccordionHeader>
-                          <AccordionTrigger>{t('proxy.form.type_label', { type: item.type })}</AccordionTrigger>
-                          <AccordionContent>
-                            {item.type === 'tcp' && serverID && clientID && (
-                              <TCPProxyForm
-                                defaultProxyConfig={item}
-                                proxyName={item.name}
-                                serverID={serverID}
-                                clientID={clientID}
-                                clientProxyConfigs={clientProxyConfigs}
-                                setClientProxyConfigs={setClientProxyConfigs}
-                              />
-                            )}
-                            {item.type === 'udp' && serverID && clientID && (
-                              <UDPProxyForm
-                                defaultProxyConfig={item}
-                                proxyName={item.name}
-                                serverID={serverID}
-                                clientID={clientID}
-                                clientProxyConfigs={clientProxyConfigs}
-                                setClientProxyConfigs={setClientProxyConfigs}
-                              />
-                            )}
-                            {item.type === 'http' && serverID && clientID && (
-                              <HTTPProxyForm
-                                defaultProxyConfig={item}
-                                proxyName={item.name}
-                                serverID={serverID}
-                                clientID={clientID}
-                                clientProxyConfigs={clientProxyConfigs}
-                                setClientProxyConfigs={setClientProxyConfigs}
-                              />
-                            )}
-                            {item.type === 'stcp' && serverID && clientID && (
-                              <STCPProxyForm
-                                defaultProxyConfig={item}
-                                proxyName={item.name}
-                                serverID={serverID}
-                                clientID={clientID}
-                                clientProxyConfigs={clientProxyConfigs}
-                                setClientProxyConfigs={setClientProxyConfigs}
-                              />
-                            )}
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </div>
-                  </CardContent>
-                </Card>
+                <Accordion type="single" collapsible key={index}>
+                  <AccordionItem value={item.name}>
+                    <AccordionTrigger>
+                      <div className='flex flex-row justify-start items-center w-full gap-4'>
+                        <Button variant={'outline'} onClick={() => { handleDeleteProxy(item.name) }}>
+                          {t('proxy.form.delete')}
+                        </Button>
+                        <div>{t('proxy.form.tunnel_name')}: {item.name}</div>
+                        <div>{t('proxy.form.type_label', { type: item.type })}</div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className='border rounded-xl p-4'>
+                      {serverID && clientID && (
+                        <TypedProxyForm
+                          enablePreview
+                          defaultProxyConfig={item}
+                          proxyName={item.name}
+                          serverID={serverID}
+                          clientID={clientID}
+                          clientProxyConfigs={clientProxyConfigs}
+                          setClientProxyConfigs={setClientProxyConfigs}
+                        />
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               )
             })}
           </AccordionContent>

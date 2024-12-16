@@ -17,7 +17,7 @@ message ClientStatus {
   int32 ping = 4; // 单位为毫秒
   optional ClientVersion version = 5;
   optional string addr = 6;
-  optional int32 connect_time = 7; // 连接建立的时间
+  optional int64 connect_time = 7; // 连接建立的时间
 }
 
 message ClientVersion {

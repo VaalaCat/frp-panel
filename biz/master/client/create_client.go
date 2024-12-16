@@ -7,6 +7,7 @@ import (
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/google/uuid"
 )
 
@@ -20,7 +21,7 @@ func InitClientHandler(c context.Context, req *pb.InitClientRequest) (*pb.InitCl
 		}, nil
 	}
 
-	if len(userClientID) == 0 {
+	if len(userClientID) == 0 || !utils.IsClientIDPermited(userClientID) {
 		return &pb.InitClientResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "invalid client id"},
 		}, nil
@@ -34,6 +35,7 @@ func InitClientHandler(c context.Context, req *pb.InitClientRequest) (*pb.InitCl
 			TenantID:      userInfo.GetTenantID(),
 			UserID:        userInfo.GetUserID(),
 			ConnectSecret: uuid.New().String(),
+			IsShadow:      true,
 		}); err != nil {
 		return nil, err
 	}

@@ -36,6 +36,7 @@ import { ClientDetail } from '../base/client_detail'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
+import { $serverTableRefetchTrigger } from '@/store/refetch-trigger'
 
 export type ServerTableSchema = {
   id: string
@@ -257,7 +258,7 @@ export const ServerSecret = ({ server }: { server: ServerTableSchema }) => {
           <div className="space-y-2">
             <h4 className="font-medium leading-none">{t('server.start.title')}</h4>
             <p className="text-sm text-muted-foreground">
-              {t('server.install.description')} (<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases' target="_blank" rel="noopener noreferrer">{t('common.download')}</a>)
+              {t('server.start.description')} (<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases' target="_blank" rel="noopener noreferrer">{t('common.download')}</a>)
             </p>
           </div>
           <div className="grid gap-2">
@@ -290,18 +291,17 @@ export const ServerActions: React.FC<ServerItemProps> = ({ server, table }) => {
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
 
-  const refetchList = () => { }
-
   const removeServer = useMutation({
     mutationFn: deleteServer,
     onSuccess: () => {
       toast(t('server.delete.success'))
-      refetchList()
+      $serverTableRefetchTrigger.set(Math.random())
     },
     onError: (e) => {
       toast(t('server.delete.failed'), {
         description: e.message,
       })
+      $serverTableRefetchTrigger.set(Math.random())
     },
   })
 

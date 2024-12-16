@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 )
 
@@ -61,4 +63,8 @@ func TransformVisitorConfigurerToMap(origin v1.VisitorConfigurer) (key string, r
 	key = origin.GetBaseConfig().Name
 	r = origin
 	return
+}
+
+func NewProxyKey(clientID, serverID, proxyName string) string {
+	return fmt.Sprintf("%s/%s/%s", clientID, serverID, proxyName)
 }

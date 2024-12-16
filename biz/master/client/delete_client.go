@@ -32,6 +32,10 @@ func DeleteClientHandler(ctx context.Context, req *pb.DeleteClientRequest) (*pb.
 		return nil, err
 	}
 
+	if err := dao.DeleteProxyConfigsByClientIDOrOriginClientID(userInfo, clientID); err != nil {
+		return nil, err
+	}
+
 	go func() {
 		resp, err := rpc.CallClient(context.Background(), req.GetClientId(), pb.Event_EVENT_REMOVE_FRPC, req)
 		if err != nil {

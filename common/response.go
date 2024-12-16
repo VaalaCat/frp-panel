@@ -7,6 +7,7 @@ import (
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 type RespType interface {
@@ -21,7 +22,9 @@ type RespType interface {
 		pb.GetPlatformInfoResponse | pb.GetClientsStatusResponse |
 		pb.GetClientCertResponse |
 		pb.StartFRPCResponse | pb.StopFRPCResponse | pb.StartFRPSResponse | pb.StopFRPSResponse |
-		pb.GetProxyByCIDResponse | pb.GetProxyBySIDResponse
+		pb.GetProxyStatsByClientIDResponse | pb.GetProxyStatsByServerIDResponse |
+		pb.CreateProxyConfigResponse | pb.ListProxyConfigsResponse | pb.UpdateProxyConfigResponse |
+		pb.DeleteProxyConfigResponse | pb.GetProxyConfigResponse
 }
 
 func OKResp[T RespType](c *gin.Context, origin *T) {
@@ -53,89 +56,45 @@ func ErrUnAuthorized(c *gin.Context, err string) {
 }
 
 func ProtoResp[T RespType](origin *T) (*pb.ClientMessage, error) {
+	event, msg, err := getEvent(origin)
+	if err != nil {
+		return nil, err
+	}
+
+	rawData, err := proto.Marshal(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ClientMessage{
+		Event: event,
+		Data:  rawData,
+	}, nil
+}
+
+func getEvent(origin interface{}) (pb.Event, protoreflect.ProtoMessage, error) {
 	switch ptr := any(origin).(type) {
 	case *pb.CommonResponse:
-		rawData, err := proto.Marshal(ptr)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.ClientMessage{
-			Event: pb.Event_EVENT_DATA,
-			Data:  rawData,
-		}, nil
+		return pb.Event_EVENT_DATA, ptr, nil
 	case *pb.UpdateFRPCResponse:
-		rawData, err := proto.Marshal(ptr)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.ClientMessage{
-			Event: pb.Event_EVENT_UPDATE_FRPC,
-			Data:  rawData,
-		}, nil
+		return pb.Event_EVENT_UPDATE_FRPC, ptr, nil
 	case *pb.RemoveFRPCResponse:
-		rawData, err := proto.Marshal(ptr)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.ClientMessage{
-			Event: pb.Event_EVENT_REMOVE_FRPC,
-			Data:  rawData,
-		}, nil
+		return pb.Event_EVENT_REMOVE_FRPC, ptr, nil
 	case *pb.UpdateFRPSResponse:
-		rawData, err := proto.Marshal(ptr)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.ClientMessage{
-			Event: pb.Event_EVENT_UPDATE_FRPC,
-			Data:  rawData,
-		}, nil
+		return pb.Event_EVENT_UPDATE_FRPC, ptr, nil
 	case *pb.RemoveFRPSResponse:
-		rawData, err := proto.Marshal(ptr)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.ClientMessage{
-			Event: pb.Event_EVENT_REMOVE_FRPC,
-			Data:  rawData,
-		}, nil
+		return pb.Event_EVENT_REMOVE_FRPC, ptr, nil
 	case *pb.StartFRPCResponse:
-		rawData, err := proto.Marshal(ptr)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.ClientMessage{
-			Event: pb.Event_EVENT_START_FRPC,
-			Data:  rawData,
-		}, nil
+		return pb.Event_EVENT_START_FRPC, ptr, nil
 	case *pb.StopFRPCResponse:
-		rawData, err := proto.Marshal(ptr)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.ClientMessage{
-			Event: pb.Event_EVENT_STOP_FRPC,
-			Data:  rawData,
-		}, nil
+		return pb.Event_EVENT_STOP_FRPC, ptr, nil
 	case *pb.StartFRPSResponse:
-		rawData, err := proto.Marshal(ptr)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.ClientMessage{
-			Event: pb.Event_EVENT_START_FRPS,
-			Data:  rawData,
-		}, nil
+		return pb.Event_EVENT_START_FRPS, ptr, nil
 	case *pb.StopFRPSResponse:
-		rawData, err := proto.Marshal(ptr)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.ClientMessage{
-			Event: pb.Event_EVENT_STOP_FRPS,
-			Data:  rawData,
-		}, nil
+		return pb.Event_EVENT_STOP_FRPS, ptr, nil
+	case *pb.GetProxyConfigResponse:
+		return pb.Event_EVENT_GET_PROXY_INFO, ptr, nil
 	default:
+		return 0, nil, fmt.Errorf("cannot unmarshal unknown type: %T", origin)
 	}
-	return nil, fmt.Errorf("cannot unmarshal unknown type: %T", origin)
 }

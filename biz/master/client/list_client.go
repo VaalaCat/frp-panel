@@ -55,13 +55,19 @@ func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.Li
 	}
 
 	respClients := lo.Map(clients, func(c *models.ClientEntity, _ int) *pb.Client {
+		clientIDs, err := dao.GetClientIDsInShadowByClientID(userInfo, c.ClientID)
+		if err != nil {
+			logger.Logger(ctx).Errorf("get client ids in shadow by client id error: %v", err)
+		}
+
 		return &pb.Client{
-			Id:       lo.ToPtr(c.ClientID),
-			Secret:   lo.ToPtr(c.ConnectSecret),
-			Config:   lo.ToPtr(string(c.ConfigContent)),
-			ServerId: lo.ToPtr(c.ServerID),
-			Stopped:  lo.ToPtr(c.Stopped),
-			Comment:  lo.ToPtr(c.Comment),
+			Id:        lo.ToPtr(c.ClientID),
+			Secret:    lo.ToPtr(c.ConnectSecret),
+			Config:    lo.ToPtr(string(c.ConfigContent)),
+			ServerId:  lo.ToPtr(c.ServerID),
+			Stopped:   lo.ToPtr(c.Stopped),
+			Comment:   lo.ToPtr(c.Comment),
+			ClientIds: clientIDs,
 		}
 	})
 

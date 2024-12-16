@@ -6,8 +6,8 @@ import (
 	"github.com/samber/lo"
 )
 
-func convertProxyList(proxyList []*models.ProxyEntity) []*pb.ProxyInfo {
-	return lo.Map(proxyList, func(item *models.ProxyEntity, index int) *pb.ProxyInfo {
+func convertProxyStatsList(proxyList []*models.ProxyStatsEntity) []*pb.ProxyInfo {
+	return lo.Map(proxyList, func(item *models.ProxyStatsEntity, index int) *pb.ProxyInfo {
 		return &pb.ProxyInfo{
 			Name:              lo.ToPtr(item.Name),
 			Type:              lo.ToPtr(item.Type),

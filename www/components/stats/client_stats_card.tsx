@@ -28,8 +28,8 @@ export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defa
 
   const { data: clientStatsList, refetch: refetchClientStats } = useQuery({
     queryKey: ['clientStats', clientID],
-    queryFn: async () => {
-      return await getProxyStatsByClientID({ clientId: clientID! })
+    queryFn: () => {
+      return getProxyStatsByClientID({ clientId: clientID! })
     },
   })
 
@@ -98,8 +98,8 @@ export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defa
           setProxyname={setProxyName} />
         <div className="w-full grid gap-4 grid-cols-1">
           {clientStatsList && clientStatsList.proxyInfos.length > 0 &&
-          <ProxyStatusCard
-            proxyInfo={mergeProxyInfos(clientStatsList.proxyInfos).find((proxyInfo) => proxyInfo.name === proxyName)} />}
+            <ProxyStatusCard
+              proxyInfo={mergeProxyInfos(clientStatsList.proxyInfos).find((proxyInfo) => proxyInfo.name === proxyName)} />}
         </div>
       </CardContent>
       <CardFooter>
@@ -129,7 +129,7 @@ export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defa
 
 const ProxyStatusCard: React.FC<{ proxyInfo: ProxyInfo | undefined }> = ({ proxyInfo }) => {
   const { t } = useTranslation();
-  
+
   if (!proxyInfo) {
     return null;
   }

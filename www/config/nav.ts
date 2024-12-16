@@ -6,6 +6,7 @@ import {
   MonitorCogIcon,
   ChartNetworkIcon,
   Scroll,
+  Cable,
 } from "lucide-react"
 import { TbBuildingTunnel } from "react-icons/tb"
 
@@ -29,6 +30,11 @@ export const getNavItems = (t: any) => [
     title: t('nav.servers'),
     url: "/servers",
     icon: ServerIcon,
+  },
+  {
+    title: t('nav.editTunnel'),
+    url: "/proxies",
+    icon: Cable,
   },
   {
     title: t('nav.editClient'),

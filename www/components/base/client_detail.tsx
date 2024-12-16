@@ -14,7 +14,7 @@ export const ClientDetail = ({ clientStatus }: { clientStatus: ClientStatus }) =
 
   const locale = i18n.language === 'zh' ? zhCN : enUS
   const connectTime = clientStatus.connectTime ? 
-    formatDistanceToNow(new Date(clientStatus.connectTime), { 
+    formatDistanceToNow(new Date(parseInt(clientStatus.connectTime.toString())), { 
       addSuffix: true,
       locale 
     }) : '-'

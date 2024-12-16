@@ -16,7 +16,7 @@ func PushProxyInfo(ctx context.Context, req *pb.PushProxyInfoReq) (*pb.PushProxy
 		return nil, err
 	}
 
-	if err = dao.AdminUpdateProxy(srv, req.GetProxyInfos()); err != nil {
+	if err = dao.AdminUpdateProxyStats(srv, req.GetProxyInfos()); err != nil {
 		return nil, err
 	}
 	return &pb.PushProxyInfoResp{

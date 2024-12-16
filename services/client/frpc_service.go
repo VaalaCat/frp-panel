@@ -69,13 +69,14 @@ func GetGlobalClientSerivce() ClientHandler {
 func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 	proxyCfgs []v1.ProxyConfigurer,
 	visitorCfgs []v1.VisitorConfigurer) *Client {
+	ctx := context.Background()
 
 	warning, err := validation.ValidateAllClientConfig(commonCfg, proxyCfgs, visitorCfgs)
 	if warning != nil {
-		logger.Logger(context.Background()).WithError(err).Warnf("validate client config warning: %+v", warning)
+		logger.Logger(ctx).WithError(err).Warnf("validate client config warning: %+v", warning)
 	}
 	if err != nil {
-		logrus.Panic(err)
+		logger.Logger(ctx).Panic(err)
 	}
 
 	log.InitLogger(commonCfg.Log.To, commonCfg.Log.Level, int(commonCfg.Log.MaxDays), commonCfg.Log.DisablePrintColor)
@@ -85,7 +86,7 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 		VisitorCfgs: visitorCfgs,
 	})
 	if err != nil {
-		logrus.Panic(err)
+		logger.Logger(ctx).Panic(err)
 	}
 
 	return &Client{
@@ -98,12 +99,14 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 
 func (c *Client) Run() {
 	if c.running {
+		logger.Logger(context.Background()).Warn("client is running, skip run")
 		return
 	}
 
 	shouldGracefulClose := c.Common.Transport.Protocol == "kcp" || c.Common.Transport.Protocol == "quic"
 	if shouldGracefulClose {
-		go handleTermSignal(c.cli)
+		var wg conc.WaitGroup
+		wg.Go(func() { handleTermSignal(c.cli) })
 	}
 	c.running = true
 	c.done = make(chan bool)
@@ -113,15 +116,14 @@ func (c *Client) Run() {
 		close(c.done)
 	}()
 
-	wg := conc.NewWaitGroup()
-	wg.Go(
-		func() {
-			ctx := context.Background()
-			if err := c.cli.Run(ctx); err != nil {
-				logger.Logger(ctx).Errorf("run client error: %v", err)
-			}
-		},
-	)
+	var wg conc.WaitGroup
+	wg.Go(func() {
+		ctx := context.Background()
+		logger.Logger(ctx).Infof("start to run client")
+		if err := c.cli.Run(ctx); err != nil {
+			logger.Logger(ctx).Errorf("run client error: %v", err)
+		}
+	})
 	wg.Wait()
 }
 

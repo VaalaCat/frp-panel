@@ -29,15 +29,16 @@ import { useStore } from '@nanostores/react'
 import { $platformInfo } from '@/store/user'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getClientsStatus } from '@/api/platform'
-import { ClientType } from '@/lib/pb/common'
+import { Client, ClientType } from '@/lib/pb/common'
 import { ClientStatus, ClientStatus_Status } from '@/lib/pb/api_master'
 import { startFrpc, stopFrpc } from '@/api/frp'
 import { Badge } from '../ui/badge'
-import { Label } from '@/components/ui/label'
 import { ClientDetail } from '../base/client_detail'
 import { Input } from '../ui/input'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { $clientTableRefetchTrigger } from '@/store/refetch-trigger'
+import { NeedUpgrade } from '@/config/notify'
 
 export type ClientTableSchema = {
   id: string
@@ -46,6 +47,7 @@ export type ClientTableSchema = {
   stopped: boolean
   info?: string
   config?: string
+  originClient: Client
 }
 
 export interface TableMetaType extends TableMeta<ClientTableSchema> {
@@ -213,11 +215,16 @@ export const ClientInfo = ({ client }: { client: ClientTableSchema }) => {
 
   return (
     <div className="flex items-center gap-2 flex-row">
-      <Badge variant={"secondary"} className={`p-2 border rounded font-mono w-fit ${infoColor} text-nowrap rounded-full h-6`}>
+      <Badge variant={"secondary"} className={`p-2 border font-mono w-fit ${infoColor} text-nowrap rounded-full h-6`}>
         {`${clientsStatus?.clients[client.id].ping}ms,${t(trans(clientsStatus?.clients[client.id]))}`}
       </Badge>
       {clientsStatus?.clients[client.id].version &&
         <ClientDetail clientStatus={clientsStatus?.clients[client.id]} />
+      }
+      {NeedUpgrade(clientsStatus?.clients[client.id].version) &&
+        <Badge variant={"destructive"} className={`p-2 border font-mono w-fit text-nowrap rounded-full h-6`}>
+          {`需要升级！`}
+        </Badge>
       }
     </div>
   )
@@ -252,7 +259,7 @@ export const ClientSecret = ({ client }: { client: ClientTableSchema }) => {
           <div className="space-y-2">
             <h4 className="font-medium leading-none">{t('client.start.title')}</h4>
             <p className="text-sm text-muted-foreground">
-              {t('client.install.description')} (<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases' target="_blank" rel="noopener noreferrer">{t('common.download')}</a>)
+              {t('client.start.description')} (<a className='text-blue-500' href='https://github.com/VaalaCat/frp-panel/releases' target="_blank" rel="noopener noreferrer">{t('common.download')}</a>)
             </p>
           </div>
           <div className="grid gap-2">
@@ -285,19 +292,17 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
 
-  // placeholder for refetch
-  const refetchList = () => {}
-
   const removeClient = useMutation({
     mutationFn: deleteClient,
     onSuccess: () => {
       toast(t('client.delete.success'))
-      refetchList()
+      $clientTableRefetchTrigger.set(Math.random())
     },
     onError: (e) => {
       toast(t('client.delete.failed'), {
         description: e.message,
       })
+      $clientTableRefetchTrigger.set(Math.random())
     },
   })
 
@@ -305,12 +310,13 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
     mutationFn: stopFrpc,
     onSuccess: () => {
       toast(t('client.operation.stop_success'))
-      refetchList()
+      $clientTableRefetchTrigger.set(Math.random())
     },
     onError: (e) => {
       toast(t('client.operation.stop_failed'), {
         description: e.message,
       })
+      $clientTableRefetchTrigger.set(Math.random())
     },
   })
 
@@ -318,12 +324,13 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
     mutationFn: startFrpc,
     onSuccess: () => {
       toast(t('client.operation.start_success'))
-      refetchList()
+      $clientTableRefetchTrigger.set(Math.random())
     },
     onError: (e) => {
       toast(t('client.operation.start_failed'), {
         description: e.message,
       })
+      $clientTableRefetchTrigger.set(Math.random())
     },
   })
 
@@ -357,7 +364,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
                   toast(t('client.actions_menu.copy_failed'))
                 }
               } catch (error) {
-                toast(t('client.actions_menu.copy_failed'),{
+                toast(t('client.actions_menu.copy_failed'), {
                   description: JSON.stringify(error)
                 })
               }

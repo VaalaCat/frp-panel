@@ -74,8 +74,13 @@ func ConfigureRouter(router *gin.Engine) {
 		}
 		proxyRouter := v1.Group("/proxy", middleware.JWTAuth, middleware.AuthCtx)
 		{
-			proxyRouter.POST("/get_by_cid", common.Wrapper(proxy.GetProxyByCID))
-			proxyRouter.POST("/get_by_sid", common.Wrapper(proxy.GetProxyBySID))
+			proxyRouter.POST("/get_by_cid", common.Wrapper(proxy.GetProxyStatsByClientID))
+			proxyRouter.POST("/get_by_sid", common.Wrapper(proxy.GetProxyStatsByServerID))
+			proxyRouter.POST("/list_configs", common.Wrapper(proxy.ListProxyConfigs))
+			proxyRouter.POST("/create_config", common.Wrapper(proxy.CreateProxyConfig))
+			proxyRouter.POST("/update_config", common.Wrapper(proxy.UpdateProxyConfig))
+			proxyRouter.POST("/delete_config", common.Wrapper(proxy.DeleteProxyConfig))
+			proxyRouter.POST("/get_config", common.Wrapper(proxy.GetProxyConfig))
 		}
 		v1.GET("/pty/:clientID", middleware.JWTAuth, middleware.AuthCtx, shell.PTYHandler)
 		v1.GET("/log", middleware.JWTAuth, middleware.AuthCtx, streamlog.GetLogHander)

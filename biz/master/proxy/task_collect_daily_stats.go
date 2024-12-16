@@ -19,23 +19,24 @@ func CollectDailyStats() error {
 		}
 	}()
 
-	proxies, err := dao.AdminGetAllProxies(tx)
+	proxies, err := dao.AdminGetAllProxyStats(tx)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Error("CollectDailyStats cannot get proxies")
 		return err
 	}
 
-	proxyDailyStats := lo.Map(proxies, func(item *models.ProxyEntity, _ int) *models.HistoryProxyStats {
+	proxyDailyStats := lo.Map(proxies, func(item *models.ProxyStatsEntity, _ int) *models.HistoryProxyStats {
 		return &models.HistoryProxyStats{
-			ProxyID:    item.ProxyID,
-			ServerID:   item.ServerID,
-			ClientID:   item.ClientID,
-			Name:       item.Name,
-			Type:       item.Type,
-			UserID:     item.UserID,
-			TenantID:   item.TenantID,
-			TrafficIn:  item.HistoryTrafficIn,
-			TrafficOut: item.HistoryTrafficOut,
+			ProxyID:        item.ProxyID,
+			ServerID:       item.ServerID,
+			ClientID:       item.ClientID,
+			OriginClientID: item.OriginClientID,
+			Name:           item.Name,
+			Type:           item.Type,
+			UserID:         item.UserID,
+			TenantID:       item.TenantID,
+			TrafficIn:      item.HistoryTrafficIn,
+			TrafficOut:     item.HistoryTrafficOut,
 		}
 	})
 

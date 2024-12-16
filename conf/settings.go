@@ -49,6 +49,7 @@ type Config struct {
 		ID     string `env:"ID" env-description:"client id"`
 		Secret string `env:"SECRET" env-description:"client secret"`
 	} `env-prefix:"CLIENT_"`
+	IsDebug bool `env:"IS_DEBUG" env-default:"false" env-description:"is debug mode"`
 }
 
 var (

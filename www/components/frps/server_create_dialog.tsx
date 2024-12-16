@@ -49,7 +49,7 @@ export const CreateServerDialog = ({refetchTrigger}: {refetchTrigger?: (randStr:
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size={'sm'}>
+        <Button variant="outline">
           {t('server.create.button')}
         </Button>
       </DialogTrigger>

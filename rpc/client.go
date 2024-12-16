@@ -6,12 +6,28 @@ import (
 	"io"
 	"sync"
 
+	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
+
+func CallClientWrapper[R common.RespType](c context.Context, clientID string, event pb.Event, req proto.Message, resp *R) error {
+	cresp, err := CallClient(c, clientID, event, req)
+	if err != nil {
+		return err
+	}
+
+	protoMsgRef, ok := any(resp).(protoreflect.ProtoMessage)
+	if !ok {
+		return fmt.Errorf("type does not implement protoreflect.ProtoMessage")
+	}
+
+	return proto.Unmarshal(cresp.GetData(), protoMsgRef)
+}
 
 func CallClient(c context.Context, clientID string, event pb.Event, msg proto.Message) (*pb.ClientMessage, error) {
 	sender := GetClientsManager().Get(clientID)

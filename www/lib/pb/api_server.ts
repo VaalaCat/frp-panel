@@ -202,18 +202,18 @@ export interface StartFRPSResponse {
     status?: Status;
 }
 /**
- * @generated from protobuf message api_server.GetProxyBySIDRequest
+ * @generated from protobuf message api_server.GetProxyStatsByServerIDRequest
  */
-export interface GetProxyBySIDRequest {
+export interface GetProxyStatsByServerIDRequest {
     /**
      * @generated from protobuf field: optional string server_id = 1;
      */
     serverId?: string;
 }
 /**
- * @generated from protobuf message api_server.GetProxyBySIDResponse
+ * @generated from protobuf message api_server.GetProxyStatsByServerIDResponse
  */
-export interface GetProxyBySIDResponse {
+export interface GetProxyStatsByServerIDResponse {
     /**
      * @generated from protobuf field: optional common.Status status = 1;
      */
@@ -1038,19 +1038,19 @@ class StartFRPSResponse$Type extends MessageType<StartFRPSResponse> {
  */
 export const StartFRPSResponse = new StartFRPSResponse$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class GetProxyBySIDRequest$Type extends MessageType<GetProxyBySIDRequest> {
+class GetProxyStatsByServerIDRequest$Type extends MessageType<GetProxyStatsByServerIDRequest> {
     constructor() {
-        super("api_server.GetProxyBySIDRequest", [
+        super("api_server.GetProxyStatsByServerIDRequest", [
             { no: 1, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
-    create(value?: PartialMessage<GetProxyBySIDRequest>): GetProxyBySIDRequest {
+    create(value?: PartialMessage<GetProxyStatsByServerIDRequest>): GetProxyStatsByServerIDRequest {
         const message = globalThis.Object.create((this.messagePrototype!));
         if (value !== undefined)
-            reflectionMergePartial<GetProxyBySIDRequest>(this, message, value);
+            reflectionMergePartial<GetProxyStatsByServerIDRequest>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyBySIDRequest): GetProxyBySIDRequest {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyStatsByServerIDRequest): GetProxyStatsByServerIDRequest {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
@@ -1069,7 +1069,7 @@ class GetProxyBySIDRequest$Type extends MessageType<GetProxyBySIDRequest> {
         }
         return message;
     }
-    internalBinaryWrite(message: GetProxyBySIDRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: GetProxyStatsByServerIDRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* optional string server_id = 1; */
         if (message.serverId !== undefined)
             writer.tag(1, WireType.LengthDelimited).string(message.serverId);
@@ -1080,25 +1080,25 @@ class GetProxyBySIDRequest$Type extends MessageType<GetProxyBySIDRequest> {
     }
 }
 /**
- * @generated MessageType for protobuf message api_server.GetProxyBySIDRequest
+ * @generated MessageType for protobuf message api_server.GetProxyStatsByServerIDRequest
  */
-export const GetProxyBySIDRequest = new GetProxyBySIDRequest$Type();
+export const GetProxyStatsByServerIDRequest = new GetProxyStatsByServerIDRequest$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class GetProxyBySIDResponse$Type extends MessageType<GetProxyBySIDResponse> {
+class GetProxyStatsByServerIDResponse$Type extends MessageType<GetProxyStatsByServerIDResponse> {
     constructor() {
-        super("api_server.GetProxyBySIDResponse", [
+        super("api_server.GetProxyStatsByServerIDResponse", [
             { no: 1, name: "status", kind: "message", T: () => Status },
             { no: 2, name: "proxy_infos", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => ProxyInfo }
         ]);
     }
-    create(value?: PartialMessage<GetProxyBySIDResponse>): GetProxyBySIDResponse {
+    create(value?: PartialMessage<GetProxyStatsByServerIDResponse>): GetProxyStatsByServerIDResponse {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.proxyInfos = [];
         if (value !== undefined)
-            reflectionMergePartial<GetProxyBySIDResponse>(this, message, value);
+            reflectionMergePartial<GetProxyStatsByServerIDResponse>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyBySIDResponse): GetProxyBySIDResponse {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetProxyStatsByServerIDResponse): GetProxyStatsByServerIDResponse {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
@@ -1120,7 +1120,7 @@ class GetProxyBySIDResponse$Type extends MessageType<GetProxyBySIDResponse> {
         }
         return message;
     }
-    internalBinaryWrite(message: GetProxyBySIDResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: GetProxyStatsByServerIDResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* optional common.Status status = 1; */
         if (message.status)
             Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
@@ -1134,6 +1134,6 @@ class GetProxyBySIDResponse$Type extends MessageType<GetProxyBySIDResponse> {
     }
 }
 /**
- * @generated MessageType for protobuf message api_server.GetProxyBySIDResponse
+ * @generated MessageType for protobuf message api_server.GetProxyStatsByServerIDResponse
  */
-export const GetProxyBySIDResponse = new GetProxyBySIDResponse$Type();
+export const GetProxyStatsByServerIDResponse = new GetProxyStatsByServerIDResponse$Type();

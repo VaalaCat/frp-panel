@@ -67,7 +67,9 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between font-normal", className)}
+          className={cn("w-full justify-between font-normal", className,
+            !value && "text-muted-foreground"
+          )}
         >
           {value
             ? (dataList.find((item) => item.value === value)?.label || value)

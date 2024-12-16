@@ -25,6 +25,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cobra v1.8.0
+	github.com/tiendc/go-deepcopy v1.2.0
 	golang.org/x/crypto v0.25.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.35.2

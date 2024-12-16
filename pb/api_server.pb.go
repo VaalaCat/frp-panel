@@ -828,7 +828,7 @@ func (x *StartFRPSResponse) GetStatus() *Status {
 	return nil
 }
 
-type GetProxyBySIDRequest struct {
+type GetProxyStatsByServerIDRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -836,20 +836,20 @@ type GetProxyBySIDRequest struct {
 	ServerId *string `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3,oneof" json:"server_id,omitempty"`
 }
 
-func (x *GetProxyBySIDRequest) Reset() {
-	*x = GetProxyBySIDRequest{}
+func (x *GetProxyStatsByServerIDRequest) Reset() {
+	*x = GetProxyStatsByServerIDRequest{}
 	mi := &file_api_server_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetProxyBySIDRequest) String() string {
+func (x *GetProxyStatsByServerIDRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetProxyBySIDRequest) ProtoMessage() {}
+func (*GetProxyStatsByServerIDRequest) ProtoMessage() {}
 
-func (x *GetProxyBySIDRequest) ProtoReflect() protoreflect.Message {
+func (x *GetProxyStatsByServerIDRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_server_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -861,19 +861,19 @@ func (x *GetProxyBySIDRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetProxyBySIDRequest.ProtoReflect.Descriptor instead.
-func (*GetProxyBySIDRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetProxyStatsByServerIDRequest.ProtoReflect.Descriptor instead.
+func (*GetProxyStatsByServerIDRequest) Descriptor() ([]byte, []int) {
 	return file_api_server_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *GetProxyBySIDRequest) GetServerId() string {
+func (x *GetProxyStatsByServerIDRequest) GetServerId() string {
 	if x != nil && x.ServerId != nil {
 		return *x.ServerId
 	}
 	return ""
 }
 
-type GetProxyBySIDResponse struct {
+type GetProxyStatsByServerIDResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -882,20 +882,20 @@ type GetProxyBySIDResponse struct {
 	ProxyInfos []*ProxyInfo `protobuf:"bytes,2,rep,name=proxy_infos,json=proxyInfos,proto3" json:"proxy_infos,omitempty"`
 }
 
-func (x *GetProxyBySIDResponse) Reset() {
-	*x = GetProxyBySIDResponse{}
+func (x *GetProxyStatsByServerIDResponse) Reset() {
+	*x = GetProxyStatsByServerIDResponse{}
 	mi := &file_api_server_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetProxyBySIDResponse) String() string {
+func (x *GetProxyStatsByServerIDResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetProxyBySIDResponse) ProtoMessage() {}
+func (*GetProxyStatsByServerIDResponse) ProtoMessage() {}
 
-func (x *GetProxyBySIDResponse) ProtoReflect() protoreflect.Message {
+func (x *GetProxyStatsByServerIDResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_server_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -907,19 +907,19 @@ func (x *GetProxyBySIDResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetProxyBySIDResponse.ProtoReflect.Descriptor instead.
-func (*GetProxyBySIDResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetProxyStatsByServerIDResponse.ProtoReflect.Descriptor instead.
+func (*GetProxyStatsByServerIDResponse) Descriptor() ([]byte, []int) {
 	return file_api_server_proto_rawDescGZIP(), []int{17}
 }
 
-func (x *GetProxyBySIDResponse) GetStatus() *Status {
+func (x *GetProxyStatsByServerIDResponse) GetStatus() *Status {
 	if x != nil {
 		return x.Status
 	}
 	return nil
 }
 
-func (x *GetProxyBySIDResponse) GetProxyInfos() []*ProxyInfo {
+func (x *GetProxyStatsByServerIDResponse) GetProxyInfos() []*ProxyInfo {
 	if x != nil {
 		return x.ProxyInfos
 	}
@@ -1035,21 +1035,22 @@ var file_api_server_proto_rawDesc = []byte{
 	0x65, 0x12, 0x2b, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x0b, 0x32, 0x0e, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75,
 	0x73, 0x48, 0x00, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x88, 0x01, 0x01, 0x42, 0x09,
-	0x0a, 0x07, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x46, 0x0a, 0x14, 0x47, 0x65, 0x74,
-	0x50, 0x72, 0x6f, 0x78, 0x79, 0x42, 0x79, 0x53, 0x49, 0x44, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x12, 0x20, 0x0a, 0x09, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x08, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x49, 0x64,
-	0x88, 0x01, 0x01, 0x42, 0x0c, 0x0a, 0x0a, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x69,
-	0x64, 0x22, 0x83, 0x01, 0x0a, 0x15, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x78, 0x79, 0x42, 0x79,
-	0x53, 0x49, 0x44, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2b, 0x0a, 0x06, 0x73,
-	0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x63, 0x6f,
-	0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x48, 0x00, 0x52, 0x06, 0x73,
-	0x74, 0x61, 0x74, 0x75, 0x73, 0x88, 0x01, 0x01, 0x12, 0x32, 0x0a, 0x0b, 0x70, 0x72, 0x6f, 0x78,
-	0x79, 0x5f, 0x69, 0x6e, 0x66, 0x6f, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x11, 0x2e,
-	0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x50, 0x72, 0x6f, 0x78, 0x79, 0x49, 0x6e, 0x66, 0x6f,
-	0x52, 0x0a, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x49, 0x6e, 0x66, 0x6f, 0x73, 0x42, 0x09, 0x0a, 0x07,
-	0x5f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x07, 0x5a, 0x05, 0x2e, 0x2e, 0x2f, 0x70, 0x62,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x0a, 0x07, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x50, 0x0a, 0x1e, 0x47, 0x65, 0x74,
+	0x50, 0x72, 0x6f, 0x78, 0x79, 0x53, 0x74, 0x61, 0x74, 0x73, 0x42, 0x79, 0x53, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x49, 0x44, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x20, 0x0a, 0x09, 0x73,
+	0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00,
+	0x52, 0x08, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x49, 0x64, 0x88, 0x01, 0x01, 0x42, 0x0c, 0x0a,
+	0x0a, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x22, 0x8d, 0x01, 0x0a, 0x1f,
+	0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x78, 0x79, 0x53, 0x74, 0x61, 0x74, 0x73, 0x42, 0x79, 0x53,
+	0x65, 0x72, 0x76, 0x65, 0x72, 0x49, 0x44, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x2b, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x0e, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x48,
+	0x00, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x88, 0x01, 0x01, 0x12, 0x32, 0x0a, 0x0b,
+	0x70, 0x72, 0x6f, 0x78, 0x79, 0x5f, 0x69, 0x6e, 0x66, 0x6f, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28,
+	0x0b, 0x32, 0x11, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x50, 0x72, 0x6f, 0x78, 0x79,
+	0x49, 0x6e, 0x66, 0x6f, 0x52, 0x0a, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x49, 0x6e, 0x66, 0x6f, 0x73,
+	0x42, 0x09, 0x0a, 0x07, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x07, 0x5a, 0x05, 0x2e,
+	0x2e, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1066,27 +1067,27 @@ func file_api_server_proto_rawDescGZIP() []byte {
 
 var file_api_server_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_api_server_proto_goTypes = []any{
-	(*InitServerRequest)(nil),     // 0: api_server.InitServerRequest
-	(*InitServerResponse)(nil),    // 1: api_server.InitServerResponse
-	(*ListServersRequest)(nil),    // 2: api_server.ListServersRequest
-	(*ListServersResponse)(nil),   // 3: api_server.ListServersResponse
-	(*GetServerRequest)(nil),      // 4: api_server.GetServerRequest
-	(*GetServerResponse)(nil),     // 5: api_server.GetServerResponse
-	(*DeleteServerRequest)(nil),   // 6: api_server.DeleteServerRequest
-	(*DeleteServerResponse)(nil),  // 7: api_server.DeleteServerResponse
-	(*UpdateFRPSRequest)(nil),     // 8: api_server.UpdateFRPSRequest
-	(*UpdateFRPSResponse)(nil),    // 9: api_server.UpdateFRPSResponse
-	(*RemoveFRPSRequest)(nil),     // 10: api_server.RemoveFRPSRequest
-	(*RemoveFRPSResponse)(nil),    // 11: api_server.RemoveFRPSResponse
-	(*StopFRPSRequest)(nil),       // 12: api_server.StopFRPSRequest
-	(*StopFRPSResponse)(nil),      // 13: api_server.StopFRPSResponse
-	(*StartFRPSRequest)(nil),      // 14: api_server.StartFRPSRequest
-	(*StartFRPSResponse)(nil),     // 15: api_server.StartFRPSResponse
-	(*GetProxyBySIDRequest)(nil),  // 16: api_server.GetProxyBySIDRequest
-	(*GetProxyBySIDResponse)(nil), // 17: api_server.GetProxyBySIDResponse
-	(*Status)(nil),                // 18: common.Status
-	(*Server)(nil),                // 19: common.Server
-	(*ProxyInfo)(nil),             // 20: common.ProxyInfo
+	(*InitServerRequest)(nil),               // 0: api_server.InitServerRequest
+	(*InitServerResponse)(nil),              // 1: api_server.InitServerResponse
+	(*ListServersRequest)(nil),              // 2: api_server.ListServersRequest
+	(*ListServersResponse)(nil),             // 3: api_server.ListServersResponse
+	(*GetServerRequest)(nil),                // 4: api_server.GetServerRequest
+	(*GetServerResponse)(nil),               // 5: api_server.GetServerResponse
+	(*DeleteServerRequest)(nil),             // 6: api_server.DeleteServerRequest
+	(*DeleteServerResponse)(nil),            // 7: api_server.DeleteServerResponse
+	(*UpdateFRPSRequest)(nil),               // 8: api_server.UpdateFRPSRequest
+	(*UpdateFRPSResponse)(nil),              // 9: api_server.UpdateFRPSResponse
+	(*RemoveFRPSRequest)(nil),               // 10: api_server.RemoveFRPSRequest
+	(*RemoveFRPSResponse)(nil),              // 11: api_server.RemoveFRPSResponse
+	(*StopFRPSRequest)(nil),                 // 12: api_server.StopFRPSRequest
+	(*StopFRPSResponse)(nil),                // 13: api_server.StopFRPSResponse
+	(*StartFRPSRequest)(nil),                // 14: api_server.StartFRPSRequest
+	(*StartFRPSResponse)(nil),               // 15: api_server.StartFRPSResponse
+	(*GetProxyStatsByServerIDRequest)(nil),  // 16: api_server.GetProxyStatsByServerIDRequest
+	(*GetProxyStatsByServerIDResponse)(nil), // 17: api_server.GetProxyStatsByServerIDResponse
+	(*Status)(nil),                          // 18: common.Status
+	(*Server)(nil),                          // 19: common.Server
+	(*ProxyInfo)(nil),                       // 20: common.ProxyInfo
 }
 var file_api_server_proto_depIdxs = []int32{
 	18, // 0: api_server.InitServerResponse.status:type_name -> common.Status
@@ -1099,8 +1100,8 @@ var file_api_server_proto_depIdxs = []int32{
 	18, // 7: api_server.RemoveFRPSResponse.status:type_name -> common.Status
 	18, // 8: api_server.StopFRPSResponse.status:type_name -> common.Status
 	18, // 9: api_server.StartFRPSResponse.status:type_name -> common.Status
-	18, // 10: api_server.GetProxyBySIDResponse.status:type_name -> common.Status
-	20, // 11: api_server.GetProxyBySIDResponse.proxy_infos:type_name -> common.ProxyInfo
+	18, // 10: api_server.GetProxyStatsByServerIDResponse.status:type_name -> common.Status
+	20, // 11: api_server.GetProxyStatsByServerIDResponse.proxy_infos:type_name -> common.ProxyInfo
 	12, // [12:12] is the sub-list for method output_type
 	12, // [12:12] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name

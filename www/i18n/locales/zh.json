@@ -11,11 +11,12 @@
   "nav": {
     "clients": "客户端",
     "servers": "服务端",
-    "editClient": "编辑隧道",
+    "editClient": "编辑客户端",
     "editServer": "编辑服务端",
     "trafficStats": "流量统计",
     "realTimeLog": "实时日志",
     "console": "控制台",
+    "editTunnel": "编辑隧道",
     "user": {
       "profile": "个人资料",
       "settings": "设置"
@@ -153,7 +154,7 @@
     },
     "start": {
       "title": "启动命令",
-      "description": "复制并运行以下命令来启动 frps",
+      "description": "复制并运行以下命令来启动 frp-panel 服务端",
       "copy": "复制命令"
     },
     "actions_menu": {
@@ -247,7 +248,7 @@
     },
     "start": {
       "title": "启动命令",
-      "description": "复制并运行以下命令来启动 frpc",
+      "description": "复制并运行以下命令来启动 frp-panel 客户端",
       "copy": "复制命令"
     },
     "actions_menu": {
@@ -347,7 +348,38 @@
       "port_placeholder": "请输入端口号 (1-65535)",
       "ip_placeholder": "请输入IP地址 (例如: 127.0.0.1)",
       "subdomain_placeholder": "请输入子域名",
-      "secret_placeholder": "请输入密钥"
+      "secret_placeholder": "请输入密钥",
+      "route": "路由"
+    },
+    "config": {
+      "create": "创建",
+      "create_success": "创建成功",
+      "create_failed": "创建失败",
+      "select_server": "选择服务器",
+      "select_client": "选择客户端",
+      "select_proxy_type": "选择隧道类型",
+      "proxy_name": "隧道名称",
+      "invalid_config": "配置不正确",
+      "submit": "提交"
+    },
+    "action": {
+      "delete_success": "删除成功",
+      "delete_failed": "删除失败",
+      "edit": "编辑",
+      "delete": "删除",
+      "delete_tunnel": "删除隧道",
+      "delete_attention_title": "隧道将被永久删除，请确认",
+      "delete_attention_description": "删除后将无法恢复，请谨慎操作",
+      "delete_attention_confirm": "确认删除",
+      "title": "隧道操作"
+    },
+    "item": {
+      "client_id": "客户端ID",
+      "proxy_name": "隧道名称",
+      "proxy_type": "隧道类型",
+      "server_id": "服务端ID",
+      "status": "状态",
+      "visit_preview": "访问预览"
     },
     "type": {
       "http": "HTTP",
@@ -386,10 +418,10 @@
   },
   "frpc": {
     "form": {
-      "title": "编辑隧道",
+      "title": "编辑客户端",
       "description": {
         "warning": "注意⚠️：选择的「服务端」必须提前配置！",
-        "instruction": "选择客户端和服务端以编辑隧道"
+        "instruction": "选择客户端和服务端以配置"
       },
       "advanced": {
         "title": "高级模式",
@@ -434,9 +466,13 @@
     }
   },
   "input": {
+    "list": {
+      "placeholder": "请输入...",
+      "add": "添加"
+    },
     "search": "搜索",
-    "id": {
-      "placeholder": "请输入ID"
+    "keyword": {
+      "placeholder": "请输入关键词"
     }
   },
   "table": {

@@ -36,6 +36,8 @@ func HandleServerMessage(req *pb.ServerMessage) *pb.ClientMessage {
 		return common.WrapperServerMsg(req, StopSteamLogHandler)
 	case pb.Event_EVENT_START_PTY_CONNECT:
 		return common.WrapperServerMsg(req, StartPTYConnect)
+	case pb.Event_EVENT_GET_PROXY_INFO:
+		return common.WrapperServerMsg(req, GetProxyConfig)
 	case pb.Event_EVENT_PING:
 		rawData, _ := proto.Marshal(conf.GetVersion().ToProto())
 		return &pb.ClientMessage{

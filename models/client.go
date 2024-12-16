@@ -15,17 +15,19 @@ type Client struct {
 }
 
 type ClientEntity struct {
-	ClientID      string `json:"client_id" gorm:"uniqueIndex;not null;primaryKey"`
-	ServerID      string `json:"server_id"`
-	TenantID      int    `json:"tenant_id" gorm:"not null"`
-	UserID        int    `json:"user_id" gorm:"not null"`
-	ConfigContent []byte `json:"config_content"`
-	ConnectSecret string `json:"connect_secret" gorm:"not null"`
-	Stopped       bool   `json:"stopped"`
-	Comment       string `json:"comment"`
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	DeletedAt     gorm.DeletedAt `gorm:"index"`
+	ClientID       string `json:"client_id" gorm:"uniqueIndex;not null;primaryKey"`
+	ServerID       string `json:"server_id"`
+	TenantID       int    `json:"tenant_id" gorm:"not null"`
+	UserID         int    `json:"user_id" gorm:"not null"`
+	ConfigContent  []byte `json:"config_content"`
+	ConnectSecret  string `json:"connect_secret" gorm:"not null"`
+	Stopped        bool   `json:"stopped"`
+	Comment        string `json:"comment"`
+	IsShadow       bool   `json:"is_shadow" gorm:"index"`
+	OriginClientID string `json:"origin_client_id" gorm:"index"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      gorm.DeletedAt `gorm:"index"`
 }
 
 func (*Client) TableName() string {
@@ -60,4 +62,12 @@ func (c *ClientEntity) GetConfigContent() (*v1.ClientConfig, error) {
 		return nil, err
 	}
 	return cliCfg, err
+}
+
+func (c *ClientEntity) MarshalJSONConfig() ([]byte, error) {
+	cliCfg, err := c.GetConfigContent()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(cliCfg)
 }

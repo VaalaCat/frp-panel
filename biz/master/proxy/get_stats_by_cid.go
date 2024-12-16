@@ -10,8 +10,8 @@ import (
 	"github.com/VaalaCat/frp-panel/pb"
 )
 
-// GetProxyByCID get proxy info by client id
-func GetProxyByCID(c context.Context, req *pb.GetProxyByCIDRequest) (*pb.GetProxyByCIDResponse, error) {
+// GetProxyStatsByClientID get proxy info by client id
+func GetProxyStatsByClientID(c context.Context, req *pb.GetProxyStatsByClientIDRequest) (*pb.GetProxyStatsByClientIDResponse, error) {
 	logger.Logger(c).Infof("get proxy by client id, req: [%+v]", req)
 	var (
 		clientID = req.GetClientId()
@@ -22,13 +22,13 @@ func GetProxyByCID(c context.Context, req *pb.GetProxyByCIDRequest) (*pb.GetProx
 		return nil, fmt.Errorf("request invalid")
 	}
 
-	proxyList, err := dao.GetProxyByClientID(userInfo, clientID)
-	if proxyList == nil || err != nil {
+	proxyStatsList, err := dao.GetProxyStatsByClientID(userInfo, clientID)
+	if proxyStatsList == nil || err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot get proxy, client id: [%s]", clientID)
 		return nil, err
 	}
-	return &pb.GetProxyByCIDResponse{
+	return &pb.GetProxyStatsByClientIDResponse{
 		Status:     &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
-		ProxyInfos: convertProxyList(proxyList),
+		ProxyInfos: convertProxyStatsList(proxyStatsList),
 	}, nil
 }
