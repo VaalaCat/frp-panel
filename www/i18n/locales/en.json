@@ -353,6 +353,9 @@
     },
     "config": {
       "create": "Create",
+      "create_proxy": "Create Tunnel",
+      "create_proxy_description": "Expose the client's services to the server. The same client tunnel name must be unique",
+      "close": "Close",
       "create_success": "Create successful",
       "create_failed": "Create failed",
       "select_server": "Select Server",

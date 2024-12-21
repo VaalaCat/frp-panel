@@ -18,8 +18,9 @@ import {
 } from '@/components/ui/dialog'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { IsIDValid } from '@/lib/consts'
 
-export const CreateServerDialog = ({refetchTrigger}: {refetchTrigger?: (randStr: string) => void}) => {
+export const CreateServerDialog = ({ refetchTrigger }: { refetchTrigger?: (randStr: string) => void }) => {
   const { t } = useTranslation()
   const [serverID, setServerID] = useState<string | undefined>()
   const [serverIP, setServerIP] = useState<string | undefined>()
@@ -60,11 +61,13 @@ export const CreateServerDialog = ({refetchTrigger}: {refetchTrigger?: (randStr:
         </DialogHeader>
 
         <Label>{t('server.create.id')}</Label>
-        <Input className="mt-2" value={serverID} onChange={(e) => setServerID(e.target.value)} />
+        <Input value={serverID} onChange={(e) => setServerID(e.target.value)} />
         <Label>{t('server.create.ip')}</Label>
-        <Input className="mt-2" value={serverIP} onChange={(e) => setServerIP(e.target.value)} />
+        <Input value={serverIP} onChange={(e) => setServerIP(e.target.value)} />
         <DialogFooter>
-          <Button onClick={handleNewServer}>{t('server.create.submit')}</Button>
+          <Button onClick={handleNewServer}
+            disabled={!IsIDValid(serverID) || !serverIP}
+            className='w-full'>{t('server.create.submit')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

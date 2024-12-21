@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { IsIDValid } from '@/lib/consts'
 
 export const CreateClientDialog = ({refetchTrigger}: {refetchTrigger?: (randStr: string) => void}) => {
   const { t } = useTranslation()
@@ -60,9 +61,11 @@ export const CreateClientDialog = ({refetchTrigger}: {refetchTrigger?: (randStr:
         </DialogHeader>
 
         <Label>{t('client.create.id')}</Label>
-        <Input className="mt-2" value={clientID} onChange={(e) => setClientID(e.target.value)} />
+        <Input value={clientID} onChange={(e) => setClientID(e.target.value)} />
         <DialogFooter>
-          <Button onClick={handleNewClient}>{t('client.create.submit')}</Button>
+          <Button onClick={handleNewClient}
+          disabled={!IsIDValid(clientID)}
+          className='w-full'>{t('client.create.submit')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

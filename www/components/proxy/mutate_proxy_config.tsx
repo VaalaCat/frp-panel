@@ -9,7 +9,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -47,6 +46,12 @@ export const ProxyConfigMutateDialog = ({ ...props }: ProxyConfigMutateDialogPro
         </Button>
       </DialogTrigger>
       <DialogContent className='max-h-screen overflow-auto'>
+        <DialogHeader>
+          <DialogTitle>{t('proxy.config.create_proxy')}</DialogTitle>
+          <DialogDescription>
+            {t('proxy.config.create_proxy_description')}
+          </DialogDescription>
+        </DialogHeader>
         <ProxyConfigMutateForm {...props} />
       </DialogContent>
     </Dialog>
@@ -113,14 +118,14 @@ export const ProxyConfigMutateForm = ({ overwrite, defaultProxyConfig, defaultOr
         value={proxyType}
         setValue={(value) => { setProxyType(value as ProxyType) }}
       />
-      <div className='flex flex-row w-full overflow-auto'>
-        {proxyConfigs && selectedServer && proxyConfigs.length > 0 &&
-          proxyConfigs[0] && TypedProxyConfigValid(proxyConfigs[0]) &&
+      {proxyConfigs && selectedServer && proxyConfigs.length > 0 &&
+        proxyConfigs[0] && TypedProxyConfigValid(proxyConfigs[0]) &&
+        <div className='flex flex-row w-full overflow-auto'>
           <div className='flex flex-col'>
             <VisitPreview server={selectedServer} typedProxyConfig={proxyConfigs[0]} />
           </div>
-        }
-      </div>
+        </div>
+      }
       <Label>{t('proxy.config.proxy_name')} </Label>
       <Input className='text-sm' defaultValue={proxyName} onChange={(e) => setProxyName(e.target.value)} disabled={disableChangeProxyName} />
       {proxyName && newClientID && newServerID && <TypedProxyForm

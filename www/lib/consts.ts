@@ -24,6 +24,14 @@ export const TypedProxyConfigValid = (typedProxyCfg: TypedProxyConfig | undefine
   return (typedProxyCfg?.localPort && typedProxyCfg.localIP && typedProxyCfg.name && typedProxyCfg.type) ? true : false
 }
 
+export const IsIDValid = (clientID: string|undefined): boolean => {
+  if (clientID == undefined) {
+    return false
+  }
+  const regex = /^[a-zA-Z0-9-_]+$/;
+  return clientID.length > 0 && regex.test(clientID);
+}
+
 export const ClientConfigured = (client: Client | undefined): boolean => {
   if (client == undefined) {
     return false

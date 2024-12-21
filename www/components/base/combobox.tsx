@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useDebouncedCallback } from 'use-debounce'
@@ -19,6 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { CaretSortIcon } from "@radix-ui/react-icons"
 
 export interface ComboboxProps {
   value?: string
@@ -67,17 +68,17 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between font-normal", className,
+          className={cn("w-full justify-between font-normal px-3", className,
             !value && "text-muted-foreground"
           )}
         >
           {value
             ? (dataList.find((item) => item.value === value)?.label || value)
             : (placeholder || defaultPlaceholder)}
-          <ChevronsUpDown className="opacity-50 h-[12px] w-[12px]" />
+          <CaretSortIcon className="h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
           <CommandInput 
             value={keyword} 

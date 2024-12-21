@@ -353,6 +353,9 @@
     },
     "config": {
       "create": "创建",
+      "create_proxy": "创建隧道",
+      "create_proxy_description": "将客户端的服务暴露在服务端，同一个客户端隧道名称必须唯一",
+      "close": "关闭",
       "create_success": "创建成功",
       "create_failed": "创建失败",
       "select_server": "选择服务器",
