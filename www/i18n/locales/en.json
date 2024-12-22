@@ -200,7 +200,9 @@
       "bind_addr": "FRPs Listen Address",
       "proxy_bind_addr": "Proxy Listen Address",
       "vhost_http_port": "HTTP Listen Port",
-      "subdomain_host": "Subdomain Host"
+      "subdomain_host": "Subdomain Host",
+      "quic_bind_port": "Quic Bind Port",
+      "kcp_bind_port":"KCP Bind Port"
     },
     "editor": {
       "comment": "Node {{id}} Comment",

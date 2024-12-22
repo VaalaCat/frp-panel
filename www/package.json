@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build && rm -rf ../cmd/frpp/out && cp -r out ../cmd/frpp",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "bunx next dev",
+    "build": "bunx next build && rm -rf ../cmd/frpp/out && cp -r out ../cmd/frpp",
+    "start": "bunx next start",
+    "lint": "bunx next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

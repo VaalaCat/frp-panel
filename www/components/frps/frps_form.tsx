@@ -1,11 +1,10 @@
 import { ServerConfig } from '@/types/server'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Form } from '@/components/ui/form'
 import { ZodIPSchema, ZodPortSchema, ZodStringSchema } from '@/lib/consts'
 import { RespCode, Server } from '@/lib/pb/common'
 import { updateFRPS } from '@/api/frp'
@@ -13,6 +12,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Label } from '@radix-ui/react-label'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { HostField, PortField } from '../base/form-field'
 
 const ServerConfigSchema = z.object({
   bindAddr: ZodIPSchema.default('0.0.0.0').optional(),
@@ -21,6 +21,8 @@ const ServerConfigSchema = z.object({
   vhostHTTPPort: ZodPortSchema.optional(),
   subDomainHost: ZodStringSchema.optional(),
   publicHost: ZodStringSchema.optional(),
+  quicBindPort: ZodPortSchema.optional(),
+  kcpBindPort: ZodPortSchema.optional(),
 })
 
 export const ServerConfigZodSchema = ServerConfigSchema
@@ -48,7 +50,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
 
   const onSubmit = async (values: z.infer<typeof ServerConfigZodSchema>) => {
     try {
-      const {publicHost, ...rest} = values
+      const { publicHost, ...rest } = values
       let resp = await updateFrps.mutateAsync({
         serverIp: publicHost,
         serverId: serverID,
@@ -59,7 +61,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
           } as ServerConfig),
         ),
       })
-      toast(resp.status?.code === RespCode.SUCCESS ? t('server.operation.update_success') : t('server.operation.update_failed'),{
+      toast(resp.status?.code === RespCode.SUCCESS ? t('server.operation.update_success') : t('server.operation.update_failed'), {
         description: resp.status?.message,
       })
     } catch (error) {
@@ -80,87 +82,14 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
       {serverID && (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-0.5">
-            <FormField
-              control={form.control}
-              name="publicHost"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('server.form.public_host')}</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-              defaultValue={server?.ip}
-            />
-            <FormField
-              control={form.control}
-              name="bindPort"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('server.form.bind_port')}</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-              defaultValue={7000}
-            />
-            <FormField
-              control={form.control}
-              name="bindAddr"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('server.form.bind_addr')}</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-              defaultValue="0.0.0.0"
-            />
-            <FormField
-              control={form.control}
-              name="proxyBindAddr"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('server.form.proxy_bind_addr')}</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="vhostHTTPPort"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('server.form.vhost_http_port')}</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="subDomainHost"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('server.form.subdomain_host')}</FormLabel>
-                  <FormControl>
-                    <Input placeholder="example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <HostField name="publicHost" label={t('server.form.public_host')} placeholder='8.8.8.8' control={form.control} defaultValue={server?.ip}/>
+            <PortField name="bindPort" label={t('server.form.bind_port')} control={form.control} />
+            <HostField name="bindAddr" label={t('server.form.bind_addr')} control={form.control} />
+            <HostField name="proxyBindAddr" label={t('server.form.proxy_bind_addr')} control={form.control} />
+            <PortField name="vhostHTTPPort" label={t('server.form.vhost_http_port')} control={form.control} />
+            <HostField name="subDomainHost" label={t('server.form.subdomain_host')} control={form.control} />
+            <PortField name="quicBindPort" label={t('server.form.quic_bind_port')} control={form.control} />
+            <PortField name="kcpBindPort" label={t('server.form.kcp_bind_port')} control={form.control} />
             <Button type="submit">{t('common.submit')}</Button>
           </form>
         </Form>

@@ -22,11 +22,13 @@ export const ZodEmailSchema = z.string({ required_error: 'validation.required' }
   .min(1, { message: 'validation.required' })
   .email({ message: 'auth.email.invalid' })
 
+export const ConnectionProtocols = ["tcp", "kcp", "quic", "websocket", "wss"]
+
 export const TypedProxyConfigValid = (typedProxyCfg: TypedProxyConfig | undefined): boolean => {
   return (typedProxyCfg?.localPort && typedProxyCfg.localIP && typedProxyCfg.name && typedProxyCfg.type) ? true : false
 }
 
-export const IsIDValid = (clientID: string|undefined): boolean => {
+export const IsIDValid = (clientID: string | undefined): boolean => {
   if (clientID == undefined) {
     return false
   }

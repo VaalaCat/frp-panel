@@ -207,7 +207,9 @@
       "bind_addr": "FRPs 监听地址",
       "proxy_bind_addr": "代理监听地址",
       "vhost_http_port": "HTTP 监听端口",
-      "subdomain_host": "域名后缀"
+      "subdomain_host": "域名后缀",
+      "quic_bind_port": "Quic 监听端口",
+      "kcp_bind_port":"KCP 监听端口"
     },
     "create": {
       "button": "新建",

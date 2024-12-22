@@ -82,7 +82,16 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 	}
 
 	cliCfg.ServerAddr = srv.ServerIP
-	cliCfg.ServerPort = srvConf.BindPort
+	switch cliCfg.Transport.Protocol {
+	case "tcp":
+		cliCfg.ServerPort = srvConf.BindPort
+	case "kcp":
+		cliCfg.ServerPort = srvConf.KCPBindPort
+	case "quic":
+		cliCfg.ServerPort = srvConf.QUICBindPort
+	default:
+		cliCfg.ServerPort = srvConf.BindPort
+	}
 	cliCfg.User = userInfo.GetUserName()
 	cliCfg.Auth = v1.AuthClientConfig{}
 	cliCfg.Metadatas = map[string]string{

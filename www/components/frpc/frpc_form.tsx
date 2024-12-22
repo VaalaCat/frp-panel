@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@radix-ui/react-label'
-import { HTTPProxyForm, STCPProxyForm, TCPProxyForm, TypedProxyForm, UDPProxyForm } from './proxy_form'
+import { TypedProxyForm } from './proxy_form'
 import { Button } from '@/components/ui/button'
 import { Client, RespCode } from '@/lib/pb/common'
 import { ClientConfig } from '@/types/client'
@@ -13,10 +13,11 @@ import { Input } from '@/components/ui/input'
 import { AccordionHeader } from '@radix-ui/react-accordion'
 import { QueryObserverResult, RefetchOptions, useMutation } from '@tanstack/react-query'
 import { updateFRPC } from '@/api/frp'
-import { Card, CardContent } from '@/components/ui/card'
 import { GetClientResponse } from '@/lib/pb/api_client'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { BaseSelector } from '../base/selector'
+import { ConnectionProtocols } from '@/lib/consts'
 
 export interface FRPCFormProps {
   clientID: string
@@ -28,10 +29,17 @@ export interface FRPCFormProps {
   setClientProxyConfigs: React.Dispatch<React.SetStateAction<TypedProxyConfig[]>>
 }
 
-export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, refetchClient, clientProxyConfigs, setClientProxyConfigs }) => {
+export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, clientConfig, client, refetchClient, clientProxyConfigs, setClientProxyConfigs }) => {
   const { t } = useTranslation()
   const [proxyType, setProxyType] = useState<ProxyType>('http')
   const [proxyName, setProxyName] = useState<string | undefined>()
+  const [protocol, setProtocol] = useState<string | undefined>("tcp")
+
+  useEffect(() => {
+    if (clientConfig.transport?.protocol) {
+      setProtocol(clientConfig.transport?.protocol)
+    }
+  }, [clientConfig])
 
   const handleTypeChange = (value: string) => {
     setProxyType(value as ProxyType)
@@ -68,6 +76,10 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
         config: Buffer.from(
           JSON.stringify({
             proxies: clientProxyConfigs,
+            transport: {
+              ...clientConfig.transport,
+              protocol,
+            }
           } as ClientConfig),
         ),
         serverId: serverID,
@@ -86,7 +98,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
   }
 
   return (
-    <>
+    <div className='flex flex-col space-y-2'>
       <Popover>
         <PopoverTrigger asChild>
           <Button className="my-2">{t('proxy.form.add')}</Button>
@@ -115,6 +127,11 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
           </Button>
         </PopoverContent>
       </Popover>
+      <Label className="text-sm font-medium">{t('proxy.form.protocol')}</Label>
+      <BaseSelector value={protocol} setValue={setProtocol}
+        dataList={ConnectionProtocols.map((item) => { return { label: item, value: item } })}
+        placeholder={t('proxy.form.protocol')}
+        label={t('proxy.form.protocol')} />
       <Accordion type="single" defaultValue="proxies" collapsible key={clientID + serverID + client}>
         <AccordionItem value="proxies">
           <AccordionTrigger>
@@ -165,6 +182,6 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, client, 
       >
         {t('proxy.form.submit')}
       </Button>
-    </>
+    </div>
   )
 }

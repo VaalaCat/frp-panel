@@ -4,10 +4,9 @@ import React from 'react'
 import { ZodPortSchema, ZodStringOptionalSchema, ZodStringSchema } from '@/lib/consts'
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Control, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Form, FormDescription } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
 import { YesIcon } from '@/components/ui/icon'
 import { useTranslation } from 'react-i18next'
@@ -15,7 +14,13 @@ import { useQuery } from '@tanstack/react-query'
 import { getServer } from '@/api/server'
 import { Switch } from "@/components/ui/switch"
 import { VisitPreview } from '../base/visit-preview'
-import StringListInput from '../base/list-input'
+import {
+  HostField,
+  PortField,
+  SecretStringField,
+  StringArrayField,
+  StringField
+} from '../base/form-field'
 
 export const TCPConfigSchema = z.object({
   remotePort: ZodPortSchema,
@@ -55,163 +60,6 @@ export interface ProxyFormProps {
   setClientProxyConfigs: React.Dispatch<React.SetStateAction<TypedProxyConfig[]>>
 }
 
-const HostField = ({
-  control,
-  name,
-  label,
-  placeholder,
-  defaultValue,
-}: {
-  control: Control<any>
-  name: string
-  label: string
-  placeholder?: string
-  defaultValue?: string
-}) => {
-  const { t } = useTranslation()
-  return (
-    <FormField
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{t(label)}</FormLabel>
-          <FormControl>
-            <Input className='text-sm' placeholder={placeholder || '127.0.0.1'} {...field} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-      defaultValue={defaultValue}
-    />
-  )
-}
-const PortField = ({
-  control,
-  name,
-  label,
-  placeholder,
-  defaultValue,
-}: {
-  control: Control<any>
-  name: string
-  label: string
-  placeholder?: string
-  defaultValue?: number
-}) => {
-  const { t } = useTranslation()
-  return (
-    <FormField
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{t(label)}</FormLabel>
-          <FormControl>
-            <Input className='text-sm' placeholder={placeholder || '1234'} {...field} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-      defaultValue={defaultValue}
-    />
-  )
-}
-const SecretStringField = ({
-  control,
-  name,
-  label,
-  placeholder,
-  defaultValue,
-}: {
-  control: Control<any>
-  name: string
-  label: string
-  placeholder?: string
-  defaultValue?: string
-}) => {
-  const { t } = useTranslation()
-  return (
-    <FormField
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{t(label)}</FormLabel>
-          <FormControl>
-            <Input className='text-sm' placeholder={placeholder || "secret"} {...field} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-      defaultValue={defaultValue}
-    />
-  )
-}
-
-const StringField = ({
-  control,
-  name,
-  label,
-  placeholder,
-  defaultValue,
-}: {
-  control: Control<any>
-  name: string
-  label: string
-  placeholder?: string
-  defaultValue?: string
-}) => {
-  const { t } = useTranslation()
-  return (
-    <FormField
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{t(label)}</FormLabel>
-          <FormControl>
-            <Input className='text-sm' placeholder={placeholder || '127.0.0.1'} {...field} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-      defaultValue={defaultValue}
-    />
-  )
-}
-
-const StringArrayField = ({
-  control,
-  name,
-  label,
-  placeholder,
-  defaultValue,
-}: {
-  control: Control<any>
-  name: string
-  label: string
-  placeholder?: string
-  defaultValue?: string[]
-}) => {
-  const { t } = useTranslation()
-  return (
-    <FormField
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{t(label)}</FormLabel>
-          <FormControl>
-            <StringListInput placeholder={placeholder || '/path'} {...field} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-      defaultValue={defaultValue}
-    />
-  )
-}
 
 export const TypedProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, defaultProxyConfig, proxyName, clientProxyConfigs, setClientProxyConfigs, enablePreview }) => {
   if (!defaultProxyConfig) {

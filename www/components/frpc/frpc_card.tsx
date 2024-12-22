@@ -15,7 +15,6 @@ import { TypedProxyConfig } from '@/types/proxy'
 import { ClientSelector } from '../base/client-selector'
 import { ServerSelector } from '../base/server-selector'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 
 export interface FRPCFormCardProps {
   clientID?: string
