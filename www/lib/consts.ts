@@ -16,6 +16,8 @@ export const ZodIPSchema = z.string({ required_error: 'validation.required' })
   .regex(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/, { message: 'validation.ipAddress' })
 export const ZodStringSchema = z.string({ required_error: 'validation.required' })
   .min(1, { message: 'validation.required' })
+
+export const ZodStringOptionalSchema = z.string().optional()
 export const ZodEmailSchema = z.string({ required_error: 'validation.required' })
   .min(1, { message: 'validation.required' })
   .email({ message: 'auth.email.invalid' })

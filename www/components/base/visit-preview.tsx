@@ -20,7 +20,33 @@ export function VisitPreview({ server, typedProxyConfig }: { server: Server; typ
     if (httpProxyConfig.locations.length == 1) {
       return httpProxyConfig.locations[0];
     }
-    return `[${httpProxyConfig.locations.join(",")}]`;
+    return `[${httpProxyConfig.locations.join(", ")}]`;
+  }
+
+  function getServerHost(httpProxyConfig: HTTPProxyConfig) {
+    let allHosts = []
+    if (httpProxyConfig.subdomain) {
+      allHosts.push(`${httpProxyConfig.subdomain}.${serverCfg.subDomainHost}`);
+    }
+
+    allHosts.push(...(httpProxyConfig.customDomains || []));
+
+    if (allHosts.length == 0) {
+      return serverAddress;
+    }
+
+    if (allHosts.length == 1) {
+      return allHosts[0];
+    }
+
+    return `[${allHosts.join(", ")}]`;
+  }
+
+  function getServerAuth(httpProxyConfig: HTTPProxyConfig) {
+    if (!httpProxyConfig.httpUser || !httpProxyConfig.httpPassword) {
+      return "";
+    }
+    return `${httpProxyConfig.httpUser}:${httpProxyConfig.httpPassword}@`
   }
 
   return (
@@ -28,8 +54,13 @@ export function VisitPreview({ server, typedProxyConfig }: { server: Server; typ
       <div className="flex items-center mb-2 sm:mb-0">
         <Globe className="w-4 h-4 text-blue-500 mr-2 flex-shrink-0" />
         <span className="text-nowrap">{typedProxyConfig.type == "http" ? "http://" : ""}{
-          typedProxyConfig.type == "http" ? `${(typedProxyConfig as HTTPProxyConfig).subdomain}.${serverCfg.subDomainHost}` : serverAddress}:{
-            serverPort}{typedProxyConfig.type == "http" ? getServerPath(typedProxyConfig as HTTPProxyConfig) : ""}</span>
+          typedProxyConfig.type == "http" ? (
+            getServerAuth(typedProxyConfig as HTTPProxyConfig) + getServerHost(typedProxyConfig as HTTPProxyConfig)
+          ) : serverAddress
+        }:{serverPort || "?"}{
+            typedProxyConfig.type == "http" ?
+              getServerPath(typedProxyConfig as HTTPProxyConfig) : ""
+          }</span>
       </div>
       <ArrowRight className="hidden sm:block w-4 h-4 text-gray-400 mx-2 flex-shrink-0" />
       <div className="flex items-center mb-2 sm:mb-0">

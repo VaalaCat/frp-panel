@@ -349,7 +349,13 @@
       "ip_placeholder": "IP Address (eg. 127.0.0.1)",
       "subdomain_placeholder": "Input Subdomain",
       "secret_placeholder": "Input Secret Key",
-      "route": "Route"
+      "route": "Route",
+      "custom_domains": "Custom Domains",
+      "more_settings": "More Settings",
+      "domain_description": "Subdomain and custom domain can be configured at the same time, but at least one of them must be not empty. If frps is configured with domain suffix, the custom domain cannot be a subdomain or wildcard domain of the domain suffix.",
+      "enable_http_auth": "Enable HTTP Authentication",
+      "username": "Username",
+      "password": "Password"
     },
     "config": {
       "create": "Create",

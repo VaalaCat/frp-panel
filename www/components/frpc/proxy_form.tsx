@@ -1,18 +1,19 @@
 import { HTTPProxyConfig, TCPProxyConfig, TypedProxyConfig, UDPProxyConfig, STCPProxyConfig } from '@/types/proxy'
 import * as z from 'zod'
 import React from 'react'
-import { ZodPortSchema, ZodStringSchema } from '@/lib/consts'
+import { ZodPortSchema, ZodStringOptionalSchema, ZodStringSchema } from '@/lib/consts'
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Control, useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { YesIcon } from '@/components/ui/icon'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { getServer } from '@/api/server'
+import { Switch } from "@/components/ui/switch"
 import { VisitPreview } from '../base/visit-preview'
 import StringListInput from '../base/list-input'
 
@@ -31,8 +32,11 @@ export const UDPConfigSchema = z.object({
 export const HTTPConfigSchema = z.object({
   localPort: ZodPortSchema,
   localIP: ZodStringSchema.default('127.0.0.1'),
-  subdomain: ZodStringSchema,
+  subdomain: ZodStringOptionalSchema,
   locations: z.array(ZodStringSchema).optional(),
+  customDomains: z.array(ZodStringSchema).optional(),
+  httpUser: ZodStringOptionalSchema,
+  httpPassword: ZodStringOptionalSchema,
 })
 
 export const STCPConfigSchema = z.object({
@@ -273,11 +277,6 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
     }
   })
 
-  useEffect(() => {
-    setTCPConfig(undefined)
-    form.reset({})
-  }, [])
-
   const onSubmit = async (values: z.infer<typeof TCPConfigSchema>) => {
     handleSave()
     setTCPConfig({ type: 'tcp', ...values, name: proxyName })
@@ -319,13 +318,13 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
           <div className="flex items-center space-x-2 flex-col justify-start w-full">
             <Label className="text-sm font-medium text-start w-full">{t('proxy.form.access_method')}</Label>
             <div className='w-full justify-start overflow-x-scroll'>
-            <VisitPreview server={server?.server} typedProxyConfig={defaultConfig} />
+              <VisitPreview server={server?.server} typedProxyConfig={defaultConfig} />
             </div>
           </div>
         )}
-        <PortField name="localPort" control={form.control} label={t('proxy.form.local_port')} />
-        <HostField name="localIP" control={form.control} label={t('proxy.form.local_ip')} />
-        <PortField name="remotePort" control={form.control} label={t('proxy.form.remote_port')} placeholder='4321' />
+        <PortField name="localPort" control={form.control} label={t('proxy.form.local_port') + "*"} />
+        <HostField name="localIP" control={form.control} label={t('proxy.form.local_ip') + "*"} />
+        <PortField name="remotePort" control={form.control} label={t('proxy.form.remote_port') + "*"} placeholder='4321' />
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'} className='w-full'>
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
           {t('proxy.form.save_changes')}
@@ -347,11 +346,6 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
       secretKey: defaultConfig?.secretKey,
     }
   })
-
-  useEffect(() => {
-    setSTCPConfig(undefined)
-    form.reset({})
-  }, [])
 
   const onSubmit = async (values: z.infer<typeof STCPConfigSchema>) => {
     handleSave()
@@ -382,9 +376,9 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-0.5">
-        <PortField name="localPort" control={form.control} label={t('proxy.form.local_port')} />
-        <HostField name="localIP" control={form.control} label={t('proxy.form.local_ip')} />
-        <SecretStringField name="secretKey" control={form.control} label={t('proxy.form.secret_key')} />
+        <PortField name="localPort" control={form.control} label={t('proxy.form.local_port') + "*"} />
+        <HostField name="localIP" control={form.control} label={t('proxy.form.local_ip') + "*"} />
+        <SecretStringField name="secretKey" control={form.control} label={t('proxy.form.secret_key') + "*"} />
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'} className='w-full'>
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
           {t('proxy.form.save_changes')}
@@ -406,11 +400,6 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
       remotePort: defaultConfig?.remotePort,
     }
   })
-
-  useEffect(() => {
-    setUDPConfig(undefined)
-    form.reset({})
-  }, [])
 
   const onSubmit = async (values: z.infer<typeof UDPConfigSchema>) => {
     handleSave()
@@ -450,15 +439,15 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, def
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-0.5">
         {server?.server?.ip && defaultConfig.remotePort && defaultConfig.localIP && defaultConfig.localPort && enablePreview && (
           <div className="flex items-center space-x-2 flex-col justify-start w-full">
-          <Label className="text-sm font-medium text-start w-full">{t('proxy.form.access_method')}</Label>
-          <div className='w-full justify-start overflow-x-scroll'>
-          <VisitPreview server={server?.server} typedProxyConfig={defaultConfig} />
+            <Label className="text-sm font-medium text-start w-full">{t('proxy.form.access_method')}</Label>
+            <div className='w-full justify-start overflow-x-scroll'>
+              <VisitPreview server={server?.server} typedProxyConfig={defaultConfig} />
+            </div>
           </div>
-        </div>
         )}
-        <PortField name="localPort" control={form.control} label={t('proxy.form.local_port')} />
-        <HostField name="localIP" control={form.control} label={t('proxy.form.local_ip')} />
-        <PortField name="remotePort" control={form.control} label={t('proxy.form.remote_port')} />
+        <PortField name="localPort" control={form.control} label={t('proxy.form.local_port') + "*"} />
+        <HostField name="localIP" control={form.control} label={t('proxy.form.local_ip') + "*"} />
+        <PortField name="remotePort" control={form.control} label={t('proxy.form.remote_port') + "*"} />
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'} className='w-full'>
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
           {t('proxy.form.save_changes')}
@@ -472,6 +461,9 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
   const defaultConfig = defaultProxyConfig as HTTPProxyConfig
   const [_, setHTTPConfig] = useState<HTTPProxyConfig | undefined>()
   const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | undefined>()
+  const [moreSettings, setMoreSettings] = useState(false)
+  const [useAuth, setUseAuth] = useState(false)
+
   const form = useForm<z.infer<typeof HTTPConfigSchema>>({
     resolver: zodResolver(HTTPConfigSchema),
     defaultValues: {
@@ -479,13 +471,11 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
       localPort: defaultConfig?.localPort,
       subdomain: defaultConfig?.subdomain,
       locations: defaultConfig?.locations,
+      customDomains: defaultConfig?.customDomains,
+      httpPassword: defaultConfig?.httpPassword,
+      httpUser: defaultConfig?.httpUser
     }
   })
-
-  useEffect(() => {
-    setHTTPConfig(undefined)
-    form.reset({})
-  }, [])
 
   const onSubmit = async (values: z.infer<typeof HTTPConfigSchema>) => {
     handleSave()
@@ -500,6 +490,12 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
   }
 
   const [isSaveDisabled, setSaveDisabled] = useState(false)
+
+  useEffect(() => {
+    if (defaultConfig?.httpPassword || defaultConfig?.httpUser) {
+      setUseAuth(true)
+    }
+  }, [defaultConfig?.httpPassword, defaultConfig?.httpUser])
 
   const handleSave = () => {
     setSaveDisabled(true)
@@ -527,15 +523,33 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({ serverID, clientID, de
           defaultConfig.localIP && defaultConfig.localPort &&
           defaultConfig.subdomain
           && enablePreview && <div className="flex items-center space-x-2 flex-col justify-start w-full">
-          <Label className="text-sm font-medium text-start w-full">{t('proxy.form.access_method')}</Label>
-          <div className='w-full justify-start overflow-x-scroll'>
-          <VisitPreview server={server?.server} typedProxyConfig={defaultConfig} />
-          </div>
-        </div>}
-        <PortField name="localPort" control={form.control} label={t('proxy.form.local_port')} />
-        <HostField name="localIP" control={form.control} label={t('proxy.form.local_ip')} />
+            <Label className="text-sm font-medium text-start w-full">{t('proxy.form.access_method')}</Label>
+            <div className='w-full justify-start overflow-x-scroll'>
+              <VisitPreview server={server?.server} typedProxyConfig={defaultConfig} />
+            </div>
+          </div>}
+        <PortField name="localPort" control={form.control} label={t('proxy.form.local_port') + "*"} />
+        <HostField name="localIP" control={form.control} label={t('proxy.form.local_ip') + "*"} />
         <StringField name="subdomain" control={form.control} label={t('proxy.form.subdomain')} placeholder={"your_sub_domain"} />
-        <StringArrayField name="locations" control={form.control} label={t('proxy.form.route')} placeholder={"/path"} />
+        <StringArrayField name="customDomains" control={form.control} label={t('proxy.form.custom_domains')} placeholder={"your.example.com"} />
+        <FormDescription>
+          {t('proxy.form.domain_description')}
+        </FormDescription>
+        <div className="flex items-center space-x-2 justify-between">
+          <Label htmlFor="more-settings">{t('proxy.form.more_settings')}</Label>
+          <Switch id="more-settings" checked={moreSettings} onCheckedChange={setMoreSettings} />
+        </div>
+        {moreSettings && <div className='p-4 space-y-4 border rounded-md'>
+          <StringArrayField name="locations" control={form.control} label={t('proxy.form.route')} placeholder={"/path"} />
+          <div className="flex items-center space-x-2 justify-between">
+            <Label htmlFor="enable-http-auth">{t('proxy.form.enable_http_auth')}</Label>
+            <Switch id="enable-http-auth" checked={useAuth} onCheckedChange={setUseAuth} />
+          </div>
+          {useAuth && <div className='p-4 space-y-4 border rounded-md'>
+            <StringField name="httpUser" control={form.control} label={t('proxy.form.username')} placeholder={"username"} />
+            <StringField name="httpPassword" control={form.control} label={t('proxy.form.password')} placeholder={"password"} />
+          </div>}
+        </div>}
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'} className='w-full'>
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
           {t('proxy.form.save_changes')}

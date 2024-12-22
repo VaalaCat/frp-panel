@@ -349,7 +349,13 @@
       "ip_placeholder": "请输入IP地址 (例如: 127.0.0.1)",
       "subdomain_placeholder": "请输入子域名",
       "secret_placeholder": "请输入密钥",
-      "route": "路由"
+      "route": "路由",
+      "custom_domains": "自定义域名",
+      "more_settings": "更多设置",
+      "domain_description": "「子域名」和「自定义域名」可以同时配置，但二者至少有一个不为空。如果 frps 配置了「域名后缀」，则「自定义域名」中不能是属于「域名后缀」的「子域名」或者「泛域名」",
+      "enable_http_auth": "启用 HTTP 认证",
+      "username": "用户名",
+      "password": "密码"
     },
     "config": {
       "create": "创建",

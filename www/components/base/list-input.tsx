@@ -51,18 +51,20 @@ const StringListInput: React.FC<StringListInputProps> = ({ value, onChange, plac
           {t('input.list.add')}
         </Button>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {value && value.map((item, index) => (
-          <Badge key={index} className='flex flex-row items-center justify-start'>{item}
-            <div
-              onClick={() => handleRemove(item)}
-              className="ml-1 h-4 w-4 text-center rounded-full hover:text-red-500 cursor-pointer"
-            >
-              ×
-            </div>
-          </Badge>
-        ))}
-      </div>
+      {
+        value && <div className="flex flex-wrap gap-2">
+          {value.map((item, index) => (
+            <Badge key={index} className='flex flex-row items-center justify-start'>{item}
+              <div
+                onClick={() => handleRemove(item)}
+                className="ml-1 h-4 w-4 text-center rounded-full hover:text-red-500 cursor-pointer"
+              >
+                ×
+              </div>
+            </Badge>
+          ))}
+        </div>
+      }
     </div>
   );
 };
