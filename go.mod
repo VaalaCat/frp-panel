@@ -6,7 +6,7 @@ require (
 	github.com/UserExistsError/conpty v0.1.4
 	github.com/coocood/freecache v1.2.4
 	github.com/creack/pty v1.1.24
-	github.com/fatedier/frp v0.61.0
+	github.com/fatedier/frp v0.59.0
 	github.com/fatedier/golib v0.5.0
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.9.1
