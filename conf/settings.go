@@ -43,7 +43,7 @@ type Config struct {
 	} `env-prefix:"SERVER_"`
 	DB struct {
 		Type string `env:"TYPE" env-default:"sqlite3" env-description:"db type, mysql or sqlite3 and so on"`
-		DSN  string `env:"DSN" env-default:"data.db" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
+		DSN  string `env:"DSN" env-default:"/data/data.db" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
 	} `env-prefix:"DB_"`
 	Client struct {
 		ID     string `env:"ID" env-description:"client id"`

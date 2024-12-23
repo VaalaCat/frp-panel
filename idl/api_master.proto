@@ -27,6 +27,7 @@ message ClientVersion {
 	string GoVersion = 4;
 	string Compiler = 5;
 	string Platform = 6;
+  string GitBranch = 7;
 }
 
 message GetClientsStatusRequest {

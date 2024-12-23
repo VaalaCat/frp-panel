@@ -94,6 +94,10 @@ export interface ClientVersion {
      * @generated from protobuf field: string Platform = 6 [json_name = "Platform"];
      */
     platform: string;
+    /**
+     * @generated from protobuf field: string GitBranch = 7 [json_name = "GitBranch"];
+     */
+    gitBranch: string;
 }
 /**
  * @generated from protobuf message api_master.GetClientsStatusRequest
@@ -254,7 +258,8 @@ class ClientVersion$Type extends MessageType<ClientVersion> {
             { no: 3, name: "BuildDate", kind: "scalar", jsonName: "BuildDate", T: 9 /*ScalarType.STRING*/ },
             { no: 4, name: "GoVersion", kind: "scalar", jsonName: "GoVersion", T: 9 /*ScalarType.STRING*/ },
             { no: 5, name: "Compiler", kind: "scalar", jsonName: "Compiler", T: 9 /*ScalarType.STRING*/ },
-            { no: 6, name: "Platform", kind: "scalar", jsonName: "Platform", T: 9 /*ScalarType.STRING*/ }
+            { no: 6, name: "Platform", kind: "scalar", jsonName: "Platform", T: 9 /*ScalarType.STRING*/ },
+            { no: 7, name: "GitBranch", kind: "scalar", jsonName: "GitBranch", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<ClientVersion>): ClientVersion {
@@ -265,6 +270,7 @@ class ClientVersion$Type extends MessageType<ClientVersion> {
         message.goVersion = "";
         message.compiler = "";
         message.platform = "";
+        message.gitBranch = "";
         if (value !== undefined)
             reflectionMergePartial<ClientVersion>(this, message, value);
         return message;
@@ -291,6 +297,9 @@ class ClientVersion$Type extends MessageType<ClientVersion> {
                     break;
                 case /* string Platform = 6 [json_name = "Platform"];*/ 6:
                     message.platform = reader.string();
+                    break;
+                case /* string GitBranch = 7 [json_name = "GitBranch"];*/ 7:
+                    message.gitBranch = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -322,6 +331,9 @@ class ClientVersion$Type extends MessageType<ClientVersion> {
         /* string Platform = 6 [json_name = "Platform"]; */
         if (message.platform !== "")
             writer.tag(6, WireType.LengthDelimited).string(message.platform);
+        /* string GitBranch = 7 [json_name = "GitBranch"]; */
+        if (message.gitBranch !== "")
+            writer.tag(7, WireType.LengthDelimited).string(message.gitBranch);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

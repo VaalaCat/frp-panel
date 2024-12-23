@@ -24,12 +24,14 @@
   },
   "traffic": {
     "today": {
-      "inbound": "今日入站流量",
-      "outbound": "今日出站流量"
+      "inbound": "今日入站",
+      "outbound": "今日出站",
+      "total": "今日总流量"
     },
     "history": {
-      "inbound": "历史入站流量",
-      "outbound": "历史出站流量"
+      "inbound": "历史入站",
+      "outbound": "历史出站",
+      "total": "历史总流量"
     },
     "stats": {
       "title": "流量统计",
@@ -318,7 +320,7 @@
   "proxy": {
     "stats": {
       "label": "隧道名称",
-      "tunnel_traffic": "隧道流量：{{name}}",
+      "tunnel_traffic": "隧道：{{name}}",
       "today_traffic_title": "今日流量",
       "today_traffic_total": "今日总计",
       "history_traffic_title": "历史流量",
