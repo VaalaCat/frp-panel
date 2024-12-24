@@ -14,5 +14,6 @@ func main() {
 	conf.InitConfig()
 	rpc.InitRPCClients()
 
+	setMasterCommandIfNonePresent()
 	rootCmd.Execute()
 }

@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var (
@@ -140,6 +142,7 @@ func initCommand() {
 	rootCmd.AddCommand(clientCmd, serverCmd, masterCmd, versionCmd,
 		installServiceCmd, uninstallServiceCmd,
 		startServiceCmd, stopServiceCmd, restartServiceCmd)
+
 	clientCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
 	serverCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
 	clientCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
@@ -190,4 +193,12 @@ func patchConfig(host, secret, clientID, clientSecret, apiScheme string, rpcPort
 		conf.Get().Master.RPCHost, conf.Get().Master.RPCPort,
 		conf.Get().Master.APIHost, conf.Get().Master.APIPort,
 		conf.Get().Master.APIScheme)
+}
+
+func setMasterCommandIfNonePresent() {
+	cmd, _, err := rootCmd.Find(os.Args[1:])
+	if err == nil && cmd.Use == rootCmd.Use && cmd.Flags().Parse(os.Args[1:]) != pflag.ErrHelp {
+		args := append([]string{"master"}, os.Args[1:]...)
+		rootCmd.SetArgs(args)
+	}
 }

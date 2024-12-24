@@ -19,6 +19,7 @@ ARCH="all"
 BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 GIT_COMMIT="$(git rev-parse HEAD)"
 VERSION="$(git describe --tags --abbrev=0 | tr -d '\n')"
+GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do
@@ -50,7 +51,7 @@ echo "Build Date: $BUILD_DATE"
 echo "Git Commit: $GIT_COMMIT"
 echo "Version: $VERSION"
 
-BUILD_LD_FLAGS="-X 'github.com/VaalaCat/frp-panel/conf.buildDate=${BUILD_DATE}' -X 'github.com/VaalaCat/frp-panel/conf.gitCommit=${GIT_COMMIT}' -X 'github.com/VaalaCat/frp-panel/conf.gitVersion=${VERSION}'"
+BUILD_LD_FLAGS="-X 'github.com/VaalaCat/frp-panel/conf.buildDate=${BUILD_DATE}' -X 'github.com/VaalaCat/frp-panel/conf.gitCommit=${GIT_COMMIT}' -X 'github.com/VaalaCat/frp-panel/conf.gitVersion=${VERSION}' -X 'github.com/VaalaCat/frp-panel/conf.gitBranch=${GIT_BRANCH}'"
 
 if [[ "$SKIP_FRONTEND" == "true" ]]; then
     echo "Skipping frontend build"

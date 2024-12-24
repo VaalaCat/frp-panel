@@ -42,32 +42,14 @@ jobs:
           automatic_release_tag: ${{ steps.get_version.outputs.VERSION }}
           files: |
             dist/*
-
-  build-docker:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Get git tag history
-        run: git fetch -a
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
+      - name: Setup ko
+        uses: ko-build/setup-ko@v0.6
+        env:
+          KO_DOCKER_REPO: docker.io/vaalacat/frp-panel
+      - name: Build image with ko
+        env:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: ./Dockerfile.standalone
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: vaalacat/frp-panel:${{ steps.get_version.outputs.VERSION }}
+        run: |
+          echo "${password}" | ko login docker.io --username ${username} --password-stdin
+          ko build ./cmd/frpp --bare -t ${{ steps.get_version.outputs.VERSION }}

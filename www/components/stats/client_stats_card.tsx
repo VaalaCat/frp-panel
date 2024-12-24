@@ -12,6 +12,9 @@ import { ProxyInfo } from '@/lib/pb/common'
 import { Button } from '../ui/button'
 import { CheckCircle2, CircleX, RefreshCcw } from "lucide-react"
 import { useTranslation } from 'react-i18next';
+import TrafficStatsCard from './stats-item'
+import { Separator } from '@radix-ui/react-separator'
+import { formatBytes } from '@/lib/utils'
 
 export interface ClientStatsCardProps {
   clientID?: string
@@ -19,7 +22,6 @@ export interface ClientStatsCardProps {
 export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defaultClientID }: ClientStatsCardProps = {}) => {
   const { t } = useTranslation();
   const [clientID, setClientID] = useState<string | undefined>()
-  const [proxyName, setProxyName] = useState<string | undefined>()
   const [status, setStatus] = useState<"loading" | "success" | "error" | undefined>()
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
@@ -69,11 +71,6 @@ export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defa
     return Array.from(mergedMap.values());
   };
 
-  function removeDuplicateCharacters(input: string): string {
-    const uniqueChars = new Set(input);
-    return Array.from(uniqueChars).join('');
-  }
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -88,18 +85,16 @@ export const ClientStatsCard: React.FC<ClientStatsCardProps> = ({ clientID: defa
         <Label>{t('client.stats.label')}</Label>
         <ClientSelector clientID={clientID} setClientID={handleClientChange} onOpenChange={() => {
           refetchClientStats()
-          setProxyName(undefined)
         }} />
         <Label>{t('proxy.stats.label')}</Label>
-        <ProxySelector
-          // @ts-ignore
-          proxyNames={Array.from(new Set(clientStatsList?.proxyInfos.map((proxyInfo) => proxyInfo.name).filter((value) => value !== undefined))) || []}
-          proxyName={proxyName}
-          setProxyname={setProxyName} />
-        <div className="w-full grid gap-4 grid-cols-1">
+        <div className="w-full grid gap-2 grid-cols-1 overflow-x-auto">
           {clientStatsList && clientStatsList.proxyInfos.length > 0 &&
-            <ProxyStatusCard
-              proxyInfo={mergeProxyInfos(clientStatsList.proxyInfos).find((proxyInfo) => proxyInfo.name === proxyName)} />}
+            clientStatsList.proxyInfos.map((proxyInfo) => {
+              return (
+                <ProxyStatusCard key={proxyInfo.name} proxyInfo={proxyInfo} />
+              )
+            })
+          }
         </div>
       </CardContent>
       <CardFooter>
@@ -135,21 +130,23 @@ const ProxyStatusCard: React.FC<{ proxyInfo: ProxyInfo | undefined }> = ({ proxy
   }
 
   return (
-    <div key={proxyInfo.name} className="flex flex-col space-y-4">
+    <Card key={proxyInfo.name} className="flex flex-row gap-2 p-4 w-full min-w-[900px] shadow-none justify-between">
       <Label>{t('proxy.stats.tunnel_traffic', { name: proxyInfo.name })}</Label>
-      <ProxyTrafficOverview proxyInfo={proxyInfo} />
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
-        <ProxyTrafficPieChart
-          title={t('proxy.stats.today_traffic_title')}
-          chartLabel={t('proxy.stats.today_traffic_total')}
-          trafficIn={proxyInfo.todayTrafficIn || BigInt(0)}
-          trafficOut={proxyInfo.todayTrafficOut || BigInt(0)} />
-        <ProxyTrafficPieChart
-          title={t('proxy.stats.history_traffic_title')}
-          chartLabel={t('proxy.stats.history_traffic_total')}
-          trafficIn={proxyInfo.historyTrafficIn || BigInt(0)}
-          trafficOut={proxyInfo.historyTrafficOut || BigInt(0)} />
-      </div>
-    </div>
+      <Separator orientation="vertical" />
+      <ProxyTrafficField label={t('traffic.today.total')} value={formatBytes(Number(proxyInfo.todayTrafficOut || BigInt(0)))} />
+      <ProxyTrafficField label={t('traffic.today.inbound')} value={formatBytes(Number(proxyInfo.todayTrafficIn || BigInt(0)))} />
+      <ProxyTrafficField label={t('traffic.today.outbound')} value={formatBytes(Number(proxyInfo.todayTrafficOut || BigInt(0)))} />
+      <Separator orientation="vertical" />
+      <ProxyTrafficField label={t('traffic.history.total')} value={formatBytes(Number(proxyInfo.historyTrafficOut || BigInt(0)))} />
+      <ProxyTrafficField label={t('traffic.history.inbound')} value={formatBytes(Number(proxyInfo.historyTrafficIn || BigInt(0)))} />
+      <ProxyTrafficField label={t('traffic.history.outbound')} value={formatBytes(Number(proxyInfo.historyTrafficOut || BigInt(0)))} />
+    </Card>
   );
+}
+
+const ProxyTrafficField = ({ label, value }: { label: string, value: string }) => {
+  return <div className="flex w-fit flex-col">
+    <p className="text-xs text-muted-foreground text-nowrap">{label}</p>
+    <div className="flex items-center text-xs font-semibold text-nowrap">{value}</div>
+  </div>
 }
