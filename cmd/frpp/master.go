@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"path/filepath"
 
 	bizmaster "github.com/VaalaCat/frp-panel/biz/master"
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
@@ -80,6 +81,12 @@ func initDatabase(c context.Context) {
 
 	switch conf.Get().DB.Type {
 	case "sqlite3":
+		if err := utils.EnsureDirectoryExists(conf.Get().DB.DSN); err != nil {
+			logrus.WithError(err).Warnf("ensure directory failed, data location: [%s], keep data in current directory", conf.Get().DB.DSN)
+			conf.Get().DB.DSN = filepath.Base(conf.Get().DB.DSN)
+			logrus.Infof("new data location: [%s]", conf.Get().DB.DSN)
+		}
+
 		if sqlitedb, err := gorm.Open(sqlite.Open(conf.Get().DB.DSN), &gorm.Config{}); err != nil {
 			logrus.Panic(err)
 		} else {

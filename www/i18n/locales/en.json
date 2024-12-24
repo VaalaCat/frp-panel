@@ -25,11 +25,13 @@
   "traffic": {
     "today": {
       "inbound": "Today's Inbound",
-      "outbound": "Today's Outbound"
+      "outbound": "Today's Outbound",
+      "total": "Today's Total"
     },
     "history": {
       "inbound": "Historical Inbound",
-      "outbound": "Historical Outbound"
+      "outbound": "Historical Outbound",
+      "total": "Historical Total"
     },
     "stats": {
       "title": "Traffic Statistics",
@@ -318,7 +320,7 @@
   "proxy": {
     "stats": {
       "label": "Tunnel Name",
-      "tunnel_traffic": "Tunnel Traffic: {{name}}",
+      "tunnel_traffic": "Tunnel: {{name}}",
       "today_traffic_title": "Today's Traffic",
       "today_traffic_total": "Today's Total",
       "history_traffic_title": "Historical Traffic",
