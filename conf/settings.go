@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
@@ -69,20 +70,16 @@ func InitConfig() {
 		ctx        = context.Background()
 	)
 
+	// 越前面优先级越高，后面的不会覆盖前面的
 	envFiles := []string{
-		".env",
-		"/etc/frpp/.env",
+		common.CurEnvPath,
+		common.SysEnvPath,
 	}
 
-	for i, envFile := range envFiles {
+	for _, envFile := range envFiles {
 		if err = godotenv.Load(envFile); err == nil {
 			logger.Logger(ctx).Infof("load env file success: %s", envFile)
 			useEnvFile = true
-			break
-		}
-		if i == len(envFiles)-1 {
-			useEnvFile = false
-			break
 		}
 	}
 
