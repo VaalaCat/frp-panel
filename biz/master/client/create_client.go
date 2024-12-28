@@ -37,7 +37,7 @@ func InitClientHandler(c context.Context, req *pb.InitClientRequest) (*pb.InitCl
 			ConnectSecret: uuid.New().String(),
 			IsShadow:      true,
 		}); err != nil {
-		return nil, err
+		return &pb.InitClientResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()}}, err
 	}
 
 	return &pb.InitClientResponse{

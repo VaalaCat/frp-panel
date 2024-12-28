@@ -86,9 +86,9 @@ func initCmdWithFlag() []*cobra.Command {
 
 	joinCmd := &cobra.Command{
 		Use:   "join [-j join token] [-r rpc host] [-p api port] [-e api scheme]",
-		Short: "join extra params",
+		Short: "join to master with token, save param to config",
 		Run: func(cmd *cobra.Command, args []string) {
-			pullRunConfig(joinToken, appSecret, rpcHost, apiScheme, rpcPort, apiPort)
+			pullRunConfig(joinToken, appSecret, rpcHost, apiScheme, rpcPort, apiPort, clientID)
 		},
 	}
 
@@ -112,9 +112,10 @@ func initCmdWithFlag() []*cobra.Command {
 	joinCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port, master rpc port, scheme is grpc")
 	joinCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port, master api port, scheme is http/https")
 	joinCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
-	joinCmd.Flags().StringVarP(&joinToken, "join-token", "j", "", "join token")
+	joinCmd.Flags().StringVarP(&joinToken, "join-token", "j", "", "your token from master")
 	joinCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host, canbe ip or domain")
 	joinCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme, master api scheme, scheme is http/https")
+	joinCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
 
 	return []*cobra.Command{clientCmd, serverCmd, joinCmd}
 }
@@ -243,7 +244,7 @@ func setMasterCommandIfNonePresent() {
 	}
 }
 
-func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int) {
+func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int, clientID string) {
 	c := context.Background()
 	if err := checkPullParams(joinToken, rpcHost, apiScheme, apiPort); err != nil {
 		logger.Logger(c).Errorf("check pull params failed: %s", err.Error())
@@ -255,8 +256,10 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 		return
 	}
 
-	// 设置一下调接口需要的参数
-	clientID := utils.GetHostnameWithIP()
+	if len(clientID) == 0 {
+		clientID = utils.GetHostnameWithIP()
+	}
+
 	clientID = utils.MakeClientIDPermited(clientID)
 	patchConfig(rpcHost, appSecret, "", "", apiScheme, rpcPort, apiPort)
 
@@ -270,7 +273,7 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 		return
 	}
 	if initResp.GetStatus().GetCode() != pb.RespCode_RESP_CODE_SUCCESS {
-		logger.Logger(c).Errorf("init resp code is not success: %s", initResp.GetStatus().GetMessage())
+		logger.Logger(c).Errorf("init client failed with status: %s", initResp.GetStatus().GetMessage())
 		return
 	}
 
@@ -298,7 +301,7 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 	envMap, err := godotenv.Read(common.SysEnvPath)
 	if err != nil {
 		envMap = make(map[string]string)
-		logger.Logger(c).Errorf("read env file failed, try to create: %s", err.Error())
+		logger.Logger(c).Warnf("read env file failed, try to create: %s", err.Error())
 	}
 
 	envMap[common.EnvAppSecret] = appSecret
@@ -314,7 +317,7 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 		logger.Logger(c).Errorf("write env file failed: %s", err.Error())
 		return
 	}
-	logger.Logger(c).Info("run config saved to env file")
+	logger.Logger(c).Infof("config saved to env file: %s, you can use `frp-panel client` without args to run client,\n\nconfig is: [%v]", common.SysEnvPath, envMap)
 }
 
 func checkPullParams(joinToken, rpcHost, apiScheme string, apiPort int) error {
