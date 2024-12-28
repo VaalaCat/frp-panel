@@ -5,6 +5,7 @@ import { Header } from '@/components/header'
 import { CreateClientDialog } from '@/components/frpc/client_create_dialog'
 import { IdInput } from '@/components/base/id_input'
 import { useState } from 'react'
+import { ClientJoinButton } from '@/components/frpc/client_join_button'
 
 export default function ClientListPage() {
   const [keyword, setKeyword] = useState('')
@@ -18,6 +19,7 @@ export default function ClientListPage() {
             <div className="flex flex-1 flex-row mb-2 gap-2">
               <CreateClientDialog refetchTrigger={setTriggerSearch} />
               <IdInput setKeyword={setKeyword} keyword={keyword} refetchTrigger={setTriggerSearch} />
+              <ClientJoinButton />
             </div>
             <ClientList Clients={[]} Keyword={keyword} TriggerRefetch={triggerSearch} />
           </div>

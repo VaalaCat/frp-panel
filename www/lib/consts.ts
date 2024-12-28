@@ -56,6 +56,11 @@ export const ExecCommandStr = <T extends Client | Server>(
     } -c ${info.masterRpcPort} -p ${info.masterApiPort} -e ${info.masterApiScheme}`
 }
 
+export const JoinCommandStr = (info: GetPlatformInfoResponse, token: string, fileName?: string, clientID?: string) => {
+    return `${fileName || 'frp-panel'} join${clientID ? ` -i ${clientID}` : ''} -j ${token} -a ${info.globalSecret} -r ${info.masterRpcHost
+    } -c ${info.masterRpcPort} -p ${info.masterApiPort} -e ${info.masterApiScheme}`
+}
+
 export const WindowsInstallCommand = <T extends Client | Server>(
   type: "client" | "server",
   item: T,

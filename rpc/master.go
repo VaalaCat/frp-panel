@@ -2,7 +2,7 @@ package rpc
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
@@ -100,12 +100,14 @@ func GetClient(clientID, joinToken string) (*pb.GetClientResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("resp: %s\n", r.String())
 
 	resp := &pb.GetClientResponse{}
 	err = proto.Unmarshal(r.Bytes(), resp)
 	if err != nil {
 		return nil, err
+	}
+	if resp.GetStatus().GetCode() != pb.RespCode_RESP_CODE_SUCCESS {
+		return nil, errors.New(resp.GetStatus().GetMessage())
 	}
 	return resp, nil
 }

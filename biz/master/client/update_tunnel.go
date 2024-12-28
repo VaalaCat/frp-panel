@@ -92,12 +92,15 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 	default:
 		cliCfg.ServerPort = srvConf.BindPort
 	}
+
 	cliCfg.User = userInfo.GetUserName()
-	cliCfg.Auth = v1.AuthClientConfig{}
-	cliCfg.Metadatas = map[string]string{
-		common.FRPAuthTokenKey: userInfo.GetToken(),
-		common.FRPClientIDKey:  reqClientID,
+
+	if cliCfg.Metadatas == nil {
+		cliCfg.Metadatas = make(map[string]string)
 	}
+
+	cliCfg.Metadatas[common.FRPAuthTokenKey] = userInfo.GetToken()
+	cliCfg.Metadatas[common.FRPClientIDKey] = reqClientID
 
 	newCfg := struct {
 		v1.ClientCommonConfig
