@@ -2,7 +2,9 @@ package rpc
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/imroc/req/v3"
@@ -55,4 +57,55 @@ func GetClientCert(clientID, clientSecret string, clientType pb.ClientType) []by
 		return nil
 	}
 	return resp.Cert
+}
+
+func InitClient(clientID, joinToken string) (*pb.InitClientResponse, error) {
+	apiEndpoint := conf.GetAPIURL()
+	c := req.C()
+	rawReq, err := proto.Marshal(&pb.InitClientRequest{
+		ClientId: &clientID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	r, err := c.R().SetHeader("Content-Type", "application/x-protobuf").
+		SetHeader(common.AuthorizationKey, joinToken).
+		SetBodyBytes(rawReq).Post(apiEndpoint + "/api/v1/client/init")
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &pb.InitClientResponse{}
+	err = proto.Unmarshal(r.Bytes(), resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func GetClient(clientID, joinToken string) (*pb.GetClientResponse, error) {
+	apiEndpoint := conf.GetAPIURL()
+	c := req.C()
+	rawReq, err := proto.Marshal(&pb.GetClientRequest{
+		ClientId: &clientID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	r, err := c.R().SetHeader("Content-Type", "application/x-protobuf").
+		SetHeader(common.AuthorizationKey, joinToken).
+		SetBodyBytes(rawReq).Post(apiEndpoint + "/api/v1/client/get")
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("resp: %s\n", r.String())
+
+	resp := &pb.GetClientResponse{}
+	err = proto.Unmarshal(r.Bytes(), resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }

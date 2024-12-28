@@ -1,6 +1,8 @@
 package common
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	AuthorizationKey    = "authorization"
@@ -60,4 +62,17 @@ const (
 const (
 	PullConfigDuration    = 30 * time.Second
 	PushProxyInfoDuration = 30 * time.Second
+)
+
+const (
+	CurEnvPath         = ".env"
+	SysEnvPath         = "/etc/frpp/.env"
+	EnvAppSecret       = "APP_SECRET"
+	EnvClientID        = "CLIENT_ID"
+	EnvClientSecret    = "CLIENT_SECRET"
+	EnvMasterRPCHost   = "MASTER_RPC_HOST"
+	EnvMasterAPIHost   = "MASTER_API_HOST"
+	EnvMasterRPCPort   = "MASTER_RPC_PORT"
+	EnvMasterAPIPort   = "MASTER_API_PORT"
+	EnvMasterAPIScheme = "MASTER_API_SCHEME"
 )
