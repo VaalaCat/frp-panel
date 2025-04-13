@@ -151,7 +151,7 @@ done
 
 # Move to current directory if current enabled
 if [[ "$CURRENT" == "true" ]]; then
-    mv dist/frp* ./frp-panel
+    cp dist/frp* ./frp-panel
 fi
 
 echo "Build Done!"

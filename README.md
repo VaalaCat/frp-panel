@@ -1,5 +1,6 @@
-> Detailed blog post: [https://vaala.cat/2024/01/14/frp-panel-doc/](https://vaala.cat/2024/01/14/frp-panel-doc/)
-> You can refer to the blog for instructions, or scroll down to the end.
+> FRP-Panel WIKI：[FRP-Panel WiKi](https://vaala.cat/frp-panel)
+> Development blog: [https://vaala.cat/posts/frp-panel-doc/](https://vaala.cat/posts/frp-panel-doc/)
+> You can refer to the wiki for instructions, or scroll down read simple doc.
 
 # FRP-Panel
 
@@ -12,9 +13,9 @@ Our goal is to create a more powerful and comprehensive frp that provides:
 - Visual configuration interface
 - Simplified configuration required for running
 
-- demo Video: [demo Video](doc/frp-panel-demo.mp4)
+- demo Video: [demo Video](docs/public/images/frp-panel-demo.mp4)
 
-![](./doc/frp-panel-demo.gif)
+![](./docs/public/images/frp-panel-demo.gif)
 
 ## Project Usage Instructions
 
@@ -165,7 +166,7 @@ Next, we have frpc and frps. The original version requires writing configuration
 In addition, we also need to consider the compatibility with the original version. The client/server of frp-panel must be able to connect to the official frpc/frps service. In this way, both configuration file and non-configuration file modes can work perfectly.
 Overall, the architecture is quite simple.
 
-![arch](doc/arch.png)
+![arch](docs/public/images/arch.png)
 
 ### Development
 
@@ -231,7 +232,7 @@ The project configuration file will read the .env file in the current folder by 
 
 Detailed architecture call diagram:
 
-![structure](doc/callvis.svg)
+![structure](docs/public/images/callvis.svg)
 
 ### Core Configuration Explanation
 
@@ -241,31 +242,31 @@ This file contains detailed explanations of the configuration parameters. Please
 ## Screenshots
 
 ### Index Page
-![Index Page](doc/en_index.png)
+![Index Page](docs/public/images/en_index.png)
 
 ### Server List
-![Server List](doc/en_server_list.png)
+![Server List](docs/public/images/en_server_list.png)
 
 ### Server Edit
-![Server Edit](doc/en_server_edit.png)
+![Server Edit](docs/public/images/en_server_edit.png)
 
 ### Server Edit Advanced
-![Server Edit Advanced](doc/en_server_edit_adv.png)
+![Server Edit Advanced](docs/public/images/en_server_edit_adv.png)
 
 ### Client List
-![Client List](doc/en_client_list.png)
+![Client List](docs/public/images/en_client_list.png)
 
 ### Client Edit
-![Client Edit](doc/en_client_edit.png)
+![Client Edit](docs/public/images/en_client_edit.png)
 
 ### Client Edit Advanced
-![Client Edit Advanced](doc/en_client_edit_adv.png)
+![Client Edit Advanced](docs/public/images/en_client_edit_adv.png)
 
 ### Client Stats
-![Client Stats](doc/en_client_stats.png)
+![Client Stats](docs/public/images/en_client_stats.png)
 
 ### Realtime Log
-![Realtime Log](doc/en_realtime_log.png)
+![Realtime Log](docs/public/images/en_realtime_log.png)
 
 ### Remote Console
-![Remote Console](doc/en_remote_console.png)
+![Remote Console](docs/public/images/en_remote_console.png)

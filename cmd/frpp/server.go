@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"net"
 
 	bizserver "github.com/VaalaCat/frp-panel/biz/server"
 	"github.com/VaalaCat/frp-panel/common"
@@ -31,10 +32,13 @@ func runServer() {
 		logrus.Fatal("client id cannot be empty")
 	}
 
-	router := bizserver.NewRouter()
-	api.MustInitApiService(conf.ServerAPIListenAddr(), router)
+	l, err := net.Listen("tcp", conf.ServerAPIListenAddr())
+	if err != nil {
+		logger.Logger(c).WithError(err).Fatalf("failed to listen addr: %v", conf.ServerAPIListenAddr())
+		return
+	}
 
-	a := api.GetAPIService()
+	a := api.NewApiService(l, bizserver.NewRouter(), true)
 	defer a.Stop()
 
 	cred, err := utils.TLSClientCertNoValidate(rpc.GetClientCert(clientID, clientSecret, pb.ClientType_CLIENT_TYPE_FRPS))

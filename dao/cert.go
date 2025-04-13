@@ -2,19 +2,18 @@ package dao
 
 import (
 	"bytes"
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
 
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/credentials"
 )
 
-func InitCert(template *x509.Certificate) credentials.TransportCredentials {
+func InitCert(template *x509.Certificate) *tls.Config {
 	var (
 		certPem []byte
 		keyPem  []byte
@@ -52,7 +51,12 @@ func InitCert(template *x509.Certificate) credentials.TransportCredentials {
 
 func GenX509Info(template *x509.Certificate) (certPem []byte, keyPem []byte, err error) {
 
-	priv, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	// priv, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	// if err != nil {
+	// 	return nil, nil, err
+	// }
+
+	priv, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -1,5 +1,7 @@
-> 详细博客地址: [https://vaala.cat/2024/01/14/frp-panel-doc/](https://vaala.cat/2024/01/14/frp-panel-doc/)
-> 使用说明可以看博客，也可以直接滑到最后
+> 详细使用文档：[FRP-Panel WiKi](https://vaala.cat/frp-panel)
+> 博客开发记录: [https://vaala.cat/posts/frp-panel-doc/](https://vaala.cat/posts/frp-panel-doc/)
+
+QQ交流群: 830620423
 
 # FRP-Panel
 
@@ -14,9 +16,9 @@
 
 的更强更完善的 frp！
 
-- demo Video: [demo Video](doc/frp-panel-demo.mp4)
+- demo Video: [demo Video](docs/public/images/frp-panel-demo.mp4)
 
-![](./doc/frp-panel-demo.gif)
+![](./docs/public/images/frp-panel-demo.gif)
 
 ## 项目使用说明
 
@@ -199,7 +201,7 @@ C:/frpp/frpp.exe uninstall
 其次还要考虑到与原版的兼容问题，frp-panel 的客户端/服务端都必须要能连上官方 frpc/frps 服务。这样的话就可以做到配置文件/不要配置文件都能完美工作了。  
 总的说来架构还是很简单的。
 
-![arch](doc/arch.png)
+![arch](docs/public/images/arch.png)
 
 ### 开发
 
@@ -266,7 +268,7 @@ C:/frpp/frpp.exe uninstall
 
 详细架构调用图
 
-![structure](doc/callvis.svg)
+![structure](docs/public/images/callvis.svg)
 
 ### 本体配置说明
 
@@ -276,31 +278,31 @@ C:/frpp/frpp.exe uninstall
 ## 截图展示
 
 ### 首页
-![首页](doc/cn_index.png)
+![首页](docs/public/images/cn_index.png)
 
 ### 服务器列表
-![服务器列表](doc/cn_server_list.png)
+![服务器列表](docs/public/images/cn_server_list.png)
 
 ### 服务器编辑
-![服务器编辑](doc/cn_server_edit.png)
+![服务器编辑](docs/public/images/cn_server_edit.png)
 
 ### 服务器高级编辑
-![服务器高级编辑](doc/cn_server_edit_adv.png)
+![服务器高级编辑](docs/public/images/cn_server_edit_adv.png)
 
 ### 客户端列表
-![客户端列表](doc/cn_client_list.png)
+![客户端列表](docs/public/images/cn_client_list.png)
 
 ### 客户端编辑
-![客户端编辑](doc/cn_client_edit.png)
+![客户端编辑](docs/public/images/cn_client_edit.png)
 
 ### 客户端高级编辑
-![客户端高级编辑](doc/cn_client_edit_adv.png)
+![客户端高级编辑](docs/public/images/cn_client_edit_adv.png)
 
 ### 客户端统计
-![客户端统计](doc/cn_client_stats.png)
+![客户端统计](docs/public/images/cn_client_stats.png)
 
 ### 实时日志
-![实时日志](doc/cn_realtime_log.png)
+![实时日志](docs/public/images/cn_realtime_log.png)
 
 ### 远程控制台
-![远程控制台](doc/cn_remote_console.png)
+![远程控制台](docs/public/images/cn_remote_console.png)

@@ -18,8 +18,8 @@ import (
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
-	"github.com/VaalaCat/frp-panel/services/api"
 	"github.com/VaalaCat/frp-panel/services/master"
+	"github.com/VaalaCat/frp-panel/services/mux"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/watcher"
@@ -27,6 +27,8 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -46,28 +48,31 @@ func runMaster() {
 	auth.InitAuth()
 	creds := dao.InitCert(conf.GetCertTemplate())
 
-	master.MustInitMasterService(creds)
 	router := bizmaster.NewRouter(fs)
-	api.MustInitApiService(conf.MasterAPIListenAddr(), router)
 
-	logger.Logger(c).Infof("start to run master")
-	m := master.GetMasterSerivce()
-	a := api.GetAPIService()
+	lisOpt := conf.GetListener(c)
 
-	r, w := initDefaultInternalServer()
-	defer w.Stop()
-	defer r.Stop()
+	masterService := master.NewMasterService(credentials.NewTLS(creds))
+	server := masterService.GetServer()
+	muxServer := mux.NewMux(server, router, lisOpt.MuxLis, creds)
+
+	masterH2CService := master.NewMasterService(insecure.NewCredentials())
+	serverH2c := masterH2CService.GetServer()
+	httpMuxServer := mux.NewMux(serverH2c, router, lisOpt.ApiLis, nil)
 
 	tasks := watcher.NewClient()
 	tasks.AddCronTask("0 0 3 * * *", proxy.CollectDailyStats)
 	defer tasks.Stop()
 
 	var wg conc.WaitGroup
-	wg.Go(w.Run)
-	wg.Go(r.Run)
-	wg.Go(m.Run)
-	wg.Go(a.Run)
+
+	logger.Logger(c).Infof("start to run master")
+
+	wg.Go(runDefaultInternalServer)
+	wg.Go(muxServer.Run)
+	wg.Go(httpMuxServer.Run)
 	wg.Go(tasks.Run)
+
 	wg.Wait()
 }
 
@@ -114,7 +119,7 @@ func initDatabase(c context.Context) {
 	models.GetDBManager().Init()
 }
 
-func initDefaultInternalServer() (rpcclient.ClientRPCHandler, watcher.Client) {
+func runDefaultInternalServer() {
 	dao.InitDefaultServer(conf.Get().Master.APIHost)
 	defaultServer, err := dao.GetDefaultServer()
 	if err != nil {
@@ -143,5 +148,13 @@ func initDefaultInternalServer() (rpcclient.ClientRPCHandler, watcher.Client) {
 	w.AddDurationTask(common.PushProxyInfoDuration, bizserver.PushProxyInfo, defaultServer.ServerID, defaultServer.ConnectSecret)
 
 	go initServerOnce(defaultServer.ServerID, defaultServer.ConnectSecret)
-	return r, w
+	var wg conc.WaitGroup
+
+	defer w.Stop()
+	defer r.Stop()
+
+	wg.Go(w.Run)
+	wg.Go(r.Run)
+
+	wg.Wait()
 }

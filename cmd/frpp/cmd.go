@@ -41,6 +41,7 @@ func initCmdWithFlag() []*cobra.Command {
 		clientSecret string
 		clientID     string
 		rpcHost      string
+		apiHost      string
 		appSecret    string
 		rpcPort      int
 		apiPort      int
@@ -49,11 +50,11 @@ func initCmdWithFlag() []*cobra.Command {
 	)
 
 	clientCmd = &cobra.Command{
-		Use:   "client [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
+		Use:   "client [-s client secret] [-i client id] [-a app secret] [-t api host] [-r rpc host] [-c rpc port] [-p api port]",
 		Short: "run managed frpc",
 		Run: func(cmd *cobra.Command, args []string) {
 			run := func() {
-				patchConfig(rpcHost, appSecret,
+				patchConfig(apiHost, rpcHost, appSecret,
 					clientID, clientSecret,
 					apiScheme, rpcPort, apiPort)
 				runClient()
@@ -71,7 +72,7 @@ func initCmdWithFlag() []*cobra.Command {
 		Short: "run managed frps",
 		Run: func(cmd *cobra.Command, args []string) {
 			run := func() {
-				patchConfig(rpcHost, appSecret,
+				patchConfig(apiHost, rpcHost, appSecret,
 					clientID, clientSecret,
 					apiScheme, rpcPort, apiPort)
 				runServer()
@@ -88,7 +89,7 @@ func initCmdWithFlag() []*cobra.Command {
 		Use:   "join [-j join token] [-r rpc host] [-p api port] [-e api scheme]",
 		Short: "join to master with token, save param to config",
 		Run: func(cmd *cobra.Command, args []string) {
-			pullRunConfig(joinToken, appSecret, rpcHost, apiScheme, rpcPort, apiPort, clientID)
+			pullRunConfig(joinToken, appSecret, rpcHost, apiScheme, rpcPort, apiPort, clientID, apiHost)
 		},
 	}
 
@@ -98,6 +99,10 @@ func initCmdWithFlag() []*cobra.Command {
 	serverCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
 	clientCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host, canbe ip or domain")
 	serverCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host, canbe ip or domain")
+
+	clientCmd.Flags().StringVarP(&apiHost, "api", "t", "", "api host, canbe ip or domain")
+	serverCmd.Flags().StringVarP(&apiHost, "api", "t", "", "api host, canbe ip or domain")
+
 	clientCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 	serverCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 
@@ -114,6 +119,7 @@ func initCmdWithFlag() []*cobra.Command {
 	joinCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 	joinCmd.Flags().StringVarP(&joinToken, "join-token", "j", "", "your token from master")
 	joinCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host, canbe ip or domain")
+	joinCmd.Flags().StringVarP(&apiHost, "api", "t", "", "api host, canbe ip or domain")
 	joinCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme, master api scheme, scheme is http/https")
 	joinCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
 
@@ -206,12 +212,17 @@ func initLogger() {
 	logger.Instance().SetReportCaller(true)
 }
 
-func patchConfig(host, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int) {
+func patchConfig(apiHost, rpcHost, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int) {
 	c := context.Background()
-	if len(host) != 0 {
-		conf.Get().Master.RPCHost = host
-		conf.Get().Master.APIHost = host
+	if len(rpcHost) != 0 {
+		conf.Get().Master.RPCHost = rpcHost
+		conf.Get().Master.APIHost = rpcHost
 	}
+
+	if len(apiHost) != 0 {
+		conf.Get().Master.APIHost = apiHost
+	}
+
 	if len(secret) != 0 {
 		conf.Get().App.Secret = secret
 	}
@@ -244,9 +255,9 @@ func setMasterCommandIfNonePresent() {
 	}
 }
 
-func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int, clientID string) {
+func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int, clientID, apiHost string) {
 	c := context.Background()
-	if err := checkPullParams(joinToken, rpcHost, apiScheme, apiPort); err != nil {
+	if err := checkPullParams(joinToken, apiHost, apiScheme, apiPort); err != nil {
 		logger.Logger(c).Errorf("check pull params failed: %s", err.Error())
 		return
 	}
@@ -261,7 +272,7 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 	}
 
 	clientID = utils.MakeClientIDPermited(clientID)
-	patchConfig(rpcHost, appSecret, "", "", apiScheme, rpcPort, apiPort)
+	patchConfig(apiHost, rpcHost, appSecret, "", "", apiScheme, rpcPort, apiPort)
 
 	initResp, err := rpc.InitClient(clientID, joinToken)
 	if err != nil {
@@ -309,7 +320,7 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 	envMap[common.EnvClientSecret] = client.GetSecret()
 	envMap[common.EnvMasterRPCHost] = rpcHost
 	envMap[common.EnvMasterRPCPort] = cast.ToString(rpcPort)
-	envMap[common.EnvMasterAPIHost] = rpcHost
+	envMap[common.EnvMasterAPIHost] = apiHost
 	envMap[common.EnvMasterAPIPort] = cast.ToString(apiPort)
 	envMap[common.EnvMasterAPIScheme] = apiScheme
 
@@ -320,12 +331,12 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 	logger.Logger(c).Infof("config saved to env file: %s, you can use `frp-panel client` without args to run client,\n\nconfig is: [%v]", common.SysEnvPath, envMap)
 }
 
-func checkPullParams(joinToken, rpcHost, apiScheme string, apiPort int) error {
+func checkPullParams(joinToken, apiHost, apiScheme string, apiPort int) error {
 	if len(joinToken) == 0 {
 		return errors.New("join token is empty")
 	}
-	if len(rpcHost) == 0 {
-		return errors.New("rpc host is empty")
+	if len(apiHost) == 0 {
+		return errors.New("api host is empty")
 	}
 	if len(apiScheme) == 0 {
 		return errors.New("api scheme is empty")

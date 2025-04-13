@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,32 +12,29 @@ type ApiService interface {
 }
 
 type server struct {
-	srv  *gin.Engine
-	addr string
+	srv    *gin.Engine
+	addr   net.Listener
+	enable bool
 }
 
 var (
-	_          ApiService = (*server)(nil)
-	apiService *server
+	_ ApiService = (*server)(nil)
 )
 
-func NewApiService(listenAddr string, router *gin.Engine) *server {
+func NewApiService(listen net.Listener, router *gin.Engine, enable bool) *server {
 	return &server{
-		srv:  router,
-		addr: listenAddr,
+		srv:    router,
+		addr:   listen,
+		enable: enable,
 	}
 }
 
-func MustInitApiService(listenAddr string, router *gin.Engine) {
-	apiService = NewApiService(listenAddr, router)
-}
-
-func GetAPIService() ApiService {
-	return apiService
-}
-
 func (s *server) Run() {
-	s.srv.Run(s.addr)
+	// 如果完全使用mux，可以不启动
+	if !s.enable {
+		return
+	}
+	s.srv.RunListener(s.addr)
 }
 
 func (s *server) Stop() {

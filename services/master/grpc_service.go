@@ -1,54 +1,35 @@
 package master
 
 import (
-	"context"
-
-	"github.com/VaalaCat/frp-panel/logger"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
 
-type MasterHandler interface {
+type MasterService interface {
 	Run()
 	Stop()
+	GetServer() *grpc.Server
 }
 
-type Master struct {
+type master struct {
 	grpcServer *grpc.Server
 }
 
-var (
-	cli *Master
-)
-
-func MustInitMasterService(creds credentials.TransportCredentials) {
-	ctx := context.Background()
-	if cli != nil {
-		logger.Logger(ctx).Warn("server has been initialized")
-		return
-	}
-	cli = NewMasterHandler(creds)
-}
-
-func GetMasterSerivce() MasterHandler {
-	if cli == nil {
-		logrus.Panic("server has not been initialized")
-	}
-	return cli
-}
-
-func NewMasterHandler(creds credentials.TransportCredentials) *Master {
-	s := NewRpcServer(creds)
-	return &Master{
+func NewMasterService(creds credentials.TransportCredentials) MasterService {
+	s := newRpcServer(creds)
+	return &master{
 		grpcServer: s,
 	}
 }
 
-func (s *Master) Run() {
-	RunRpcServer(s.grpcServer)
+func (s *master) Run() {
+	runRpcServer(s.grpcServer)
 }
 
-func (s *Master) Stop() {
+func (s *master) Stop() {
 	s.grpcServer.Stop()
+}
+
+func (s *master) GetServer() *grpc.Server {
+	return s.grpcServer
 }

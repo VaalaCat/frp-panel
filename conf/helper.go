@@ -112,10 +112,12 @@ func GetCertTemplate() *x509.Certificate {
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(now.Unix()),
 		Subject: pkix.Name{
+			CommonName:         cfg.Master.APIHost,
 			Country:            []string{"CN"},
 			Organization:       []string{"frp-panel"},
 			OrganizationalUnit: []string{"frp-panel"},
 		},
+		SignatureAlgorithm:    x509.SHA512WithRSA,
 		DNSNames:              []string{cfg.Master.APIHost},
 		IPAddresses:           []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")},
 		NotBefore:             now,
@@ -123,8 +125,43 @@ func GetCertTemplate() *x509.Certificate {
 		SubjectKeyId:          []byte{102, 114, 112, 45, 112, 97, 110, 101, 108},
 		BasicConstraintsValid: true,
 		IsCA:                  true,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 		KeyUsage: x509.KeyUsageKeyEncipherment |
-			x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+			x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign | x509.KeyUsageKeyAgreement |
+			x509.KeyUsageDataEncipherment,
 	}
+}
+
+type LisOpt struct {
+	MuxLis net.Listener
+	ApiLis net.Listener
+	RunAPI bool
+}
+
+func GetListener(c context.Context) LisOpt {
+	runAPI := RPCListenAddr() != MasterAPIListenAddr()
+
+	muxLis, err := net.Listen("tcp", RPCListenAddr())
+	if err != nil {
+		logger.Logger(c).WithError(err).Fatalf("failed to listen: %v", RPCListenAddr())
+	}
+
+	opt := LisOpt{
+		MuxLis: muxLis,
+		RunAPI: runAPI,
+	}
+
+	if runAPI {
+		apiLis, err := net.Listen("tcp", MasterAPIListenAddr())
+		if err != nil {
+			logger.Logger(c).WithError(err).Warnf("failed to listen: %v, but mux server can handle http api", MasterAPIListenAddr())
+		}
+		opt.ApiLis = apiLis
+	}
+
+	if !runAPI {
+		opt.ApiLis = nil
+	}
+
+	return opt
 }

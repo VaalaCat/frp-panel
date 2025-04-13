@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 
 	"github.com/VaalaCat/frp-panel/common"
@@ -10,6 +11,7 @@ import (
 	"github.com/imroc/req/v3"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -18,8 +20,16 @@ var (
 )
 
 func newMasterCli() {
-	conn, err := grpc.NewClient(conf.RPCCallAddr(),
-		grpc.WithTransportCredentials(conf.ClientCred))
+	opt := []grpc.DialOption{}
+	if conf.Get().Client.TLSRpc {
+		logrus.Infof("use tls rpc")
+		opt = append(opt, grpc.WithTransportCredentials(conf.ClientCred))
+	} else {
+		logrus.Infof("use insecure rpc")
+		opt = append(opt, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	}
+	conn, err := grpc.NewClient(conf.RPCCallAddr(), opt...)
+
 	if err != nil {
 		logrus.Fatalf("did not connect: %v", err)
 	}
@@ -34,9 +44,16 @@ func MasterCli(c context.Context) (pb.MasterClient, error) {
 	return masterCli, nil
 }
 
+func httpCli() *req.Client {
+	c := req.C()
+	c.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	return c
+}
+
 func GetClientCert(clientID, clientSecret string, clientType pb.ClientType) []byte {
 	apiEndpoint := conf.GetAPIURL()
-	c := req.C()
+	c := httpCli()
+
 	rawReq, err := proto.Marshal(&pb.GetClientCertRequest{
 		ClientId:     clientID,
 		ClientSecret: clientSecret,
@@ -61,7 +78,9 @@ func GetClientCert(clientID, clientSecret string, clientType pb.ClientType) []by
 
 func InitClient(clientID, joinToken string) (*pb.InitClientResponse, error) {
 	apiEndpoint := conf.GetAPIURL()
-	c := req.C()
+
+	c := httpCli()
+
 	rawReq, err := proto.Marshal(&pb.InitClientRequest{
 		ClientId: &clientID,
 	})
@@ -86,7 +105,8 @@ func InitClient(clientID, joinToken string) (*pb.InitClientResponse, error) {
 
 func GetClient(clientID, joinToken string) (*pb.GetClientResponse, error) {
 	apiEndpoint := conf.GetAPIURL()
-	c := req.C()
+	c := httpCli()
+
 	rawReq, err := proto.Marshal(&pb.GetClientRequest{
 		ClientId: &clientID,
 	})

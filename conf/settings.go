@@ -49,6 +49,7 @@ type Config struct {
 	Client struct {
 		ID     string `env:"ID" env-description:"client id"`
 		Secret string `env:"SECRET" env-description:"client secret"`
+		TLSRpc bool   `env:"TLS_RPC" env-default:"true" env-description:"use tls for rpc connection"`
 	} `env-prefix:"CLIENT_"`
 	IsDebug bool `env:"IS_DEBUG" env-default:"false" env-description:"is debug mode"`
 }

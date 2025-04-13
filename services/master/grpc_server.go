@@ -25,13 +25,15 @@ type server struct {
 	pb.UnimplementedMasterServer
 }
 
-func NewRpcServer(creds credentials.TransportCredentials) *grpc.Server {
+func newRpcServer(creds credentials.TransportCredentials) *grpc.Server {
+	// s := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	// s := grpc.NewServer(grpc.Creds(creds))
 	s := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterMasterServer(s, &server{})
 	return s
 }
 
-func RunRpcServer(s *grpc.Server) {
+func runRpcServer(s *grpc.Server) {
 	lis, err := net.Listen("tcp", conf.RPCListenAddr())
 	if err != nil {
 		logrus.Fatalf("rpc server failed to listen: %v", err)

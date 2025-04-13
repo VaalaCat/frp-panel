@@ -37,7 +37,7 @@ func PemBlockForPrivKey(priv interface{}) *pem.Block {
 	}
 }
 
-func TLSServerCert(certPem, keyPem []byte) (credentials.TransportCredentials, error) {
+func TLSServerCert(certPem, keyPem []byte) (*tls.Config, error) {
 	cert, err := tls.X509KeyPair(certPem, keyPem)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func TLSServerCert(certPem, keyPem []byte) (credentials.TransportCredentials, er
 		Certificates: []tls.Certificate{cert},
 		ClientAuth:   tls.NoClientCert,
 	}
-	return credentials.NewTLS(config), nil
+	return config, nil
 }
 
 func TLSClientCert(caPem []byte) (credentials.TransportCredentials, error) {
@@ -62,6 +62,7 @@ func TLSClientCertNoValidate(caPem []byte) (credentials.TransportCredentials, er
 	config := &tls.Config{
 		RootCAs:            certpool,
 		InsecureSkipVerify: true,
+		MinVersion:         tls.VersionTLS12,
 	}
 
 	return credentials.NewTLS(config), nil
