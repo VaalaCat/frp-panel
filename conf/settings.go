@@ -47,9 +47,12 @@ type Config struct {
 		DSN  string `env:"DSN" env-default:"/data/data.db" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
 	} `env-prefix:"DB_"`
 	Client struct {
-		ID     string `env:"ID" env-description:"client id"`
-		Secret string `env:"SECRET" env-description:"client secret"`
-		TLSRpc bool   `env:"TLS_RPC" env-default:"true" env-description:"use tls for rpc connection"`
+		ID                    string `env:"ID" env-description:"client id"`
+		Secret                string `env:"SECRET" env-description:"client secret"`
+		TLSRpc                bool   `env:"TLS_RPC" env-default:"true" env-description:"use tls for rpc connection"`
+		RPCUrl                string `env:"RPC_URL" env-description:"rpc url, support ws or wss or grpc scheme, eg: ws://127.0.0.1:9000"`
+		APIUrl                string `env:"API_URL" env-description:"api url, support http or https scheme, eg: http://127.0.0.1:9000"`
+		TLSInsecureSkipVerify bool   `env:"TLS_INSECURE_SKIP_VERIFY" env-default:"true" env-description:"skip tls verify"`
 	} `env-prefix:"CLIENT_"`
 	IsDebug bool `env:"IS_DEBUG" env-default:"false" env-description:"is debug mode"`
 }

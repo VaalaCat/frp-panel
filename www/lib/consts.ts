@@ -52,13 +52,11 @@ export const ExecCommandStr = <T extends Client | Server>(
   info: GetPlatformInfoResponse,
   fileName?: string,
 ) => {
-  return `${fileName || 'frp-panel'} ${type} -s ${item.secret} -i ${item.id} -a ${info.globalSecret} -r ${info.masterRpcHost
-    } -c ${info.masterRpcPort} -p ${info.masterApiPort} -e ${info.masterApiScheme}`
+  return `${fileName || 'frp-panel'} ${type} -s ${item.secret} -i ${item.id} -a ${info.globalSecret} --api-url ${info.clientApiUrl} --rpc-url ${info.clientRpcUrl}`
 }
 
 export const JoinCommandStr = (info: GetPlatformInfoResponse, token: string, fileName?: string, clientID?: string) => {
-    return `${fileName || 'frp-panel'} join${clientID ? ` -i ${clientID}` : ''} -j ${token} -a ${info.globalSecret} -r ${info.masterRpcHost
-    } -c ${info.masterRpcPort} -p ${info.masterApiPort} -e ${info.masterApiScheme}`
+    return `${fileName || 'frp-panel'} join${clientID ? ` -i ${clientID}` : ''} -j ${token} -a ${info.globalSecret} --api-url ${info.clientApiUrl} --rpc-url ${info.clientRpcUrl}`
 }
 
 export const WindowsInstallCommand = <T extends Client | Server>(
@@ -90,9 +88,6 @@ export const ClientEnvFile = <T extends Client | Server>(
   return `CLIENT_ID=${item.id}
 CLIENT_SECRET=${item.secret}
 APP_SECRET=${info.globalSecret}
-MASTER_RPC_HOST=${info.masterRpcHost}
-MASTER_RPC_PORT=${info.masterRpcPort}
-MASTER_API_HOST=${info.masterRpcHost}
-MASTER_API_PORT=${info.masterApiPort}
-MASTER_API_SCHEME=${info.masterApiScheme}`
+CLIENT_API_URL=${info.clientApiUrl}
+CLIENT_RPC_URL=${info.clientRpcUrl}`
 }

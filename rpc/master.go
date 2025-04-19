@@ -4,10 +4,13 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
+	"net/http"
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/utils/wsgrpc"
 	"github.com/imroc/req/v3"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -20,15 +23,29 @@ var (
 )
 
 func newMasterCli() {
+	connInfo := conf.GetRPCConnInfo()
+
 	opt := []grpc.DialOption{}
-	if conf.Get().Client.TLSRpc {
-		logrus.Infof("use tls rpc")
-		opt = append(opt, grpc.WithTransportCredentials(conf.ClientCred))
-	} else {
-		logrus.Infof("use insecure rpc")
-		opt = append(opt, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	switch connInfo.Scheme {
+	case conf.GRPC:
+		if conf.Get().Client.TLSRpc {
+			logrus.Infof("use tls rpc")
+			opt = append(opt, grpc.WithTransportCredentials(conf.ClientCred))
+		} else {
+			logrus.Infof("use insecure rpc")
+			opt = append(opt, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		}
+	case conf.WS, conf.WSS:
+		logrus.Infof("use ws/wss rpc")
+
+		wsURL := fmt.Sprintf("%s://%s/wsgrpc", connInfo.Scheme, connInfo.Host)
+		header := http.Header{}
+		wsDialer := wsgrpc.WebsocketDialer(wsURL, header, conf.Get().Client.TLSInsecureSkipVerify)
+		opt = append(opt, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(wsDialer))
 	}
-	conn, err := grpc.NewClient(conf.RPCCallAddr(), opt...)
+
+	conn, err := grpc.NewClient(connInfo.Host, opt...)
 
 	if err != nil {
 		logrus.Fatalf("did not connect: %v", err)

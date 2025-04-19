@@ -75,4 +75,6 @@ const (
 	EnvMasterRPCPort   = "MASTER_RPC_PORT"
 	EnvMasterAPIPort   = "MASTER_API_PORT"
 	EnvMasterAPIScheme = "MASTER_API_SCHEME"
+	EnvClientAPIUrl    = "CLIENT_API_URL"
+	EnvClientRPCUrl    = "CLIENT_RPC_URL"
 )

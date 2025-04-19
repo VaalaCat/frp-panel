@@ -4,7 +4,7 @@ Server 推荐使用 docker 部署！不推荐直接安装到服务器中
 
 > 如果只有一台公网服务器需要管理，那么使用 `master` 自带的 `default server` 即可，无需单独部署 `server`
 
-## 准备
+## 1. 准备
 
 打开 Master 的 webui 并登录，如果没有账号，请直接注册，第一个用户即为管理员
 
@@ -24,7 +24,9 @@ frp-panel server -s abc -i user.s.server1 -a 123123 -r frpp-rpc.example.com -c 9
 frp-panel server -s abc -i user.s.server1 -a 123123 -t frpp.example.com -r frpp-rpc.example.com -c 443 -p 443 -e https
 ```
 
-## Docker Compose 部署
+## 2. 程序安装
+
+### Docker Compose 部署
 
 docker-compose.yaml
 
@@ -39,6 +41,10 @@ services:
     command: server -s abc -i user.s.server1 -a 123123 -t frpp.example.com -r frpp-rpc.example.com -c 443 -p 443 -e https
 ```
 
-## 直接部署
+### 直接部署
 
 如果你想要直接部署，请参考 client 部署的步骤
+
+## 3. 服务端配置
+
+安装完后需要按你的网络和需求，修改服务端的配置，否则客户端无法正常连接

@@ -16,9 +16,9 @@ QQ交流群: 830620423
 
 的更强更完善的 frp！
 
-- demo Video: [demo Video](docs/public/images/frp-panel-demo.mp4)
+<!-- - demo Video: [demo Video](docs/public/images/frp-panel-demo.mp4)
 
-![](./docs/public/images/frp-panel-demo.gif)
+![](./docs/public/images/frp-panel-demo.gif) -->
 
 ## 项目使用说明
 

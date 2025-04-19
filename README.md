@@ -13,9 +13,9 @@ Our goal is to create a more powerful and comprehensive frp that provides:
 - Visual configuration interface
 - Simplified configuration required for running
 
-- demo Video: [demo Video](docs/public/images/frp-panel-demo.mp4)
+<!-- - demo Video: [demo Video](docs/public/images/frp-panel-demo.mp4)
 
-![](./docs/public/images/frp-panel-demo.gif)
+![](./docs/public/images/frp-panel-demo.gif) -->
 
 ## Project Usage Instructions
 

@@ -34,7 +34,7 @@ func RPCListenAddr() string {
 	return fmt.Sprintf(":%d", cfg.Master.RPCPort)
 }
 
-func RPCCallAddr() string {
+func rpcCallAddr() string {
 	cfg := Get()
 	return fmt.Sprintf("%s:%d", cfg.Master.RPCHost, cfg.Master.RPCPort)
 }
@@ -103,6 +103,11 @@ func GetCommonJWTWithExpireTime(uid string, expSec int) string {
 
 func GetAPIURL() string {
 	cfg := Get()
+
+	if len(cfg.Client.APIUrl) != 0 {
+		return cfg.Client.APIUrl
+	}
+
 	return fmt.Sprintf("%s://%s:%d", cfg.Master.APIScheme, cfg.Master.APIHost, cfg.Master.APIPort)
 }
 
@@ -164,4 +169,39 @@ func GetListener(c context.Context) LisOpt {
 	}
 
 	return opt
+}
+
+type ConnInfo struct {
+	Host   string
+	Scheme Scheme
+}
+
+type Scheme string
+
+const (
+	GRPC Scheme = "grpc"
+	WS   Scheme = "ws"
+	WSS  Scheme = "wss"
+)
+
+func GetRPCConnInfo() ConnInfo {
+	cfg := Get()
+	rpcUrl := cfg.Client.RPCUrl
+
+	if len(rpcUrl) == 0 {
+		return ConnInfo{
+			Host:   rpcCallAddr(),
+			Scheme: GRPC,
+		}
+	}
+
+	parsedUrl, err := url.Parse(rpcUrl)
+	if err != nil {
+		logger.Logger(context.Background()).WithError(err).Fatalf("parse rpc url error")
+	}
+
+	return ConnInfo{
+		Host:   parsedUrl.Host,
+		Scheme: Scheme(parsedUrl.Scheme),
+	}
 }

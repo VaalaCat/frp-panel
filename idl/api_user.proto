@@ -34,4 +34,6 @@ message GetPlatformInfoResponse {
   int32 master_rpc_port = 10;
   int32 master_api_port = 11;
   string master_api_scheme = 12;
+  string client_rpc_url = 13;
+  string client_api_url = 14;
 }

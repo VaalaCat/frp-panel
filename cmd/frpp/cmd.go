@@ -13,7 +13,6 @@ import (
 	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/joho/godotenv"
-	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -47,6 +46,8 @@ func initCmdWithFlag() []*cobra.Command {
 		apiPort      int
 		apiScheme    string
 		joinToken    string
+		rpcUrl       string
+		apiUrl       string
 	)
 
 	clientCmd = &cobra.Command{
@@ -56,7 +57,8 @@ func initCmdWithFlag() []*cobra.Command {
 			run := func() {
 				patchConfig(apiHost, rpcHost, appSecret,
 					clientID, clientSecret,
-					apiScheme, rpcPort, apiPort)
+					apiScheme, rpcPort, apiPort,
+					apiUrl, rpcUrl)
 				runClient()
 			}
 			if srv, err := utils.CreateSystemService(args, run); err != nil {
@@ -74,7 +76,8 @@ func initCmdWithFlag() []*cobra.Command {
 			run := func() {
 				patchConfig(apiHost, rpcHost, appSecret,
 					clientID, clientSecret,
-					apiScheme, rpcPort, apiPort)
+					apiScheme, rpcPort, apiPort,
+					apiUrl, rpcUrl)
 				runServer()
 			}
 			if srv, err := utils.CreateSystemService(args, run); err != nil {
@@ -89,7 +92,7 @@ func initCmdWithFlag() []*cobra.Command {
 		Use:   "join [-j join token] [-r rpc host] [-p api port] [-e api scheme]",
 		Short: "join to master with token, save param to config",
 		Run: func(cmd *cobra.Command, args []string) {
-			pullRunConfig(joinToken, appSecret, rpcHost, apiScheme, rpcPort, apiPort, clientID, apiHost)
+			pullRunConfig(joinToken, appSecret, rpcHost, apiScheme, rpcPort, apiPort, clientID, apiHost, apiUrl, rpcUrl)
 		},
 	}
 
@@ -97,31 +100,39 @@ func initCmdWithFlag() []*cobra.Command {
 	serverCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
 	clientCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
 	serverCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
-	clientCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host, canbe ip or domain")
-	serverCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host, canbe ip or domain")
-
-	clientCmd.Flags().StringVarP(&apiHost, "api", "t", "", "api host, canbe ip or domain")
-	serverCmd.Flags().StringVarP(&apiHost, "api", "t", "", "api host, canbe ip or domain")
 
 	clientCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 	serverCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 
-	clientCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port, master rpc port, scheme is grpc")
-	serverCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port, master rpc port, scheme is grpc")
-	clientCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port, master api port, scheme is http/https")
-	serverCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port, master api port, scheme is http/https")
+	serverCmd.Flags().StringVar(&rpcUrl, "rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
+	clientCmd.Flags().StringVar(&rpcUrl, "rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
 
-	clientCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme, master api scheme, scheme is http/https")
-	serverCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme, master api scheme, scheme is http/https")
+	serverCmd.Flags().StringVar(&apiUrl, "api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
+	clientCmd.Flags().StringVar(&apiUrl, "api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
 
-	joinCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "rpc port, master rpc port, scheme is grpc")
-	joinCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "api port, master api port, scheme is http/https")
+	// deprecated start
+	clientCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
+	serverCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
+	clientCmd.Flags().StringVarP(&apiHost, "api", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
+	serverCmd.Flags().StringVarP(&apiHost, "api", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
+	clientCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "deprecated, use --rpc-url instead, rpc port, master rpc port, scheme is grpc")
+	serverCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "deprecated, use --rpc-url instead, rpc port, master rpc port, scheme is grpc")
+	clientCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "deprecated, use --api-url instead, api port, master api port, scheme is http/https")
+	serverCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "deprecated, use --api-url instead, api port, master api port, scheme is http/https")
+	clientCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "deprecated, use --api-url instead, api scheme, master api scheme, scheme is http/https")
+	serverCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "deprecated, use --api-url instead, api scheme, master api scheme, scheme is http/https")
+	joinCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "deprecated, use --rpc-url instead, rpc port, master rpc port, scheme is grpc")
+	joinCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "deprecated, use --api-url instead, api port, master api port, scheme is http/https")
+	joinCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
+	joinCmd.Flags().StringVarP(&apiHost, "api", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
+	joinCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "deprecated, use --api-url instead, api scheme, master api scheme, scheme is http/https")
+	// deprecated end
+
 	joinCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 	joinCmd.Flags().StringVarP(&joinToken, "join-token", "j", "", "your token from master")
-	joinCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "rpc host, canbe ip or domain")
-	joinCmd.Flags().StringVarP(&apiHost, "api", "t", "", "api host, canbe ip or domain")
-	joinCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "api scheme, master api scheme, scheme is http/https")
 	joinCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
+	joinCmd.Flags().StringVar(&rpcUrl, "rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
+	joinCmd.Flags().StringVar(&apiUrl, "api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
 
 	return []*cobra.Command{clientCmd, serverCmd, joinCmd}
 }
@@ -212,7 +223,7 @@ func initLogger() {
 	logger.Instance().SetReportCaller(true)
 }
 
-func patchConfig(apiHost, rpcHost, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int) {
+func patchConfig(apiHost, rpcHost, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int, apiUrl, rpcUrl string) {
 	c := context.Background()
 	if len(rpcHost) != 0 {
 		conf.Get().Master.RPCHost = rpcHost
@@ -241,10 +252,21 @@ func patchConfig(apiHost, rpcHost, secret, clientID, clientSecret, apiScheme str
 	if len(clientSecret) != 0 {
 		conf.Get().Client.Secret = clientSecret
 	}
-	logger.Logger(c).Infof("env config rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
-		conf.Get().Master.RPCHost, conf.Get().Master.RPCPort,
-		conf.Get().Master.APIHost, conf.Get().Master.APIPort,
-		conf.Get().Master.APIScheme)
+
+	if len(apiUrl) != 0 {
+		conf.Get().Client.APIUrl = apiUrl
+	}
+	if len(rpcUrl) != 0 {
+		conf.Get().Client.RPCUrl = rpcUrl
+	}
+
+	if rpcPort != 0 || apiPort != 0 || len(apiScheme) != 0 || len(rpcHost) != 0 || len(apiHost) != 0 {
+		logger.Logger(c).Warnf("deprecatedenv configs !!! rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
+			conf.Get().Master.RPCHost, conf.Get().Master.RPCPort,
+			conf.Get().Master.APIHost, conf.Get().Master.APIPort,
+			conf.Get().Master.APIScheme)
+	}
+	logger.Logger(c).Infof("env config, api url: %s, rpc url: %s", conf.Get().Client.APIUrl, conf.Get().Client.RPCUrl)
 }
 
 func setMasterCommandIfNonePresent() {
@@ -255,9 +277,9 @@ func setMasterCommandIfNonePresent() {
 	}
 }
 
-func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int, clientID, apiHost string) {
+func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int, clientID, apiHost string, apiUrl, rpcUrl string) {
 	c := context.Background()
-	if err := checkPullParams(joinToken, apiHost, apiScheme, apiPort); err != nil {
+	if err := checkPullParams(joinToken, apiHost, apiScheme, apiPort, apiUrl); err != nil {
 		logger.Logger(c).Errorf("check pull params failed: %s", err.Error())
 		return
 	}
@@ -272,7 +294,7 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 	}
 
 	clientID = utils.MakeClientIDPermited(clientID)
-	patchConfig(apiHost, rpcHost, appSecret, "", "", apiScheme, rpcPort, apiPort)
+	patchConfig(apiHost, rpcHost, appSecret, "", "", apiScheme, rpcPort, apiPort, apiUrl, rpcUrl)
 
 	initResp, err := rpc.InitClient(clientID, joinToken)
 	if err != nil {
@@ -318,11 +340,8 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 	envMap[common.EnvAppSecret] = appSecret
 	envMap[common.EnvClientID] = clientID
 	envMap[common.EnvClientSecret] = client.GetSecret()
-	envMap[common.EnvMasterRPCHost] = rpcHost
-	envMap[common.EnvMasterRPCPort] = cast.ToString(rpcPort)
-	envMap[common.EnvMasterAPIHost] = apiHost
-	envMap[common.EnvMasterAPIPort] = cast.ToString(apiPort)
-	envMap[common.EnvMasterAPIScheme] = apiScheme
+	envMap[common.EnvClientAPIUrl] = apiUrl
+	envMap[common.EnvClientRPCUrl] = rpcUrl
 
 	if err = godotenv.Write(envMap, common.SysEnvPath); err != nil {
 		logger.Logger(c).Errorf("write env file failed: %s", err.Error())
@@ -331,16 +350,19 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 	logger.Logger(c).Infof("config saved to env file: %s, you can use `frp-panel client` without args to run client,\n\nconfig is: [%v]", common.SysEnvPath, envMap)
 }
 
-func checkPullParams(joinToken, apiHost, apiScheme string, apiPort int) error {
+func checkPullParams(joinToken, apiHost, apiScheme string, apiPort int, apiUrl string) error {
 	if len(joinToken) == 0 {
 		return errors.New("join token is empty")
 	}
-	if len(apiHost) == 0 {
-		return errors.New("api host is empty")
+	if len(apiUrl) == 0 {
+		if len(apiHost) == 0 {
+			return errors.New("api host is empty")
+		}
+		if len(apiScheme) == 0 {
+			return errors.New("api scheme is empty")
+		}
 	}
-	if len(apiScheme) == 0 {
-		return errors.New("api scheme is empty")
-	}
+
 	if apiPort == 0 {
 		return errors.New("api port is empty")
 	}

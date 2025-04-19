@@ -1,6 +1,8 @@
 package platform
 
 import (
+	"fmt"
+
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
@@ -46,6 +48,17 @@ func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
 
 	unconfiguredClients := totalClients - configuredClients
 
+	clientRPCUrl := conf.Get().Client.RPCUrl
+	clientAPIUrl := conf.Get().Client.APIUrl
+
+	if len(clientRPCUrl) == 0 {
+		clientRPCUrl = fmt.Sprintf("grpc://%s:%d", conf.Get().Master.RPCHost, conf.Get().Master.RPCPort)
+	}
+
+	if len(clientAPIUrl) == 0 {
+		clientAPIUrl = fmt.Sprintf("%s://%s:%d", conf.Get().Master.APIScheme, conf.Get().Master.RPCHost, conf.Get().Master.APIPort)
+	}
+
 	return &pb.GetPlatformInfoResponse{
 		Status:                  &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
 		TotalClientCount:        int32(totalClients),
@@ -59,5 +72,7 @@ func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
 		MasterRpcPort:           int32(conf.Get().Master.RPCPort),
 		MasterApiPort:           int32(conf.Get().Master.APIPort),
 		MasterApiScheme:         conf.Get().Master.APIScheme,
+		ClientRpcUrl:            clientRPCUrl,
+		ClientApiUrl:            clientAPIUrl,
 	}, nil
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"net/http"
 	"path/filepath"
 
 	bizmaster "github.com/VaalaCat/frp-panel/biz/master"
@@ -22,9 +23,11 @@ import (
 	"github.com/VaalaCat/frp-panel/services/mux"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/utils"
+	"github.com/VaalaCat/frp-panel/utils/wsgrpc"
 	"github.com/VaalaCat/frp-panel/watcher"
 	"github.com/fatedier/golib/crypto"
 	"github.com/glebarez/sqlite"
+	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
 	"google.golang.org/grpc/credentials"
@@ -52,6 +55,16 @@ func runMaster() {
 
 	lisOpt := conf.GetListener(c)
 
+	// ---- ws grpc start -----
+	wsListener := wsgrpc.NewWSListener("ws-listener", "wsgrpc", 100)
+
+	upgrader := &websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
+
+	router.GET("/wsgrpc", wsgrpc.GinWSHandler(wsListener, upgrader))
+	// ---- ws grpc end -----
+
 	masterService := master.NewMasterService(credentials.NewTLS(creds))
 	server := masterService.GetServer()
 	muxServer := mux.NewMux(server, router, lisOpt.MuxLis, creds)
@@ -68,6 +81,12 @@ func runMaster() {
 
 	logger.Logger(c).Infof("start to run master")
 
+	go func() {
+		wsGrpcServer := master.NewMasterService(insecure.NewCredentials()).GetServer()
+		if err := wsGrpcServer.Serve(wsListener); err != nil {
+			logrus.Fatalf("gRPC server error: %v", err)
+		}
+	}()
 	wg.Go(runDefaultInternalServer)
 	wg.Go(muxServer.Run)
 	wg.Go(httpMuxServer.Run)

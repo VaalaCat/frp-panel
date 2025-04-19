@@ -105,6 +105,14 @@ export interface GetPlatformInfoResponse {
      * @generated from protobuf field: string master_api_scheme = 12;
      */
     masterApiScheme: string;
+    /**
+     * @generated from protobuf field: string client_rpc_url = 13;
+     */
+    clientRpcUrl: string;
+    /**
+     * @generated from protobuf field: string client_api_url = 14;
+     */
+    clientApiUrl: string;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class GetUserInfoRequest$Type extends MessageType<GetUserInfoRequest> {
@@ -316,7 +324,9 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
             { no: 9, name: "master_rpc_host", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 10, name: "master_rpc_port", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 11, name: "master_api_port", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-            { no: 12, name: "master_api_scheme", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 12, name: "master_api_scheme", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 13, name: "client_rpc_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 14, name: "client_api_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<GetPlatformInfoResponse>): GetPlatformInfoResponse {
@@ -332,6 +342,8 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         message.masterRpcPort = 0;
         message.masterApiPort = 0;
         message.masterApiScheme = "";
+        message.clientRpcUrl = "";
+        message.clientApiUrl = "";
         if (value !== undefined)
             reflectionMergePartial<GetPlatformInfoResponse>(this, message, value);
         return message;
@@ -376,6 +388,12 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
                     break;
                 case /* string master_api_scheme */ 12:
                     message.masterApiScheme = reader.string();
+                    break;
+                case /* string client_rpc_url */ 13:
+                    message.clientRpcUrl = reader.string();
+                    break;
+                case /* string client_api_url */ 14:
+                    message.clientApiUrl = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -425,6 +443,12 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         /* string master_api_scheme = 12; */
         if (message.masterApiScheme !== "")
             writer.tag(12, WireType.LengthDelimited).string(message.masterApiScheme);
+        /* string client_rpc_url = 13; */
+        if (message.clientRpcUrl !== "")
+            writer.tag(13, WireType.LengthDelimited).string(message.clientRpcUrl);
+        /* string client_api_url = 14; */
+        if (message.clientApiUrl !== "")
+            writer.tag(14, WireType.LengthDelimited).string(message.clientApiUrl);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
