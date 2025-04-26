@@ -58,8 +58,8 @@ func AddCommonFlags(commonCmd *cobra.Command) {
 	commonCmd.Flags().String("api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
 
 	// deprecated start
-	commonCmd.Flags().StringP("rpc", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
-	commonCmd.Flags().StringP("api", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
+	commonCmd.Flags().StringP("rpc-host", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
+	commonCmd.Flags().StringP("api-host", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
 	commonCmd.Flags().IntP("rpc-port", "c", 0, "deprecated, use --rpc-url instead, rpc port, master rpc port, scheme is grpc")
 	commonCmd.Flags().IntP("api-port", "p", 0, "deprecated, use --api-url instead, api port, master api port, scheme is http/https")
 	commonCmd.Flags().StringP("api-scheme", "e", "", "deprecated, use --api-url instead, api scheme, master api scheme, scheme is http/https")
