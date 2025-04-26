@@ -42,7 +42,7 @@ jobs:
           files: |
             dist/*
       - name: Setup ko
-        uses: ko-build/setup-ko@v0.6
+        uses: ko-build/setup-ko@v0.9
         env:
           KO_DOCKER_REPO: docker.io/vaalacat/frp-panel
       - env:
@@ -50,4 +50,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           echo "${password}" | ko login docker.io --username ${username} --password-stdin
-          ko build ./cmd/frpp --bare
+          ko build ./cmd/frpp --sbom=none --bare
