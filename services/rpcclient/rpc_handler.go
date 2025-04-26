@@ -5,9 +5,9 @@ import (
 	"io"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -22,11 +22,7 @@ import (
 // 	}
 // }
 
-func NewMasterCli() (pb.MasterClient, error) {
-	return rpc.MasterCli(context.Background())
-}
-
-func RegistClientToMaster(recvStream pb.Master_ServerSendClient, event pb.Event, clientID, clientSecret string) {
+func RegistClientToMaster(appInstance app.Application, recvStream pb.Master_ServerSendClient, event pb.Event, clientID, clientSecret string) {
 	c := context.Background()
 	logger.Logger(c).Infof("start to regist client to master")
 	for {
@@ -57,8 +53,8 @@ func RegistClientToMaster(recvStream pb.Master_ServerSendClient, event pb.Event,
 	}
 }
 
-func RunRPCClient(recvStream pb.Master_ServerSendClient, done chan bool, clientID string,
-	clientHandleServerSend func(req *pb.ServerMessage) *pb.ClientMessage) {
+func RunRPCClient(appInstance app.Application, recvStream pb.Master_ServerSendClient, done chan bool, clientID string,
+	clientHandleServerSend func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage) {
 	c := context.Background()
 	for {
 		select {
@@ -85,7 +81,7 @@ func RunRPCClient(recvStream pb.Master_ServerSendClient, done chan bool, clientI
 						logger.Logger(c).Errorf("catch panic, err: %v", err)
 					}
 				}()
-				msg := clientHandleServerSend(resp)
+				msg := clientHandleServerSend(appInstance, resp)
 				if msg == nil {
 					return
 				}
@@ -98,8 +94,8 @@ func RunRPCClient(recvStream pb.Master_ServerSendClient, done chan bool, clientI
 	}
 }
 
-func StartRPCClient(client pb.MasterClient, done chan bool, clientID, clientSecret string, event pb.Event,
-	clientHandleServerSend func(req *pb.ServerMessage) *pb.ClientMessage) {
+func StartRPCClient(appInstance app.Application, client pb.MasterClient, done chan bool, clientID, clientSecret string, event pb.Event,
+	clientHandleServerSend func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage) {
 	c := context.Background()
 	logger.Logger(c).Infof("start to run rpc client")
 	for {
@@ -115,8 +111,8 @@ func StartRPCClient(client pb.MasterClient, done chan bool, clientID, clientSecr
 				continue
 			}
 
-			RegistClientToMaster(recvStream, event, clientID, clientSecret)
-			RunRPCClient(recvStream, done, clientID, clientHandleServerSend)
+			RegistClientToMaster(appInstance, recvStream, event, clientID, clientSecret)
+			RunRPCClient(appInstance, recvStream, done, clientID, clientHandleServerSend)
 		}
 	}
 }

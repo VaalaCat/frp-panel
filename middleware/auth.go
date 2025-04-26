@@ -1,56 +1,61 @@
 package middleware
 
 import (
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func AuthCtx(c *gin.Context) {
-	var uid int64
-	var err error
-	var u *models.UserEntity
+func AuthCtx(appInstance app.Application) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var uid int64
+		var err error
+		var u *models.UserEntity
+		appCtx := app.NewContext(c, appInstance)
 
-	defer func() {
-		logger.Logger(c).Info("finish auth user middleware")
-	}()
+		defer func() {
+			logger.Logger(c).Info("finish auth user middleware")
+		}()
 
-	userID, ok := utils.GetValue[int](c, common.UserIDKey)
-	if !ok {
-		logger.Logger(c).Errorf("invalid user id")
-		common.ErrUnAuthorized(c, "token invalid")
-		c.Abort()
-		return
-	}
-
-	u, err = dao.GetUserByUserID(userID)
-	if err != nil {
-		logger.Logger(c).Errorf("get user by user id failed: %v", err)
-		common.ErrUnAuthorized(c, "token invalid")
-		c.Abort()
-		return
-	}
-
-	logger.Logger(c).Infof("auth middleware authed user is: [%+v]", u)
-
-	if u.Valid() {
-		logger.Logger(c).Infof("set auth user to context, login success")
-		c.Set(common.UserInfoKey, u)
-		c.Next()
-		return
-	} else {
-		if uid == 1 {
-			logger.Logger(c).Infof("seems to be admin assign token login")
-			c.Next()
+		userID, ok := utils.GetValue[int](c, defs.UserIDKey)
+		if !ok {
+			logger.Logger(c).Errorf("invalid user id")
+			common.ErrUnAuthorized(c, "token invalid")
+			c.Abort()
 			return
 		}
-		logger.Logger(c).Errorf("invalid authorization, auth ctx middleware login failed")
-		common.ErrUnAuthorized(c, "token invalid")
-		c.Abort()
-		return
+
+		u, err = dao.NewQuery(appCtx).GetUserByUserID(userID)
+		if err != nil {
+			logger.Logger(c).Errorf("get user by user id failed: %v", err)
+			common.ErrUnAuthorized(c, "token invalid")
+			c.Abort()
+			return
+		}
+
+		logger.Logger(c).Infof("auth middleware authed user is: [%+v]", u)
+
+		if u.Valid() {
+			logger.Logger(c).Infof("set auth user to context, login success")
+			c.Set(defs.UserInfoKey, u)
+			c.Next()
+			return
+		} else {
+			if uid == 1 {
+				logger.Logger(c).Infof("seems to be admin assign token login")
+				c.Next()
+				return
+			}
+			logger.Logger(c).Errorf("invalid authorization, auth ctx middleware login failed")
+			common.ErrUnAuthorized(c, "token invalid")
+			c.Abort()
+			return
+		}
 	}
 }
 

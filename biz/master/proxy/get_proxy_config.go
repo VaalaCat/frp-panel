@@ -1,9 +1,9 @@
 package proxy
 
 import (
-	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -13,7 +13,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func GetProxyConfig(c context.Context, req *pb.GetProxyConfigRequest) (*pb.GetProxyConfigResponse, error) {
+func GetProxyConfig(c *app.Context, req *pb.GetProxyConfigRequest) (*pb.GetProxyConfigResponse, error) {
 	var (
 		userInfo  = common.GetUserInfo(c)
 		clientID  = req.GetClientId()
@@ -21,7 +21,7 @@ func GetProxyConfig(c context.Context, req *pb.GetProxyConfigRequest) (*pb.GetPr
 		proxyName = req.GetName()
 	)
 
-	proxyConfig, err := dao.GetProxyConfigByFilter(userInfo, &models.ProxyConfigEntity{
+	proxyConfig, err := dao.NewQuery(c).GetProxyConfigByFilter(userInfo, &models.ProxyConfigEntity{
 		ClientID: clientID,
 		ServerID: serverID,
 		Name:     proxyName,

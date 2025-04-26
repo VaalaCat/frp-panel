@@ -1,11 +1,8 @@
 package rpcclient
 
 import (
-	"context"
-
-	"github.com/VaalaCat/frp-panel/logger"
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/sirupsen/logrus"
 )
 
 type ClientRPCHandler interface {
@@ -14,52 +11,27 @@ type ClientRPCHandler interface {
 	GetCli() pb.MasterClient
 }
 
-type ClientRPC struct {
+type clientRPC struct {
+	appInstance  app.Application
 	rpcClient    pb.MasterClient
 	done         chan bool
-	handerFunc   func(req *pb.ServerMessage) *pb.ClientMessage
+	handerFunc   func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage
 	clientID     string
 	clientSecret string
 	event        pb.Event
 }
 
-var (
-	cliRpc *ClientRPC
-)
-
-func MustInitClientRPCSerivce(
-	clientID,
-	clientSecret string,
-	event pb.Event,
-	handerFunc func(req *pb.ServerMessage) *pb.ClientMessage,
-) {
-	ctx := context.Background()
-	if cliRpc != nil {
-		logger.Logger(ctx).Warn("rpc client has been initialized")
-		return
-	}
-	cliRpc = NewClientRPCHandler(clientID, clientSecret, event, handerFunc)
-}
-
-func GetClientRPCSerivce() ClientRPCHandler {
-	if cliRpc == nil {
-		logrus.Panic("rpc client has not been initialized")
-	}
-	return cliRpc
-}
-
 func NewClientRPCHandler(
+	appInstance app.Application,
 	clientID,
 	clientSecret string,
 	event pb.Event,
-	handerFunc func(req *pb.ServerMessage) *pb.ClientMessage,
-) *ClientRPC {
-	rpcCli, err := NewMasterCli()
-	if err != nil {
-		logrus.Fatalf("new rpc client failed: %v", err)
-	}
+	handerFunc func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage,
+) app.ClientRPCHandler {
+	rpcCli := appInstance.GetMasterCli()
 	done := make(chan bool)
-	return &ClientRPC{
+	return &clientRPC{
+		appInstance:  appInstance,
 		rpcClient:    rpcCli,
 		done:         done,
 		handerFunc:   handerFunc,
@@ -69,14 +41,14 @@ func NewClientRPCHandler(
 	}
 }
 
-func (s *ClientRPC) Run() {
-	StartRPCClient(s.rpcClient, s.done, s.clientID, s.clientSecret, s.event, s.handerFunc)
+func (s *clientRPC) Run() {
+	StartRPCClient(s.appInstance, s.rpcClient, s.done, s.clientID, s.clientSecret, s.event, s.handerFunc)
 }
 
-func (s *ClientRPC) Stop() {
+func (s *clientRPC) Stop() {
 	close(s.done)
 }
 
-func (s *ClientRPC) GetCli() pb.MasterClient {
+func (s *clientRPC) GetCli() pb.MasterClient {
 	return s.rpcClient
 }

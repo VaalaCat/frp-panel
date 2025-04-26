@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -24,18 +26,18 @@ var (
 	rootCmd   *cobra.Command
 )
 
-func initCommand() {
+func initCommand(appInstance app.Application) {
 	rootCmd = &cobra.Command{
 		Use:   "frp-panel",
 		Short: "frp-panel is a frp panel QwQ",
 	}
-	CmdListWithFlag := initCmdWithFlag()
-	CmdListWithoutFlag := initCmdWithoutFlag()
+	CmdListWithFlag := initCmdWithFlag(appInstance)
+	CmdListWithoutFlag := initCmdWithoutFlag(appInstance)
 	rootCmd.AddCommand(CmdListWithFlag...)
 	rootCmd.AddCommand(CmdListWithoutFlag...)
 }
 
-func initCmdWithFlag() []*cobra.Command {
+func initCmdWithFlag(appInstance app.Application) []*cobra.Command {
 	var (
 		clientSecret string
 		clientID     string
@@ -55,11 +57,12 @@ func initCmdWithFlag() []*cobra.Command {
 		Short: "run managed frpc",
 		Run: func(cmd *cobra.Command, args []string) {
 			run := func() {
-				patchConfig(apiHost, rpcHost, appSecret,
+				patchConfig(appInstance,
+					apiHost, rpcHost, appSecret,
 					clientID, clientSecret,
 					apiScheme, rpcPort, apiPort,
 					apiUrl, rpcUrl)
-				runClient()
+				runClient(appInstance)
 			}
 			if srv, err := utils.CreateSystemService(args, run); err != nil {
 				run()
@@ -74,11 +77,12 @@ func initCmdWithFlag() []*cobra.Command {
 		Short: "run managed frps",
 		Run: func(cmd *cobra.Command, args []string) {
 			run := func() {
-				patchConfig(apiHost, rpcHost, appSecret,
+				patchConfig(appInstance,
+					apiHost, rpcHost, appSecret,
 					clientID, clientSecret,
 					apiScheme, rpcPort, apiPort,
 					apiUrl, rpcUrl)
-				runServer()
+				runServer(appInstance)
 			}
 			if srv, err := utils.CreateSystemService(args, run); err != nil {
 				run()
@@ -92,7 +96,11 @@ func initCmdWithFlag() []*cobra.Command {
 		Use:   "join [-j join token] [-r rpc host] [-p api port] [-e api scheme]",
 		Short: "join to master with token, save param to config",
 		Run: func(cmd *cobra.Command, args []string) {
-			pullRunConfig(joinToken, appSecret, rpcHost, apiScheme, rpcPort, apiPort, clientID, apiHost, apiUrl, rpcUrl)
+			pullRunConfig(appInstance,
+				joinToken, appSecret, rpcHost,
+				apiScheme, rpcPort, apiPort,
+				clientID, apiHost,
+				apiUrl, rpcUrl)
 		},
 	}
 
@@ -137,13 +145,16 @@ func initCmdWithFlag() []*cobra.Command {
 	return []*cobra.Command{clientCmd, serverCmd, joinCmd}
 }
 
-func initCmdWithoutFlag() []*cobra.Command {
+func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
 	masterCmd = &cobra.Command{
 		Use:   "master",
 		Short: "run frp-panel manager",
 		Run: func(cmd *cobra.Command, args []string) {
-			if srv, err := utils.CreateSystemService(args, runMaster); err != nil {
-				runMaster()
+			run := func() {
+				runMaster(appInstance)
+			}
+			if srv, err := utils.CreateSystemService(args, run); err != nil {
+				runMaster(appInstance)
 			} else {
 				srv.Run()
 			}
@@ -221,52 +232,54 @@ func initCmdWithoutFlag() []*cobra.Command {
 
 func initLogger() {
 	logger.Instance().SetReportCaller(true)
+	logrus.SetReportCaller(true)
 }
 
-func patchConfig(apiHost, rpcHost, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int, apiUrl, rpcUrl string) {
+func patchConfig(appInstance app.Application, apiHost, rpcHost, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int, apiUrl, rpcUrl string) {
 	c := context.Background()
+	tmpCfg := appInstance.GetConfig()
 	if len(rpcHost) != 0 {
-		conf.Get().Master.RPCHost = rpcHost
-		conf.Get().Master.APIHost = rpcHost
+		tmpCfg.Master.RPCHost = rpcHost
+		tmpCfg.Master.APIHost = rpcHost
 	}
 
 	if len(apiHost) != 0 {
-		conf.Get().Master.APIHost = apiHost
+		tmpCfg.Master.APIHost = apiHost
 	}
 
 	if len(secret) != 0 {
-		conf.Get().App.Secret = secret
+		tmpCfg.App.Secret = secret
 	}
 	if rpcPort != 0 {
-		conf.Get().Master.RPCPort = rpcPort
+		tmpCfg.Master.RPCPort = rpcPort
 	}
 	if apiPort != 0 {
-		conf.Get().Master.APIPort = apiPort
+		tmpCfg.Master.APIPort = apiPort
 	}
 	if len(apiScheme) != 0 {
-		conf.Get().Master.APIScheme = apiScheme
+		tmpCfg.Master.APIScheme = apiScheme
 	}
 	if len(clientID) != 0 {
-		conf.Get().Client.ID = clientID
+		tmpCfg.Client.ID = clientID
 	}
 	if len(clientSecret) != 0 {
-		conf.Get().Client.Secret = clientSecret
+		tmpCfg.Client.Secret = clientSecret
 	}
 
 	if len(apiUrl) != 0 {
-		conf.Get().Client.APIUrl = apiUrl
+		tmpCfg.Client.APIUrl = apiUrl
 	}
 	if len(rpcUrl) != 0 {
-		conf.Get().Client.RPCUrl = rpcUrl
+		tmpCfg.Client.RPCUrl = rpcUrl
 	}
 
 	if rpcPort != 0 || apiPort != 0 || len(apiScheme) != 0 || len(rpcHost) != 0 || len(apiHost) != 0 {
 		logger.Logger(c).Warnf("deprecatedenv configs !!! rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
-			conf.Get().Master.RPCHost, conf.Get().Master.RPCPort,
-			conf.Get().Master.APIHost, conf.Get().Master.APIPort,
-			conf.Get().Master.APIScheme)
+			tmpCfg.Master.RPCHost, tmpCfg.Master.RPCPort,
+			tmpCfg.Master.APIHost, tmpCfg.Master.APIPort,
+			tmpCfg.Master.APIScheme)
 	}
-	logger.Logger(c).Infof("env config, api url: %s, rpc url: %s", conf.Get().Client.APIUrl, conf.Get().Client.RPCUrl)
+	logger.Logger(c).Infof("env config, api url: %s, rpc url: %s", tmpCfg.Client.APIUrl, tmpCfg.Client.RPCUrl)
 }
 
 func setMasterCommandIfNonePresent() {
@@ -277,14 +290,14 @@ func setMasterCommandIfNonePresent() {
 	}
 }
 
-func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int, clientID, apiHost string, apiUrl, rpcUrl string) {
+func pullRunConfig(appInstance app.Application, joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int, clientID, apiHost string, apiUrl, rpcUrl string) {
 	c := context.Background()
 	if err := checkPullParams(joinToken, apiHost, apiScheme, apiPort, apiUrl); err != nil {
 		logger.Logger(c).Errorf("check pull params failed: %s", err.Error())
 		return
 	}
 
-	if err := utils.EnsureDirectoryExists(common.SysEnvPath); err != nil {
+	if err := utils.EnsureDirectoryExists(defs.SysEnvPath); err != nil {
 		logger.Logger(c).Errorf("ensure directory failed: %s", err.Error())
 		return
 	}
@@ -294,9 +307,9 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 	}
 
 	clientID = utils.MakeClientIDPermited(clientID)
-	patchConfig(apiHost, rpcHost, appSecret, "", "", apiScheme, rpcPort, apiPort, apiUrl, rpcUrl)
+	patchConfig(appInstance, apiHost, rpcHost, appSecret, "", "", apiScheme, rpcPort, apiPort, apiUrl, rpcUrl)
 
-	initResp, err := rpc.InitClient(clientID, joinToken)
+	initResp, err := rpc.InitClient(appInstance, clientID, joinToken)
 	if err != nil {
 		logger.Logger(c).Errorf("init client failed: %s", err.Error())
 		return
@@ -311,7 +324,7 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 	}
 
 	clientID = initResp.GetClientId()
-	clientResp, err := rpc.GetClient(clientID, joinToken)
+	clientResp, err := rpc.GetClient(appInstance, clientID, joinToken)
 	if err != nil {
 		logger.Logger(c).Errorf("get client failed: %s", err.Error())
 		return
@@ -331,23 +344,23 @@ func pullRunConfig(joinToken, appSecret, rpcHost, apiScheme string, rpcPort, api
 		return
 	}
 
-	envMap, err := godotenv.Read(common.SysEnvPath)
+	envMap, err := godotenv.Read(defs.SysEnvPath)
 	if err != nil {
 		envMap = make(map[string]string)
 		logger.Logger(c).Warnf("read env file failed, try to create: %s", err.Error())
 	}
 
-	envMap[common.EnvAppSecret] = appSecret
-	envMap[common.EnvClientID] = clientID
-	envMap[common.EnvClientSecret] = client.GetSecret()
-	envMap[common.EnvClientAPIUrl] = apiUrl
-	envMap[common.EnvClientRPCUrl] = rpcUrl
+	envMap[defs.EnvAppSecret] = appSecret
+	envMap[defs.EnvClientID] = clientID
+	envMap[defs.EnvClientSecret] = client.GetSecret()
+	envMap[defs.EnvClientAPIUrl] = apiUrl
+	envMap[defs.EnvClientRPCUrl] = rpcUrl
 
-	if err = godotenv.Write(envMap, common.SysEnvPath); err != nil {
+	if err = godotenv.Write(envMap, defs.SysEnvPath); err != nil {
 		logger.Logger(c).Errorf("write env file failed: %s", err.Error())
 		return
 	}
-	logger.Logger(c).Infof("config saved to env file: %s, you can use `frp-panel client` without args to run client,\n\nconfig is: [%v]", common.SysEnvPath, envMap)
+	logger.Logger(c).Infof("config saved to env file: %s, you can use `frp-panel client` without args to run client,\n\nconfig is: [%v]", defs.SysEnvPath, envMap)
 }
 
 func checkPullParams(joinToken, apiHost, apiScheme string, apiPort int, apiUrl string) error {

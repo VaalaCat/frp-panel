@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/cache"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -23,11 +24,12 @@ func (e *HTTPError) Error() string {
 	return e.Err.Error()
 }
 
-type HandlerFunc func(ctx *gin.Context) (interface{}, error)
+type HandlerFunc func(ctx *app.Context) (interface{}, error)
 
-func MakeGinHandlerFunc(handler HandlerFunc) gin.HandlerFunc {
+func MakeGinHandlerFunc(appInstance app.Application, handler HandlerFunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		res, err := handler(ctx)
+		appCtx := app.NewContext(ctx, appInstance)
+		res, err := handler(appCtx)
 		if err != nil {
 			logger.Logger(ctx).Infof("handle %s error: %v", ctx.Request.URL.Path, err)
 			switch e := err.(type) {
@@ -42,11 +44,11 @@ func MakeGinHandlerFunc(handler HandlerFunc) gin.HandlerFunc {
 	}
 }
 
-func HandleLogin(ctx *gin.Context) (interface{}, error) {
+func HandleLogin(ctx *app.Context) (interface{}, error) {
 	var r plugin.Request
 	var content plugin.LoginContent
 	r.Content = &content
-	if err := ctx.BindJSON(&r); err != nil {
+	if err := ctx.GetGinCtx().BindJSON(&r); err != nil {
 		return nil, &HTTPError{
 			Code: http.StatusBadRequest,
 			Err:  err,
@@ -63,7 +65,7 @@ func HandleLogin(ctx *gin.Context) (interface{}, error) {
 
 	userToken, err := cache.Get().Get([]byte(content.User))
 	if err != nil {
-		u, err := dao.GetUserByUserName(content.User)
+		u, err := dao.NewQuery(ctx).GetUserByUserName(content.User)
 		if err != nil || u == nil {
 			res.Reject = true
 			res.RejectReason = "invalid frp auth"

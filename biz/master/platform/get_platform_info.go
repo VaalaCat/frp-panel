@@ -3,6 +3,7 @@ package platform
 import (
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
@@ -10,36 +11,39 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetPlatformInfo(c *gin.Context) {
-	resp, err := getPlatformInfo(c)
-	if err != nil {
-		common.ErrResp(c, &pb.CommonResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()}}, err.Error())
-		return
+func GetPlatformInfo(appInstance app.Application) func(*gin.Context) {
+	return func(c *gin.Context) {
+		resp, err := getPlatformInfo(appInstance, c)
+		if err != nil {
+			common.ErrResp(c, &pb.CommonResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()}}, err.Error())
+			return
+		}
+		common.OKResp(c, resp)
 	}
-	common.OKResp(c, resp)
 }
 
-func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
+func getPlatformInfo(appInstance app.Application, c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
+	appCtx := app.NewContext(c, appInstance)
 	userInfo := common.GetUserInfo(c)
 	if !userInfo.Valid() {
 		return &pb.GetPlatformInfoResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "invalid user"},
 		}, nil
 	}
-	totalServers, err := dao.CountServers(userInfo)
+	totalServers, err := dao.NewQuery(appCtx).CountServers(userInfo)
 	if err != nil {
 		return nil, err
 	}
-	totalClients, err := dao.CountClients(userInfo)
+	totalClients, err := dao.NewQuery(appCtx).CountClients(userInfo)
 	if err != nil {
 		return nil, err
 	}
 
-	configuredServers, err := dao.CountConfiguredServers(userInfo)
+	configuredServers, err := dao.NewQuery(appCtx).CountConfiguredServers(userInfo)
 	if err != nil {
 		return nil, err
 	}
-	configuredClients, err := dao.CountConfiguredClients(userInfo)
+	configuredClients, err := dao.NewQuery(appCtx).CountConfiguredClients(userInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -48,15 +52,15 @@ func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
 
 	unconfiguredClients := totalClients - configuredClients
 
-	clientRPCUrl := conf.Get().Client.RPCUrl
-	clientAPIUrl := conf.Get().Client.APIUrl
+	clientRPCUrl := appInstance.GetConfig().Client.RPCUrl
+	clientAPIUrl := appInstance.GetConfig().Client.APIUrl
 
 	if len(clientRPCUrl) == 0 {
-		clientRPCUrl = fmt.Sprintf("grpc://%s:%d", conf.Get().Master.RPCHost, conf.Get().Master.RPCPort)
+		clientRPCUrl = fmt.Sprintf("grpc://%s:%d", appInstance.GetConfig().Master.RPCHost, appInstance.GetConfig().Master.RPCPort)
 	}
 
 	if len(clientAPIUrl) == 0 {
-		clientAPIUrl = fmt.Sprintf("%s://%s:%d", conf.Get().Master.APIScheme, conf.Get().Master.RPCHost, conf.Get().Master.APIPort)
+		clientAPIUrl = fmt.Sprintf("%s://%s:%d", appInstance.GetConfig().Master.APIScheme, appInstance.GetConfig().Master.RPCHost, appInstance.GetConfig().Master.APIPort)
 	}
 
 	return &pb.GetPlatformInfoResponse{
@@ -67,11 +71,11 @@ func getPlatformInfo(c *gin.Context) (*pb.GetPlatformInfoResponse, error) {
 		UnconfiguredServerCount: int32(unconfiguredServers),
 		ConfiguredClientCount:   int32(configuredClients),
 		ConfiguredServerCount:   int32(configuredServers),
-		GlobalSecret:            conf.MasterDefaultSalt(),
-		MasterRpcHost:           conf.Get().Master.RPCHost,
-		MasterRpcPort:           int32(conf.Get().Master.RPCPort),
-		MasterApiPort:           int32(conf.Get().Master.APIPort),
-		MasterApiScheme:         conf.Get().Master.APIScheme,
+		GlobalSecret:            conf.MasterDefaultSalt(appInstance.GetConfig()),
+		MasterRpcHost:           appInstance.GetConfig().Master.RPCHost,
+		MasterRpcPort:           int32(appInstance.GetConfig().Master.RPCPort),
+		MasterApiPort:           int32(appInstance.GetConfig().Master.APIPort),
+		MasterApiScheme:         appInstance.GetConfig().Master.APIScheme,
 		ClientRpcUrl:            clientRPCUrl,
 		ClientApiUrl:            clientAPIUrl,
 	}, nil

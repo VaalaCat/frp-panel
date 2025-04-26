@@ -4,23 +4,18 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/services/server"
-	"github.com/VaalaCat/frp-panel/tunnel"
 	"github.com/VaalaCat/frp-panel/utils"
 )
 
-func PullConfig(serverID, serverSecret string) error {
+func PullConfig(appInstance app.Application, serverID, serverSecret string) error {
 	ctx := context.Background()
 	logger.Logger(ctx).Infof("start to pull server config, serverID: [%s]", serverID)
 
-	cli, err := rpc.MasterCli(ctx)
-	if err != nil {
-		logger.Logger(context.Background()).WithError(err).Error("cannot get master server")
-		return err
-	}
+	cli := appInstance.GetMasterCli()
 	resp, err := cli.PullServerConfig(ctx, &pb.PullServerConfigReq{
 		Base: &pb.ServerBase{
 			ServerId:     serverID,
@@ -43,7 +38,7 @@ func PullConfig(serverID, serverSecret string) error {
 		return err
 	}
 
-	ctrl := tunnel.GetServerController()
+	ctrl := appInstance.GetServerController()
 
 	if t := ctrl.Get(serverID); t != nil {
 		if !reflect.DeepEqual(t.GetCommonCfg(), s) {

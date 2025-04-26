@@ -1,8 +1,7 @@
 package client
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -11,7 +10,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.ListClientsResponse, error) {
+func ListClientsHandler(ctx *app.Context, req *pb.ListClientsRequest) (*pb.ListClientsResponse, error) {
 	logger.Logger(ctx).Infof("list client, req: [%+v]", req)
 
 	var (
@@ -35,9 +34,9 @@ func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.Li
 	)
 
 	if hasKeyword {
-		clients, err = dao.ListClientsWithKeyword(userInfo, page, pageSize, keyword)
+		clients, err = dao.NewQuery(ctx).ListClientsWithKeyword(userInfo, page, pageSize, keyword)
 	} else {
-		clients, err = dao.ListClients(userInfo, page, pageSize)
+		clients, err = dao.NewQuery(ctx).ListClients(userInfo, page, pageSize)
 	}
 
 	if err != nil {
@@ -45,9 +44,9 @@ func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.Li
 	}
 
 	if hasKeyword {
-		clientCounts, err = dao.CountClientsWithKeyword(userInfo, keyword)
+		clientCounts, err = dao.NewQuery(ctx).CountClientsWithKeyword(userInfo, keyword)
 	} else {
-		clientCounts, err = dao.CountClients(userInfo)
+		clientCounts, err = dao.NewQuery(ctx).CountClients(userInfo)
 	}
 
 	if err != nil {
@@ -55,7 +54,7 @@ func ListClientsHandler(ctx context.Context, req *pb.ListClientsRequest) (*pb.Li
 	}
 
 	respClients := lo.Map(clients, func(c *models.ClientEntity, _ int) *pb.Client {
-		clientIDs, err := dao.GetClientIDsInShadowByClientID(userInfo, c.ClientID)
+		clientIDs, err := dao.NewQuery(ctx).GetClientIDsInShadowByClientID(userInfo, c.ClientID)
 		if err != nil {
 			logger.Logger(ctx).Errorf("get client ids in shadow by client id error: %v", err)
 		}

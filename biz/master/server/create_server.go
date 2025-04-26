@@ -1,8 +1,7 @@
 package server
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
@@ -11,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func InitServerHandler(c context.Context, req *pb.InitServerRequest) (*pb.InitServerResponse, error) {
+func InitServerHandler(c *app.Context, req *pb.InitServerRequest) (*pb.InitServerResponse, error) {
 	var (
 		userServerID = req.GetServerId()
 		serverIP     = req.GetServerIp()
@@ -30,9 +29,9 @@ func InitServerHandler(c context.Context, req *pb.InitServerRequest) (*pb.InitSe
 		}, nil
 	}
 
-	globalServerID := common.GlobalClientID(userInfo.GetUserName(), "s", userServerID)
+	globalServerID := app.GlobalClientID(userInfo.GetUserName(), "s", userServerID)
 
-	if err := dao.CreateServer(userInfo,
+	if err := dao.NewQuery(c).CreateServer(userInfo,
 		&models.ServerEntity{
 			ServerID:      globalServerID,
 			TenantID:      userInfo.GetTenantID(),

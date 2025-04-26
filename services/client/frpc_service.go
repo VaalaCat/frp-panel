@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/fatedier/frp/client"
@@ -15,27 +16,10 @@ import (
 	"github.com/fatedier/frp/pkg/config/v1/validation"
 	"github.com/fatedier/frp/pkg/util/log"
 	"github.com/samber/lo"
-	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
 )
 
-type ClientHandler interface {
-	Run()
-	Stop()
-	Wait()
-	Running() bool
-	Update([]v1.ProxyConfigurer, []v1.VisitorConfigurer)
-	AddProxy(v1.ProxyConfigurer)
-	AddVisitor(v1.VisitorConfigurer)
-	RemoveProxy(v1.ProxyConfigurer)
-	RemoveVisitor(v1.VisitorConfigurer)
-	GetProxyStatus(string) (*proxy.WorkingStatus, bool)
-	GetCommonCfg() *v1.ClientCommonConfig
-	GetProxyCfgs() map[string]v1.ProxyConfigurer
-	GetVisitorCfgs() map[string]v1.VisitorConfigurer
-}
-
-type Client struct {
+type clientImpl struct {
 	cli         *client.Service
 	Common      *v1.ClientCommonConfig
 	ProxyCfgs   map[string]v1.ProxyConfigurer
@@ -44,31 +28,9 @@ type Client struct {
 	running     bool
 }
 
-var (
-	cli *Client
-)
-
-func InitGlobalClientService(commonCfg *v1.ClientCommonConfig,
-	proxyCfgs []v1.ProxyConfigurer,
-	visitorCfgs []v1.VisitorConfigurer) {
-	ctx := context.Background()
-	if cli != nil {
-		logger.Logger(ctx).Warn("client has been initialized")
-		return
-	}
-	cli = NewClientHandler(commonCfg, proxyCfgs, visitorCfgs)
-}
-
-func GetGlobalClientSerivce() ClientHandler {
-	if cli == nil {
-		logrus.Panic("client has not been initialized")
-	}
-	return cli
-}
-
 func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 	proxyCfgs []v1.ProxyConfigurer,
-	visitorCfgs []v1.VisitorConfigurer) *Client {
+	visitorCfgs []v1.VisitorConfigurer) app.ClientHandler {
 	ctx := context.Background()
 
 	warning, err := validation.ValidateAllClientConfig(commonCfg, proxyCfgs, visitorCfgs)
@@ -89,7 +51,7 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 		logger.Logger(ctx).Panic(err)
 	}
 
-	return &Client{
+	return &clientImpl{
 		cli:         cli,
 		Common:      commonCfg,
 		ProxyCfgs:   lo.SliceToMap(proxyCfgs, utils.TransformProxyConfigurerToMap),
@@ -97,7 +59,7 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 	}
 }
 
-func (c *Client) Run() {
+func (c *clientImpl) Run() {
 	if c.running {
 		logger.Logger(context.Background()).Warn("client is running, skip run")
 		return
@@ -127,29 +89,29 @@ func (c *Client) Run() {
 	wg.Wait()
 }
 
-func (c *Client) Stop() {
+func (c *clientImpl) Stop() {
 	wg := conc.NewWaitGroup()
 	wg.Go(func() { c.cli.Close() })
 	wg.Wait()
 }
 
-func (c *Client) Update(proxyCfgs []v1.ProxyConfigurer, visitorCfgs []v1.VisitorConfigurer) {
+func (c *clientImpl) Update(proxyCfgs []v1.ProxyConfigurer, visitorCfgs []v1.VisitorConfigurer) {
 	c.ProxyCfgs = lo.SliceToMap(proxyCfgs, utils.TransformProxyConfigurerToMap)
 	c.VisitorCfgs = lo.SliceToMap(visitorCfgs, utils.TransformVisitorConfigurerToMap)
 	c.cli.UpdateAllConfigurer(proxyCfgs, visitorCfgs)
 }
 
-func (c *Client) AddProxy(proxyCfg v1.ProxyConfigurer) {
+func (c *clientImpl) AddProxy(proxyCfg v1.ProxyConfigurer) {
 	c.ProxyCfgs[proxyCfg.GetBaseConfig().Name] = proxyCfg
 	c.cli.UpdateAllConfigurer(lo.Values(c.ProxyCfgs), lo.Values(c.VisitorCfgs))
 }
 
-func (c *Client) AddVisitor(visitorCfg v1.VisitorConfigurer) {
+func (c *clientImpl) AddVisitor(visitorCfg v1.VisitorConfigurer) {
 	c.VisitorCfgs[visitorCfg.GetBaseConfig().Name] = visitorCfg
 	c.cli.UpdateAllConfigurer(lo.Values(c.ProxyCfgs), lo.Values(c.VisitorCfgs))
 }
 
-func (c *Client) RemoveProxy(proxyCfg v1.ProxyConfigurer) {
+func (c *clientImpl) RemoveProxy(proxyCfg v1.ProxyConfigurer) {
 	old := c.ProxyCfgs
 	delete(old, proxyCfg.GetBaseConfig().Name)
 
@@ -157,7 +119,7 @@ func (c *Client) RemoveProxy(proxyCfg v1.ProxyConfigurer) {
 	c.cli.UpdateAllConfigurer(lo.Values(c.ProxyCfgs), lo.Values(c.VisitorCfgs))
 }
 
-func (c *Client) RemoveVisitor(visitorCfg v1.VisitorConfigurer) {
+func (c *clientImpl) RemoveVisitor(visitorCfg v1.VisitorConfigurer) {
 	old := c.VisitorCfgs
 	delete(old, visitorCfg.GetBaseConfig().Name)
 
@@ -165,27 +127,27 @@ func (c *Client) RemoveVisitor(visitorCfg v1.VisitorConfigurer) {
 	c.cli.UpdateAllConfigurer(lo.Values(c.ProxyCfgs), lo.Values(c.VisitorCfgs))
 }
 
-func (c *Client) GetProxyStatus(name string) (*proxy.WorkingStatus, bool) {
+func (c *clientImpl) GetProxyStatus(name string) (*proxy.WorkingStatus, bool) {
 	return c.cli.StatusExporter().GetProxyStatus(name)
 }
 
-func (c *Client) GetCommonCfg() *v1.ClientCommonConfig {
+func (c *clientImpl) GetCommonCfg() *v1.ClientCommonConfig {
 	return c.Common
 }
 
-func (c *Client) GetProxyCfgs() map[string]v1.ProxyConfigurer {
+func (c *clientImpl) GetProxyCfgs() map[string]v1.ProxyConfigurer {
 	return c.ProxyCfgs
 }
 
-func (c *Client) GetVisitorCfgs() map[string]v1.VisitorConfigurer {
+func (c *clientImpl) GetVisitorCfgs() map[string]v1.VisitorConfigurer {
 	return c.VisitorCfgs
 }
 
-func (c *Client) Running() bool {
+func (c *clientImpl) Running() bool {
 	return c.running
 }
 
-func (c *Client) Wait() {
+func (c *clientImpl) Wait() {
 	<-c.done
 }
 

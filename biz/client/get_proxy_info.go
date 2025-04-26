@@ -1,23 +1,22 @@
 package client
 
 import (
-	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/tunnel"
 	"github.com/samber/lo"
 )
 
-func GetProxyConfig(c context.Context, req *pb.GetProxyConfigRequest) (*pb.GetProxyConfigResponse, error) {
+func GetProxyConfig(c *app.Context, req *pb.GetProxyConfigRequest) (*pb.GetProxyConfigResponse, error) {
 	var (
 		clientID  = req.GetClientId()
 		serverID  = req.GetServerId()
 		proxyName = req.GetName()
 	)
 
-	ctrl := tunnel.GetClientController()
+	ctrl := c.GetApp().GetClientController()
 	cli := ctrl.Get(clientID, serverID)
 	if cli == nil {
 		logger.Logger(c).Errorf("cannot get client, clientID: [%s], serverID: [%s]", clientID, serverID)

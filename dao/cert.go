@@ -13,12 +13,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func InitCert(template *x509.Certificate) *tls.Config {
+func (q *queryImpl) InitCert(template *x509.Certificate) *tls.Config {
 	var (
 		certPem []byte
 		keyPem  []byte
 	)
-	cnt, err := CountCerts()
+	cnt, err := q.CountCerts()
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func InitCert(template *x509.Certificate) *tls.Config {
 		if err != nil {
 			logrus.Fatal(err)
 		}
-		if err = models.GetDBManager().GetDefaultDB().Create(&models.Cert{
+		if err = q.ctx.GetApp().GetDBManager().GetDefaultDB().Create(&models.Cert{
 			Name:     "default",
 			CertFile: certPem,
 			CaFile:   certPem,
@@ -36,7 +36,7 @@ func InitCert(template *x509.Certificate) *tls.Config {
 			logrus.Fatal(err)
 		}
 	} else {
-		keyPem, certPem, err = GetDefaultKeyPair()
+		keyPem, certPem, err = q.GetDefaultKeyPair()
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -77,8 +77,8 @@ func GenX509Info(template *x509.Certificate) (certPem []byte, keyPem []byte, err
 	return certBuf.Bytes(), keyBuf.Bytes(), nil
 }
 
-func CountCerts() (int64, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) CountCerts() (int64, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Cert{}).Count(&count).Error
 	if err != nil {
@@ -87,9 +87,9 @@ func CountCerts() (int64, error) {
 	return count, nil
 }
 
-func GetDefaultKeyPair() (keyPem []byte, certPem []byte, err error) {
+func (q *queryImpl) GetDefaultKeyPair() (keyPem []byte, certPem []byte, err error) {
 	resp := &models.Cert{}
-	err = models.GetDBManager().GetDefaultDB().Model(&models.Cert{}).
+	err = q.ctx.GetApp().GetDBManager().GetDefaultDB().Model(&models.Cert{}).
 		Where(&models.Cert{Name: "default"}).First(resp).Error
 	if err != nil {
 		return nil, nil, err

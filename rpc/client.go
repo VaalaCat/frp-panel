@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"sync"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -15,7 +15,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-func CallClientWrapper[R common.RespType](c context.Context, clientID string, event pb.Event, req proto.Message, resp *R) error {
+func CallClientWrapper[R common.RespType](c *app.Context, clientID string, event pb.Event, req proto.Message, resp *R) error {
 	cresp, err := CallClient(c, clientID, event, req)
 	if err != nil {
 		return err
@@ -29,8 +29,8 @@ func CallClientWrapper[R common.RespType](c context.Context, clientID string, ev
 	return proto.Unmarshal(cresp.GetData(), protoMsgRef)
 }
 
-func CallClient(c context.Context, clientID string, event pb.Event, msg proto.Message) (*pb.ClientMessage, error) {
-	sender := GetClientsManager().Get(clientID)
+func CallClient(c *app.Context, clientID string, event pb.Event, msg proto.Message) (*pb.ClientMessage, error) {
+	sender := c.GetApp().GetClientsManager().Get(clientID)
 	if sender == nil {
 		logger.Logger(c).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, fmt.Errorf("cannot get client, id: [%s]", clientID)
@@ -49,14 +49,14 @@ func CallClient(c context.Context, clientID string, event pb.Event, msg proto.Me
 		ClientId:  clientID,
 	}
 
-	recvMap.Store(req.SessionId, make(chan *pb.ClientMessage))
+	c.GetApp().GetClientRecvMap().Store(req.SessionId, make(chan *pb.ClientMessage))
 	err = sender.Conn.Send(req)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot send")
-		GetClientsManager().Remove(clientID)
+		c.GetApp().GetClientsManager().Remove(clientID)
 		return nil, err
 	}
-	respChAny, ok := recvMap.Load(req.SessionId)
+	respChAny, ok := c.GetApp().GetClientRecvMap().Load(req.SessionId)
 	if !ok {
 		logrus.Fatalf("cannot load")
 	}
@@ -72,24 +72,16 @@ func CallClient(c context.Context, clientID string, event pb.Event, msg proto.Me
 	}
 
 	close(respCh)
-	recvMap.Delete(req.SessionId)
+	c.GetApp().GetClientRecvMap().Delete(req.SessionId)
 	return resp, nil
 }
 
-var (
-	recvMap *sync.Map
-)
-
-func init() {
-	recvMap = &sync.Map{}
-}
-
-func Recv(clientID string) chan bool {
+func Recv(appInstance app.Application, clientID string) chan bool {
 	done := make(chan bool)
 	go func() {
 		c := context.Background()
 		for {
-			reciver := GetClientsManager().Get(clientID)
+			reciver := appInstance.GetClientsManager().Get(clientID)
 			if reciver == nil {
 				logger.Logger(c).Errorf("cannot get client")
 				continue
@@ -106,7 +98,7 @@ func Recv(clientID string) chan bool {
 				return
 			}
 
-			respChAny, ok := recvMap.Load(resp.SessionId)
+			respChAny, ok := appInstance.GetClientRecvMap().Load(resp.SessionId)
 			if !ok {
 				logger.Logger(c).Errorf("cannot load")
 				continue

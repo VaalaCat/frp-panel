@@ -1,8 +1,7 @@
 package server
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
@@ -10,7 +9,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func ListServersHandler(c context.Context, req *pb.ListServersRequest) (*pb.ListServersResponse, error) {
+func ListServersHandler(c *app.Context, req *pb.ListServersRequest) (*pb.ListServersResponse, error) {
 	var (
 		userInfo     = common.GetUserInfo(c)
 		page         = int(req.GetPage())
@@ -29,18 +28,18 @@ func ListServersHandler(c context.Context, req *pb.ListServersRequest) (*pb.List
 	}
 
 	if hasKeyword {
-		servers, err = dao.ListServersWithKeyword(userInfo, page, pageSize, keyword)
+		servers, err = dao.NewQuery(c).ListServersWithKeyword(userInfo, page, pageSize, keyword)
 	} else {
-		servers, err = dao.ListServers(userInfo, page, pageSize)
+		servers, err = dao.NewQuery(c).ListServers(userInfo, page, pageSize)
 	}
 	if err != nil {
 		return nil, err
 	}
 
 	if hasKeyword {
-		serverCounts, err = dao.CountServersWithKeyword(userInfo, keyword)
+		serverCounts, err = dao.NewQuery(c).CountServersWithKeyword(userInfo, keyword)
 	} else {
-		serverCounts, err = dao.CountServers(userInfo)
+		serverCounts, err = dao.NewQuery(c).CountServers(userInfo)
 	}
 	if err != nil {
 		return nil, err

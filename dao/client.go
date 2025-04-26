@@ -8,11 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func ValidateClientSecret(clientID, clientSecret string) (*models.ClientEntity, error) {
+func (q *queryImpl) ValidateClientSecret(clientID, clientSecret string) (*models.ClientEntity, error) {
 	if clientID == "" || clientSecret == "" {
 		return nil, fmt.Errorf("invalid client id or client secret")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	c := &models.Client{}
 	err := db.
 		Where(&models.Client{ClientEntity: &models.ClientEntity{
@@ -28,11 +28,11 @@ func ValidateClientSecret(clientID, clientSecret string) (*models.ClientEntity, 
 	return c.ClientEntity, nil
 }
 
-func AdminGetClientByClientID(clientID string) (*models.ClientEntity, error) {
+func (q *queryImpl) AdminGetClientByClientID(clientID string) (*models.ClientEntity, error) {
 	if clientID == "" {
 		return nil, fmt.Errorf("invalid client id")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	c := &models.Client{}
 	err := db.
 		Where(&models.Client{ClientEntity: &models.ClientEntity{
@@ -45,11 +45,11 @@ func AdminGetClientByClientID(clientID string) (*models.ClientEntity, error) {
 	return c.ClientEntity, nil
 }
 
-func GetClientByClientID(userInfo models.UserInfo, clientID string) (*models.ClientEntity, error) {
+func (q *queryImpl) GetClientByClientID(userInfo models.UserInfo, clientID string) (*models.ClientEntity, error) {
 	if clientID == "" {
 		return nil, fmt.Errorf("invalid client id")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	c := &models.Client{}
 	err := db.
 		Where(&models.Client{ClientEntity: &models.ClientEntity{
@@ -64,8 +64,8 @@ func GetClientByClientID(userInfo models.UserInfo, clientID string) (*models.Cli
 	return c.ClientEntity, nil
 }
 
-func GetClientByFilter(userInfo models.UserInfo, client *models.ClientEntity, shadow *bool) (*models.ClientEntity, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) GetClientByFilter(userInfo models.UserInfo, client *models.ClientEntity, shadow *bool) (*models.ClientEntity, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	filter := &models.ClientEntity{}
 	if len(client.ClientID) != 0 {
 		filter.ClientID = client.ClientID
@@ -97,11 +97,11 @@ func GetClientByFilter(userInfo models.UserInfo, client *models.ClientEntity, sh
 	return c.ClientEntity, nil
 }
 
-func GetClientByOriginClientID(originClientID string) (*models.ClientEntity, error) {
+func (q *queryImpl) GetClientByOriginClientID(originClientID string) (*models.ClientEntity, error) {
 	if originClientID == "" {
 		return nil, fmt.Errorf("invalid origin client id")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	c := &models.Client{}
 	err := db.
 		Where(&models.Client{ClientEntity: &models.ClientEntity{
@@ -114,21 +114,21 @@ func GetClientByOriginClientID(originClientID string) (*models.ClientEntity, err
 	return c.ClientEntity, nil
 }
 
-func CreateClient(userInfo models.UserInfo, client *models.ClientEntity) error {
+func (q *queryImpl) CreateClient(userInfo models.UserInfo, client *models.ClientEntity) error {
 	client.UserID = userInfo.GetUserID()
 	client.TenantID = userInfo.GetTenantID()
 	c := &models.Client{
 		ClientEntity: client,
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Create(c).Error
 }
 
-func DeleteClient(userInfo models.UserInfo, clientID string) error {
+func (q *queryImpl) DeleteClient(userInfo models.UserInfo, clientID string) error {
 	if clientID == "" {
 		return fmt.Errorf("invalid client id")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().Where(&models.Client{
 		ClientEntity: &models.ClientEntity{
 			ClientID: clientID,
@@ -144,11 +144,11 @@ func DeleteClient(userInfo models.UserInfo, clientID string) error {
 	}).Delete(&models.Client{}).Error
 }
 
-func UpdateClient(userInfo models.UserInfo, client *models.ClientEntity) error {
+func (q *queryImpl) UpdateClient(userInfo models.UserInfo, client *models.ClientEntity) error {
 	c := &models.Client{
 		ClientEntity: client,
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Where(&models.Client{
 		ClientEntity: &models.ClientEntity{
 			UserID:   userInfo.GetUserID(),
@@ -157,12 +157,12 @@ func UpdateClient(userInfo models.UserInfo, client *models.ClientEntity) error {
 	}).Save(c).Error
 }
 
-func ListClients(userInfo models.UserInfo, page, pageSize int) ([]*models.ClientEntity, error) {
+func (q *queryImpl) ListClients(userInfo models.UserInfo, page, pageSize int) ([]*models.ClientEntity, error) {
 	if page < 1 || pageSize < 1 {
 		return nil, fmt.Errorf("invalid page or page size")
 	}
 
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	offset := (page - 1) * pageSize
 
 	var clients []*models.Client
@@ -188,14 +188,14 @@ func ListClients(userInfo models.UserInfo, page, pageSize int) ([]*models.Client
 	}), nil
 }
 
-func ListClientsWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ClientEntity, error) {
+func (q *queryImpl) ListClientsWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ClientEntity, error) {
 	// 只获取没shadow且config有东西
 	// 或isShadow的client
 	if page < 1 || pageSize < 1 || len(keyword) == 0 {
 		return nil, fmt.Errorf("invalid page or page size or keyword")
 	}
 
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	offset := (page - 1) * pageSize
 
 	var clients []*models.Client
@@ -215,8 +215,8 @@ func ListClientsWithKeyword(userInfo models.UserInfo, page, pageSize int, keywor
 	}), nil
 }
 
-func GetAllClients(userInfo models.UserInfo) ([]*models.ClientEntity, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) GetAllClients(userInfo models.UserInfo) ([]*models.ClientEntity, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var clients []*models.Client
 	err := db.Where(&models.Client{
 		ClientEntity: &models.ClientEntity{
@@ -233,8 +233,8 @@ func GetAllClients(userInfo models.UserInfo) ([]*models.ClientEntity, error) {
 	}), nil
 }
 
-func CountClients(userInfo models.UserInfo) (int64, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) CountClients(userInfo models.UserInfo) (int64, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Client{}).Where(&models.Client{
 		ClientEntity: &models.ClientEntity{
@@ -249,8 +249,8 @@ func CountClients(userInfo models.UserInfo) (int64, error) {
 	return count, nil
 }
 
-func CountClientsWithKeyword(userInfo models.UserInfo, keyword string) (int64, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) CountClientsWithKeyword(userInfo models.UserInfo, keyword string) (int64, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Client{}).Where(&models.Client{
 		ClientEntity: &models.ClientEntity{
@@ -265,8 +265,8 @@ func CountClientsWithKeyword(userInfo models.UserInfo, keyword string) (int64, e
 	return count, nil
 }
 
-func CountConfiguredClients(userInfo models.UserInfo) (int64, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) CountConfiguredClients(userInfo models.UserInfo) (int64, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Client{}).
 		Where(&models.Client{
@@ -282,8 +282,8 @@ func CountConfiguredClients(userInfo models.UserInfo) (int64, error) {
 	return count, nil
 }
 
-func CountClientsInShadow(userInfo models.UserInfo, clientID string) (int64, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) CountClientsInShadow(userInfo models.UserInfo, clientID string) (int64, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Client{}).
 		Where(&models.Client{
@@ -299,8 +299,8 @@ func CountClientsInShadow(userInfo models.UserInfo, clientID string) (int64, err
 	return count, nil
 }
 
-func GetClientIDsInShadowByClientID(userInfo models.UserInfo, clientID string) ([]string, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) GetClientIDsInShadowByClientID(userInfo models.UserInfo, clientID string) ([]string, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var clients []*models.Client
 	err := db.Where(&models.Client{
 		ClientEntity: &models.ClientEntity{
@@ -316,8 +316,8 @@ func GetClientIDsInShadowByClientID(userInfo models.UserInfo, clientID string) (
 	}), nil
 }
 
-func AdminGetClientIDsInShadowByClientID(clientID string) ([]string, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) AdminGetClientIDsInShadowByClientID(clientID string) ([]string, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var clients []*models.Client
 	err := db.Where(&models.Client{
 		ClientEntity: &models.ClientEntity{

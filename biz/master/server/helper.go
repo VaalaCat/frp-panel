@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
 )
@@ -12,7 +13,7 @@ type ValidateableServerRequest interface {
 	GetServerId() string
 }
 
-func ValidateServerRequest(req ValidateableServerRequest) (*models.ServerEntity, error) {
+func ValidateServerRequest(ctx *app.Context, req ValidateableServerRequest) (*models.ServerEntity, error) {
 	if req == nil {
 		return nil, fmt.Errorf("invalid request")
 	}
@@ -26,7 +27,7 @@ func ValidateServerRequest(req ValidateableServerRequest) (*models.ServerEntity,
 		err error
 	)
 
-	if cli, err = dao.ValidateServerSecret(req.GetServerId(), req.GetServerSecret()); err != nil {
+	if cli, err = dao.NewQuery(ctx).ValidateServerSecret(req.GetServerId(), req.GetServerSecret()); err != nil {
 		return nil, err
 	}
 

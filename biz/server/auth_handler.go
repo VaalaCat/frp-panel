@@ -3,17 +3,17 @@ package server
 import (
 	"net/http"
 
-	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/app"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
 	plugin "github.com/fatedier/frp/pkg/plugin/server"
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter() *gin.Engine {
+func NewRouter(appInstance app.Application) *gin.Engine {
 	router := gin.Default()
-	router.POST("/auth", MakeGinHandlerFunc(HandleLogin))
+	router.POST("/auth", MakeGinHandlerFunc(appInstance, HandleLogin))
 	return router
 }
 
@@ -30,11 +30,11 @@ func (e *HTTPError) Error() string {
 	return e.Err.Error()
 }
 
-type HandlerFunc func(ctx *gin.Context) (interface{}, error)
+type HandlerFunc func(ctx *app.Context) (interface{}, error)
 
-func MakeGinHandlerFunc(handler HandlerFunc) gin.HandlerFunc {
+func MakeGinHandlerFunc(appInstance app.Application, handler HandlerFunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		res, err := handler(ctx)
+		res, err := handler(app.NewContext(ctx, appInstance))
 		if err != nil {
 			logger.Logger(ctx).Infof("handle %s error: %v", ctx.Request.URL.Path, err)
 			switch e := err.(type) {
@@ -49,11 +49,11 @@ func MakeGinHandlerFunc(handler HandlerFunc) gin.HandlerFunc {
 	}
 }
 
-func HandleLogin(ctx *gin.Context) (interface{}, error) {
+func HandleLogin(ctx *app.Context) (interface{}, error) {
 	var r plugin.Request
 	var content plugin.LoginContent
 	r.Content = &content
-	if err := ctx.BindJSON(&r); err != nil {
+	if err := ctx.GetGinCtx().BindJSON(&r); err != nil {
 		return nil, &HTTPError{
 			Code: http.StatusBadRequest,
 			Err:  err,
@@ -61,19 +61,13 @@ func HandleLogin(ctx *gin.Context) (interface{}, error) {
 	}
 
 	var res plugin.Response
-	token := content.Metas[common.FRPAuthTokenKey]
+	token := content.Metas[defs.FRPAuthTokenKey]
 	if len(content.User) == 0 || len(token) == 0 {
 		res.Reject = true
 		res.RejectReason = "user or meta token can not be empty"
 		return res, nil
 	}
-	cli, err := rpc.MasterCli(ctx)
-	if err != nil {
-		res.Reject = true
-		res.RejectReason = "cannot connect to master, please check master is running"
-		return res, nil
-	}
-
+	cli := ctx.GetApp().GetMasterCli()
 	authResponse, err := cli.FRPCAuth(ctx, &pb.FRPAuthRequest{User: content.User, Token: token})
 	if err != nil {
 		res.Reject = true

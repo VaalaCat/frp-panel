@@ -1,10 +1,10 @@
 package proxy
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
@@ -18,7 +18,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateProxyConfig(c context.Context, req *pb.CreateProxyConfigRequest) (*pb.CreateProxyConfigResponse, error) {
+func CreateProxyConfig(c *app.Context, req *pb.CreateProxyConfigRequest) (*pb.CreateProxyConfigResponse, error) {
 
 	if len(req.GetClientId()) == 0 || len(req.GetServerId()) == 0 || len(req.GetConfig()) == 0 {
 		return nil, fmt.Errorf("request invalid")
@@ -33,9 +33,9 @@ func CreateProxyConfig(c context.Context, req *pb.CreateProxyConfigRequest) (*pb
 	// 1. 检查是否有已连接该服务端的客户端
 	// 2. 检查是否有Shadow客户端
 	// 3. 如果没有，则新建Shadow客户端和子客户端
-	clientEntity, err := dao.GetClientByFilter(userInfo, &models.ClientEntity{OriginClientID: clientID, ServerID: serverID}, lo.ToPtr(false))
+	clientEntity, err := dao.NewQuery(c).GetClientByFilter(userInfo, &models.ClientEntity{OriginClientID: clientID, ServerID: serverID}, lo.ToPtr(false))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		clientEntity, err = dao.GetClientByFilter(userInfo, &models.ClientEntity{ClientID: clientID}, nil)
+		clientEntity, err = dao.NewQuery(c).GetClientByFilter(userInfo, &models.ClientEntity{ClientID: clientID}, nil)
 		if err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 			return nil, err
@@ -61,7 +61,7 @@ func CreateProxyConfig(c context.Context, req *pb.CreateProxyConfigRequest) (*pb
 		return nil, err
 	}
 
-	_, err = dao.GetServerByServerID(userInfo, serverID)
+	_, err = dao.NewQuery(c).GetServerByServerID(userInfo, serverID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get server, id: [%s]", serverID)
 		return nil, err
@@ -90,7 +90,7 @@ func CreateProxyConfig(c context.Context, req *pb.CreateProxyConfigRequest) (*pb
 	}
 
 	var existedProxyCfg *models.ProxyConfig
-	existedProxyCfg, err = dao.GetProxyConfigByOriginClientIDAndName(userInfo, clientID, proxyCfg.Name)
+	existedProxyCfg, err = dao.NewQuery(c).GetProxyConfigByOriginClientIDAndName(userInfo, clientID, proxyCfg.Name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		logger.Logger(c).WithError(err).Errorf("cannot get proxy config, id: [%s]", clientID)
 		return nil, err

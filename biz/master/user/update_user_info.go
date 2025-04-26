@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
@@ -12,7 +13,7 @@ import (
 	"github.com/VaalaCat/frp-panel/utils"
 )
 
-func UpdateUserInfoHander(c context.Context, req *pb.UpdateUserInfoRequest) (*pb.UpdateUserInfoResponse, error) {
+func UpdateUserInfoHander(c *app.Context, req *pb.UpdateUserInfoRequest) (*pb.UpdateUserInfoResponse, error) {
 	var (
 		userInfo = common.GetUserInfo(c)
 	)
@@ -46,14 +47,14 @@ func UpdateUserInfoHander(c context.Context, req *pb.UpdateUserInfoRequest) (*pb
 		newUserEntity.Token = newUserInfo.GetToken()
 	}
 
-	if err := dao.UpdateUser(userInfo, newUserEntity); err != nil {
+	if err := dao.NewQuery(c).UpdateUser(userInfo, newUserEntity); err != nil {
 		return &pb.UpdateUserInfoResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
 		}, err
 	}
 
 	go func() {
-		newUser, err := dao.GetUserByUserID(userInfo.GetUserID())
+		newUser, err := dao.NewQuery(app.NewContext(context.Background(), c.GetApp())).GetUserByUserID(userInfo.GetUserID())
 		if err != nil {
 			logger.Logger(context.Background()).WithError(err).Errorf("cannot get user")
 			return

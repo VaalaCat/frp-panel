@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -11,7 +12,7 @@ import (
 )
 
 // GetProxyStatsByClientID get proxy info by client id
-func GetProxyStatsByClientID(c context.Context, req *pb.GetProxyStatsByClientIDRequest) (*pb.GetProxyStatsByClientIDResponse, error) {
+func GetProxyStatsByClientID(c *app.Context, req *pb.GetProxyStatsByClientIDRequest) (*pb.GetProxyStatsByClientIDResponse, error) {
 	logger.Logger(c).Infof("get proxy by client id, req: [%+v]", req)
 	var (
 		clientID = req.GetClientId()
@@ -22,7 +23,7 @@ func GetProxyStatsByClientID(c context.Context, req *pb.GetProxyStatsByClientIDR
 		return nil, fmt.Errorf("request invalid")
 	}
 
-	proxyStatsList, err := dao.GetProxyStatsByClientID(userInfo, clientID)
+	proxyStatsList, err := dao.NewQuery(c).GetProxyStatsByClientID(userInfo, clientID)
 	if proxyStatsList == nil || err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot get proxy, client id: [%s]", clientID)
 		return nil, err

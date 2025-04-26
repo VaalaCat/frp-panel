@@ -48,16 +48,6 @@ func (dbm *dbManagerImpl) Init() {
 	}
 }
 
-var (
-	dbm *dbManagerImpl
-)
-
-func MustInitDBManager(dbs map[string]*gorm.DB, defaultDBType string) {
-	if dbm == nil {
-		dbm = NewDBManager(dbs, defaultDBType)
-	}
-}
-
 func NewDBManager(dbs map[string]*gorm.DB, defaultDBType string) *dbManagerImpl {
 	if dbs == nil {
 		dbs = make(map[string]*gorm.DB)
@@ -66,13 +56,6 @@ func NewDBManager(dbs map[string]*gorm.DB, defaultDBType string) *dbManagerImpl 
 		DBs:           dbs,
 		defaultDBType: defaultDBType,
 	}
-}
-
-func GetDBManager() DBManager {
-	if dbm == nil {
-		dbm = NewDBManager(nil, "")
-	}
-	return dbm
 }
 
 func (dbm *dbManagerImpl) GetDB(dbType string) *gorm.DB {

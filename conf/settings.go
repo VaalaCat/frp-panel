@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/credentials"
 )
 
 type Config struct {
@@ -57,17 +56,7 @@ type Config struct {
 	IsDebug bool `env:"IS_DEBUG" env-default:"false" env-description:"is debug mode"`
 }
 
-var (
-	config     *Config
-	ClientCred credentials.TransportCredentials
-	Version    string
-)
-
-func Get() *Config {
-	return config
-}
-
-func InitConfig() {
+func NewConfig() Config {
 	var (
 		err        error
 		useEnvFile bool
@@ -76,8 +65,8 @@ func InitConfig() {
 
 	// 越前面优先级越高，后面的不会覆盖前面的
 	envFiles := []string{
-		common.CurEnvPath,
-		common.SysEnvPath,
+		defs.CurEnvPath,
+		defs.SysEnvPath,
 	}
 
 	for _, envFile := range envFiles {
@@ -97,7 +86,7 @@ func InitConfig() {
 	}
 	cfg.Complete()
 
-	config = &cfg
+	return cfg
 }
 
 func (cfg *Config) Complete() {

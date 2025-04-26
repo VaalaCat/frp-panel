@@ -1,20 +1,19 @@
 package auth
 
 import (
-	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/middleware"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/gin-gonic/gin"
 )
 
-func LoginHandler(c context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+func LoginHandler(ctx *app.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	username := req.GetUsername()
 	password := req.GetPassword()
-	ok, user, err := dao.CheckUserPassword(username, password)
+	ok, user, err := dao.NewQuery(ctx).CheckUserPassword(username, password)
 	if err != nil {
 		return nil, err
 	}
@@ -25,10 +24,10 @@ func LoginHandler(c context.Context, req *pb.LoginRequest) (*pb.LoginResponse, e
 		}, nil
 	}
 
-	tokenStr := conf.GetCommonJWT(fmt.Sprint(user.GetUserID()))
+	tokenStr := conf.GetCommonJWT(ctx.GetApp().GetConfig(), fmt.Sprint(user.GetUserID()))
 
-	ginCtx := c.(*gin.Context)
-	middleware.PushTokenStr(ginCtx, tokenStr)
+	ginCtx := ctx.GetGinCtx()
+	middleware.PushTokenStr(ginCtx, ctx.GetApp(), tokenStr)
 
 	return &pb.LoginResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},

@@ -1,15 +1,14 @@
 package server
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/samber/lo"
 )
 
-func GetServerHandler(c context.Context, req *pb.GetServerRequest) (*pb.GetServerResponse, error) {
+func GetServerHandler(c *app.Context, req *pb.GetServerRequest) (*pb.GetServerResponse, error) {
 	var (
 		userServerID = req.GetServerId()
 		userInfo     = common.GetUserInfo(c)
@@ -27,7 +26,7 @@ func GetServerHandler(c context.Context, req *pb.GetServerRequest) (*pb.GetServe
 		}, nil
 	}
 
-	serverEntity, err := dao.GetServerByServerID(userInfo, userServerID)
+	serverEntity, err := dao.NewQuery(c).GetServerByServerID(userInfo, userServerID)
 	if err != nil {
 		return nil, err
 	}

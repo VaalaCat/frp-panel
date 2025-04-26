@@ -1,22 +1,21 @@
 package server
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 )
 
-func PushProxyInfo(ctx context.Context, req *pb.PushProxyInfoReq) (*pb.PushProxyInfoResp, error) {
+func PushProxyInfo(ctx *app.Context, req *pb.PushProxyInfoReq) (*pb.PushProxyInfoResp, error) {
 	var srv *models.ServerEntity
 	var err error
 
-	if srv, err = ValidateServerRequest(req.GetBase()); err != nil {
+	if srv, err = ValidateServerRequest(ctx, req.GetBase()); err != nil {
 		return nil, err
 	}
 
-	if err = dao.AdminUpdateProxyStats(srv, req.GetProxyInfos()); err != nil {
+	if err = dao.NewQuery(ctx).AdminUpdateProxyStats(srv, req.GetProxyInfos()); err != nil {
 		return nil, err
 	}
 	return &pb.PushProxyInfoResp{

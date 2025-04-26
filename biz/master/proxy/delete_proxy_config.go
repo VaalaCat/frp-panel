@@ -1,9 +1,9 @@
 package proxy
 
 import (
-	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
@@ -13,7 +13,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func DeleteProxyConfig(c context.Context, req *pb.DeleteProxyConfigRequest) (*pb.DeleteProxyConfigResponse, error) {
+func DeleteProxyConfig(c *app.Context, req *pb.DeleteProxyConfigRequest) (*pb.DeleteProxyConfigResponse, error) {
 	var (
 		userInfo  = common.GetUserInfo(c)
 		clientID  = req.GetClientId()
@@ -25,7 +25,7 @@ func DeleteProxyConfig(c context.Context, req *pb.DeleteProxyConfigRequest) (*pb
 		return nil, fmt.Errorf("request invalid")
 	}
 
-	cli, err := dao.GetClientByClientID(userInfo, clientID)
+	cli, err := dao.NewQuery(c).GetClientByClientID(userInfo, clientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, err
@@ -49,7 +49,7 @@ func DeleteProxyConfig(c context.Context, req *pb.DeleteProxyConfigRequest) (*pb
 		return nil, err
 	}
 
-	if err := dao.UpdateClient(userInfo, cli); err != nil {
+	if err := dao.NewQuery(c).UpdateClient(userInfo, cli); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot update client, id: [%s]", clientID)
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func DeleteProxyConfig(c context.Context, req *pb.DeleteProxyConfigRequest) (*pb
 		return nil, err
 	}
 
-	if err := dao.DeleteProxyConfig(userInfo, clientID, proxyName); err != nil {
+	if err := dao.NewQuery(c).DeleteProxyConfig(userInfo, clientID, proxyName); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot delete proxy config, id: [%s]", clientID)
 		return nil, err
 	}

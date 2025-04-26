@@ -1,15 +1,15 @@
 package user
 
 import (
-	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/samber/lo"
 )
 
-func GetUserInfoHandler(c context.Context, req *pb.GetUserInfoRequest) (*pb.GetUserInfoResponse, error) {
+func GetUserInfoHandler(c *app.Context, req *pb.GetUserInfoRequest) (*pb.GetUserInfoResponse, error) {
 	userInfo := common.GetUserInfo(c)
 	return &pb.GetUserInfoResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -12,7 +13,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.GetClientsStatusResponse, error) {
+func GetClientsStatus(c *app.Context, req *pb.GetClientsStatusRequest) (*pb.GetClientsStatusResponse, error) {
 	userInfo := common.GetUserInfo(c)
 	if !userInfo.Valid() || req == nil || len(req.GetClientIds()) == 0 || req.GetClientType() == pb.ClientType_CLIENT_TYPE_UNSPECIFIED {
 		return &pb.GetClientsStatusResponse{
@@ -26,7 +27,7 @@ func GetClientsStatus(c context.Context, req *pb.GetClientsStatusRequest) (*pb.G
 	)
 
 	for _, clientID := range clientIDs {
-		mgr := rpc.GetClientsManager()
+		mgr := c.GetApp().GetClientsManager()
 		conn := mgr.Get(clientID)
 		if conn == nil {
 			resps[clientID] = &pb.ClientStatus{

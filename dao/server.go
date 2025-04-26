@@ -3,33 +3,33 @@ package dao
 import (
 	"fmt"
 
-	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
-func InitDefaultServer(serverIP string) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) InitDefaultServer(serverIP string) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	db.Where(&models.Server{
 		ServerEntity: &models.ServerEntity{
-			ServerID: common.DefaultServerID,
+			ServerID: defs.DefaultServerID,
 		},
 	}).Attrs(&models.Server{
 		ServerEntity: &models.ServerEntity{
-			ServerID:      common.DefaultServerID,
+			ServerID:      defs.DefaultServerID,
 			ServerIP:      serverIP,
 			ConnectSecret: uuid.New().String(),
 		},
 	}).FirstOrCreate(&models.Server{})
 }
 
-func GetDefaultServer() (*models.ServerEntity, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) GetDefaultServer() (*models.ServerEntity, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	c := &models.Server{}
 	err := db.
 		Where(&models.Server{ServerEntity: &models.ServerEntity{
-			ServerID: common.DefaultServerID,
+			ServerID: defs.DefaultServerID,
 		}}).
 		First(c).Error
 	if err != nil {
@@ -38,12 +38,12 @@ func GetDefaultServer() (*models.ServerEntity, error) {
 	return c.ServerEntity, nil
 }
 
-func UpdateDefaultServer(c *models.Server) error {
-	db := models.GetDBManager().GetDefaultDB()
-	c.ServerID = common.DefaultServerID
+func (q *queryImpl) UpdateDefaultServer(c *models.Server) error {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	c.ServerID = defs.DefaultServerID
 	err := db.Where(&models.Server{
 		ServerEntity: &models.ServerEntity{
-			ServerID: common.DefaultServerID,
+			ServerID: defs.DefaultServerID,
 		}}).Save(c).Error
 	if err != nil {
 		return err
@@ -51,11 +51,11 @@ func UpdateDefaultServer(c *models.Server) error {
 	return nil
 }
 
-func ValidateServerSecret(serverID string, secret string) (*models.ServerEntity, error) {
+func (q *queryImpl) ValidateServerSecret(serverID string, secret string) (*models.ServerEntity, error) {
 	if serverID == "" || secret == "" {
 		return nil, fmt.Errorf("invalid request")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	c := &models.Server{}
 	err := db.
 		Where(&models.Server{ServerEntity: &models.ServerEntity{
@@ -71,11 +71,11 @@ func ValidateServerSecret(serverID string, secret string) (*models.ServerEntity,
 	return c.ServerEntity, nil
 }
 
-func AdminGetServerByServerID(serverID string) (*models.ServerEntity, error) {
+func (q *queryImpl) AdminGetServerByServerID(serverID string) (*models.ServerEntity, error) {
 	if serverID == "" {
 		return nil, fmt.Errorf("invalid server id")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	c := &models.Server{}
 	err := db.
 		Where(&models.Server{ServerEntity: &models.ServerEntity{
@@ -88,14 +88,14 @@ func AdminGetServerByServerID(serverID string) (*models.ServerEntity, error) {
 	return c.ServerEntity, nil
 }
 
-func GetServerByServerID(userInfo models.UserInfo, serverID string) (*models.ServerEntity, error) {
+func (q *queryImpl) GetServerByServerID(userInfo models.UserInfo, serverID string) (*models.ServerEntity, error) {
 	if serverID == "" {
 		return nil, fmt.Errorf("invalid server id")
 	}
-	if userInfo.GetUserID() == common.DefaultAdminUserID && serverID == common.DefaultServerID {
-		return GetDefaultServer()
+	if userInfo.GetUserID() == defs.DefaultAdminUserID && serverID == defs.DefaultServerID {
+		return q.GetDefaultServer()
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	c := &models.Server{}
 	err := db.
 		Where(&models.Server{ServerEntity: &models.ServerEntity{
@@ -110,21 +110,21 @@ func GetServerByServerID(userInfo models.UserInfo, serverID string) (*models.Ser
 	return c.ServerEntity, nil
 }
 
-func CreateServer(userInfo models.UserInfo, server *models.ServerEntity) error {
+func (q *queryImpl) CreateServer(userInfo models.UserInfo, server *models.ServerEntity) error {
 	server.UserID = userInfo.GetUserID()
 	server.TenantID = userInfo.GetTenantID()
 	c := &models.Server{
 		ServerEntity: server,
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Create(c).Error
 }
 
-func DeleteServer(userInfo models.UserInfo, serverID string) error {
+func (q *queryImpl) DeleteServer(userInfo models.UserInfo, serverID string) error {
 	if serverID == "" {
 		return fmt.Errorf("invalid server id")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().Where(
 		&models.Server{
 			ServerEntity: &models.ServerEntity{
@@ -139,14 +139,14 @@ func DeleteServer(userInfo models.UserInfo, serverID string) error {
 	}).Error
 }
 
-func UpdateServer(userInfo models.UserInfo, server *models.ServerEntity) error {
+func (q *queryImpl) UpdateServer(userInfo models.UserInfo, server *models.ServerEntity) error {
 	c := &models.Server{
 		ServerEntity: server,
 	}
-	if userInfo.GetUserID() == common.DefaultAdminUserID && server.ServerID == common.DefaultServerID {
-		return UpdateDefaultServer(c)
+	if userInfo.GetUserID() == defs.DefaultAdminUserID && server.ServerID == defs.DefaultServerID {
+		return q.UpdateDefaultServer(c)
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Where(
 		&models.Server{
 			ServerEntity: &models.ServerEntity{
@@ -157,12 +157,12 @@ func UpdateServer(userInfo models.UserInfo, server *models.ServerEntity) error {
 	).Save(c).Error
 }
 
-func ListServers(userInfo models.UserInfo, page, pageSize int) ([]*models.ServerEntity, error) {
+func (q *queryImpl) ListServers(userInfo models.UserInfo, page, pageSize int) ([]*models.ServerEntity, error) {
 	if page < 1 || pageSize < 1 {
 		return nil, fmt.Errorf("invalid page or page size")
 	}
 
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	offset := (page - 1) * pageSize
 
 	var servers []*models.Server
@@ -175,7 +175,7 @@ func ListServers(userInfo models.UserInfo, page, pageSize int) ([]*models.Server
 		},
 	).Or(&models.Server{
 		ServerEntity: &models.ServerEntity{
-			ServerID: common.DefaultServerID,
+			ServerID: defs.DefaultServerID,
 		},
 	}).Offset(offset).Limit(pageSize).Find(&servers).Error
 	if err != nil {
@@ -187,12 +187,12 @@ func ListServers(userInfo models.UserInfo, page, pageSize int) ([]*models.Server
 	}), nil
 }
 
-func ListServersWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ServerEntity, error) {
+func (q *queryImpl) ListServersWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ServerEntity, error) {
 	if page < 1 || pageSize < 1 || len(keyword) == 0 {
 		return nil, fmt.Errorf("invalid page or page size or keyword")
 	}
 
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	offset := (page - 1) * pageSize
 
 	var servers []*models.Server
@@ -214,8 +214,8 @@ func ListServersWithKeyword(userInfo models.UserInfo, page, pageSize int, keywor
 	}), nil
 }
 
-func CountServers(userInfo models.UserInfo) (int64, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) CountServers(userInfo models.UserInfo) (int64, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Server{}).Where(
 		&models.Server{
@@ -231,8 +231,8 @@ func CountServers(userInfo models.UserInfo) (int64, error) {
 	return count, nil
 }
 
-func CountServersWithKeyword(userInfo models.UserInfo, keyword string) (int64, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) CountServersWithKeyword(userInfo models.UserInfo, keyword string) (int64, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Server{}).Where(
 		&models.Server{
@@ -248,8 +248,8 @@ func CountServersWithKeyword(userInfo models.UserInfo, keyword string) (int64, e
 	return count, nil
 }
 
-func CountConfiguredServers(userInfo models.UserInfo) (int64, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) CountConfiguredServers(userInfo models.UserInfo) (int64, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Server{}).Where(
 		&models.Server{

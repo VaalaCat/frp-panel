@@ -10,15 +10,14 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/utils"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 )
 
-func MasterDefaultSalt() string {
+func MasterDefaultSalt(cfg Config) string {
 	ctx := context.Background()
-	cfg := Get()
 	if cfg.Master.CompatibleMode {
 		logger.Logger(ctx).Warnf("master compatible mode enabled, use frp as default salt, which is not recommended")
 		return "frp"
@@ -29,41 +28,34 @@ func MasterDefaultSalt() string {
 		cfg.App.GlobalSecret))
 }
 
-func RPCListenAddr() string {
-	cfg := Get()
+func RPCListenAddr(cfg Config) string {
 	return fmt.Sprintf(":%d", cfg.Master.RPCPort)
 }
 
-func rpcCallAddr() string {
-	cfg := Get()
+func rpcCallAddr(cfg Config) string {
 	return fmt.Sprintf("%s:%d", cfg.Master.RPCHost, cfg.Master.RPCPort)
 }
 
-func InternalFRPServerToken() string {
-	cfg := Get()
+func InternalFRPServerToken(cfg Config) string {
 	return utils.MD5(fmt.Sprintf("%s:%d:%s",
 		cfg.Master.InternalFRPServerHost,
 		cfg.Master.InternalFRPServerPort,
 		cfg.App.GlobalSecret))
 }
 
-func JWTSecret() string {
-	cfg := Get()
+func JWTSecret(cfg Config) string {
 	return utils.SHA1(fmt.Sprintf("%s:%d:%s", cfg.Master.APIHost, cfg.Master.APIPort, cfg.App.GlobalSecret))
 }
 
-func MasterAPIListenAddr() string {
-	cfg := Get()
+func MasterAPIListenAddr(cfg Config) string {
 	return fmt.Sprintf(":%d", cfg.Master.APIPort)
 }
 
-func ServerAPIListenAddr() string {
-	cfg := Get()
+func ServerAPIListenAddr(cfg Config) string {
 	return fmt.Sprintf(":%d", cfg.Server.APIPort)
 }
 
-func FRPsAuthOption(isDefault bool) v1.HTTPPluginOptions {
-	cfg := Get()
+func FRPsAuthOption(cfg Config, isDefault bool) v1.HTTPPluginOptions {
 	var port int
 	if isDefault {
 		port = cfg.Master.APIPort
@@ -85,24 +77,23 @@ func FRPsAuthOption(isDefault bool) v1.HTTPPluginOptions {
 	}
 }
 
-func GetCommonJWT(uid string) string {
-	token, _ := utils.GetJwtTokenFromMap(JWTSecret(),
+func GetCommonJWT(cfg Config, uid string) string {
+	token, _ := utils.GetJwtTokenFromMap(JWTSecret(cfg),
 		time.Now().Unix(),
-		int64(Get().App.CookieAge),
-		map[string]string{common.UserIDKey: uid})
+		int64(cfg.App.CookieAge),
+		map[string]string{defs.UserIDKey: uid})
 	return token
 }
 
-func GetCommonJWTWithExpireTime(uid string, expSec int) string {
-	token, _ := utils.GetJwtTokenFromMap(JWTSecret(),
+func GetCommonJWTWithExpireTime(cfg Config, uid string, expSec int) string {
+	token, _ := utils.GetJwtTokenFromMap(JWTSecret(cfg),
 		time.Now().Unix(),
 		int64(expSec),
-		map[string]string{common.UserIDKey: uid})
+		map[string]string{defs.UserIDKey: uid})
 	return token
 }
 
-func GetAPIURL() string {
-	cfg := Get()
+func GetAPIURL(cfg Config) string {
 
 	if len(cfg.Client.APIUrl) != 0 {
 		return cfg.Client.APIUrl
@@ -111,8 +102,7 @@ func GetAPIURL() string {
 	return fmt.Sprintf("%s://%s:%d", cfg.Master.APIScheme, cfg.Master.APIHost, cfg.Master.APIPort)
 }
 
-func GetCertTemplate() *x509.Certificate {
-	cfg := Get()
+func GetCertTemplate(cfg Config) *x509.Certificate {
 	now := time.Now()
 	return &x509.Certificate{
 		SerialNumber: big.NewInt(now.Unix()),
@@ -143,12 +133,12 @@ type LisOpt struct {
 	RunAPI bool
 }
 
-func GetListener(c context.Context) LisOpt {
-	runAPI := RPCListenAddr() != MasterAPIListenAddr()
+func GetListener(c context.Context, cfg Config) LisOpt {
+	runAPI := RPCListenAddr(cfg) != MasterAPIListenAddr(cfg)
 
-	muxLis, err := net.Listen("tcp", RPCListenAddr())
+	muxLis, err := net.Listen("tcp", RPCListenAddr(cfg))
 	if err != nil {
-		logger.Logger(c).WithError(err).Fatalf("failed to listen: %v", RPCListenAddr())
+		logger.Logger(c).WithError(err).Fatalf("failed to listen: %v", RPCListenAddr(cfg))
 	}
 
 	opt := LisOpt{
@@ -157,9 +147,9 @@ func GetListener(c context.Context) LisOpt {
 	}
 
 	if runAPI {
-		apiLis, err := net.Listen("tcp", MasterAPIListenAddr())
+		apiLis, err := net.Listen("tcp", MasterAPIListenAddr(cfg))
 		if err != nil {
-			logger.Logger(c).WithError(err).Warnf("failed to listen: %v, but mux server can handle http api", MasterAPIListenAddr())
+			logger.Logger(c).WithError(err).Warnf("failed to listen: %v, but mux server can handle http api", MasterAPIListenAddr(cfg))
 		}
 		opt.ApiLis = apiLis
 	}
@@ -184,13 +174,12 @@ const (
 	WSS  Scheme = "wss"
 )
 
-func GetRPCConnInfo() ConnInfo {
-	cfg := Get()
+func GetRPCConnInfo(cfg Config) ConnInfo {
 	rpcUrl := cfg.Client.RPCUrl
 
 	if len(rpcUrl) == 0 {
 		return ConnInfo{
-			Host:   rpcCallAddr(),
+			Host:   rpcCallAddr(cfg),
 			Scheme: GRPC,
 		}
 	}

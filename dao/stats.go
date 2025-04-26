@@ -11,12 +11,12 @@ const (
 	MSetBatchSize = 100
 )
 
-func AdminSaveTodyStats(s *models.HistoryProxyStats) error {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) AdminSaveTodyStats(s *models.HistoryProxyStats) error {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Save(s).Error
 }
 
-func AdminMSaveTodyStats(tx *gorm.DB, s []*models.HistoryProxyStats) error {
+func (q *queryImpl) AdminMSaveTodyStats(tx *gorm.DB, s []*models.HistoryProxyStats) error {
 	if len(s) == 0 {
 		return nil
 	}
@@ -31,8 +31,8 @@ func AdminMSaveTodyStats(tx *gorm.DB, s []*models.HistoryProxyStats) error {
 	return nil
 }
 
-func GetHistoryStatsByProxyID(userInfo models.UserInfo, proxyID int) ([]*models.HistoryProxyStats, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) GetHistoryStatsByProxyID(userInfo models.UserInfo, proxyID int) ([]*models.HistoryProxyStats, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var stats []*models.HistoryProxyStats
 	err := db.Where(&models.HistoryProxyStats{
 		ProxyID:  proxyID,
@@ -45,8 +45,8 @@ func GetHistoryStatsByProxyID(userInfo models.UserInfo, proxyID int) ([]*models.
 	return stats, nil
 }
 
-func GetHistoryStatsByClientID(userInfo models.UserInfo, clientID string) ([]*models.HistoryProxyStats, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) GetHistoryStatsByClientID(userInfo models.UserInfo, clientID string) ([]*models.HistoryProxyStats, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var stats []*models.HistoryProxyStats
 	err := db.Where(&models.HistoryProxyStats{
 		ClientID: clientID,
@@ -59,8 +59,8 @@ func GetHistoryStatsByClientID(userInfo models.UserInfo, clientID string) ([]*mo
 	return stats, nil
 }
 
-func GetHistoryStatsByServerID(userInfo models.UserInfo, serverID string) ([]*models.HistoryProxyStats, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) GetHistoryStatsByServerID(userInfo models.UserInfo, serverID string) ([]*models.HistoryProxyStats, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var stats []*models.HistoryProxyStats
 	err := db.Where(&models.HistoryProxyStats{
 		ServerID: serverID,

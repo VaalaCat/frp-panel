@@ -1,8 +1,7 @@
 package client
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/models"
@@ -11,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func InitClientHandler(c context.Context, req *pb.InitClientRequest) (*pb.InitClientResponse, error) {
+func InitClientHandler(c *app.Context, req *pb.InitClientRequest) (*pb.InitClientResponse, error) {
 	userClientID := req.GetClientId()
 	userInfo := common.GetUserInfo(c)
 
@@ -27,9 +26,9 @@ func InitClientHandler(c context.Context, req *pb.InitClientRequest) (*pb.InitCl
 		}, nil
 	}
 
-	globalClientID := common.GlobalClientID(userInfo.GetUserName(), "c", userClientID)
+	globalClientID := app.GlobalClientID(userInfo.GetUserName(), "c", userClientID)
 
-	if err := dao.CreateClient(userInfo,
+	if err := dao.NewQuery(c).CreateClient(userInfo,
 		&models.ClientEntity{
 			ClientID:      globalClientID,
 			TenantID:      userInfo.GetTenantID(),

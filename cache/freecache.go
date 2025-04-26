@@ -12,9 +12,9 @@ var (
 	cache *freecache.Cache
 )
 
-func InitCache() {
+func InitCache(cfg conf.Config) {
 	c := context.Background()
-	cacheSize := conf.Get().Master.CacheSize * 1024 * 1024 // MB
+	cacheSize := cfg.Master.CacheSize * 1024 * 1024 // MB
 	cache = freecache.NewCache(cacheSize)
 	logger.Logger(c).Infof("init cache success, size: %d MB", cacheSize/1024/1024)
 }

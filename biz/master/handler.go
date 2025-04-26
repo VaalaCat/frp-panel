@@ -3,6 +3,7 @@ package master
 import (
 	"embed"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/biz/master/platform"
@@ -11,78 +12,77 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/shell"
 	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
 	"github.com/VaalaCat/frp-panel/biz/master/user"
-	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/middleware"
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(fs embed.FS) *gin.Engine {
+func NewRouter(fs embed.FS, appInstance app.Application) *gin.Engine {
 	router := gin.Default()
 	HandleStaticFile(fs, router)
-	ConfigureRouter(router)
+	ConfigureRouter(appInstance, router)
 	return router
 }
 
-func ConfigureRouter(router *gin.Engine) {
-	router.POST("/auth", auth.MakeGinHandlerFunc(auth.HandleLogin))
+func ConfigureRouter(appInstance app.Application, router *gin.Engine) {
+	router.POST("/auth", auth.MakeGinHandlerFunc(appInstance, auth.HandleLogin))
 
 	api := router.Group("/api")
 	v1 := api.Group("/v1")
 	{
 		authRouter := v1.Group("/auth")
 		{
-			authRouter.POST("/login", common.Wrapper(auth.LoginHandler))
-			authRouter.POST("/register", common.Wrapper(auth.RegisterHandler))
-			authRouter.GET("/logout", auth.RemoveJWTHandler)
-			authRouter.POST("/cert", common.Wrapper(auth.GetClientCert))
+			authRouter.POST("/login", app.Wrapper(appInstance, auth.LoginHandler))
+			authRouter.POST("/register", app.Wrapper(appInstance, auth.RegisterHandler))
+			authRouter.GET("/logout", auth.RemoveJWTHandler(appInstance))
+			authRouter.POST("/cert", app.Wrapper(appInstance, auth.GetClientCert))
 		}
-		userRouter := v1.Group("/user", middleware.JWTAuth, middleware.AuthCtx)
+		userRouter := v1.Group("/user", middleware.JWTAuth(appInstance), middleware.AuthCtx(appInstance))
 		{
-			userRouter.POST("/get", common.Wrapper(user.GetUserInfoHandler))
-			userRouter.POST("/update", common.Wrapper(user.UpdateUserInfoHander))
+			userRouter.POST("/get", app.Wrapper(appInstance, user.GetUserInfoHandler))
+			userRouter.POST("/update", app.Wrapper(appInstance, user.UpdateUserInfoHander))
 		}
-		platformRouter := v1.Group("/platform", middleware.JWTAuth, middleware.AuthCtx)
+		platformRouter := v1.Group("/platform", middleware.JWTAuth(appInstance), middleware.AuthCtx(appInstance))
 		{
-			platformRouter.GET("/baseinfo", platform.GetPlatformInfo)
-			platformRouter.POST("/clientsstatus", common.Wrapper(platform.GetClientsStatus))
+			platformRouter.GET("/baseinfo", platform.GetPlatformInfo(appInstance))
+			platformRouter.POST("/clientsstatus", app.Wrapper(appInstance, platform.GetClientsStatus))
 		}
-		clientRouter := v1.Group("/client", middleware.JWTAuth, middleware.AuthCtx)
+		clientRouter := v1.Group("/client", middleware.JWTAuth(appInstance), middleware.AuthCtx(appInstance))
 		{
-			clientRouter.POST("/get", common.Wrapper(client.GetClientHandler))
-			clientRouter.POST("/init", common.Wrapper(client.InitClientHandler))
-			clientRouter.POST("/delete", common.Wrapper(client.DeleteClientHandler))
-			clientRouter.POST("/list", common.Wrapper(client.ListClientsHandler))
+			clientRouter.POST("/get", app.Wrapper(appInstance, client.GetClientHandler))
+			clientRouter.POST("/init", app.Wrapper(appInstance, client.InitClientHandler))
+			clientRouter.POST("/delete", app.Wrapper(appInstance, client.DeleteClientHandler))
+			clientRouter.POST("/list", app.Wrapper(appInstance, client.ListClientsHandler))
 		}
-		serverRouter := v1.Group("/server", middleware.JWTAuth, middleware.AuthCtx)
+		serverRouter := v1.Group("/server", middleware.JWTAuth(appInstance), middleware.AuthCtx(appInstance))
 		{
-			serverRouter.POST("/get", common.Wrapper(server.GetServerHandler))
-			serverRouter.POST("/init", common.Wrapper(server.InitServerHandler))
-			serverRouter.POST("/delete", common.Wrapper(server.DeleteServerHandler))
-			serverRouter.POST("/list", common.Wrapper(server.ListServersHandler))
+			serverRouter.POST("/get", app.Wrapper(appInstance, server.GetServerHandler))
+			serverRouter.POST("/init", app.Wrapper(appInstance, server.InitServerHandler))
+			serverRouter.POST("/delete", app.Wrapper(appInstance, server.DeleteServerHandler))
+			serverRouter.POST("/list", app.Wrapper(appInstance, server.ListServersHandler))
 		}
-		frpcRouter := v1.Group("/frpc", middleware.JWTAuth, middleware.AuthCtx)
+		frpcRouter := v1.Group("/frpc", middleware.JWTAuth(appInstance), middleware.AuthCtx(appInstance))
 		{
-			frpcRouter.POST("/update", common.Wrapper(client.UpdateFrpcHander))
-			frpcRouter.POST("/delete", common.Wrapper(client.RemoveFrpcHandler))
-			frpcRouter.POST("/stop", common.Wrapper(client.StopFRPCHandler))
-			frpcRouter.POST("/start", common.Wrapper(client.StartFRPCHandler))
+			frpcRouter.POST("/update", app.Wrapper(appInstance, client.UpdateFrpcHander))
+			frpcRouter.POST("/delete", app.Wrapper(appInstance, client.RemoveFrpcHandler))
+			frpcRouter.POST("/stop", app.Wrapper(appInstance, client.StopFRPCHandler))
+			frpcRouter.POST("/start", app.Wrapper(appInstance, client.StartFRPCHandler))
 		}
-		frpsRouter := v1.Group("/frps", middleware.JWTAuth, middleware.AuthCtx)
+		frpsRouter := v1.Group("/frps", middleware.JWTAuth(appInstance), middleware.AuthCtx(appInstance))
 		{
-			frpsRouter.POST("/update", common.Wrapper(server.UpdateFrpsHander))
-			frpsRouter.POST("/delete", common.Wrapper(server.RemoveFrpsHandler))
+			frpsRouter.POST("/update", app.Wrapper(appInstance, server.UpdateFrpsHander))
+			frpsRouter.POST("/delete", app.Wrapper(appInstance, server.RemoveFrpsHandler))
 		}
-		proxyRouter := v1.Group("/proxy", middleware.JWTAuth, middleware.AuthCtx)
+		proxyRouter := v1.Group("/proxy", middleware.JWTAuth(appInstance), middleware.AuthCtx(appInstance))
 		{
-			proxyRouter.POST("/get_by_cid", common.Wrapper(proxy.GetProxyStatsByClientID))
-			proxyRouter.POST("/get_by_sid", common.Wrapper(proxy.GetProxyStatsByServerID))
-			proxyRouter.POST("/list_configs", common.Wrapper(proxy.ListProxyConfigs))
-			proxyRouter.POST("/create_config", common.Wrapper(proxy.CreateProxyConfig))
-			proxyRouter.POST("/update_config", common.Wrapper(proxy.UpdateProxyConfig))
-			proxyRouter.POST("/delete_config", common.Wrapper(proxy.DeleteProxyConfig))
-			proxyRouter.POST("/get_config", common.Wrapper(proxy.GetProxyConfig))
+			proxyRouter.POST("/get_by_cid", app.Wrapper(appInstance, proxy.GetProxyStatsByClientID))
+			proxyRouter.POST("/get_by_sid", app.Wrapper(appInstance, proxy.GetProxyStatsByServerID))
+			proxyRouter.POST("/list_configs", app.Wrapper(appInstance, proxy.ListProxyConfigs))
+			proxyRouter.POST("/create_config", app.Wrapper(appInstance, proxy.CreateProxyConfig))
+			proxyRouter.POST("/update_config", app.Wrapper(appInstance, proxy.UpdateProxyConfig))
+			proxyRouter.POST("/delete_config", app.Wrapper(appInstance, proxy.DeleteProxyConfig))
+			proxyRouter.POST("/get_config", app.Wrapper(appInstance, proxy.GetProxyConfig))
 		}
-		v1.GET("/pty/:clientID", middleware.JWTAuth, middleware.AuthCtx, shell.PTYHandler)
-		v1.GET("/log", middleware.JWTAuth, middleware.AuthCtx, streamlog.GetLogHander)
+		v1.GET("/pty/:clientID", middleware.JWTAuth(appInstance), middleware.AuthCtx(appInstance), shell.PTYHandler(appInstance))
+		v1.GET("/log", middleware.JWTAuth(appInstance), middleware.AuthCtx(appInstance), streamlog.GetLogHandler(appInstance))
 	}
 }

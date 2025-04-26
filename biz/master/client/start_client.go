@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -10,7 +11,7 @@ import (
 	"github.com/VaalaCat/frp-panel/rpc"
 )
 
-func StartFRPCHandler(ctx context.Context, req *pb.StartFRPCRequest) (*pb.StartFRPCResponse, error) {
+func StartFRPCHandler(ctx *app.Context, req *pb.StartFRPCRequest) (*pb.StartFRPCResponse, error) {
 	logger.Logger(ctx).Infof("master get a start client request, origin is: [%+v]", req)
 
 	userInfo := common.GetUserInfo(ctx)
@@ -28,19 +29,19 @@ func StartFRPCHandler(ctx context.Context, req *pb.StartFRPCRequest) (*pb.StartF
 		}, nil
 	}
 
-	client, err := dao.GetClientByClientID(userInfo, clientID)
+	client, err := dao.NewQuery(ctx).GetClientByClientID(userInfo, clientID)
 	if err != nil {
 		return nil, err
 	}
 
 	client.Stopped = false
 
-	if err = dao.UpdateClient(userInfo, client); err != nil {
+	if err = dao.NewQuery(ctx).UpdateClient(userInfo, client); err != nil {
 		return nil, err
 	}
 
 	go func() {
-		resp, err := rpc.CallClient(context.Background(), req.GetClientId(), pb.Event_EVENT_START_FRPC, req)
+		resp, err := rpc.CallClient(app.NewContext(context.Background(), ctx.GetApp()), req.GetClientId(), pb.Event_EVENT_START_FRPC, req)
 		if err != nil {
 			logger.Logger(context.Background()).WithError(err).Errorf("start client event send to client error, client id: [%s]", req.GetClientId())
 		}

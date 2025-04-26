@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -10,7 +11,7 @@ import (
 	"github.com/VaalaCat/frp-panel/rpc"
 )
 
-func DeleteClientHandler(ctx context.Context, req *pb.DeleteClientRequest) (*pb.DeleteClientResponse, error) {
+func DeleteClientHandler(ctx *app.Context, req *pb.DeleteClientRequest) (*pb.DeleteClientResponse, error) {
 	logger.Logger(ctx).Infof("delete client, req: [%+v]", req)
 
 	userInfo := common.GetUserInfo(ctx)
@@ -28,16 +29,16 @@ func DeleteClientHandler(ctx context.Context, req *pb.DeleteClientRequest) (*pb.
 		}, nil
 	}
 
-	if err := dao.DeleteClient(userInfo, clientID); err != nil {
+	if err := dao.NewQuery(ctx).DeleteClient(userInfo, clientID); err != nil {
 		return nil, err
 	}
 
-	if err := dao.DeleteProxyConfigsByClientIDOrOriginClientID(userInfo, clientID); err != nil {
+	if err := dao.NewQuery(ctx).DeleteProxyConfigsByClientIDOrOriginClientID(userInfo, clientID); err != nil {
 		return nil, err
 	}
 
 	go func() {
-		resp, err := rpc.CallClient(context.Background(), req.GetClientId(), pb.Event_EVENT_REMOVE_FRPC, req)
+		resp, err := rpc.CallClient(app.NewContext(context.Background(), ctx.GetApp()), req.GetClientId(), pb.Event_EVENT_REMOVE_FRPC, req)
 		if err != nil {
 			logger.Logger(context.Background()).WithError(err).Errorf("remove event send to client error, client id: [%s]", req.GetClientId())
 		}

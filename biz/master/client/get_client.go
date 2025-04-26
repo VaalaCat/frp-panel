@@ -1,8 +1,7 @@
 package client
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -11,7 +10,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func GetClientHandler(ctx context.Context, req *pb.GetClientRequest) (*pb.GetClientResponse, error) {
+func GetClientHandler(ctx *app.Context, req *pb.GetClientRequest) (*pb.GetClientResponse, error) {
 	logger.Logger(ctx).Infof("get client, req: [%+v]", req)
 
 	var (
@@ -34,11 +33,11 @@ func GetClientHandler(ctx context.Context, req *pb.GetClientRequest) (*pb.GetCli
 
 	respCli := &pb.Client{}
 	if len(serverID) == 0 {
-		client, err := dao.GetClientByClientID(userInfo, clientID)
+		client, err := dao.NewQuery(ctx).GetClientByClientID(userInfo, clientID)
 		if err != nil {
 			return nil, err
 		}
-		clientIDs, err := dao.GetClientIDsInShadowByClientID(userInfo, clientID)
+		clientIDs, err := dao.NewQuery(ctx).GetClientIDsInShadowByClientID(userInfo, clientID)
 		if err != nil {
 			logger.Logger(ctx).WithError(err).Errorf("cannot get client ids in shadow, id: [%s]", clientID)
 		}
@@ -53,12 +52,12 @@ func GetClientHandler(ctx context.Context, req *pb.GetClientRequest) (*pb.GetCli
 			ClientIds: clientIDs,
 		}
 	} else {
-		client, err := dao.GetClientByFilter(userInfo, &models.ClientEntity{
+		client, err := dao.NewQuery(ctx).GetClientByFilter(userInfo, &models.ClientEntity{
 			OriginClientID: clientID,
 			ServerID:       serverID,
 		}, lo.ToPtr(false))
 		if err != nil {
-			client, err = dao.GetClientByFilter(userInfo, &models.ClientEntity{
+			client, err = dao.NewQuery(ctx).GetClientByFilter(userInfo, &models.ClientEntity{
 				ClientID: clientID,
 				ServerID: serverID,
 			}, nil)

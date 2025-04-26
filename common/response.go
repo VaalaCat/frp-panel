@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/protobuf/proto"
@@ -28,16 +29,16 @@ type RespType interface {
 }
 
 func OKResp[T RespType](c *gin.Context, origin *T) {
-	c.Header(TraceIDKey, c.GetString(TraceIDKey))
+	c.Header(defs.TraceIDKey, c.GetString(defs.TraceIDKey))
 	if c.ContentType() == "application/x-protobuf" {
 		c.ProtoBuf(http.StatusOK, origin)
 	} else {
-		c.JSON(http.StatusOK, OK(ReqSuccess).WithBody(origin))
+		c.JSON(http.StatusOK, OK(defs.ReqSuccess).WithBody(origin))
 	}
 }
 
 func ErrResp[T RespType](c *gin.Context, origin *T, err string) {
-	c.Header(TraceIDKey, c.GetString(TraceIDKey))
+	c.Header(defs.TraceIDKey, c.GetString(defs.TraceIDKey))
 	if c.ContentType() == "application/x-protobuf" {
 		c.ProtoBuf(http.StatusInternalServerError, origin)
 	} else {
@@ -46,7 +47,7 @@ func ErrResp[T RespType](c *gin.Context, origin *T, err string) {
 }
 
 func ErrUnAuthorized(c *gin.Context, err string) {
-	c.Header(TraceIDKey, c.GetString(TraceIDKey))
+	c.Header(defs.TraceIDKey, c.GetString(defs.TraceIDKey))
 	if c.ContentType() == "application/x-protobuf" {
 		c.ProtoBuf(http.StatusUnauthorized,
 			&pb.CommonResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_UNAUTHORIZED, Message: err}})

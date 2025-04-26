@@ -3,10 +3,9 @@ package server
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
-	"github.com/VaalaCat/frp-panel/tunnel"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/samber/lo"
 )
@@ -22,10 +21,10 @@ var proxyTypeList = []v1.ProxyType{
 	v1.ProxyTypeSUDP,
 }
 
-func PushProxyInfo(serverID, serverSecret string) error {
+func PushProxyInfo(appInstance app.Application, serverID, serverSecret string) error {
 	proxyInfos := []*pb.ProxyInfo{}
 
-	if cli := tunnel.GetServerController().Get(serverID); cli != nil {
+	if cli := appInstance.GetServerController().Get(serverID); cli != nil {
 		firstSync := cli.IsFirstSync()
 		for _, proxyType := range proxyTypeList {
 			proxyStatsList := cli.GetProxyStatsByType(proxyType)
@@ -46,12 +45,8 @@ func PushProxyInfo(serverID, serverSecret string) error {
 
 	if len(proxyInfos) > 0 {
 		ctx := context.Background()
-		cli, err := rpc.MasterCli(ctx)
-		if err != nil {
-			logger.Logger(context.Background()).WithError(err).Error("cannot get master server")
-			return err
-		}
-		_, err = cli.PushProxyInfo(ctx, &pb.PushProxyInfoReq{
+		cli := appInstance.GetMasterCli()
+		_, err := cli.PushProxyInfo(ctx, &pb.PushProxyInfoReq{
 			Base: &pb.ServerBase{
 				ServerId:     serverID,
 				ServerSecret: serverSecret,

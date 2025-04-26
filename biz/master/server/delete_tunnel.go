@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -10,7 +11,7 @@ import (
 	"github.com/VaalaCat/frp-panel/rpc"
 )
 
-func RemoveFrpsHandler(c context.Context, req *pb.RemoveFRPSRequest) (*pb.RemoveFRPSResponse, error) {
+func RemoveFrpsHandler(c *app.Context, req *pb.RemoveFRPSRequest) (*pb.RemoveFRPSResponse, error) {
 	logger.Logger(c).Infof("remove frps, req: [%+v]", req)
 
 	var (
@@ -18,19 +19,19 @@ func RemoveFrpsHandler(c context.Context, req *pb.RemoveFRPSRequest) (*pb.Remove
 		userInfo = common.GetUserInfo(c)
 	)
 
-	srv, err := dao.GetServerByServerID(userInfo, serverID)
+	srv, err := dao.NewQuery(c).GetServerByServerID(userInfo, serverID)
 	if srv == nil || err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot get server, id: [%s]", serverID)
 		return nil, err
 	}
 
-	if err = dao.DeleteServer(userInfo, serverID); err != nil {
+	if err = dao.NewQuery(c).DeleteServer(userInfo, serverID); err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot delete server, id: [%s]", serverID)
 		return nil, err
 	}
 
 	go func() {
-		resp, err := rpc.CallClient(context.Background(), req.GetServerId(), pb.Event_EVENT_REMOVE_FRPS, req)
+		resp, err := rpc.CallClient(app.NewContext(context.Background(), c.GetApp()), req.GetServerId(), pb.Event_EVENT_REMOVE_FRPS, req)
 		if err != nil {
 			logger.Logger(context.Background()).WithError(err).Errorf("remove event send to server error, server id: [%s]", req.GetServerId())
 		}

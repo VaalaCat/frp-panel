@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -19,7 +20,13 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func PTYHandler(c *gin.Context) {
+func PTYHandler(appInstance app.Application) func(*gin.Context) {
+	return func(ctx *gin.Context) {
+		ptyHandler(ctx, appInstance)
+	}
+}
+
+func ptyHandler(c *gin.Context, appInstance app.Application) {
 	connectionErrorLimit := 10
 	keepalivePingTimeout := 10 * time.Second
 
@@ -63,7 +70,7 @@ func PTYHandler(c *gin.Context) {
 		}
 	}
 
-	cliMsg, err := rpc.CallClient(c, clientID, pb.Event_EVENT_START_PTY_CONNECT, &pb.CommonRequest{})
+	cliMsg, err := rpc.CallClient(app.NewContext(c, appInstance), clientID, pb.Event_EVENT_START_PTY_CONNECT, &pb.CommonRequest{})
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("start pty connect error")
 		webConn.Close()
@@ -79,7 +86,7 @@ func PTYHandler(c *gin.Context) {
 
 	sessionID := string(commonResp.GetData())
 
-	cliConn, ok := Mgr().Load(sessionID)
+	cliConn, ok := appInstance.GetShellPTYMgr().Load(sessionID)
 	if !ok {
 		logger.Logger(c).Errorf("cannot get client, session id: [%s]", sessionID)
 		c.JSON(http.StatusInternalServerError, common.Err("cannot get client"))
@@ -97,7 +104,7 @@ func PTYHandler(c *gin.Context) {
 			logger.Logger(c).Warnf("failed to send close message: %s", err)
 		}
 
-		Mgr().SetSessionDone(sessionID)
+		appInstance.GetShellPTYMgr().SetSessionDone(sessionID)
 		if err := webConn.Close(); err != nil {
 			logger.Logger(c).Warnf("failed to close webscoket connection: %s", err)
 		}
@@ -119,7 +126,7 @@ func PTYHandler(c *gin.Context) {
 				logger.Logger(c).Warnf("failed to send close message: %s", err)
 			}
 
-			Mgr().SetSessionDone(sessionID)
+			appInstance.GetShellPTYMgr().SetSessionDone(sessionID)
 			if err := webConn.Close(); err != nil {
 				logger.Logger(c).Warnf("failed to close webscoket connection: %s", err)
 			}

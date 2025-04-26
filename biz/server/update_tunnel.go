@@ -4,14 +4,14 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/server"
-	"github.com/VaalaCat/frp-panel/tunnel"
 	"github.com/VaalaCat/frp-panel/utils"
 )
 
-func UpdateFrpsHander(ctx context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPSResponse, error) {
+func UpdateFrpsHander(ctx *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPSResponse, error) {
 	logger.Logger(ctx).Infof("update frps, req: [%+v]", req)
 
 	content := req.GetConfig()
@@ -25,10 +25,10 @@ func UpdateFrpsHander(ctx context.Context, req *pb.UpdateFRPSRequest) (*pb.Updat
 	}
 
 	serverID := req.GetServerId()
-	if cli := tunnel.GetServerController().Get(serverID); cli != nil {
+	if cli := ctx.GetApp().GetServerController().Get(serverID); cli != nil {
 		if !reflect.DeepEqual(cli.GetCommonCfg(), s) {
 			cli.Stop()
-			tunnel.GetServerController().Delete(serverID)
+			ctx.GetApp().GetServerController().Delete(serverID)
 			logger.Logger(ctx).Infof("server %s config changed, will recreate it", serverID)
 		} else {
 			logger.Logger(ctx).Infof("server %s config not changed", serverID)
@@ -37,8 +37,8 @@ func UpdateFrpsHander(ctx context.Context, req *pb.UpdateFRPSRequest) (*pb.Updat
 			}, nil
 		}
 	}
-	tunnel.GetServerController().Add(serverID, server.NewServerHandler(s))
-	tunnel.GetServerController().Run(serverID)
+	ctx.GetApp().GetServerController().Add(serverID, server.NewServerHandler(s))
+	ctx.GetApp().GetServerController().Run(serverID)
 
 	return &pb.UpdateFRPSResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},

@@ -1,19 +1,18 @@
 package auth
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/pb"
 )
 
-func GetClientCert(ctx context.Context, req *pb.GetClientCertRequest) (*pb.GetClientCertResponse, error) {
+func GetClientCert(ctx *app.Context, req *pb.GetClientCertRequest) (*pb.GetClientCertResponse, error) {
 	var err error
 	if req.ClientType == pb.ClientType_CLIENT_TYPE_FRPC {
-		_, err = dao.ValidateClientSecret(req.GetClientId(), req.GetClientSecret())
+		_, err = dao.NewQuery(ctx).ValidateClientSecret(req.GetClientId(), req.GetClientSecret())
 	}
 	if req.ClientType == pb.ClientType_CLIENT_TYPE_FRPS {
-		_, err = dao.ValidateServerSecret(req.GetClientId(), req.GetClientSecret())
+		_, err = dao.NewQuery(ctx).ValidateServerSecret(req.GetClientId(), req.GetClientSecret())
 	}
 	if err != nil {
 		return &pb.GetClientCertResponse{
@@ -21,7 +20,7 @@ func GetClientCert(ctx context.Context, req *pb.GetClientCertRequest) (*pb.GetCl
 		}, err
 	}
 
-	_, cert, err := dao.GetDefaultKeyPair()
+	_, cert, err := dao.NewQuery(ctx).GetDefaultKeyPair()
 	if err != nil {
 		return &pb.GetClientCertResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},

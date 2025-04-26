@@ -1,9 +1,10 @@
-package common
+package app
 
 import (
 	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/gin-gonic/gin"
@@ -18,36 +19,38 @@ func ShadowedClientID(clientID string, shadowCount int64) string {
 	return fmt.Sprintf("%s@%d", clientID, shadowCount)
 }
 
-func Wrapper[T ReqType, U RespType](handler func(context.Context, *T) (*U, error)) func(c *gin.Context) {
+func Wrapper[T common.ReqType, U common.RespType](appInstance Application, handler func(*Context, *T) (*U, error)) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		req, err := GetProtoRequest[T](c)
+		req, err := common.GetProtoRequest[T](c)
 		if err != nil {
-			ErrResp(c, &pb.CommonResponse{
+			common.ErrResp(c, &pb.CommonResponse{
 				Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
 			}, err.Error())
 			return
 		}
 
-		resp, err := handler(c, req)
+		resp, err := handler(NewContext(c, appInstance), req)
 		if err != nil {
-			ErrResp(c, resp, err.Error())
+			common.ErrResp(c, resp, err.Error())
 			return
 		}
 
-		OKResp(c, resp)
+		common.OKResp(c, resp)
 	}
 }
 
-func WrapperServerMsg[T ReqType, U RespType](req *pb.ServerMessage, handler func(context.Context, *T) (*U, error)) *pb.ClientMessage {
+func WrapperServerMsg[T common.ReqType, U common.RespType](appInstance Application, req *pb.ServerMessage,
+	handler func(*Context, *T) (*U, error)) *pb.ClientMessage {
 	r := new(T)
-	GetServerMessageRequest(req.GetData(), r, proto.Unmarshal)
-	if err := GetServerMessageRequest(req.GetData(), r, proto.Unmarshal); err != nil {
+	common.GetServerMessageRequest(req.GetData(), r, proto.Unmarshal)
+	if err := common.GetServerMessageRequest(req.GetData(), r, proto.Unmarshal); err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot unmarshal")
 		return nil
 	}
 
 	ctx := context.Background()
-	resp, err := handler(ctx, r)
+	appCtx := NewContext(ctx, appInstance)
+	resp, err := handler(appCtx, r)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("handler error")
 		return &pb.ClientMessage{
@@ -56,7 +59,7 @@ func WrapperServerMsg[T ReqType, U RespType](req *pb.ServerMessage, handler func
 		}
 	}
 
-	cliMsg, err := ProtoResp(resp)
+	cliMsg, err := common.ProtoResp(resp)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot marshal")
 		return &pb.ClientMessage{

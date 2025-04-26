@@ -1,9 +1,9 @@
 package proxy
 
 import (
-	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
@@ -15,7 +15,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func UpdateProxyConfig(c context.Context, req *pb.UpdateProxyConfigRequest) (*pb.UpdateProxyConfigResponse, error) {
+func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.UpdateProxyConfigResponse, error) {
 	if len(req.GetClientId()) == 0 || len(req.GetServerId()) == 0 || len(req.GetConfig()) == 0 {
 		return nil, fmt.Errorf("request invalid")
 	}
@@ -26,7 +26,7 @@ func UpdateProxyConfig(c context.Context, req *pb.UpdateProxyConfigRequest) (*pb
 		serverID = req.GetServerId()
 	)
 
-	clientEntity, err := dao.GetClientByClientID(userInfo, clientID)
+	clientEntity, err := dao.NewQuery(c).GetClientByClientID(userInfo, clientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, err
@@ -34,7 +34,7 @@ func UpdateProxyConfig(c context.Context, req *pb.UpdateProxyConfigRequest) (*pb
 
 	if clientEntity.ServerID != serverID {
 		logger.Logger(c).Errorf("client and server not match, find or create client, client: [%s], server: [%s]", clientID, serverID)
-		originClient, err := dao.GetClientByClientID(userInfo, clientEntity.OriginClientID)
+		originClient, err := dao.NewQuery(c).GetClientByClientID(userInfo, clientEntity.OriginClientID)
 		if err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot get origin client, id: [%s]", clientEntity.OriginClientID)
 			return nil, err
@@ -47,7 +47,7 @@ func UpdateProxyConfig(c context.Context, req *pb.UpdateProxyConfigRequest) (*pb
 		}
 	}
 
-	_, err = dao.GetServerByServerID(userInfo, serverID)
+	_, err = dao.NewQuery(c).GetServerByServerID(userInfo, serverID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get server, id: [%s]", serverID)
 		return nil, err
@@ -74,13 +74,13 @@ func UpdateProxyConfig(c context.Context, req *pb.UpdateProxyConfigRequest) (*pb
 		return nil, err
 	}
 
-	oldProxyCfg, err := dao.GetProxyConfigByOriginClientIDAndName(userInfo, clientID, proxyCfg.Name)
+	oldProxyCfg, err := dao.NewQuery(c).GetProxyConfigByOriginClientIDAndName(userInfo, clientID, proxyCfg.Name)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get proxy config, id: [%s]", clientID)
 		return nil, err
 	}
 
-	if dao.UpdateProxyConfig(userInfo, &models.ProxyConfig{
+	if dao.NewQuery(c).UpdateProxyConfig(userInfo, &models.ProxyConfig{
 		Model:             oldProxyCfg.Model,
 		ProxyConfigEntity: proxyCfg,
 	}) != nil {

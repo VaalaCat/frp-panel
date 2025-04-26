@@ -1,9 +1,9 @@
 package client
 
 import (
-	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
@@ -11,20 +11,20 @@ import (
 	"github.com/samber/lo"
 )
 
-func RPCPullConfig(ctx context.Context, req *pb.PullClientConfigReq) (*pb.PullClientConfigResp, error) {
+func RPCPullConfig(ctx *app.Context, req *pb.PullClientConfigReq) (*pb.PullClientConfigResp, error) {
 	var (
 		err       error
 		cli       *models.ClientEntity
 		clientIDs []string
 	)
 
-	if cli, err = ValidateClientRequest(req.GetBase()); err != nil {
+	if cli, err = ValidateClientRequest(ctx, req.GetBase()); err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot validate client request")
 		return nil, err
 	}
 
 	if cli.IsShadow {
-		proxies, err := dao.AdminListProxyConfigsWithFilters(&models.ProxyConfigEntity{
+		proxies, err := dao.NewQuery(ctx).AdminListProxyConfigsWithFilters(&models.ProxyConfigEntity{
 			OriginClientID: cli.ClientID,
 		})
 		if err != nil {

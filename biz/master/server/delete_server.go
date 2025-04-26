@@ -1,14 +1,13 @@
 package server
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/pb"
 )
 
-func DeleteServerHandler(c context.Context, req *pb.DeleteServerRequest) (*pb.DeleteServerResponse, error) {
+func DeleteServerHandler(c *app.Context, req *pb.DeleteServerRequest) (*pb.DeleteServerResponse, error) {
 	var (
 		userServerID = req.GetServerId()
 		userInfo     = common.GetUserInfo(c)
@@ -26,7 +25,7 @@ func DeleteServerHandler(c context.Context, req *pb.DeleteServerRequest) (*pb.De
 		}, nil
 	}
 
-	if err := dao.DeleteServer(userInfo, userServerID); err != nil {
+	if err := dao.NewQuery(c).DeleteServer(userInfo, userServerID); err != nil {
 		return nil, err
 	}
 

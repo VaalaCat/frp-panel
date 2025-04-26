@@ -10,10 +10,6 @@ type PTYMgr struct {
 	doneMap                                            *utils.SyncMap[string, chan bool] // sessionID
 }
 
-var (
-	mgr *PTYMgr
-)
-
 func (m *PTYMgr) IsSessionDone(sessionID string) bool {
 	ch, ok := m.doneMap.Load(sessionID)
 	if !ok {
@@ -42,9 +38,3 @@ func NewPTYMgr() *PTYMgr {
 	}
 }
 
-func Mgr() *PTYMgr {
-	if mgr == nil {
-		mgr = NewPTYMgr()
-	}
-	return mgr
-}

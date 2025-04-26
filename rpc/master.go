@@ -1,14 +1,14 @@
 package rpc
 
 import (
-	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/utils/wsgrpc"
 	"github.com/imroc/req/v3"
@@ -18,20 +18,16 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var (
-	masterCli pb.MasterClient
-)
-
-func newMasterCli() {
-	connInfo := conf.GetRPCConnInfo()
+func NewMasterCli(appInstance app.Application) pb.MasterClient {
+	connInfo := conf.GetRPCConnInfo(appInstance.GetConfig())
 
 	opt := []grpc.DialOption{}
 
 	switch connInfo.Scheme {
 	case conf.GRPC:
-		if conf.Get().Client.TLSRpc {
+		if appInstance.GetConfig().Client.TLSRpc {
 			logrus.Infof("use tls rpc")
-			opt = append(opt, grpc.WithTransportCredentials(conf.ClientCred))
+			opt = append(opt, grpc.WithTransportCredentials(appInstance.GetClientCred()))
 		} else {
 			logrus.Infof("use insecure rpc")
 			opt = append(opt, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -41,7 +37,7 @@ func newMasterCli() {
 
 		wsURL := fmt.Sprintf("%s://%s/wsgrpc", connInfo.Scheme, connInfo.Host)
 		header := http.Header{}
-		wsDialer := wsgrpc.WebsocketDialer(wsURL, header, conf.Get().Client.TLSInsecureSkipVerify)
+		wsDialer := wsgrpc.WebsocketDialer(wsURL, header, appInstance.GetConfig().Client.TLSInsecureSkipVerify)
 		opt = append(opt, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(wsDialer))
 	}
 
@@ -51,14 +47,7 @@ func newMasterCli() {
 		logrus.Fatalf("did not connect: %v", err)
 	}
 
-	masterCli = pb.NewMasterClient(conn)
-}
-
-func MasterCli(c context.Context) (pb.MasterClient, error) {
-	if masterCli == nil {
-		newMasterCli()
-	}
-	return masterCli, nil
+	return pb.NewMasterClient(conn)
 }
 
 func httpCli() *req.Client {
@@ -67,8 +56,8 @@ func httpCli() *req.Client {
 	return c
 }
 
-func GetClientCert(clientID, clientSecret string, clientType pb.ClientType) []byte {
-	apiEndpoint := conf.GetAPIURL()
+func GetClientCert(appInstance app.Application, clientID, clientSecret string, clientType pb.ClientType) []byte {
+	apiEndpoint := conf.GetAPIURL(appInstance.GetConfig())
 	c := httpCli()
 
 	rawReq, err := proto.Marshal(&pb.GetClientCertRequest{
@@ -93,8 +82,8 @@ func GetClientCert(clientID, clientSecret string, clientType pb.ClientType) []by
 	return resp.Cert
 }
 
-func InitClient(clientID, joinToken string) (*pb.InitClientResponse, error) {
-	apiEndpoint := conf.GetAPIURL()
+func InitClient(appInstance app.Application, clientID, joinToken string) (*pb.InitClientResponse, error) {
+	apiEndpoint := conf.GetAPIURL(appInstance.GetConfig())
 
 	c := httpCli()
 
@@ -106,7 +95,7 @@ func InitClient(clientID, joinToken string) (*pb.InitClientResponse, error) {
 	}
 
 	r, err := c.R().SetHeader("Content-Type", "application/x-protobuf").
-		SetHeader(common.AuthorizationKey, joinToken).
+		SetHeader(defs.AuthorizationKey, joinToken).
 		SetBodyBytes(rawReq).Post(apiEndpoint + "/api/v1/client/init")
 	if err != nil {
 		return nil, err
@@ -120,8 +109,8 @@ func InitClient(clientID, joinToken string) (*pb.InitClientResponse, error) {
 	return resp, nil
 }
 
-func GetClient(clientID, joinToken string) (*pb.GetClientResponse, error) {
-	apiEndpoint := conf.GetAPIURL()
+func GetClient(appInstance app.Application, clientID, joinToken string) (*pb.GetClientResponse, error) {
+	apiEndpoint := conf.GetAPIURL(appInstance.GetConfig())
 	c := httpCli()
 
 	rawReq, err := proto.Marshal(&pb.GetClientRequest{
@@ -132,7 +121,7 @@ func GetClient(clientID, joinToken string) (*pb.GetClientResponse, error) {
 	}
 
 	r, err := c.R().SetHeader("Content-Type", "application/x-protobuf").
-		SetHeader(common.AuthorizationKey, joinToken).
+		SetHeader(defs.AuthorizationKey, joinToken).
 		SetBodyBytes(rawReq).Post(apiEndpoint + "/api/v1/client/get")
 	if err != nil {
 		return nil, err

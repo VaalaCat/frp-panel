@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/utils/pty"
 	"github.com/google/uuid"
 	"github.com/sourcegraph/conc"
 )
 
-func StartPTYConnect(c context.Context, req *pb.CommonRequest, initMsg *pb.PTYClientMessage) (*pb.CommonResponse, error) {
-	conn, err := rpcclient.GetClientRPCSerivce().GetCli().PTYConnect(c)
+func StartPTYConnect(c *app.Context, req *pb.CommonRequest, initMsg *pb.PTYClientMessage) (*pb.CommonResponse, error) {
+	conn, err := c.GetApp().GetClientRPCHandler().GetCli().PTYConnect(c)
 	if err != nil {
 		logger.Logger(c).WithError(err).Infof("rpc connect master error")
 		return nil, err

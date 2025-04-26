@@ -3,23 +3,24 @@ package proxy
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/samber/lo"
 )
 
-func CollectDailyStats() error {
-	ctx := context.Background()
+func CollectDailyStats(appInstance app.Application) error {
+	ctx := app.NewContext(context.Background(), appInstance)
 
-	tx := models.GetDBManager().GetDefaultDB().Begin()
+	tx := appInstance.GetDBManager().GetDefaultDB().Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
 
-	proxies, err := dao.AdminGetAllProxyStats(tx)
+	proxies, err := dao.NewQuery(ctx).AdminGetAllProxyStats(tx)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Error("CollectDailyStats cannot get proxies")
 		return err
@@ -40,7 +41,7 @@ func CollectDailyStats() error {
 		}
 	})
 
-	if err := dao.AdminMSaveTodyStats(tx, proxyDailyStats); err != nil {
+	if err := dao.NewQuery(ctx).AdminMSaveTodyStats(tx, proxyDailyStats); err != nil {
 		logger.Logger(context.Background()).WithError(err).Error("CollectDailyStats cannot save stats")
 		return err
 	}

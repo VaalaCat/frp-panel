@@ -8,8 +8,8 @@ import (
 	"github.com/samber/lo"
 )
 
-func AdminGetAllUsers() ([]*models.UserEntity, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) AdminGetAllUsers() ([]*models.UserEntity, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	users := make([]*models.User, 0)
 	err := db.Find(&users).Error
 	if err != nil {
@@ -21,8 +21,8 @@ func AdminGetAllUsers() ([]*models.UserEntity, error) {
 		}), nil
 }
 
-func AdminCountUsers() (int64, error) {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) AdminCountUsers() (int64, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.User{}).Count(&count).Error
 	if err != nil {
@@ -31,11 +31,11 @@ func AdminCountUsers() (int64, error) {
 	return count, nil
 }
 
-func GetUserByUserID(userID int) (*models.UserEntity, error) {
+func (q *queryImpl) GetUserByUserID(userID int) (*models.UserEntity, error) {
 	if userID == 0 {
 		return nil, fmt.Errorf("invalid user id")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	u := &models.User{}
 	err := db.Where(&models.User{
 		UserEntity: &models.UserEntity{
@@ -48,8 +48,8 @@ func GetUserByUserID(userID int) (*models.UserEntity, error) {
 	return u.UserEntity, nil
 }
 
-func UpdateUser(userInfo models.UserInfo, user *models.UserEntity) error {
-	db := models.GetDBManager().GetDefaultDB()
+func (q *queryImpl) UpdateUser(userInfo models.UserInfo, user *models.UserEntity) error {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	user.UserID = userInfo.GetUserID()
 	return db.Model(&models.User{}).Where(
 		&models.User{
@@ -62,11 +62,11 @@ func UpdateUser(userInfo models.UserInfo, user *models.UserEntity) error {
 	}).Error
 }
 
-func GetUserByUserName(userName string) (*models.UserEntity, error) {
+func (q *queryImpl) GetUserByUserName(userName string) (*models.UserEntity, error) {
 	if userName == "" {
 		return nil, fmt.Errorf("invalid user name")
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	u := &models.User{}
 	err := db.Where(&models.User{
 		UserEntity: &models.UserEntity{
@@ -79,9 +79,9 @@ func GetUserByUserName(userName string) (*models.UserEntity, error) {
 	return u.UserEntity, nil
 }
 
-func CheckUserPassword(userNameOrEmail, password string) (bool, models.UserInfo, error) {
+func (q *queryImpl) CheckUserPassword(userNameOrEmail, password string) (bool, models.UserInfo, error) {
 	var user models.User
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 
 	if err := db.Where(&models.User{
 		UserEntity: &models.UserEntity{
@@ -97,9 +97,9 @@ func CheckUserPassword(userNameOrEmail, password string) (bool, models.UserInfo,
 	return utils.CheckPasswordHash(password, user.Password), user, nil
 }
 
-func CheckUserNameAndEmail(userName, email string) error {
+func (q *queryImpl) CheckUserNameAndEmail(userName, email string) error {
 	var user models.User
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 
 	if err := db.Where(&models.User{
 		UserEntity: &models.UserEntity{
@@ -115,10 +115,10 @@ func CheckUserNameAndEmail(userName, email string) error {
 	return nil
 }
 
-func CreateUser(user *models.UserEntity) error {
+func (q *queryImpl) CreateUser(user *models.UserEntity) error {
 	u := &models.User{
 		UserEntity: user,
 	}
-	db := models.GetDBManager().GetDefaultDB()
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Create(u).Error
 }

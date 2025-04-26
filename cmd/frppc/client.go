@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/app"
 	bizclient "github.com/VaalaCat/frp-panel/biz/client"
-	"github.com/VaalaCat/frp-panel/common"
-	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
+	"github.com/VaalaCat/frp-panel/tunnel"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/watcher"
 	"github.com/fatedier/golib/crypto"
@@ -17,13 +18,13 @@ import (
 	"github.com/sourcegraph/conc"
 )
 
-func runClient() {
+func runClient(appInstance app.Application) {
 	var (
 		c            = context.Background()
-		clientID     = conf.Get().Client.ID
-		clientSecret = conf.Get().Client.Secret
+		clientID     = appInstance.GetConfig().Client.ID
+		clientSecret = appInstance.GetConfig().Client.Secret
 	)
-	crypto.DefaultSalt = conf.Get().App.Secret
+	crypto.DefaultSalt = appInstance.GetConfig().App.Secret
 	logger.Logger(c).Infof("start to run client")
 	if len(clientSecret) == 0 {
 		logrus.Fatal("client secret cannot be empty")
@@ -33,26 +34,31 @@ func runClient() {
 		logrus.Fatal("client id cannot be empty")
 	}
 
-	cred, err := utils.TLSClientCertNoValidate(rpc.GetClientCert(clientID, clientSecret, pb.ClientType_CLIENT_TYPE_FRPC))
+	cred, err := utils.TLSClientCertNoValidate(rpc.GetClientCert(appInstance, clientID, clientSecret, pb.ClientType_CLIENT_TYPE_FRPC))
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	conf.ClientCred = cred
 
-	rpcclient.MustInitClientRPCSerivce(
+	appInstance.SetClientCred(cred)
+	appInstance.SetMasterCli(rpc.NewMasterCli(appInstance))
+	appInstance.SetClientController(tunnel.NewClientController())
+
+	r := rpcclient.NewClientRPCHandler(
+		appInstance,
 		clientID,
 		clientSecret,
 		pb.Event_EVENT_REGISTER_CLIENT,
 		bizclient.HandleServerMessage,
 	)
-	r := rpcclient.GetClientRPCSerivce()
-	defer r.Stop()
+	appInstance.SetClientRPCHandler(r)
 
 	w := watcher.NewClient()
-	w.AddDurationTask(common.PullConfigDuration, bizclient.PullConfig, clientID, clientSecret)
-	defer w.Stop()
+	w.AddDurationTask(defs.PullConfigDuration, bizclient.PullConfig, clientID, clientSecret)
 
-	initClientOnce(clientID, clientSecret)
+	initClientOnce(appInstance, clientID, clientSecret)
+
+	defer w.Stop()
+	defer r.Stop()
 
 	var wg conc.WaitGroup
 	wg.Go(r.Run)
@@ -60,8 +66,8 @@ func runClient() {
 	wg.Wait()
 }
 
-func initClientOnce(clientID, clientSecret string) {
-	err := bizclient.PullConfig(clientID, clientSecret)
+func initClientOnce(appInstance app.Application, clientID, clientSecret string) {
+	err := bizclient.PullConfig(appInstance, clientID, clientSecret)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot pull client config, wait for retry")
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
@@ -14,49 +15,15 @@ import (
 	"github.com/sourcegraph/conc"
 )
 
-type ServerHandler interface {
-	Run()
-	Stop()
-	IsFirstSync() bool
-	GetCommonCfg() *v1.ServerConfig
-	GetMem() *mem.ServerStats
-	GetProxyStatsByType(v1.ProxyType) []*mem.ProxyStats
-}
-
-type Server struct {
+type serverImpl struct {
 	srv       *server.Service
 	Common    *v1.ServerConfig
 	firstSync sync.Once
 }
 
-var (
-	srv *Server
-)
-
-func InitGlobalServerService(svrCfg *v1.ServerConfig) {
-	ctx := context.Background()
-	if srv != nil {
-		logger.Logger(ctx).Warn("server has been initialized")
-		return
-	}
-
+func NewServerHandler(svrCfg *v1.ServerConfig) app.ServerHandler {
 	svrCfg.Complete()
-	srv = NewServerHandler(svrCfg)
-}
 
-func GetGlobalServerSerivce() ServerHandler {
-	if srv == nil {
-		logrus.Panic("server has not been initialized")
-	}
-	return srv
-}
-
-func GetServerSerivce(svrCfg *v1.ServerConfig) ServerHandler {
-	svrCfg.Complete()
-	return NewServerHandler(svrCfg)
-}
-
-func NewServerHandler(svrCfg *v1.ServerConfig) *Server {
 	warning, err := validation.ValidateServerConfig(svrCfg)
 	if warning != nil {
 		logger.Logger(context.Background()).WithError(err).Warnf("validate server config warning: %+v", warning)
@@ -73,20 +40,20 @@ func NewServerHandler(svrCfg *v1.ServerConfig) *Server {
 		logger.Logger(context.Background()).WithError(err).Panic("cannot create server, exit and restart")
 	}
 
-	return &Server{
+	return &serverImpl{
 		srv:       svr,
 		Common:    svrCfg,
 		firstSync: sync.Once{},
 	}
 }
 
-func (s *Server) Run() {
+func (s *serverImpl) Run() {
 	wg := conc.NewWaitGroup()
 	wg.Go(func() { s.srv.Run(context.Background()) })
 	wg.Wait()
 }
 
-func (s *Server) Stop() {
+func (s *serverImpl) Stop() {
 	c := context.Background()
 	wg := conc.NewWaitGroup()
 	wg.Go(func() {
@@ -99,19 +66,19 @@ func (s *Server) Stop() {
 	wg.Wait()
 }
 
-func (s *Server) GetCommonCfg() *v1.ServerConfig {
+func (s *serverImpl) GetCommonCfg() *v1.ServerConfig {
 	return s.Common
 }
 
-func (s *Server) GetMem() *mem.ServerStats {
+func (s *serverImpl) GetMem() *mem.ServerStats {
 	return mem.StatsCollector.GetServer()
 }
 
-func (s *Server) GetProxyStatsByType(proxyType v1.ProxyType) []*mem.ProxyStats {
+func (s *serverImpl) GetProxyStatsByType(proxyType v1.ProxyType) []*mem.ProxyStats {
 	return mem.StatsCollector.GetProxiesByType(string(proxyType))
 }
 
-func (s *Server) IsFirstSync() bool {
+func (s *serverImpl) IsFirstSync() bool {
 	result := false
 	s.firstSync.Do(func() {
 		result = true

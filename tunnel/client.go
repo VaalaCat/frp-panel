@@ -3,51 +3,23 @@ package tunnel
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
-	"github.com/VaalaCat/frp-panel/services/client"
 	"github.com/VaalaCat/frp-panel/utils"
 )
 
-type ClientController interface {
-	Add(clientID string, serverID string, clientHandler client.ClientHandler)
-	Get(clientID string, serverID string) client.ClientHandler
-	Delete(clientID string, serverID string)
-	Set(clientID string, serverID string, clientHandler client.ClientHandler)
-	Run(clientID string, serverID string) // 不阻塞
-	Stop(clientID string, serverID string)
-	GetByClient(clientID string) *utils.SyncMap[string, client.ClientHandler]
-	DeleteByClient(clientID string)
-	RunByClient(clientID string) // 不阻塞
-	StopByClient(clientID string)
-	StopAll()
-	DeleteAll()
-	RunAll()
-	List() []string
-}
-
 type clientController struct {
-	clients *utils.SyncMap[string, *utils.SyncMap[string, client.ClientHandler]]
+	clients *utils.SyncMap[string, *utils.SyncMap[string, app.ClientHandler]]
 }
 
-var (
-	clientControllerInstance *clientController
-)
-
-func NewClientController() ClientController {
+func NewClientController() app.ClientController {
 	return &clientController{
-		clients: &utils.SyncMap[string, *utils.SyncMap[string, client.ClientHandler]]{},
+		clients: &utils.SyncMap[string, *utils.SyncMap[string, app.ClientHandler]]{},
 	}
 }
 
-func GetClientController() ClientController {
-	if clientControllerInstance == nil {
-		clientControllerInstance = NewClientController().(*clientController)
-	}
-	return clientControllerInstance
-}
-
-func (c *clientController) Add(clientID string, serverID string, clientHandler client.ClientHandler) {
-	m, _ := c.clients.LoadOrStore(clientID, &utils.SyncMap[string, client.ClientHandler]{})
+func (c *clientController) Add(clientID string, serverID string, clientHandler app.ClientHandler) {
+	m, _ := c.clients.LoadOrStore(clientID, &utils.SyncMap[string, app.ClientHandler]{})
 	oldClientHandler, loaded := m.LoadAndDelete(serverID)
 	if loaded {
 		oldClientHandler.Stop()
@@ -55,7 +27,7 @@ func (c *clientController) Add(clientID string, serverID string, clientHandler c
 	m.Store(serverID, clientHandler)
 }
 
-func (c *clientController) Get(clientID string, serverID string) client.ClientHandler {
+func (c *clientController) Get(clientID string, serverID string) app.ClientHandler {
 	v, ok := c.clients.Load(clientID)
 	if !ok {
 		return nil
@@ -67,7 +39,7 @@ func (c *clientController) Get(clientID string, serverID string) client.ClientHa
 	return vv
 }
 
-func (c *clientController) GetByClient(clientID string) *utils.SyncMap[string, client.ClientHandler] {
+func (c *clientController) GetByClient(clientID string) *utils.SyncMap[string, app.ClientHandler] {
 	v, ok := c.clients.Load(clientID)
 	if !ok {
 		return nil
@@ -89,8 +61,8 @@ func (c *clientController) DeleteByClient(clientID string) {
 	c.clients.Delete(clientID)
 }
 
-func (c *clientController) Set(clientID string, serverID string, clientHandler client.ClientHandler) {
-	v, _ := c.clients.LoadOrStore(clientID, &utils.SyncMap[string, client.ClientHandler]{})
+func (c *clientController) Set(clientID string, serverID string, clientHandler app.ClientHandler) {
+	v, _ := c.clients.LoadOrStore(clientID, &utils.SyncMap[string, app.ClientHandler]{})
 	v.Store(serverID, clientHandler)
 }
 
@@ -115,7 +87,7 @@ func (c *clientController) RunByClient(clientID string) {
 	if !ok {
 		return
 	}
-	v.Range(func(k string, v client.ClientHandler) bool {
+	v.Range(func(k string, v app.ClientHandler) bool {
 		v.Run()
 		return true
 	})
@@ -138,15 +110,15 @@ func (c *clientController) StopByClient(clientID string) {
 	if !ok {
 		return
 	}
-	v.Range(func(k string, v client.ClientHandler) bool {
+	v.Range(func(k string, v app.ClientHandler) bool {
 		v.Stop()
 		return true
 	})
 }
 
 func (c *clientController) StopAll() {
-	c.clients.Range(func(k string, v *utils.SyncMap[string, client.ClientHandler]) bool {
-		v.Range(func(k string, v client.ClientHandler) bool {
+	c.clients.Range(func(k string, v *utils.SyncMap[string, app.ClientHandler]) bool {
+		v.Range(func(k string, v app.ClientHandler) bool {
 			v.Stop()
 			return true
 		})
@@ -155,15 +127,15 @@ func (c *clientController) StopAll() {
 }
 
 func (c *clientController) DeleteAll() {
-	c.clients.Range(func(k string, v *utils.SyncMap[string, client.ClientHandler]) bool {
+	c.clients.Range(func(k string, v *utils.SyncMap[string, app.ClientHandler]) bool {
 		c.DeleteByClient(k)
 		return true
 	})
-	c.clients = &utils.SyncMap[string, *utils.SyncMap[string, client.ClientHandler]]{}
+	c.clients = &utils.SyncMap[string, *utils.SyncMap[string, app.ClientHandler]]{}
 }
 
 func (c *clientController) RunAll() {
-	c.clients.Range(func(k string, v *utils.SyncMap[string, client.ClientHandler]) bool {
+	c.clients.Range(func(k string, v *utils.SyncMap[string, app.ClientHandler]) bool {
 		c.RunByClient(k)
 		return true
 	})

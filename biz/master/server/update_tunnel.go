@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/rpc"
@@ -14,7 +16,7 @@ import (
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 )
 
-func UpdateFrpsHander(c context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPSResponse, error) {
+func UpdateFrpsHander(c *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPSResponse, error) {
 	logger.Logger(c).Infof("update frps, req: [%+v]", req)
 	var (
 		serverID  = req.GetServerId()
@@ -26,7 +28,7 @@ func UpdateFrpsHander(c context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateF
 		return nil, fmt.Errorf("request invalid")
 	}
 
-	srv, err := dao.GetServerByServerID(userInfo, serverID)
+	srv, err := dao.NewQuery(c).GetServerByServerID(userInfo, serverID)
 	if srv == nil || err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot get server, id: [%s]", serverID)
 		return nil, err
@@ -38,7 +40,7 @@ func UpdateFrpsHander(c context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateF
 		return nil, err
 	}
 
-	srvCfg.HTTPPlugins = []v1.HTTPPluginOptions{conf.FRPsAuthOption(common.DefaultServerID == serverID)}
+	srvCfg.HTTPPlugins = []v1.HTTPPluginOptions{conf.FRPsAuthOption(c.GetApp().GetConfig(), defs.DefaultServerID == serverID)}
 
 	if err := srv.SetConfigContent(srvCfg); err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot set server config")
@@ -50,13 +52,13 @@ func UpdateFrpsHander(c context.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateF
 		srv.ServerIP = req.GetServerIp()
 	}
 
-	if err := dao.UpdateServer(userInfo, srv); err != nil {
+	if err := dao.NewQuery(c).UpdateServer(userInfo, srv); err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot update server, id: [%s]", serverID)
 		return nil, err
 	}
 
 	go func() {
-		resp, err := rpc.CallClient(context.Background(), req.GetServerId(), pb.Event_EVENT_UPDATE_FRPS, req)
+		resp, err := rpc.CallClient(app.NewContext(context.Background(), c.GetApp()), req.GetServerId(), pb.Event_EVENT_UPDATE_FRPS, req)
 		if err != nil {
 			logger.Logger(context.Background()).WithError(err).Errorf("update event send to server error, server id: [%s]", req.GetServerId())
 		}

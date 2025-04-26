@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/cache"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 )
 
-func FRPAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPAuthResponse, error) {
+func FRPAuth(ctx *app.Context, req *pb.FRPAuthRequest) (*pb.FRPAuthResponse, error) {
 	logger.Logger(ctx).Infof("frpc auth, req: [%+v]", req)
 	var (
 		err error
@@ -18,7 +19,7 @@ func FRPAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPAuthResponse, 
 
 	userToken, err := cache.Get().Get([]byte(req.User))
 	if err != nil {
-		u, err := dao.GetUserByUserName(req.User)
+		u, err := dao.NewQuery(ctx).GetUserByUserName(req.User)
 		if err != nil || u == nil {
 			logger.Logger(context.Background()).WithError(err).Errorf("invalid user: %s", req.User)
 			return &pb.FRPAuthResponse{

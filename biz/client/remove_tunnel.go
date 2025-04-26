@@ -1,15 +1,15 @@
 package client
 
 import (
-	"context"
 	"os"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 )
 
-func RemoveFrpcHandler(ctx context.Context, req *pb.RemoveFRPCRequest) (*pb.RemoveFRPCResponse, error) {
+func RemoveFrpcHandler(ctx *app.Context, req *pb.RemoveFRPCRequest) (*pb.RemoveFRPCResponse, error) {
 	logger.Logger(ctx).Infof("remove frpc, req: [%+v], will exit in 10s", req)
 
 	go func() {

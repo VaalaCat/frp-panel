@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -11,7 +12,7 @@ import (
 	"github.com/VaalaCat/frp-panel/rpc"
 )
 
-func RemoveFrpcHandler(c context.Context, req *pb.RemoveFRPCRequest) (*pb.RemoveFRPCResponse, error) {
+func RemoveFrpcHandler(c *app.Context, req *pb.RemoveFRPCRequest) (*pb.RemoveFRPCResponse, error) {
 	logger.Logger(c).Infof("remove frpc, req: [%+v]", req)
 
 	var (
@@ -24,13 +25,13 @@ func RemoveFrpcHandler(c context.Context, req *pb.RemoveFRPCRequest) (*pb.Remove
 		return nil, fmt.Errorf("invalid client id")
 	}
 
-	_, err := dao.GetClientByClientID(userInfo, clientID)
+	_, err := dao.NewQuery(c).GetClientByClientID(userInfo, clientID)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, err
 	}
 
-	err = dao.DeleteClient(userInfo, clientID)
+	err = dao.NewQuery(c).DeleteClient(userInfo, clientID)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot delete client, id: [%s]", clientID)
 		return nil, err

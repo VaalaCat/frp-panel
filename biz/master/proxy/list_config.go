@@ -1,8 +1,7 @@
 package proxy
 
 import (
-	"context"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/logger"
@@ -11,7 +10,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func ListProxyConfigs(ctx context.Context, req *pb.ListProxyConfigsRequest) (*pb.ListProxyConfigsResponse, error) {
+func ListProxyConfigs(ctx *app.Context, req *pb.ListProxyConfigsRequest) (*pb.ListProxyConfigsResponse, error) {
 	logger.Logger(ctx).Infof("list proxy configs, req: [%+v]", req)
 
 	var (
@@ -47,9 +46,9 @@ func ListProxyConfigs(ctx context.Context, req *pb.ListProxyConfigsRequest) (*pb
 	}
 
 	if hasKeyword {
-		proxyConfigs, err = dao.ListProxyConfigsWithFiltersAndKeyword(userInfo, page, pageSize, filter, keyword)
+		proxyConfigs, err = dao.NewQuery(ctx).ListProxyConfigsWithFiltersAndKeyword(userInfo, page, pageSize, filter, keyword)
 	} else {
-		proxyConfigs, err = dao.ListProxyConfigsWithFilters(userInfo, page, pageSize, filter)
+		proxyConfigs, err = dao.NewQuery(ctx).ListProxyConfigsWithFilters(userInfo, page, pageSize, filter)
 	}
 
 	if err != nil {
@@ -57,9 +56,9 @@ func ListProxyConfigs(ctx context.Context, req *pb.ListProxyConfigsRequest) (*pb
 	}
 
 	if hasKeyword {
-		proxyCounts, err = dao.CountProxyConfigsWithFiltersAndKeyword(userInfo, filter, keyword)
+		proxyCounts, err = dao.NewQuery(ctx).CountProxyConfigsWithFiltersAndKeyword(userInfo, filter, keyword)
 	} else {
-		proxyCounts, err = dao.CountProxyConfigsWithFilters(userInfo, filter)
+		proxyCounts, err = dao.NewQuery(ctx).CountProxyConfigsWithFilters(userInfo, filter)
 	}
 
 	if err != nil {

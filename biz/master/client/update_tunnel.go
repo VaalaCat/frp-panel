@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/dao"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -16,7 +18,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPCResponse, error) {
+func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPCResponse, error) {
 	logger.Logger(c).Infof("update frpc, req: [%+v]", req)
 	var (
 		content     = req.GetConfig()
@@ -33,7 +35,7 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 		}, err
 	}
 
-	cli, err := dao.GetClientByClientID(userInfo, reqClientID)
+	cli, err := dao.NewQuery(c).GetClientByClientID(userInfo, reqClientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", reqClientID)
 		return &pb.UpdateFRPCResponse{
@@ -67,7 +69,7 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 		}
 	}
 
-	srv, err := dao.GetServerByServerID(userInfo, req.GetServerId())
+	srv, err := dao.NewQuery(c).GetServerByServerID(userInfo, req.GetServerId())
 	if err != nil || srv == nil || len(srv.ServerIP) == 0 || len(srv.ConfigContent) == 0 {
 		logger.Logger(c).WithError(err).Errorf("cannot get server, server is not prepared, id: [%s]", req.GetServerId())
 		return &pb.UpdateFRPCResponse{
@@ -99,8 +101,8 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 		cliCfg.Metadatas = make(map[string]string)
 	}
 
-	cliCfg.Metadatas[common.FRPAuthTokenKey] = userInfo.GetToken()
-	cliCfg.Metadatas[common.FRPClientIDKey] = reqClientID
+	cliCfg.Metadatas[defs.FRPAuthTokenKey] = userInfo.GetToken()
+	cliCfg.Metadatas[defs.FRPClientIDKey] = reqClientID
 
 	newCfg := struct {
 		v1.ClientCommonConfig
@@ -124,12 +126,12 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 		cli.Comment = req.GetComment()
 	}
 
-	if err := dao.UpdateClient(userInfo, cli); err != nil {
+	if err := dao.NewQuery(c).UpdateClient(userInfo, cli); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot update client, id: [%s]", cli.ClientID)
 		return nil, err
 	}
 
-	if err := dao.RebuildProxyConfigFromClient(userInfo, &models.Client{ClientEntity: cli}); err != nil {
+	if err := dao.NewQuery(c).RebuildProxyConfigFromClient(userInfo, &models.Client{ClientEntity: cli}); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot rebuild proxy config from client, id: [%s]", cli.ClientID)
 		return nil, err
 	}
@@ -141,8 +143,8 @@ func UpdateFrpcHander(c context.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateF
 	}
 
 	go func() {
-		childCtx := context.Background()
-		cliToUpdate, err := dao.GetClientByFilter(userInfo, &models.ClientEntity{ClientID: cli.OriginClientID}, nil)
+		childCtx := app.NewContext(context.Background(), c.GetApp())
+		cliToUpdate, err := dao.NewQuery(childCtx).GetClientByFilter(userInfo, &models.ClientEntity{ClientID: cli.OriginClientID}, nil)
 		if err != nil {
 			logger.Logger(childCtx).WithError(err).Errorf("cannot get origin client, id: [%s]", cliToUpdate.OriginClientID)
 			return

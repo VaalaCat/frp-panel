@@ -4,25 +4,20 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
 	"github.com/VaalaCat/frp-panel/services/client"
-	"github.com/VaalaCat/frp-panel/tunnel"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/samber/lo"
 )
 
-func PullConfig(clientID, clientSecret string) error {
+func PullConfig(appInstance app.Application, clientID, clientSecret string) error {
 	ctx := context.Background()
-	ctrl := tunnel.GetClientController()
+	ctrl := appInstance.GetClientController()
 
 	logger.Logger(ctx).Infof("start to pull client config, clientID: [%s]", clientID)
-	cli, err := rpc.MasterCli(ctx)
-	if err != nil {
-		logger.Logger(context.Background()).WithError(err).Error("cannot get master client")
-		return err
-	}
+	cli := appInstance.GetMasterCli()
 	resp, err := cli.PullClientConfig(ctx, &pb.PullClientConfigReq{
 		Base: &pb.ClientBase{
 			ClientId:     clientID,
@@ -59,7 +54,7 @@ func PullConfig(clientID, clientSecret string) error {
 				logger.Logger(ctx).Infof("client [%s] is shadow client, skip", clientID)
 				continue
 			}
-			if err := PullConfig(id, clientSecret); err != nil {
+			if err := PullConfig(appInstance, id, clientSecret); err != nil {
 				logger.Logger(context.Background()).WithError(err).Errorf("cannot pull child client config, id: [%s]", id)
 			}
 		}

@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/VaalaCat/frp-panel/common"
-
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
 	"google.golang.org/protobuf/proto"
 )
 
-func HandleServerMessage(req *pb.ServerMessage) *pb.ClientMessage {
+func HandleServerMessage(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Printf("\n--------------------\ncatch panic !!! \nhandle server message error: %v, stack: %s\n--------------------\n", err, debug.Stack())
@@ -23,21 +22,21 @@ func HandleServerMessage(req *pb.ServerMessage) *pb.ClientMessage {
 	logger.Logger(c).Infof("client get a server message, origin is: [%+v]", req)
 	switch req.Event {
 	case pb.Event_EVENT_UPDATE_FRPC:
-		return common.WrapperServerMsg(req, UpdateFrpcHander)
+		return app.WrapperServerMsg(appInstance, req, UpdateFrpcHander)
 	case pb.Event_EVENT_REMOVE_FRPC:
-		return common.WrapperServerMsg(req, RemoveFrpcHandler)
+		return app.WrapperServerMsg(appInstance, req, RemoveFrpcHandler)
 	case pb.Event_EVENT_START_FRPC:
-		return common.WrapperServerMsg(req, StartFRPCHandler)
+		return app.WrapperServerMsg(appInstance, req, StartFRPCHandler)
 	case pb.Event_EVENT_STOP_FRPC:
-		return common.WrapperServerMsg(req, StopFRPCHandler)
+		return app.WrapperServerMsg(appInstance, req, StopFRPCHandler)
 	case pb.Event_EVENT_START_STREAM_LOG:
-		return common.WrapperServerMsg(req, StartSteamLogHandler)
+		return app.WrapperServerMsg(appInstance, req, StartSteamLogHandler)
 	case pb.Event_EVENT_STOP_STREAM_LOG:
-		return common.WrapperServerMsg(req, StopSteamLogHandler)
+		return app.WrapperServerMsg(appInstance, req, StopSteamLogHandler)
 	case pb.Event_EVENT_START_PTY_CONNECT:
-		return common.WrapperServerMsg(req, StartPTYConnect)
+		return app.WrapperServerMsg(appInstance, req, StartPTYConnect)
 	case pb.Event_EVENT_GET_PROXY_INFO:
-		return common.WrapperServerMsg(req, GetProxyConfig)
+		return app.WrapperServerMsg(appInstance, req, GetProxyConfig)
 	case pb.Event_EVENT_PING:
 		rawData, _ := proto.Marshal(conf.GetVersion().ToProto())
 		return &pb.ClientMessage{

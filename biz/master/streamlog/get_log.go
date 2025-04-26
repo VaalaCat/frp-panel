@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -13,7 +14,13 @@ import (
 	"github.com/sourcegraph/conc"
 )
 
-func GetLogHander(c *gin.Context) {
+func GetLogHandler(appInstance app.Application) func(*gin.Context) {
+	return func(c *gin.Context) {
+		getLogHander(c, appInstance)
+	}
+}
+
+func getLogHander(c *gin.Context, appInstance app.Application) {
 	id := c.Query("id")
 	logger.Logger(c).Infof("user try to get stream log, id: [%s]", id)
 
@@ -22,25 +29,25 @@ func GetLogHander(c *gin.Context) {
 		return
 	}
 
-	Mgr().GetClientLock(id).Lock()
-	defer Mgr().GetClientLock(id).Unlock()
+	appInstance.GetClientLogManager().GetClientLock(id).Lock()
+	defer appInstance.GetClientLogManager().GetClientLock(id).Unlock()
 
 	ch := make(chan string, CacheBufSize)
-	if oldCh, ok := Mgr().sLogMap.LoadAndDelete(id); ok {
+	if oldCh, ok := appInstance.GetClientLogManager().LoadAndDelete(id); ok {
 		close(oldCh)
 	}
-	Mgr().sLogMap.Store(id, ch)
+	appInstance.GetClientLogManager().Store(id, ch)
 
-	_, err := rpc.CallClient(c, id, pb.Event_EVENT_START_STREAM_LOG, &pb.CommonRequest{})
+	_, err := rpc.CallClient(app.NewContext(c, appInstance), id, pb.Event_EVENT_START_STREAM_LOG, &pb.CommonRequest{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, common.Err(err.Error()))
 		return
 	}
 
 	defer func() {
-		Mgr().sLogMap.Delete(id)
+		appInstance.GetClientLogManager().Delete(id)
 		close(ch)
-		rpc.CallClient(context.Background(), id, pb.Event_EVENT_STOP_STREAM_LOG, &pb.CommonRequest{})
+		rpc.CallClient(app.NewContext(context.Background(), appInstance), id, pb.Event_EVENT_STOP_STREAM_LOG, &pb.CommonRequest{})
 	}()
 
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
