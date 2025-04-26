@@ -11,7 +11,7 @@ package main
 // 				Data:  []byte(fmt.Sprint(cnt)),
 // 			})
 // 			if string(resp.Data) != fmt.Sprint(cnt) {
-// 				logrus.Panicf("resp: %+v", resp)
+// 				logger.Logger(ctx).Panicf("resp: %+v", resp)
 // 			}
 // 		})
 // 	}

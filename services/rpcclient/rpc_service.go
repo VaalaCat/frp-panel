@@ -1,8 +1,8 @@
 package rpcclient
 
 import (
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
 )
 
 type ClientRPCHandler interface {
@@ -13,7 +13,7 @@ type ClientRPCHandler interface {
 
 type clientRPC struct {
 	appInstance  app.Application
-	rpcClient    pb.MasterClient
+	rpcClient    app.MasterClient
 	done         chan bool
 	handerFunc   func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage
 	clientID     string
@@ -49,6 +49,6 @@ func (s *clientRPC) Stop() {
 	close(s.done)
 }
 
-func (s *clientRPC) GetCli() pb.MasterClient {
+func (s *clientRPC) GetCli() app.MasterClient {
 	return s.rpcClient
 }

@@ -1,6 +1,6 @@
 package dao
 
-import "github.com/VaalaCat/frp-panel/app"
+import "github.com/VaalaCat/frp-panel/services/app"
 
 type Query interface{}
 

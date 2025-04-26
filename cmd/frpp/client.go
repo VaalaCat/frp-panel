@@ -3,70 +3,81 @@ package main
 import (
 	"context"
 
-	"github.com/VaalaCat/frp-panel/app"
 	bizclient "github.com/VaalaCat/frp-panel/biz/client"
+	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
-	"github.com/VaalaCat/frp-panel/tunnel"
-	"github.com/VaalaCat/frp-panel/utils"
-	"github.com/VaalaCat/frp-panel/watcher"
+	"github.com/VaalaCat/frp-panel/services/tunnel"
+	"github.com/VaalaCat/frp-panel/services/watcher"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/fatedier/golib/crypto"
-	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
+	"go.uber.org/fx"
 )
 
-func runClient(appInstance app.Application) {
+type runClientParam struct {
+	fx.In
+
+	Lc fx.Lifecycle
+
+	Ctx         *app.Context
+	AppInstance app.Application
+	TaskManager watcher.Client `name:"clientTaskManager"`
+	Cfg         conf.Config
+}
+
+func runClient(param runClientParam) {
 	var (
-		c            = context.Background()
-		clientID     = appInstance.GetConfig().Client.ID
-		clientSecret = appInstance.GetConfig().Client.Secret
+		ctx          = param.Ctx
+		clientID     = param.AppInstance.GetConfig().Client.ID
+		clientSecret = param.AppInstance.GetConfig().Client.Secret
+		appInstance  = param.AppInstance
 	)
-	crypto.DefaultSalt = appInstance.GetConfig().App.Secret
-	logger.Logger(c).Infof("start to run client")
+	crypto.DefaultSalt = param.AppInstance.GetConfig().App.Secret
+	logger.Logger(ctx).Infof("start to run client")
 	if len(clientSecret) == 0 {
-		logrus.Fatal("client secret cannot be empty")
+		logger.Logger(ctx).Fatal("client secret cannot be empty")
 	}
 
 	if len(clientID) == 0 {
-		logrus.Fatal("client id cannot be empty")
+		logger.Logger(ctx).Fatal("client id cannot be empty")
 	}
 
-	cred, err := utils.TLSClientCertNoValidate(rpc.GetClientCert(
-		appInstance,
-		clientID, clientSecret, pb.ClientType_CLIENT_TYPE_FRPC))
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
-	appInstance.SetClientCred(cred)
-	appInstance.SetMasterCli(rpc.NewMasterCli(appInstance))
-	appInstance.SetClientController(tunnel.NewClientController())
-
-	r := rpcclient.NewClientRPCHandler(
-		appInstance,
-		clientID,
-		clientSecret,
-		pb.Event_EVENT_REGISTER_CLIENT,
-		bizclient.HandleServerMessage,
-	)
-	appInstance.SetClientRPCHandler(r)
-
-	w := watcher.NewClient()
-	w.AddDurationTask(defs.PullConfigDuration,
+	param.TaskManager.AddDurationTask(defs.PullConfigDuration,
 		bizclient.PullConfig, appInstance, clientID, clientSecret)
 
-	initClientOnce(appInstance, clientID, clientSecret)
-
-	defer w.Stop()
-	defer r.Stop()
-
 	var wg conc.WaitGroup
-	wg.Go(r.Run)
-	wg.Go(w.Run)
-	wg.Wait()
+	param.Lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			appInstance.SetRPCCred(NewClientCred(appInstance))
+			appInstance.SetMasterCli(NewClientMasterCli(appInstance))
+			appInstance.SetClientController(tunnel.NewClientController())
+
+			cliRpcHandler := rpcclient.NewClientRPCHandler(
+				appInstance,
+				clientID,
+				clientSecret,
+				pb.Event_EVENT_REGISTER_CLIENT,
+				bizclient.HandleServerMessage,
+			)
+			appInstance.SetClientRPCHandler(cliRpcHandler)
+
+			initClientOnce(appInstance, clientID, clientSecret)
+
+			wg.Go(cliRpcHandler.Run)
+			wg.Go(param.TaskManager.Run)
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			param.TaskManager.Stop()
+			appInstance.GetClientRPCHandler().Stop()
+
+			wg.Wait()
+			return nil
+		},
+	})
 }
 
 func initClientOnce(appInstance app.Application, clientID, clientSecret string) {

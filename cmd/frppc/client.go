@@ -3,18 +3,17 @@ package main
 import (
 	"context"
 
-	"github.com/VaalaCat/frp-panel/app"
 	bizclient "github.com/VaalaCat/frp-panel/biz/client"
 	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
-	"github.com/VaalaCat/frp-panel/tunnel"
+	"github.com/VaalaCat/frp-panel/services/tunnel"
+	"github.com/VaalaCat/frp-panel/services/watcher"
 	"github.com/VaalaCat/frp-panel/utils"
-	"github.com/VaalaCat/frp-panel/watcher"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/fatedier/golib/crypto"
-	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
 )
 
@@ -23,23 +22,24 @@ func runClient(appInstance app.Application) {
 		c            = context.Background()
 		clientID     = appInstance.GetConfig().Client.ID
 		clientSecret = appInstance.GetConfig().Client.Secret
+		ctx          = context.Background()
 	)
 	crypto.DefaultSalt = appInstance.GetConfig().App.Secret
 	logger.Logger(c).Infof("start to run client")
 	if len(clientSecret) == 0 {
-		logrus.Fatal("client secret cannot be empty")
+		logger.Logger(ctx).Fatal("client secret cannot be empty")
 	}
 
 	if len(clientID) == 0 {
-		logrus.Fatal("client id cannot be empty")
+		logger.Logger(ctx).Fatal("client id cannot be empty")
 	}
 
 	cred, err := utils.TLSClientCertNoValidate(rpc.GetClientCert(appInstance, clientID, clientSecret, pb.ClientType_CLIENT_TYPE_FRPC))
 	if err != nil {
-		logrus.Fatal(err)
+		logger.Logger(ctx).Fatal(err)
 	}
 
-	appInstance.SetClientCred(cred)
+	appInstance.SetRPCCred(cred)
 	appInstance.SetMasterCli(rpc.NewMasterCli(appInstance))
 	appInstance.SetClientController(tunnel.NewClientController())
 

@@ -5,12 +5,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/logger"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/utils"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )

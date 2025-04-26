@@ -3,8 +3,8 @@ package rpc
 import (
 	"time"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/utils"
 	"google.golang.org/grpc/peer"
 )

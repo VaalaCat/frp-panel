@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/VaalaCat/frp-panel/conf"
-	"github.com/VaalaCat/frp-panel/logger"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/coocood/freecache"
 )
 

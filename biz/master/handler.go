@@ -3,7 +3,6 @@ package master
 import (
 	"embed"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/master/auth"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/biz/master/platform"
@@ -13,6 +12,7 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
 	"github.com/VaalaCat/frp-panel/biz/master/user"
 	"github.com/VaalaCat/frp-panel/middleware"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/gin-gonic/gin"
 )
 

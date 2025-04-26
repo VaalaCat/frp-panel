@@ -2,6 +2,7 @@ package dao
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/tls"
@@ -10,22 +11,23 @@ import (
 
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/utils"
-	"github.com/sirupsen/logrus"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 )
 
 func (q *queryImpl) InitCert(template *x509.Certificate) *tls.Config {
+	ctx := context.Background()
 	var (
 		certPem []byte
 		keyPem  []byte
 	)
 	cnt, err := q.CountCerts()
 	if err != nil {
-		logrus.Fatal(err)
+		logger.Logger(ctx).Fatal(err)
 	}
 	if cnt == 0 {
 		certPem, keyPem, err = GenX509Info(template)
 		if err != nil {
-			logrus.Fatal(err)
+			logger.Logger(ctx).Fatal(err)
 		}
 		if err = q.ctx.GetApp().GetDBManager().GetDefaultDB().Create(&models.Cert{
 			Name:     "default",
@@ -33,18 +35,18 @@ func (q *queryImpl) InitCert(template *x509.Certificate) *tls.Config {
 			CaFile:   certPem,
 			KeyFile:  keyPem,
 		}).Error; err != nil {
-			logrus.Fatal(err)
+			logger.Logger(ctx).Fatal(err)
 		}
 	} else {
 		keyPem, certPem, err = q.GetDefaultKeyPair()
 		if err != nil {
-			logrus.Fatal(err)
+			logger.Logger(ctx).Fatal(err)
 		}
 	}
 
 	resp, err := utils.TLSServerCert(certPem, keyPem)
 	if err != nil {
-		logrus.Fatal(err)
+		logger.Logger(ctx).Fatal(err)
 	}
 	return resp
 }

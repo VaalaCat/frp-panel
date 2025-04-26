@@ -6,162 +6,264 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/utils"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"go.uber.org/fx"
 )
 
-var (
-	clientCmd *cobra.Command
-	serverCmd *cobra.Command
-	masterCmd *cobra.Command
-	rootCmd   *cobra.Command
-)
+type CommonArgs struct {
+	ClientSecret *string
+	ClientID     *string
+	AppSecret    *string
+	RpcUrl       *string
+	ApiUrl       *string
 
-func initCommand(appInstance app.Application) {
-	rootCmd = &cobra.Command{
-		Use:   "frp-panel",
-		Short: "frp-panel is a frp panel QwQ",
-	}
-	CmdListWithFlag := initCmdWithFlag(appInstance)
-	CmdListWithoutFlag := initCmdWithoutFlag(appInstance)
-	rootCmd.AddCommand(CmdListWithFlag...)
-	rootCmd.AddCommand(CmdListWithoutFlag...)
+	RpcHost   *string
+	ApiHost   *string
+	RpcPort   *int
+	ApiPort   *int
+	ApiScheme *string
 }
 
-func initCmdWithFlag(appInstance app.Application) []*cobra.Command {
-	var (
-		clientSecret string
-		clientID     string
-		rpcHost      string
-		apiHost      string
-		appSecret    string
-		rpcPort      int
-		apiPort      int
-		apiScheme    string
-		joinToken    string
-		rpcUrl       string
-		apiUrl       string
+func buildCommand() *cobra.Command {
+	cfg := conf.NewConfig()
+
+	return NewRootCmd(
+		NewMasterCmd(cfg),
+		NewClientCmd(cfg),
+		NewServerCmd(cfg),
+		NewJoinCmd(),
+		NewInstallServiceCmd(),
+		NewUninstallServiceCmd(),
+		NewStartServiceCmd(),
+		NewStopServiceCmd(),
+		NewRestartServiceCmd(),
+		NewVersionCmd(),
 	)
+}
 
-	clientCmd = &cobra.Command{
-		Use:   "client [-s client secret] [-i client id] [-a app secret] [-t api host] [-r rpc host] [-c rpc port] [-p api port]",
-		Short: "run managed frpc",
-		Run: func(cmd *cobra.Command, args []string) {
-			run := func() {
-				patchConfig(appInstance,
-					apiHost, rpcHost, appSecret,
-					clientID, clientSecret,
-					apiScheme, rpcPort, apiPort,
-					apiUrl, rpcUrl)
-				runClient(appInstance)
-			}
-			if srv, err := utils.CreateSystemService(args, run); err != nil {
-				run()
-			} else {
-				srv.Run()
-			}
-		},
+func AddCommonFlags(commonCmd *cobra.Command) {
+	commonCmd.Flags().StringP("secret", "s", "", "client secret")
+	commonCmd.Flags().StringP("id", "i", "", "client id")
+	commonCmd.Flags().StringP("app", "a", "", "app secret")
+	commonCmd.Flags().String("rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
+	commonCmd.Flags().String("api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
+
+	// deprecated start
+	commonCmd.Flags().StringP("rpc", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
+	commonCmd.Flags().StringP("api", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
+	commonCmd.Flags().IntP("rpc-port", "c", 0, "deprecated, use --rpc-url instead, rpc port, master rpc port, scheme is grpc")
+	commonCmd.Flags().IntP("api-port", "p", 0, "deprecated, use --api-url instead, api port, master api port, scheme is http/https")
+	commonCmd.Flags().StringP("api-scheme", "e", "", "deprecated, use --api-url instead, api scheme, master api scheme, scheme is http/https")
+	// deprecated end
+}
+
+func GetCommonArgs(cmd *cobra.Command) CommonArgs {
+	var commonArgs CommonArgs
+
+	if clientSecret, err := cmd.Flags().GetString("secret"); err == nil {
+		commonArgs.ClientSecret = &clientSecret
 	}
 
-	serverCmd = &cobra.Command{
-		Use:   "server [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
-		Short: "run managed frps",
-		Run: func(cmd *cobra.Command, args []string) {
-			run := func() {
-				patchConfig(appInstance,
-					apiHost, rpcHost, appSecret,
-					clientID, clientSecret,
-					apiScheme, rpcPort, apiPort,
-					apiUrl, rpcUrl)
-				runServer(appInstance)
-			}
-			if srv, err := utils.CreateSystemService(args, run); err != nil {
-				run()
-			} else {
-				srv.Run()
-			}
-		},
+	if clientID, err := cmd.Flags().GetString("id"); err == nil {
+		commonArgs.ClientID = &clientID
 	}
 
+	if appSecret, err := cmd.Flags().GetString("app"); err == nil {
+		commonArgs.AppSecret = &appSecret
+	}
+
+	if rpcURL, err := cmd.Flags().GetString("rpc-url"); err == nil {
+		commonArgs.RpcUrl = &rpcURL
+	}
+
+	if apiURL, err := cmd.Flags().GetString("api-url"); err == nil {
+		commonArgs.ApiUrl = &apiURL
+	}
+
+	if rpcHost, err := cmd.Flags().GetString("rpc-host"); err == nil {
+		commonArgs.RpcHost = &rpcHost
+	}
+
+	if apiHost, err := cmd.Flags().GetString("api-host"); err == nil {
+		commonArgs.ApiHost = &apiHost
+	}
+
+	if rpcPort, err := cmd.Flags().GetInt("rpc-port"); err == nil {
+		commonArgs.RpcPort = &rpcPort
+	}
+
+	if apiPort, err := cmd.Flags().GetInt("api-port"); err == nil {
+		commonArgs.ApiPort = &apiPort
+	}
+
+	if apiScheme, err := cmd.Flags().GetString("api-scheme"); err == nil {
+		commonArgs.ApiScheme = &apiScheme
+	}
+
+	return commonArgs
+}
+
+type JoinArgs struct {
+	CommonArgs
+	JoinToken *string
+}
+
+func NewJoinCmd() *cobra.Command {
 	joinCmd := &cobra.Command{
 		Use:   "join [-j join token] [-r rpc host] [-p api port] [-e api scheme]",
 		Short: "join to master with token, save param to config",
 		Run: func(cmd *cobra.Command, args []string) {
-			pullRunConfig(appInstance,
-				joinToken, appSecret, rpcHost,
-				apiScheme, rpcPort, apiPort,
-				clientID, apiHost,
-				apiUrl, rpcUrl)
+			commonArgs := GetCommonArgs(cmd)
+			joinArgs := &JoinArgs{
+				CommonArgs: commonArgs,
+			}
+			if joinToken, err := cmd.Flags().GetString("join-token"); err == nil {
+				joinArgs.JoinToken = &joinToken
+			}
+
+			appInstance := app.NewApp()
+			pullRunConfig(appInstance, joinArgs)
 		},
 	}
 
-	clientCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
-	serverCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
-	clientCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
-	serverCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
+	joinCmd.Flags().StringP("join-token", "j", "", "your token from master")
+	AddCommonFlags(joinCmd)
 
-	clientCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
-	serverCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
-
-	serverCmd.Flags().StringVar(&rpcUrl, "rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
-	clientCmd.Flags().StringVar(&rpcUrl, "rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
-
-	serverCmd.Flags().StringVar(&apiUrl, "api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
-	clientCmd.Flags().StringVar(&apiUrl, "api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
-
-	// deprecated start
-	clientCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
-	serverCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
-	clientCmd.Flags().StringVarP(&apiHost, "api", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
-	serverCmd.Flags().StringVarP(&apiHost, "api", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
-	clientCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "deprecated, use --rpc-url instead, rpc port, master rpc port, scheme is grpc")
-	serverCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "deprecated, use --rpc-url instead, rpc port, master rpc port, scheme is grpc")
-	clientCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "deprecated, use --api-url instead, api port, master api port, scheme is http/https")
-	serverCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "deprecated, use --api-url instead, api port, master api port, scheme is http/https")
-	clientCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "deprecated, use --api-url instead, api scheme, master api scheme, scheme is http/https")
-	serverCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "deprecated, use --api-url instead, api scheme, master api scheme, scheme is http/https")
-	joinCmd.Flags().IntVarP(&rpcPort, "rpc-port", "c", 0, "deprecated, use --rpc-url instead, rpc port, master rpc port, scheme is grpc")
-	joinCmd.Flags().IntVarP(&apiPort, "api-port", "p", 0, "deprecated, use --api-url instead, api port, master api port, scheme is http/https")
-	joinCmd.Flags().StringVarP(&rpcHost, "rpc", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
-	joinCmd.Flags().StringVarP(&apiHost, "api", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
-	joinCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "deprecated, use --api-url instead, api scheme, master api scheme, scheme is http/https")
-	// deprecated end
-
-	joinCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
-	joinCmd.Flags().StringVarP(&joinToken, "join-token", "j", "", "your token from master")
-	joinCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
-	joinCmd.Flags().StringVar(&rpcUrl, "rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
-	joinCmd.Flags().StringVar(&apiUrl, "api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
-
-	return []*cobra.Command{clientCmd, serverCmd, joinCmd}
+	return joinCmd
 }
 
-func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
-	masterCmd = &cobra.Command{
+func NewMasterCmd(cfg conf.Config) *cobra.Command {
+	return &cobra.Command{
 		Use:   "master",
 		Short: "run frp-panel manager",
 		Run: func(cmd *cobra.Command, args []string) {
+
+			opts := []fx.Option{
+				commonMod,
+				masterMod,
+				serverMod,
+				fx.Supply(
+					CommonArgs{},
+					fx.Annotate(cfg, fx.ResultTags(`name:"originConfig"`)),
+				),
+				fx.Provide(fx.Annotate(NewDefaultServerConfig, fx.ResultTags(`name:"defaultServerConfig"`))),
+				fx.Invoke(runMaster),
+				fx.Invoke(runServer),
+			}
+
+			if !cfg.IsDebug {
+				opts = append(opts, fx.NopLogger)
+			}
+
 			run := func() {
-				runMaster(appInstance)
+				masterApp := fx.New(opts...)
+				masterApp.Run()
+				if err := masterApp.Err(); err != nil {
+					logger.Logger(context.Background()).Fatalf("masterApp FX Application Error: %v", err)
+				}
+			}
+
+			if srv, err := utils.CreateSystemService(args, run); err != nil {
+				run()
+			} else {
+				srv.Run()
+			}
+		},
+	}
+}
+
+func NewClientCmd(cfg conf.Config) *cobra.Command {
+	clientCmd := &cobra.Command{
+		Use:   "client [-s client secret] [-i client id] [-a app secret] [-t api host] [-r rpc host] [-c rpc port] [-p api port]",
+		Short: "run managed frpc",
+		Run: func(cmd *cobra.Command, args []string) {
+			commonArgs := GetCommonArgs(cmd)
+
+			opts := []fx.Option{
+				clientMod,
+				commonMod,
+				fx.Supply(
+					commonArgs,
+					fx.Annotate(cfg, fx.ResultTags(`name:"originConfig"`)),
+				),
+				fx.Invoke(runClient),
+			}
+
+			if !cfg.IsDebug {
+				opts = append(opts, fx.NopLogger)
+			}
+
+			run := func() {
+				clientApp := fx.New(opts...)
+				clientApp.Run()
+				if err := clientApp.Err(); err != nil {
+					logger.Logger(context.Background()).Fatalf("clientApp FX Application Error: %v", err)
+				}
 			}
 			if srv, err := utils.CreateSystemService(args, run); err != nil {
-				runMaster(appInstance)
+				run()
 			} else {
 				srv.Run()
 			}
 		},
 	}
 
-	installServiceCmd := &cobra.Command{
+	AddCommonFlags(clientCmd)
+
+	return clientCmd
+}
+
+func NewServerCmd(cfg conf.Config) *cobra.Command {
+	serverCmd := &cobra.Command{
+		Use:   "server [-s client secret] [-i client id] [-a app secret] [-r rpc host] [-c rpc port] [-p api port]",
+		Short: "run managed frps",
+		Run: func(cmd *cobra.Command, args []string) {
+			commonArgs := GetCommonArgs(cmd)
+			opts := []fx.Option{
+				serverMod,
+				commonMod,
+				fx.Supply(
+					commonArgs,
+					fx.Annotate(cfg, fx.ResultTags(`name:"originConfig"`)),
+				),
+				fx.Invoke(runServer),
+			}
+
+			if !cfg.IsDebug {
+				opts = append(opts, fx.NopLogger)
+			}
+
+			run := func() {
+				serverApp := fx.New(opts...)
+				serverApp.Run()
+				if err := serverApp.Err(); err != nil {
+					logger.Logger(context.Background()).Fatalf("serverApp FX Application Error: %v", err)
+				}
+			}
+			if srv, err := utils.CreateSystemService(args, run); err != nil {
+				run()
+			} else {
+				srv.Run()
+			}
+		},
+	}
+
+	AddCommonFlags(serverCmd)
+
+	return serverCmd
+}
+
+func NewInstallServiceCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:                   "install",
 		Short:                 "install frp-panel as service",
 		DisableFlagParsing:    true,
@@ -170,8 +272,10 @@ func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
 			utils.ControlSystemService(args, "install", func() {})
 		},
 	}
+}
 
-	uninstallServiceCmd := &cobra.Command{
+func NewUninstallServiceCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:                   "uninstall",
 		Short:                 "uninstall frp-panel service",
 		DisableFlagParsing:    true,
@@ -180,8 +284,10 @@ func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
 			utils.ControlSystemService(args, "uninstall", func() {})
 		},
 	}
+}
 
-	startServiceCmd := &cobra.Command{
+func NewStartServiceCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:                   "start",
 		Short:                 "start frp-panel service",
 		DisableFlagParsing:    true,
@@ -190,8 +296,10 @@ func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
 			utils.ControlSystemService(args, "start", func() {})
 		},
 	}
+}
 
-	stopServiceCmd := &cobra.Command{
+func NewStopServiceCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:                   "stop",
 		Short:                 "stop frp-panel service",
 		DisableFlagParsing:    true,
@@ -200,8 +308,10 @@ func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
 			utils.ControlSystemService(args, "stop", func() {})
 		},
 	}
+}
 
-	restartServiceCmd := &cobra.Command{
+func NewRestartServiceCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:                   "restart",
 		Short:                 "restart frp-panel service",
 		DisableFlagParsing:    true,
@@ -210,8 +320,10 @@ func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
 			utils.ControlSystemService(args, "restart", func() {})
 		},
 	}
+}
 
-	versionCmd := &cobra.Command{
+func NewVersionCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:   "version",
 		Short: "Print the version info of frp-panel",
 		Long:  `All software has versions. This is frp-panel's`,
@@ -219,70 +331,60 @@ func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
 			fmt.Println(conf.GetVersion().String())
 		},
 	}
-	return []*cobra.Command{
-		masterCmd,
-		installServiceCmd,
-		uninstallServiceCmd,
-		startServiceCmd,
-		stopServiceCmd,
-		restartServiceCmd,
-		versionCmd,
-	}
 }
 
-func initLogger() {
-	logger.Instance().SetReportCaller(true)
-	logrus.SetReportCaller(true)
-}
-
-func patchConfig(appInstance app.Application, apiHost, rpcHost, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int, apiUrl, rpcUrl string) {
+func patchConfig(appInstance app.Application, commonArgs CommonArgs) conf.Config {
 	c := context.Background()
 	tmpCfg := appInstance.GetConfig()
-	if len(rpcHost) != 0 {
-		tmpCfg.Master.RPCHost = rpcHost
-		tmpCfg.Master.APIHost = rpcHost
+
+	if commonArgs.RpcHost != nil {
+		tmpCfg.Master.RPCHost = *commonArgs.RpcHost
+		tmpCfg.Master.APIHost = *commonArgs.RpcHost
 	}
 
-	if len(apiHost) != 0 {
-		tmpCfg.Master.APIHost = apiHost
+	if commonArgs.ApiHost != nil {
+		tmpCfg.Master.APIHost = *commonArgs.ApiHost
 	}
 
-	if len(secret) != 0 {
-		tmpCfg.App.Secret = secret
+	if commonArgs.AppSecret != nil {
+		tmpCfg.App.Secret = *commonArgs.AppSecret
 	}
-	if rpcPort != 0 {
-		tmpCfg.Master.RPCPort = rpcPort
+	if commonArgs.RpcPort != nil {
+		tmpCfg.Master.RPCPort = *commonArgs.RpcPort
 	}
-	if apiPort != 0 {
-		tmpCfg.Master.APIPort = apiPort
+	if commonArgs.ApiPort != nil {
+		tmpCfg.Master.APIPort = *commonArgs.ApiPort
 	}
-	if len(apiScheme) != 0 {
-		tmpCfg.Master.APIScheme = apiScheme
+	if commonArgs.ApiScheme != nil {
+		tmpCfg.Master.APIScheme = *commonArgs.ApiScheme
 	}
-	if len(clientID) != 0 {
-		tmpCfg.Client.ID = clientID
+	if commonArgs.ClientID != nil {
+		tmpCfg.Client.ID = *commonArgs.ClientID
 	}
-	if len(clientSecret) != 0 {
-		tmpCfg.Client.Secret = clientSecret
-	}
-
-	if len(apiUrl) != 0 {
-		tmpCfg.Client.APIUrl = apiUrl
-	}
-	if len(rpcUrl) != 0 {
-		tmpCfg.Client.RPCUrl = rpcUrl
+	if commonArgs.ClientSecret != nil {
+		tmpCfg.Client.Secret = *commonArgs.ClientSecret
 	}
 
-	if rpcPort != 0 || apiPort != 0 || len(apiScheme) != 0 || len(rpcHost) != 0 || len(apiHost) != 0 {
+	if commonArgs.ApiUrl != nil {
+		tmpCfg.Client.APIUrl = *commonArgs.ApiUrl
+	}
+	if commonArgs.RpcUrl != nil {
+		tmpCfg.Client.RPCUrl = *commonArgs.RpcUrl
+	}
+
+	if commonArgs.RpcPort != nil || commonArgs.ApiPort != nil ||
+		commonArgs.ApiScheme != nil ||
+		commonArgs.RpcHost != nil || commonArgs.ApiHost != nil {
 		logger.Logger(c).Warnf("deprecatedenv configs !!! rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
 			tmpCfg.Master.RPCHost, tmpCfg.Master.RPCPort,
 			tmpCfg.Master.APIHost, tmpCfg.Master.APIPort,
 			tmpCfg.Master.APIScheme)
 	}
 	logger.Logger(c).Infof("env config, api url: %s, rpc url: %s", tmpCfg.Client.APIUrl, tmpCfg.Client.RPCUrl)
+	return tmpCfg
 }
 
-func setMasterCommandIfNonePresent() {
+func setMasterCommandIfNonePresent(rootCmd *cobra.Command) {
 	cmd, _, err := rootCmd.Find(os.Args[1:])
 	if err == nil && cmd.Use == rootCmd.Use && cmd.Flags().Parse(os.Args[1:]) != pflag.ErrHelp {
 		args := append([]string{"master"}, os.Args[1:]...)
@@ -290,9 +392,9 @@ func setMasterCommandIfNonePresent() {
 	}
 }
 
-func pullRunConfig(appInstance app.Application, joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int, clientID, apiHost string, apiUrl, rpcUrl string) {
+func pullRunConfig(appInstance app.Application, joinArgs *JoinArgs) {
 	c := context.Background()
-	if err := checkPullParams(joinToken, apiHost, apiScheme, apiPort, apiUrl); err != nil {
+	if err := checkPullParams(joinArgs); err != nil {
 		logger.Logger(c).Errorf("check pull params failed: %s", err.Error())
 		return
 	}
@@ -302,14 +404,16 @@ func pullRunConfig(appInstance app.Application, joinToken, appSecret, rpcHost, a
 		return
 	}
 
-	if len(clientID) == 0 {
+	var clientID string
+
+	if cliID := joinArgs.ClientID; cliID == nil || len(*cliID) == 0 {
 		clientID = utils.GetHostnameWithIP()
 	}
 
 	clientID = utils.MakeClientIDPermited(clientID)
-	patchConfig(appInstance, apiHost, rpcHost, appSecret, "", "", apiScheme, rpcPort, apiPort, apiUrl, rpcUrl)
+	patchConfig(appInstance, joinArgs.CommonArgs)
 
-	initResp, err := rpc.InitClient(appInstance, clientID, joinToken)
+	initResp, err := rpc.InitClient(appInstance, clientID, *joinArgs.JoinToken)
 	if err != nil {
 		logger.Logger(c).Errorf("init client failed: %s", err.Error())
 		return
@@ -324,7 +428,7 @@ func pullRunConfig(appInstance app.Application, joinToken, appSecret, rpcHost, a
 	}
 
 	clientID = initResp.GetClientId()
-	clientResp, err := rpc.GetClient(appInstance, clientID, joinToken)
+	clientResp, err := rpc.GetClient(appInstance, clientID, *joinArgs.JoinToken)
 	if err != nil {
 		logger.Logger(c).Errorf("get client failed: %s", err.Error())
 		return
@@ -350,11 +454,11 @@ func pullRunConfig(appInstance app.Application, joinToken, appSecret, rpcHost, a
 		logger.Logger(c).Warnf("read env file failed, try to create: %s", err.Error())
 	}
 
-	envMap[defs.EnvAppSecret] = appSecret
+	envMap[defs.EnvAppSecret] = *joinArgs.AppSecret
 	envMap[defs.EnvClientID] = clientID
 	envMap[defs.EnvClientSecret] = client.GetSecret()
-	envMap[defs.EnvClientAPIUrl] = apiUrl
-	envMap[defs.EnvClientRPCUrl] = rpcUrl
+	envMap[defs.EnvClientAPIUrl] = *joinArgs.ApiUrl
+	envMap[defs.EnvClientRPCUrl] = *joinArgs.RpcUrl
 
 	if err = godotenv.Write(envMap, defs.SysEnvPath); err != nil {
 		logger.Logger(c).Errorf("write env file failed: %s", err.Error())
@@ -363,21 +467,34 @@ func pullRunConfig(appInstance app.Application, joinToken, appSecret, rpcHost, a
 	logger.Logger(c).Infof("config saved to env file: %s, you can use `frp-panel client` without args to run client,\n\nconfig is: [%v]", defs.SysEnvPath, envMap)
 }
 
-func checkPullParams(joinToken, apiHost, apiScheme string, apiPort int, apiUrl string) error {
-	if len(joinToken) == 0 {
+func checkPullParams(joinArgs *JoinArgs) error {
+	if joinToken := joinArgs.JoinToken; joinToken != nil && len(*joinToken) == 0 {
 		return errors.New("join token is empty")
 	}
-	if len(apiUrl) == 0 {
-		if len(apiHost) == 0 {
+
+	if apiUrl := joinArgs.ApiUrl; apiUrl == nil || len(*apiUrl) == 0 {
+		if apiHost := joinArgs.ApiHost; apiHost == nil || len(*apiHost) == 0 {
 			return errors.New("api host is empty")
 		}
-		if len(apiScheme) == 0 {
+		if apiScheme := joinArgs.ApiScheme; apiScheme == nil || len(*apiScheme) == 0 {
 			return errors.New("api scheme is empty")
 		}
 	}
 
-	if apiPort == 0 {
+	if apiPort := joinArgs.ApiPort; apiPort == nil || *apiPort == 0 {
 		return errors.New("api port is empty")
 	}
+
 	return nil
+}
+
+func NewRootCmd(cmds ...*cobra.Command) *cobra.Command {
+	rootCmd := &cobra.Command{
+		Use:   "frp-panel",
+		Short: "frp-panel is a frp panel QwQ",
+	}
+
+	rootCmd.AddCommand(cmds...)
+
+	return rootCmd
 }

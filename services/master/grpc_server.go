@@ -6,18 +6,17 @@ import (
 	"io"
 	"net"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	masterserver "github.com/VaalaCat/frp-panel/biz/master/server"
 	"github.com/VaalaCat/frp-panel/biz/master/shell"
 	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
 	"github.com/VaalaCat/frp-panel/conf"
-	"github.com/VaalaCat/frp-panel/dao"
 	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
-	"github.com/sirupsen/logrus"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/dao"
+	"github.com/VaalaCat/frp-panel/services/rpc"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -38,14 +37,16 @@ func newRpcServer(appInstance app.Application, creds credentials.TransportCreden
 }
 
 func runRpcServer(appInstance app.Application, s *grpc.Server) {
+	ctx := context.Background()
+
 	lis, err := net.Listen("tcp", conf.RPCListenAddr(appInstance.GetConfig()))
 	if err != nil {
-		logrus.Fatalf("rpc server failed to listen: %v", err)
+		logger.Logger(ctx).Fatalf("rpc server failed to listen: %v", err)
 	}
 
-	logrus.Infof("start server")
+	logger.Logger(ctx).Infof("start server")
 	if err := s.Serve(lis); err != nil {
-		logrus.Fatalf("failed to serve: %v", err)
+		logger.Logger(ctx).Fatalf("failed to serve: %v", err)
 	}
 }
 

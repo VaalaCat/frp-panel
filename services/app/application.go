@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/VaalaCat/frp-panel/conf"
-	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/credentials"
 )
@@ -23,8 +22,8 @@ type Application interface {
 	SetClientRecvMap(*sync.Map)
 	GetClientsManager() ClientsManager
 	SetClientsManager(ClientsManager)
-	GetMasterCli() pb.MasterClient
-	SetMasterCli(pb.MasterClient)
+	GetMasterCli() MasterClient
+	SetMasterCli(MasterClient)
 	GetClientRPCHandler() ClientRPCHandler
 	SetClientRPCHandler(ClientRPCHandler)
 	GetServerHandler() ServerHandler
@@ -35,8 +34,8 @@ type Application interface {
 	SetServerController(ServerController)
 	GetConfig() conf.Config
 	SetConfig(conf.Config)
-	GetClientCred() credentials.TransportCredentials
-	SetClientCred(credentials.TransportCredentials)
+	GetRPCCred() credentials.TransportCredentials
+	SetRPCCred(credentials.TransportCredentials)
 }
 
 type Context struct {

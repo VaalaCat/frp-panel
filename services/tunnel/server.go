@@ -3,7 +3,7 @@ package tunnel
 import (
 	"sync"
 
-	"github.com/VaalaCat/frp-panel/app"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/fatedier/frp/pkg/metrics"
 )
 

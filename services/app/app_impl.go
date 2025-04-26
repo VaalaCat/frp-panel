@@ -4,13 +4,12 @@ import (
 	"sync"
 
 	"github.com/VaalaCat/frp-panel/conf"
-	"github.com/VaalaCat/frp-panel/pb"
 	"google.golang.org/grpc/credentials"
 )
 
 type application struct {
 	streamLogHookMgr StreamLogHookMgr
-	masterCli        pb.MasterClient
+	masterCli        MasterClient
 
 	shellPTYMgr      ShellPTYMgr
 	clientLogManager ClientLogManager
@@ -21,23 +20,23 @@ type application struct {
 	clientsManager   ClientsManager
 	serverHandler    ServerHandler
 	serverController ServerController
-	clientCred       credentials.TransportCredentials
+	rpcCred          credentials.TransportCredentials
 	conf             conf.Config
 }
 
 // GetClientCred implements Application.
-func (a *application) GetClientCred() credentials.TransportCredentials {
-	return a.clientCred
+func (a *application) GetRPCCred() credentials.TransportCredentials {
+	return a.rpcCred
+}
+
+// SetClientCred implements Application.
+func (a *application) SetRPCCred(cred credentials.TransportCredentials) {
+	a.rpcCred = cred
 }
 
 // GetConfig implements Application.
 func (a *application) GetConfig() conf.Config {
 	return a.conf
-}
-
-// SetClientCred implements Application.
-func (a *application) SetClientCred(cred credentials.TransportCredentials) {
-	a.clientCred = cred
 }
 
 // SetConfig implements Application.
@@ -86,12 +85,12 @@ func (a *application) SetClientRPCHandler(clientRPCHandler ClientRPCHandler) {
 }
 
 // GetMasterCli implements Application.
-func (a *application) GetMasterCli() pb.MasterClient {
+func (a *application) GetMasterCli() MasterClient {
 	return a.masterCli
 }
 
 // SetMasterCli implements Application.
-func (a *application) SetMasterCli(masterCli pb.MasterClient) {
+func (a *application) SetMasterCli(masterCli MasterClient) {
 	a.masterCli = masterCli
 }
 

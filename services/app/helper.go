@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/VaalaCat/frp-panel/common"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/protobuf/proto"
 )

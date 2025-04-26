@@ -114,7 +114,7 @@ type ClientHandler interface {
 type ClientRPCHandler interface {
 	Run()
 	Stop()
-	GetCli() pb.MasterClient
+	GetCli() MasterClient
 }
 
 type ClientController interface {
@@ -151,4 +151,9 @@ type ServerHandler interface {
 	GetCommonCfg() *v1.ServerConfig
 	GetMem() *mem.ServerStats
 	GetProxyStatsByType(v1.ProxyType) []*mem.ProxyStats
+}
+
+// rpc/master.go
+type MasterClient interface {
+	Call() pb.MasterClient
 }

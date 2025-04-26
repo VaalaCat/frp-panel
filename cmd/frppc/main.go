@@ -3,16 +3,17 @@ package main
 import (
 	"sync"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/common"
 	"github.com/VaalaCat/frp-panel/biz/master/shell"
 	"github.com/VaalaCat/frp-panel/conf"
-	"github.com/VaalaCat/frp-panel/rpc"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/rpc"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/spf13/cobra"
 )
 
 func main() {
-	initLogger()
+	logger.InitLogger()
 	cobra.MousetrapHelpText = ""
 	cfg := conf.NewConfig()
 

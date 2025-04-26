@@ -3,7 +3,7 @@ package models
 import (
 	"context"
 
-	"github.com/VaalaCat/frp-panel/logger"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"gorm.io/gorm"
 )
 

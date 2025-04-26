@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/VaalaCat/frp-panel/logger"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/go-co-op/gocron/v2"
 )
 
@@ -53,7 +53,7 @@ func (c *client) AddCronTask(cron string, function any, parameters ...any) error
 
 func (c *client) Run() {
 	ctx := context.Background()
-	logger.Logger(ctx).Infof("start to run scheduler, interval: 30s")
+	logger.Logger(ctx).Infof("start to run scheduler")
 	c.s.Start()
 }
 

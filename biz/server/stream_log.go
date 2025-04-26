@@ -3,11 +3,11 @@ package server
 import (
 	"context"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/common"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/utils"
-	"github.com/sirupsen/logrus"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 )
 
 func StartSteamLogHandler(ctx *app.Context, req *pb.CommonRequest) (*pb.CommonResponse, error) {
@@ -22,10 +22,10 @@ func initStreamLog(ctx *app.Context, h app.StreamLogHookMgr) {
 	clientID := ctx.GetApp().GetConfig().Client.ID
 	clientSecret := ctx.GetApp().GetConfig().Client.Secret
 
-	handler, err := ctx.GetApp().GetClientRPCHandler().GetCli().PushServerStreamLog(
+	handler, err := ctx.GetApp().GetClientRPCHandler().GetCli().Call().PushServerStreamLog(
 		context.Background())
 	if err != nil {
-		logrus.Error(err)
+		logger.Logger(ctx).Error(err)
 	}
 
 	h.AddStream(func(msg string) {

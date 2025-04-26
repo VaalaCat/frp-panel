@@ -1,14 +1,15 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/kardianos/service"
-	"github.com/sirupsen/logrus"
 )
 
 type SystemService struct {
@@ -60,18 +61,20 @@ func CreateSystemService(args []string, run func()) (service.Service, error) {
 }
 
 func ControlSystemService(args []string, action string, run func()) error {
-	logrus.Info("try to ", action, " service, args:", args)
+	ctx := context.Background()
+
+	logger.Logger(ctx).Info("try to ", action, " service, args:", args)
 	s, err := CreateSystemService(args, run)
 	if err != nil {
-		logrus.WithError(err).Error("create service controller failed")
+		logger.Logger(ctx).WithError(err).Error("create service controller failed")
 		return err
 	}
 
 	if err := service.Control(s, action); err != nil {
-		logrus.WithError(err).Errorf("controller %v service failed", action)
+		logger.Logger(ctx).WithError(err).Errorf("controller %v service failed", action)
 		return err
 	}
-	logrus.Infof("controller %v service success", action)
+	logger.Logger(ctx).Infof("controller %v service success", action)
 	return nil
 }
 

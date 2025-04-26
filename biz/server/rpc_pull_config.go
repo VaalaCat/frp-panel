@@ -4,11 +4,11 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/VaalaCat/frp-panel/app"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/server"
 	"github.com/VaalaCat/frp-panel/utils"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 )
 
 func PullConfig(appInstance app.Application, serverID, serverSecret string) error {
@@ -16,7 +16,7 @@ func PullConfig(appInstance app.Application, serverID, serverSecret string) erro
 	logger.Logger(ctx).Infof("start to pull server config, serverID: [%s]", serverID)
 
 	cli := appInstance.GetMasterCli()
-	resp, err := cli.PullServerConfig(ctx, &pb.PullServerConfigReq{
+	resp, err := cli.Call().PullServerConfig(ctx, &pb.PullServerConfigReq{
 		Base: &pb.ServerBase{
 			ServerId:     serverID,
 			ServerSecret: serverSecret,

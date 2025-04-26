@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/biz/master/server"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 )
 
 func PTYConnect(ctx *app.Context, sender pb.Master_PTYConnectServer) error {

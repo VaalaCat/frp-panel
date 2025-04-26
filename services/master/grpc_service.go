@@ -1,7 +1,7 @@
 package master
 
 import (
-	"github.com/VaalaCat/frp-panel/app"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

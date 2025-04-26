@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 
-	"github.com/VaalaCat/frp-panel/app"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/samber/lo"
 )
@@ -46,7 +46,7 @@ func PushProxyInfo(appInstance app.Application, serverID, serverSecret string) e
 	if len(proxyInfos) > 0 {
 		ctx := context.Background()
 		cli := appInstance.GetMasterCli()
-		_, err := cli.PushProxyInfo(ctx, &pb.PushProxyInfoReq{
+		_, err := cli.Call().PushProxyInfo(ctx, &pb.PushProxyInfoReq{
 			Base: &pb.ServerBase{
 				ServerId:     serverID,
 				ServerSecret: serverSecret,

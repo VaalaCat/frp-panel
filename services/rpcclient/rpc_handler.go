@@ -5,11 +5,10 @@ import (
 	"io"
 	"time"
 
-	"github.com/VaalaCat/frp-panel/app"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
 // func clientHandleServerSend(req *pb.ServerMessage) *pb.ClientMessage {
@@ -23,8 +22,8 @@ import (
 // }
 
 func RegistClientToMaster(appInstance app.Application, recvStream pb.Master_ServerSendClient, event pb.Event, clientID, clientSecret string) {
-	c := context.Background()
-	logger.Logger(c).Infof("start to regist client to master")
+	ctx := context.Background()
+	logger.Logger(ctx).Infof("start to regist client to master")
 	for {
 		err := recvStream.Send(&pb.ClientMessage{
 			Event:     event,
@@ -33,7 +32,7 @@ func RegistClientToMaster(appInstance app.Application, recvStream pb.Master_Serv
 			Secret:    clientSecret,
 		})
 		if err != nil {
-			logger.Logger(context.Background()).WithError(err).Warnf("cannot send, sleep 3s and retry")
+			logger.Logger(ctx).WithError(err).Warnf("cannot send, sleep 3s and retry")
 			time.Sleep(3 * time.Second)
 			continue
 		}
@@ -43,11 +42,11 @@ func RegistClientToMaster(appInstance app.Application, recvStream pb.Master_Serv
 			break
 		}
 		if err != nil {
-			logrus.Fatalf("cannot receive %v", err)
+			logger.Logger(ctx).Fatalf("cannot receive %v", err)
 		}
 
 		if resp.GetEvent() == event {
-			logger.Logger(c).Infof("client get server register envent success, clientID: %s", resp.GetClientId())
+			logger.Logger(ctx).Infof("client get server register envent success, clientID: %s", resp.GetClientId())
 			break
 		}
 	}
@@ -94,7 +93,7 @@ func RunRPCClient(appInstance app.Application, recvStream pb.Master_ServerSendCl
 	}
 }
 
-func StartRPCClient(appInstance app.Application, client pb.MasterClient, done chan bool, clientID, clientSecret string, event pb.Event,
+func StartRPCClient(appInstance app.Application, client app.MasterClient, done chan bool, clientID, clientSecret string, event pb.Event,
 	clientHandleServerSend func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage) {
 	c := context.Background()
 	logger.Logger(c).Infof("start to run rpc client")
@@ -104,7 +103,7 @@ func StartRPCClient(appInstance app.Application, client pb.MasterClient, done ch
 			logger.Logger(c).Infof("finish rpc client")
 			return
 		default:
-			recvStream, err := client.ServerSend(context.Background())
+			recvStream, err := client.Call().ServerSend(context.Background())
 			if err != nil {
 				logger.Logger(context.Background()).WithError(err).Errorf("cannot recv, sleep 3s and retry")
 				time.Sleep(3 * time.Second)

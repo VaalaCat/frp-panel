@@ -4,11 +4,11 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/VaalaCat/frp-panel/app"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/client"
 	"github.com/VaalaCat/frp-panel/utils"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/samber/lo"
 )
 
@@ -18,7 +18,7 @@ func PullConfig(appInstance app.Application, clientID, clientSecret string) erro
 
 	logger.Logger(ctx).Infof("start to pull client config, clientID: [%s]", clientID)
 	cli := appInstance.GetMasterCli()
-	resp, err := cli.PullClientConfig(ctx, &pb.PullClientConfigReq{
+	resp, err := cli.Call().PullClientConfig(ctx, &pb.PullClientConfigReq{
 		Base: &pb.ClientBase{
 			ClientId:     clientID,
 			ClientSecret: clientSecret,

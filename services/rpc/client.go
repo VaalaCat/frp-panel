@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -29,10 +28,10 @@ func CallClientWrapper[R common.RespType](c *app.Context, clientID string, event
 	return proto.Unmarshal(cresp.GetData(), protoMsgRef)
 }
 
-func CallClient(c *app.Context, clientID string, event pb.Event, msg proto.Message) (*pb.ClientMessage, error) {
-	sender := c.GetApp().GetClientsManager().Get(clientID)
+func CallClient(ctx *app.Context, clientID string, event pb.Event, msg proto.Message) (*pb.ClientMessage, error) {
+	sender := ctx.GetApp().GetClientsManager().Get(clientID)
 	if sender == nil {
-		logger.Logger(c).Errorf("cannot get client, id: [%s]", clientID)
+		logger.Logger(ctx).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, fmt.Errorf("cannot get client, id: [%s]", clientID)
 	}
 
@@ -49,21 +48,21 @@ func CallClient(c *app.Context, clientID string, event pb.Event, msg proto.Messa
 		ClientId:  clientID,
 	}
 
-	c.GetApp().GetClientRecvMap().Store(req.SessionId, make(chan *pb.ClientMessage))
+	ctx.GetApp().GetClientRecvMap().Store(req.SessionId, make(chan *pb.ClientMessage))
 	err = sender.Conn.Send(req)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot send")
-		c.GetApp().GetClientsManager().Remove(clientID)
+		ctx.GetApp().GetClientsManager().Remove(clientID)
 		return nil, err
 	}
-	respChAny, ok := c.GetApp().GetClientRecvMap().Load(req.SessionId)
+	respChAny, ok := ctx.GetApp().GetClientRecvMap().Load(req.SessionId)
 	if !ok {
-		logrus.Fatalf("cannot load")
+		logger.Logger(ctx).Fatalf("cannot load")
 	}
 
 	respCh, ok := respChAny.(chan *pb.ClientMessage)
 	if !ok {
-		logrus.Fatalf("cannot cast")
+		logger.Logger(ctx).Fatalf("cannot cast")
 	}
 
 	resp := <-respCh
@@ -72,7 +71,7 @@ func CallClient(c *app.Context, clientID string, event pb.Event, msg proto.Messa
 	}
 
 	close(respCh)
-	c.GetApp().GetClientRecvMap().Delete(req.SessionId)
+	ctx.GetApp().GetClientRecvMap().Delete(req.SessionId)
 	return resp, nil
 }
 

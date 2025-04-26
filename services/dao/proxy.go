@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/utils"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc/pool"
 	"gorm.io/gorm"

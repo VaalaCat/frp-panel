@@ -6,15 +6,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/rpc"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/utils"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -178,11 +177,6 @@ func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
 		restartServiceCmd,
 		versionCmd,
 	}
-}
-
-func initLogger() {
-	logger.Instance().SetReportCaller(true)
-	logrus.SetReportCaller(true)
 }
 
 func patchConfig(appInstance app.Application, apiHost, rpcHost, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int, apiUrl, rpcUrl string) {

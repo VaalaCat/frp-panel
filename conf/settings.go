@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/logger"
+	"github.com/VaalaCat/frp-panel/utils/logger"
+	"github.com/gin-gonic/gin"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -77,14 +77,18 @@ func NewConfig() Config {
 	}
 
 	if !useEnvFile {
-		logrus.Info("use runtime env variables")
+		logger.Logger(ctx).Info("use runtime env variables")
 	}
 
 	cfg := Config{}
 	if err = cleanenv.ReadEnv(&cfg); err != nil {
-		logrus.Panic(err)
+		logger.Logger(ctx).Panic(err)
 	}
 	cfg.Complete()
+
+	if !cfg.IsDebug {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	return cfg
 }

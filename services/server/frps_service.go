@@ -4,14 +4,13 @@ import (
 	"context"
 	"sync"
 
-	"github.com/VaalaCat/frp-panel/app"
-	"github.com/VaalaCat/frp-panel/logger"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
 	"github.com/fatedier/frp/pkg/metrics/mem"
 	"github.com/fatedier/frp/pkg/util/log"
 	"github.com/fatedier/frp/server"
-	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
 )
 
@@ -23,13 +22,14 @@ type serverImpl struct {
 
 func NewServerHandler(svrCfg *v1.ServerConfig) app.ServerHandler {
 	svrCfg.Complete()
+	ctx := context.Background()
 
 	warning, err := validation.ValidateServerConfig(svrCfg)
 	if warning != nil {
 		logger.Logger(context.Background()).WithError(err).Warnf("validate server config warning: %+v", warning)
 	}
 	if err != nil {
-		logrus.Panic(err)
+		logger.Logger(ctx).Panic(err)
 	}
 
 	log.InitLogger(svrCfg.Log.To, svrCfg.Log.Level, int(svrCfg.Log.MaxDays), svrCfg.Log.DisablePrintColor)

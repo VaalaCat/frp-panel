@@ -1,13 +1,14 @@
 package utils
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
 
-	"github.com/sirupsen/logrus"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -23,13 +24,14 @@ func PublicKey(priv interface{}) interface{} {
 }
 
 func PemBlockForPrivKey(priv interface{}) *pem.Block {
+	ctx := context.Background()
 	switch k := priv.(type) {
 	case *rsa.PrivateKey:
 		return &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(k)}
 	case *ecdsa.PrivateKey:
 		b, err := x509.MarshalECPrivateKey(k)
 		if err != nil {
-			logrus.Fatalf("Unable to marshal ECDSA private key: %v", err)
+			logger.Logger(ctx).Fatalf("Unable to marshal ECDSA private key: %v", err)
 		}
 		return &pem.Block{Type: "EC PRIVATE KEY", Bytes: b}
 	default:

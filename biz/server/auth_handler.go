@@ -3,10 +3,10 @@ package server
 import (
 	"net/http"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	plugin "github.com/fatedier/frp/pkg/plugin/server"
 	"github.com/gin-gonic/gin"
 )
@@ -68,7 +68,7 @@ func HandleLogin(ctx *app.Context) (interface{}, error) {
 		return res, nil
 	}
 	cli := ctx.GetApp().GetMasterCli()
-	authResponse, err := cli.FRPCAuth(ctx, &pb.FRPAuthRequest{User: content.User, Token: token})
+	authResponse, err := cli.Call().FRPCAuth(ctx, &pb.FRPAuthRequest{User: content.User, Token: token})
 	if err != nil {
 		res.Reject = true
 		res.RejectReason = "invalid meta token"

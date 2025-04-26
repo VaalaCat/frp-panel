@@ -1,39 +1,62 @@
 package rpc
 
 import (
+	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/VaalaCat/frp-panel/utils/wsgrpc"
 	"github.com/imroc/req/v3"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/proto"
 )
 
-func NewMasterCli(appInstance app.Application) pb.MasterClient {
+type masterClient struct {
+	cli         pb.MasterClient
+	inited      bool
+	appInstance app.Application
+}
+
+func (m *masterClient) Call() pb.MasterClient {
+	if !m.inited {
+		m.cli = newMasterCli(m.appInstance)
+		m.inited = true
+	}
+	return m.cli
+}
+
+func NewMasterCli(appInstance app.Application) *masterClient {
+	return &masterClient{
+		inited:      false,
+		appInstance: appInstance,
+	}
+}
+
+func newMasterCli(appInstance app.Application) pb.MasterClient {
 	connInfo := conf.GetRPCConnInfo(appInstance.GetConfig())
+	ctx := context.Background()
 
 	opt := []grpc.DialOption{}
 
 	switch connInfo.Scheme {
 	case conf.GRPC:
 		if appInstance.GetConfig().Client.TLSRpc {
-			logrus.Infof("use tls rpc")
-			opt = append(opt, grpc.WithTransportCredentials(appInstance.GetClientCred()))
+			logger.Logger(ctx).Infof("use tls rpc")
+			opt = append(opt, grpc.WithTransportCredentials(appInstance.GetRPCCred()))
 		} else {
-			logrus.Infof("use insecure rpc")
+			logger.Logger(ctx).Infof("use insecure rpc")
 			opt = append(opt, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		}
 	case conf.WS, conf.WSS:
-		logrus.Infof("use ws/wss rpc")
+		logger.Logger(ctx).Infof("use ws/wss rpc")
 
 		wsURL := fmt.Sprintf("%s://%s/wsgrpc", connInfo.Scheme, connInfo.Host)
 		header := http.Header{}
@@ -44,7 +67,7 @@ func NewMasterCli(appInstance app.Application) pb.MasterClient {
 	conn, err := grpc.NewClient(connInfo.Host, opt...)
 
 	if err != nil {
-		logrus.Fatalf("did not connect: %v", err)
+		logger.Logger(ctx).Fatalf("did not connect: %v", err)
 	}
 
 	return pb.NewMasterClient(conn)

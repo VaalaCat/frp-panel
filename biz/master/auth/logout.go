@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"github.com/VaalaCat/frp-panel/app"
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/gin-gonic/gin"
 )
 

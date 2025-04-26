@@ -3,18 +3,17 @@ package auth
 import (
 	"context"
 
-	"github.com/VaalaCat/frp-panel/app"
-	"github.com/VaalaCat/frp-panel/cache"
-	"github.com/VaalaCat/frp-panel/dao"
-	"github.com/VaalaCat/frp-panel/logger"
 	"github.com/VaalaCat/frp-panel/models"
+	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/cache"
+	"github.com/VaalaCat/frp-panel/services/dao"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/samber/lo"
-	"github.com/sirupsen/logrus"
 )
 
 func InitAuth(appInstance app.Application) {
 	appCtx := app.NewContext(context.Background(), appInstance)
-	logrus.Info("start to init frp user auth token")
+	logger.Logger(appCtx).Info("start to init frp user auth token")
 
 	u, err := dao.NewQuery(appCtx).AdminGetAllUsers()
 	if err != nil {
