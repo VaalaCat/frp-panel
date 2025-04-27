@@ -13,7 +13,6 @@ import (
 	"github.com/VaalaCat/frp-panel/services/watcher"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/VaalaCat/frp-panel/utils/wsgrpc"
-	"github.com/fatedier/golib/crypto"
 	"github.com/gin-gonic/gin"
 	"github.com/sourcegraph/conc"
 	"go.uber.org/fx"
@@ -39,8 +38,6 @@ type runMasterParam struct {
 }
 
 func runMaster(param runMasterParam) {
-	cfg := param.AppInstance.GetConfig()
-	crypto.DefaultSalt = conf.MasterDefaultSalt(cfg)
 
 	param.AppInstance.SetClientLogManager(param.ClientLogManager)
 	param.MasterRouter.GET("/wsgrpc", param.WsGrpcHandler)

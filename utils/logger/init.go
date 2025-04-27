@@ -9,17 +9,29 @@ import (
 	"strconv"
 	"strings"
 
+	frplog "github.com/fatedier/frp/pkg/util/log"
+	"github.com/fatedier/golib/log"
 	"github.com/sirupsen/logrus"
 )
 
+func InitFrpLogger() {
+	frplog.Logger = log.New(
+		log.WithCaller(true),
+		log.AddCallerSkip(1),
+		log.WithLevel(log.InfoLevel),
+		log.WithOutput(logger))
+}
+
 func InitLogger() {
 	// projectRoot, projectPkg, _ := findProjectRootAndModule()
+	InitFrpLogger()
 
 	Instance().SetReportCaller(true)
+	Instance().SetFormatter(NewCustomFormatter(false, true))
 	Instance().AddHook(NewStackTraceHook())
 
 	logrus.SetReportCaller(true)
-	logrus.SetReportCaller(true)
+	logrus.SetFormatter(NewCustomFormatter(false, true))
 }
 
 func NewCallerPrettyfier(projectRoot, projectPkg string) func(frame *runtime.Frame) (function string, file string) {

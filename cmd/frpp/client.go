@@ -12,7 +12,6 @@ import (
 	"github.com/VaalaCat/frp-panel/services/tunnel"
 	"github.com/VaalaCat/frp-panel/services/watcher"
 	"github.com/VaalaCat/frp-panel/utils/logger"
-	"github.com/fatedier/golib/crypto"
 	"github.com/sourcegraph/conc"
 	"go.uber.org/fx"
 )
@@ -35,7 +34,6 @@ func runClient(param runClientParam) {
 		clientSecret = param.AppInstance.GetConfig().Client.Secret
 		appInstance  = param.AppInstance
 	)
-	crypto.DefaultSalt = param.AppInstance.GetConfig().App.Secret
 	logger.Logger(ctx).Infof("start to run client")
 	if len(clientSecret) == 0 {
 		logger.Logger(ctx).Fatal("client secret cannot be empty")

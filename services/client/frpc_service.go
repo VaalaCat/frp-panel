@@ -14,7 +14,6 @@ import (
 	"github.com/fatedier/frp/client/proxy"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
-	"github.com/fatedier/frp/pkg/util/log"
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc"
 )
@@ -41,7 +40,6 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 		logger.Logger(ctx).Panic(err)
 	}
 
-	log.InitLogger(commonCfg.Log.To, commonCfg.Log.Level, int(commonCfg.Log.MaxDays), commonCfg.Log.DisablePrintColor)
 	cli, err := client.NewService(client.ServiceOptions{
 		Common:      commonCfg,
 		ProxyCfgs:   proxyCfgs,

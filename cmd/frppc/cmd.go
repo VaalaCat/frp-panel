@@ -40,7 +40,6 @@ func initCmdWithFlag(appInstance app.Application) []*cobra.Command {
 		clientID     string
 		rpcHost      string
 		apiHost      string
-		appSecret    string
 		rpcPort      int
 		apiPort      int
 		apiScheme    string
@@ -50,12 +49,12 @@ func initCmdWithFlag(appInstance app.Application) []*cobra.Command {
 	)
 
 	clientCmd = &cobra.Command{
-		Use:   "client [-s client secret] [-i client id] [-a app secret] [-t api host] [-r rpc host] [-c rpc port] [-p api port]",
+		Use:   "client [-s client secret] [-i client id] [-t api host] [-r rpc host] [-c rpc port] [-p api port]",
 		Short: "run managed frpc",
 		Run: func(cmd *cobra.Command, args []string) {
 			run := func() {
 				patchConfig(appInstance,
-					apiHost, rpcHost, appSecret,
+					apiHost, rpcHost,
 					clientID, clientSecret,
 					apiScheme, rpcPort, apiPort,
 					apiUrl, rpcUrl)
@@ -74,14 +73,12 @@ func initCmdWithFlag(appInstance app.Application) []*cobra.Command {
 		Short: "join to master with token, save param to config",
 		Run: func(cmd *cobra.Command, args []string) {
 			pullRunConfig(appInstance,
-				joinToken, appSecret, rpcHost, apiScheme, rpcPort, apiPort, clientID, apiHost, apiUrl, rpcUrl)
+				joinToken, rpcHost, apiScheme, rpcPort, apiPort, clientID, apiHost, apiUrl, rpcUrl)
 		},
 	}
 
 	clientCmd.Flags().StringVarP(&clientSecret, "secret", "s", "", "client secret")
 	clientCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
-
-	clientCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 
 	clientCmd.Flags().StringVar(&rpcUrl, "rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
 
@@ -100,7 +97,6 @@ func initCmdWithFlag(appInstance app.Application) []*cobra.Command {
 	joinCmd.Flags().StringVarP(&apiScheme, "api-scheme", "e", "", "deprecated, use --api-url instead, api scheme, master api scheme, scheme is http/https")
 	// deprecated end
 
-	joinCmd.Flags().StringVarP(&appSecret, "app", "a", "", "app secret")
 	joinCmd.Flags().StringVarP(&joinToken, "join-token", "j", "", "your token from master")
 	joinCmd.Flags().StringVarP(&clientID, "id", "i", "", "client id")
 	joinCmd.Flags().StringVar(&rpcUrl, "rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
@@ -179,7 +175,7 @@ func initCmdWithoutFlag(appInstance app.Application) []*cobra.Command {
 	}
 }
 
-func patchConfig(appInstance app.Application, apiHost, rpcHost, secret, clientID, clientSecret, apiScheme string, rpcPort, apiPort int, apiUrl, rpcUrl string) {
+func patchConfig(appInstance app.Application, apiHost, rpcHost, clientID, clientSecret, apiScheme string, rpcPort, apiPort int, apiUrl, rpcUrl string) {
 	c := context.Background()
 	tmpCfg := appInstance.GetConfig()
 	if len(rpcHost) != 0 {
@@ -191,9 +187,6 @@ func patchConfig(appInstance app.Application, apiHost, rpcHost, secret, clientID
 		tmpCfg.Master.APIHost = apiHost
 	}
 
-	if len(secret) != 0 {
-		tmpCfg.App.Secret = secret
-	}
 	if rpcPort != 0 {
 		tmpCfg.Master.RPCPort = rpcPort
 	}
@@ -234,7 +227,7 @@ func setMasterCommandIfNonePresent() {
 	}
 }
 
-func pullRunConfig(appInstance app.Application, joinToken, appSecret, rpcHost, apiScheme string, rpcPort, apiPort int, clientID, apiHost string, apiUrl, rpcUrl string) {
+func pullRunConfig(appInstance app.Application, joinToken, rpcHost, apiScheme string, rpcPort, apiPort int, clientID, apiHost string, apiUrl, rpcUrl string) {
 	c := context.Background()
 	if err := checkPullParams(joinToken, apiHost, apiScheme, apiPort, apiUrl); err != nil {
 		logger.Logger(c).Errorf("check pull params failed: %s", err.Error())
@@ -251,7 +244,7 @@ func pullRunConfig(appInstance app.Application, joinToken, appSecret, rpcHost, a
 	}
 
 	clientID = utils.MakeClientIDPermited(clientID)
-	patchConfig(appInstance, apiHost, rpcHost, appSecret, "", "", apiScheme, rpcPort, apiPort, apiUrl, rpcUrl)
+	patchConfig(appInstance, apiHost, rpcHost, "", "", apiScheme, rpcPort, apiPort, apiUrl, rpcUrl)
 
 	initResp, err := rpc.InitClient(appInstance, clientID, joinToken)
 	if err != nil {
@@ -294,7 +287,6 @@ func pullRunConfig(appInstance app.Application, joinToken, appSecret, rpcHost, a
 		logger.Logger(c).Warnf("read env file failed, try to create: %s", err.Error())
 	}
 
-	envMap[defs.EnvAppSecret] = appSecret
 	envMap[defs.EnvClientID] = clientID
 	envMap[defs.EnvClientSecret] = client.GetSecret()
 	envMap[defs.EnvClientAPIUrl] = apiUrl

@@ -2,6 +2,7 @@ package conf
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -10,11 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
+	"github.com/tidwall/pretty"
 )
 
 type Config struct {
 	App struct {
-		Secret         string `env:"SECRET" env-description:"app secret, for client and server frp salt"`
 		GlobalSecret   string `env:"GLOBAL_SECRET" env-default:"frp-panel" env-description:"global secret, used in manager gen secret, keep it safe"`
 		CookieAge      int    `env:"COOKIE_AGE" env-default:"86400" env-description:"cookie age in second, default is 1 day"`
 		CookieName     string `env:"COOKIE_NAME" env-default:"frp-panel-cookie" env-description:"cookie name"`
@@ -31,9 +32,7 @@ type Config struct {
 		CacheSize                 int    `env:"CACHE_SIZE" env-default:"10" env-description:"cache size in MB"`
 		RPCHost                   string `env:"RPC_HOST" env-default:"127.0.0.1" env-description:"master host, is a public ip or domain"`
 		RPCPort                   int    `env:"RPC_PORT" env-default:"9001" env-description:"master rpc port"`
-		CompatibleMode            bool   `env:"COMPATIBLE_MODE" env-default:"false" env-description:"compatible mode, for official frp client"`
 		InternalFRPServerHost     string `env:"INTERNAL_FRP_SERVER_HOST" env-description:"internal frp server host, used for client connection"`
-		InternalFRPServerPort     int    `env:"INTERNAL_FRP_SERVER_PORT" env-default:"9002" env-description:"internal frp server port, used for client connection"`
 		InternalFRPAuthServerHost string `env:"INTERNAL_FRP_AUTH_SERVER_HOST" env-default:"127.0.0.1" env-description:"internal frp auth server host"`
 		InternalFRPAuthServerPort int    `env:"INTERNAL_FRP_AUTH_SERVER_PORT" env-default:"8999" env-description:"internal frp auth server port"`
 		InternalFRPAuthServerPath string `env:"INTERNAL_FRP_AUTH_SERVER_PATH" env-default:"/auth" env-description:"internal frp auth server path"`
@@ -111,4 +110,9 @@ func (cfg *Config) Complete() {
 	if len(cfg.Client.ID) == 0 {
 		cfg.Client.ID = hostname
 	}
+}
+
+func (cfg Config) PrintStr() string {
+	raw, _ := json.Marshal(cfg)
+	return string(pretty.Pretty(raw))
 }

@@ -276,3 +276,10 @@ func NewDefaultServerConfig(ctx *app.Context) conf.Config {
 
 	return tmpCfg
 }
+
+const splitter = "\n--------------------------------------------\n"
+
+func NewConfigPrinter(ctx *app.Context, config conf.Config) {
+	logger.Logger(ctx).Infof("%srunning config is: %s%s", splitter, config.PrintStr(), splitter)
+	logger.Logger(ctx).Infof("%scurrent version: \n%s%s", splitter, conf.GetVersion().String(), splitter)
+}

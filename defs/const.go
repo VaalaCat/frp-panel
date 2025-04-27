@@ -67,7 +67,6 @@ const (
 const (
 	CurEnvPath         = ".env"
 	SysEnvPath         = "/etc/frpp/.env"
-	EnvAppSecret       = "APP_SECRET"
 	EnvClientID        = "CLIENT_ID"
 	EnvClientSecret    = "CLIENT_SECRET"
 	EnvMasterRPCHost   = "MASTER_RPC_HOST"

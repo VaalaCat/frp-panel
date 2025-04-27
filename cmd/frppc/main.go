@@ -9,10 +9,13 @@ import (
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/utils/logger"
+	"github.com/fatedier/golib/crypto"
 	"github.com/spf13/cobra"
 )
 
 func main() {
+	crypto.DefaultSalt = "frp"
+
 	logger.InitLogger()
 	cobra.MousetrapHelpText = ""
 	cfg := conf.NewConfig()

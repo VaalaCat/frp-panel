@@ -9,7 +9,6 @@ import (
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
 	"github.com/fatedier/frp/pkg/metrics/mem"
-	"github.com/fatedier/frp/pkg/util/log"
 	"github.com/fatedier/frp/server"
 	"github.com/sourcegraph/conc"
 )
@@ -31,8 +30,6 @@ func NewServerHandler(svrCfg *v1.ServerConfig) app.ServerHandler {
 	if err != nil {
 		logger.Logger(ctx).Panic(err)
 	}
-
-	log.InitLogger(svrCfg.Log.To, svrCfg.Log.Level, int(svrCfg.Log.MaxDays), svrCfg.Log.DisablePrintColor)
 
 	var svr *server.Service
 

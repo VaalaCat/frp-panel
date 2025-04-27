@@ -86,31 +86,27 @@ export interface GetPlatformInfoResponse {
      */
     configuredServerCount: number;
     /**
-     * @generated from protobuf field: string global_secret = 8;
-     */
-    globalSecret: string;
-    /**
-     * @generated from protobuf field: string master_rpc_host = 9;
+     * @generated from protobuf field: string master_rpc_host = 8;
      */
     masterRpcHost: string;
     /**
-     * @generated from protobuf field: int32 master_rpc_port = 10;
+     * @generated from protobuf field: int32 master_rpc_port = 9;
      */
     masterRpcPort: number;
     /**
-     * @generated from protobuf field: int32 master_api_port = 11;
+     * @generated from protobuf field: int32 master_api_port = 10;
      */
     masterApiPort: number;
     /**
-     * @generated from protobuf field: string master_api_scheme = 12;
+     * @generated from protobuf field: string master_api_scheme = 11;
      */
     masterApiScheme: string;
     /**
-     * @generated from protobuf field: string client_rpc_url = 13;
+     * @generated from protobuf field: string client_rpc_url = 12;
      */
     clientRpcUrl: string;
     /**
-     * @generated from protobuf field: string client_api_url = 14;
+     * @generated from protobuf field: string client_api_url = 13;
      */
     clientApiUrl: string;
 }
@@ -320,13 +316,12 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
             { no: 5, name: "unconfigured_server_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 6, name: "configured_client_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 7, name: "configured_server_count", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-            { no: 8, name: "global_secret", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 9, name: "master_rpc_host", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 10, name: "master_rpc_port", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-            { no: 11, name: "master_api_port", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-            { no: 12, name: "master_api_scheme", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 13, name: "client_rpc_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 14, name: "client_api_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 8, name: "master_rpc_host", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 9, name: "master_rpc_port", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 10, name: "master_api_port", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 11, name: "master_api_scheme", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 12, name: "client_rpc_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 13, name: "client_api_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<GetPlatformInfoResponse>): GetPlatformInfoResponse {
@@ -337,7 +332,6 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         message.unconfiguredServerCount = 0;
         message.configuredClientCount = 0;
         message.configuredServerCount = 0;
-        message.globalSecret = "";
         message.masterRpcHost = "";
         message.masterRpcPort = 0;
         message.masterApiPort = 0;
@@ -374,25 +368,22 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
                 case /* int32 configured_server_count */ 7:
                     message.configuredServerCount = reader.int32();
                     break;
-                case /* string global_secret */ 8:
-                    message.globalSecret = reader.string();
-                    break;
-                case /* string master_rpc_host */ 9:
+                case /* string master_rpc_host */ 8:
                     message.masterRpcHost = reader.string();
                     break;
-                case /* int32 master_rpc_port */ 10:
+                case /* int32 master_rpc_port */ 9:
                     message.masterRpcPort = reader.int32();
                     break;
-                case /* int32 master_api_port */ 11:
+                case /* int32 master_api_port */ 10:
                     message.masterApiPort = reader.int32();
                     break;
-                case /* string master_api_scheme */ 12:
+                case /* string master_api_scheme */ 11:
                     message.masterApiScheme = reader.string();
                     break;
-                case /* string client_rpc_url */ 13:
+                case /* string client_rpc_url */ 12:
                     message.clientRpcUrl = reader.string();
                     break;
-                case /* string client_api_url */ 14:
+                case /* string client_api_url */ 13:
                     message.clientApiUrl = reader.string();
                     break;
                 default:
@@ -428,27 +419,24 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         /* int32 configured_server_count = 7; */
         if (message.configuredServerCount !== 0)
             writer.tag(7, WireType.Varint).int32(message.configuredServerCount);
-        /* string global_secret = 8; */
-        if (message.globalSecret !== "")
-            writer.tag(8, WireType.LengthDelimited).string(message.globalSecret);
-        /* string master_rpc_host = 9; */
+        /* string master_rpc_host = 8; */
         if (message.masterRpcHost !== "")
-            writer.tag(9, WireType.LengthDelimited).string(message.masterRpcHost);
-        /* int32 master_rpc_port = 10; */
+            writer.tag(8, WireType.LengthDelimited).string(message.masterRpcHost);
+        /* int32 master_rpc_port = 9; */
         if (message.masterRpcPort !== 0)
-            writer.tag(10, WireType.Varint).int32(message.masterRpcPort);
-        /* int32 master_api_port = 11; */
+            writer.tag(9, WireType.Varint).int32(message.masterRpcPort);
+        /* int32 master_api_port = 10; */
         if (message.masterApiPort !== 0)
-            writer.tag(11, WireType.Varint).int32(message.masterApiPort);
-        /* string master_api_scheme = 12; */
+            writer.tag(10, WireType.Varint).int32(message.masterApiPort);
+        /* string master_api_scheme = 11; */
         if (message.masterApiScheme !== "")
-            writer.tag(12, WireType.LengthDelimited).string(message.masterApiScheme);
-        /* string client_rpc_url = 13; */
+            writer.tag(11, WireType.LengthDelimited).string(message.masterApiScheme);
+        /* string client_rpc_url = 12; */
         if (message.clientRpcUrl !== "")
-            writer.tag(13, WireType.LengthDelimited).string(message.clientRpcUrl);
-        /* string client_api_url = 14; */
+            writer.tag(12, WireType.LengthDelimited).string(message.clientRpcUrl);
+        /* string client_api_url = 13; */
         if (message.clientApiUrl !== "")
-            writer.tag(14, WireType.LengthDelimited).string(message.clientApiUrl);
+            writer.tag(13, WireType.LengthDelimited).string(message.clientApiUrl);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

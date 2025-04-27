@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/VaalaCat/frp-panel/common"
-	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/dao"
@@ -71,7 +70,6 @@ func getPlatformInfo(appInstance app.Application, c *gin.Context) (*pb.GetPlatfo
 		UnconfiguredServerCount: int32(unconfiguredServers),
 		ConfiguredClientCount:   int32(configuredClients),
 		ConfiguredServerCount:   int32(configuredServers),
-		GlobalSecret:            conf.MasterDefaultSalt(appInstance.GetConfig()),
 		MasterRpcHost:           appInstance.GetConfig().Master.RPCHost,
 		MasterRpcPort:           int32(appInstance.GetConfig().Master.RPCPort),
 		MasterApiPort:           int32(appInstance.GetConfig().Master.APIPort),

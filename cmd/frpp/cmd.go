@@ -22,7 +22,6 @@ import (
 type CommonArgs struct {
 	ClientSecret *string
 	ClientID     *string
-	AppSecret    *string
 	RpcUrl       *string
 	ApiUrl       *string
 
@@ -53,11 +52,11 @@ func buildCommand() *cobra.Command {
 func AddCommonFlags(commonCmd *cobra.Command) {
 	commonCmd.Flags().StringP("secret", "s", "", "client secret")
 	commonCmd.Flags().StringP("id", "i", "", "client id")
-	commonCmd.Flags().StringP("app", "a", "", "app secret")
 	commonCmd.Flags().String("rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
 	commonCmd.Flags().String("api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
 
 	// deprecated start
+	commonCmd.Flags().StringP("app", "a", "", "app secret")
 	commonCmd.Flags().StringP("rpc-host", "r", "", "deprecated, use --rpc-url instead, rpc host, canbe ip or domain")
 	commonCmd.Flags().StringP("api-host", "t", "", "deprecated, use --api-url instead, api host, canbe ip or domain")
 	commonCmd.Flags().IntP("rpc-port", "c", 0, "deprecated, use --rpc-url instead, rpc port, master rpc port, scheme is grpc")
@@ -75,10 +74,6 @@ func GetCommonArgs(cmd *cobra.Command) CommonArgs {
 
 	if clientID, err := cmd.Flags().GetString("id"); err == nil {
 		commonArgs.ClientID = &clientID
-	}
-
-	if appSecret, err := cmd.Flags().GetString("app"); err == nil {
-		commonArgs.AppSecret = &appSecret
 	}
 
 	if rpcURL, err := cmd.Flags().GetString("rpc-url"); err == nil {
@@ -123,6 +118,9 @@ func NewJoinCmd() *cobra.Command {
 		Short: "join to master with token, save param to config",
 		Run: func(cmd *cobra.Command, args []string) {
 			commonArgs := GetCommonArgs(cmd)
+
+			warnDepParam(cmd)
+
 			joinArgs := &JoinArgs{
 				CommonArgs: commonArgs,
 			}
@@ -147,6 +145,8 @@ func NewMasterCmd(cfg conf.Config) *cobra.Command {
 		Short: "run frp-panel manager",
 		Run: func(cmd *cobra.Command, args []string) {
 
+			warnDepParam(cmd)
+
 			opts := []fx.Option{
 				commonMod,
 				masterMod,
@@ -156,6 +156,7 @@ func NewMasterCmd(cfg conf.Config) *cobra.Command {
 					fx.Annotate(cfg, fx.ResultTags(`name:"originConfig"`)),
 				),
 				fx.Provide(fx.Annotate(NewDefaultServerConfig, fx.ResultTags(`name:"defaultServerConfig"`))),
+				fx.Invoke(NewConfigPrinter),
 				fx.Invoke(runMaster),
 				fx.Invoke(runServer),
 			}
@@ -188,6 +189,8 @@ func NewClientCmd(cfg conf.Config) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			commonArgs := GetCommonArgs(cmd)
 
+			warnDepParam(cmd)
+
 			opts := []fx.Option{
 				clientMod,
 				commonMod,
@@ -195,6 +198,7 @@ func NewClientCmd(cfg conf.Config) *cobra.Command {
 					commonArgs,
 					fx.Annotate(cfg, fx.ResultTags(`name:"originConfig"`)),
 				),
+				fx.Invoke(NewConfigPrinter),
 				fx.Invoke(runClient),
 			}
 
@@ -228,6 +232,9 @@ func NewServerCmd(cfg conf.Config) *cobra.Command {
 		Short: "run managed frps",
 		Run: func(cmd *cobra.Command, args []string) {
 			commonArgs := GetCommonArgs(cmd)
+
+			warnDepParam(cmd)
+
 			opts := []fx.Option{
 				serverMod,
 				commonMod,
@@ -346,9 +353,6 @@ func patchConfig(appInstance app.Application, commonArgs CommonArgs) conf.Config
 		tmpCfg.Master.APIHost = *commonArgs.ApiHost
 	}
 
-	if commonArgs.AppSecret != nil {
-		tmpCfg.App.Secret = *commonArgs.AppSecret
-	}
 	if commonArgs.RpcPort != nil {
 		tmpCfg.Master.RPCPort = *commonArgs.RpcPort
 	}
@@ -375,13 +379,23 @@ func patchConfig(appInstance app.Application, commonArgs CommonArgs) conf.Config
 	if commonArgs.RpcPort != nil || commonArgs.ApiPort != nil ||
 		commonArgs.ApiScheme != nil ||
 		commonArgs.RpcHost != nil || commonArgs.ApiHost != nil {
-		logger.Logger(c).Warnf("deprecatedenv configs !!! rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
+		logger.Logger(c).Warnf("deprecatedenv configs !!! pls use api url and rpc url \n\n rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
 			tmpCfg.Master.RPCHost, tmpCfg.Master.RPCPort,
 			tmpCfg.Master.APIHost, tmpCfg.Master.APIPort,
 			tmpCfg.Master.APIScheme)
+	} else if len(tmpCfg.Client.APIUrl) > 0 || len(tmpCfg.Client.RPCUrl) > 0 {
+		logger.Logger(c).Infof("env config, api url: %s, rpc url: %s", tmpCfg.Client.APIUrl, tmpCfg.Client.RPCUrl)
 	}
-	logger.Logger(c).Infof("env config, api url: %s, rpc url: %s", tmpCfg.Client.APIUrl, tmpCfg.Client.RPCUrl)
+
 	return tmpCfg
+}
+
+func warnDepParam(cmd *cobra.Command) {
+	if appSecret, _ := cmd.Flags().GetString("app"); len(appSecret) != 0 {
+		logger.Logger(context.Background()).Fatalf(
+			"\n⚠️\n\n-a / -app / APP_SECRET 参数已停止使用，请删除该参数重新启动\n\n" +
+				"The -a / -app / APP_SECRET parameter is deprecated. Please remove it and restart.\n\n")
+	}
 }
 
 func setMasterCommandIfNonePresent(rootCmd *cobra.Command) {
@@ -454,7 +468,6 @@ func pullRunConfig(appInstance app.Application, joinArgs *JoinArgs) {
 		logger.Logger(c).Warnf("read env file failed, try to create: %s", err.Error())
 	}
 
-	envMap[defs.EnvAppSecret] = *joinArgs.AppSecret
 	envMap[defs.EnvClientID] = clientID
 	envMap[defs.EnvClientSecret] = client.GetSecret()
 	envMap[defs.EnvClientAPIUrl] = *joinArgs.ApiUrl

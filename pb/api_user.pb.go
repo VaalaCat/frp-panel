@@ -242,13 +242,12 @@ type GetPlatformInfoResponse struct {
 	UnconfiguredServerCount int32                  `protobuf:"varint,5,opt,name=unconfigured_server_count,json=unconfiguredServerCount,proto3" json:"unconfigured_server_count,omitempty"`
 	ConfiguredClientCount   int32                  `protobuf:"varint,6,opt,name=configured_client_count,json=configuredClientCount,proto3" json:"configured_client_count,omitempty"`
 	ConfiguredServerCount   int32                  `protobuf:"varint,7,opt,name=configured_server_count,json=configuredServerCount,proto3" json:"configured_server_count,omitempty"`
-	GlobalSecret            string                 `protobuf:"bytes,8,opt,name=global_secret,json=globalSecret,proto3" json:"global_secret,omitempty"`
-	MasterRpcHost           string                 `protobuf:"bytes,9,opt,name=master_rpc_host,json=masterRpcHost,proto3" json:"master_rpc_host,omitempty"`
-	MasterRpcPort           int32                  `protobuf:"varint,10,opt,name=master_rpc_port,json=masterRpcPort,proto3" json:"master_rpc_port,omitempty"`
-	MasterApiPort           int32                  `protobuf:"varint,11,opt,name=master_api_port,json=masterApiPort,proto3" json:"master_api_port,omitempty"`
-	MasterApiScheme         string                 `protobuf:"bytes,12,opt,name=master_api_scheme,json=masterApiScheme,proto3" json:"master_api_scheme,omitempty"`
-	ClientRpcUrl            string                 `protobuf:"bytes,13,opt,name=client_rpc_url,json=clientRpcUrl,proto3" json:"client_rpc_url,omitempty"`
-	ClientApiUrl            string                 `protobuf:"bytes,14,opt,name=client_api_url,json=clientApiUrl,proto3" json:"client_api_url,omitempty"`
+	MasterRpcHost           string                 `protobuf:"bytes,8,opt,name=master_rpc_host,json=masterRpcHost,proto3" json:"master_rpc_host,omitempty"`
+	MasterRpcPort           int32                  `protobuf:"varint,9,opt,name=master_rpc_port,json=masterRpcPort,proto3" json:"master_rpc_port,omitempty"`
+	MasterApiPort           int32                  `protobuf:"varint,10,opt,name=master_api_port,json=masterApiPort,proto3" json:"master_api_port,omitempty"`
+	MasterApiScheme         string                 `protobuf:"bytes,11,opt,name=master_api_scheme,json=masterApiScheme,proto3" json:"master_api_scheme,omitempty"`
+	ClientRpcUrl            string                 `protobuf:"bytes,12,opt,name=client_rpc_url,json=clientRpcUrl,proto3" json:"client_rpc_url,omitempty"`
+	ClientApiUrl            string                 `protobuf:"bytes,13,opt,name=client_api_url,json=clientApiUrl,proto3" json:"client_api_url,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -332,13 +331,6 @@ func (x *GetPlatformInfoResponse) GetConfiguredServerCount() int32 {
 	return 0
 }
 
-func (x *GetPlatformInfoResponse) GetGlobalSecret() string {
-	if x != nil {
-		return x.GlobalSecret
-	}
-	return ""
-}
-
 func (x *GetPlatformInfoResponse) GetMasterRpcHost() string {
 	if x != nil {
 		return x.MasterRpcHost
@@ -400,7 +392,7 @@ const file_api_user_proto_rawDesc = "" +
 	"\x16UpdateUserInfoResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
 	"\a_status\"\x18\n" +
-	"\x16GetPlatformInfoRequest\"\xaa\x05\n" +
+	"\x16GetPlatformInfoRequest\"\x85\x05\n" +
 	"\x17GetPlatformInfoResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12,\n" +
 	"\x12total_client_count\x18\x02 \x01(\x05R\x10totalClientCount\x12,\n" +
@@ -408,15 +400,14 @@ const file_api_user_proto_rawDesc = "" +
 	"\x19unconfigured_client_count\x18\x04 \x01(\x05R\x17unconfiguredClientCount\x12:\n" +
 	"\x19unconfigured_server_count\x18\x05 \x01(\x05R\x17unconfiguredServerCount\x126\n" +
 	"\x17configured_client_count\x18\x06 \x01(\x05R\x15configuredClientCount\x126\n" +
-	"\x17configured_server_count\x18\a \x01(\x05R\x15configuredServerCount\x12#\n" +
-	"\rglobal_secret\x18\b \x01(\tR\fglobalSecret\x12&\n" +
-	"\x0fmaster_rpc_host\x18\t \x01(\tR\rmasterRpcHost\x12&\n" +
-	"\x0fmaster_rpc_port\x18\n" +
-	" \x01(\x05R\rmasterRpcPort\x12&\n" +
-	"\x0fmaster_api_port\x18\v \x01(\x05R\rmasterApiPort\x12*\n" +
-	"\x11master_api_scheme\x18\f \x01(\tR\x0fmasterApiScheme\x12$\n" +
-	"\x0eclient_rpc_url\x18\r \x01(\tR\fclientRpcUrl\x12$\n" +
-	"\x0eclient_api_url\x18\x0e \x01(\tR\fclientApiUrlB\t\n" +
+	"\x17configured_server_count\x18\a \x01(\x05R\x15configuredServerCount\x12&\n" +
+	"\x0fmaster_rpc_host\x18\b \x01(\tR\rmasterRpcHost\x12&\n" +
+	"\x0fmaster_rpc_port\x18\t \x01(\x05R\rmasterRpcPort\x12&\n" +
+	"\x0fmaster_api_port\x18\n" +
+	" \x01(\x05R\rmasterApiPort\x12*\n" +
+	"\x11master_api_scheme\x18\v \x01(\tR\x0fmasterApiScheme\x12$\n" +
+	"\x0eclient_rpc_url\x18\f \x01(\tR\fclientRpcUrl\x12$\n" +
+	"\x0eclient_api_url\x18\r \x01(\tR\fclientApiUrlB\t\n" +
 	"\a_statusB\aZ\x05../pbb\x06proto3"
 
 var (

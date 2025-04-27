@@ -13,7 +13,6 @@ import (
 	"github.com/VaalaCat/frp-panel/services/watcher"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
-	"github.com/fatedier/golib/crypto"
 	"github.com/sourcegraph/conc"
 )
 
@@ -24,7 +23,6 @@ func runClient(appInstance app.Application) {
 		clientSecret = appInstance.GetConfig().Client.Secret
 		ctx          = context.Background()
 	)
-	crypto.DefaultSalt = appInstance.GetConfig().App.Secret
 	logger.Logger(c).Infof("start to run client")
 	if len(clientSecret) == 0 {
 		logger.Logger(ctx).Fatal("client secret cannot be empty")

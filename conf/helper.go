@@ -16,31 +16,12 @@ import (
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 )
 
-func MasterDefaultSalt(cfg Config) string {
-	ctx := context.Background()
-	if cfg.Master.CompatibleMode {
-		logger.Logger(ctx).Warnf("master compatible mode enabled, use frp as default salt, which is not recommended")
-		return "frp"
-	}
-	return utils.MD5(fmt.Sprintf("salt_%s:%d:%s",
-		cfg.Master.InternalFRPServerHost,
-		cfg.Master.InternalFRPServerPort,
-		cfg.App.GlobalSecret))
-}
-
 func RPCListenAddr(cfg Config) string {
 	return fmt.Sprintf(":%d", cfg.Master.RPCPort)
 }
 
 func rpcCallAddr(cfg Config) string {
 	return fmt.Sprintf("%s:%d", cfg.Master.RPCHost, cfg.Master.RPCPort)
-}
-
-func InternalFRPServerToken(cfg Config) string {
-	return utils.MD5(fmt.Sprintf("%s:%d:%s",
-		cfg.Master.InternalFRPServerHost,
-		cfg.Master.InternalFRPServerPort,
-		cfg.App.GlobalSecret))
 }
 
 func JWTSecret(cfg Config) string {

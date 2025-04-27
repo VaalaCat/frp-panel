@@ -12,7 +12,6 @@ import (
 	"github.com/VaalaCat/frp-panel/services/tunnel"
 	"github.com/VaalaCat/frp-panel/services/watcher"
 	"github.com/VaalaCat/frp-panel/utils/logger"
-	"github.com/fatedier/golib/crypto"
 	"github.com/sourcegraph/conc"
 	"go.uber.org/fx"
 )
@@ -34,12 +33,10 @@ func runServer(param runServerParam) {
 		c            = context.Background()
 		clientID     = param.AppInstance.GetConfig().Client.ID
 		clientSecret = param.AppInstance.GetConfig().Client.Secret
-		cfg          = param.AppInstance.GetConfig()
 		appInstance  = param.AppInstance
 		ctx          = param.AppCtx
 	)
 
-	crypto.DefaultSalt = cfg.App.Secret
 	logger.Logger(c).Infof("start to init server")
 
 	if len(clientID) == 0 {

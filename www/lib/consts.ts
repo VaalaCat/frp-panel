@@ -52,11 +52,11 @@ export const ExecCommandStr = <T extends Client | Server>(
   info: GetPlatformInfoResponse,
   fileName?: string,
 ) => {
-  return `${fileName || 'frp-panel'} ${type} -s ${item.secret} -i ${item.id} -a ${info.globalSecret} --api-url ${info.clientApiUrl} --rpc-url ${info.clientRpcUrl}`
+  return `${fileName || 'frp-panel'} ${type} -s ${item.secret} -i ${item.id} --api-url ${info.clientApiUrl} --rpc-url ${info.clientRpcUrl}`
 }
 
 export const JoinCommandStr = (info: GetPlatformInfoResponse, token: string, fileName?: string, clientID?: string) => {
-    return `${fileName || 'frp-panel'} join${clientID ? ` -i ${clientID}` : ''} -j ${token} -a ${info.globalSecret} --api-url ${info.clientApiUrl} --rpc-url ${info.clientRpcUrl}`
+    return `${fileName || 'frp-panel'} join${clientID ? ` -i ${clientID}` : ''} -j ${token} --api-url ${info.clientApiUrl} --rpc-url ${info.clientRpcUrl}`
 }
 
 export const WindowsInstallCommand = <T extends Client | Server>(
@@ -87,7 +87,6 @@ export const ClientEnvFile = <T extends Client | Server>(
 ) => {
   return `CLIENT_ID=${item.id}
 CLIENT_SECRET=${item.secret}
-APP_SECRET=${info.globalSecret}
 CLIENT_API_URL=${info.clientApiUrl}
 CLIENT_RPC_URL=${info.clientRpcUrl}`
 }

@@ -29,11 +29,10 @@ message GetPlatformInfoResponse {
   int32 unconfigured_server_count = 5;
   int32 configured_client_count = 6;
   int32 configured_server_count = 7;
-  string global_secret = 8;
-  string master_rpc_host = 9;
-  int32 master_rpc_port = 10;
-  int32 master_api_port = 11;
-  string master_api_scheme = 12;
-  string client_rpc_url = 13;
-  string client_api_url = 14;
+  string master_rpc_host = 8;
+  int32 master_rpc_port = 9;
+  int32 master_api_port = 10;
+  string master_api_scheme = 11;
+  string client_rpc_url = 12;
+  string client_api_url = 13;
 }
