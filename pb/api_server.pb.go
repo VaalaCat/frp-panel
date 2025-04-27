@@ -443,6 +443,7 @@ type UpdateFRPSRequest struct {
 	Config        []byte                 `protobuf:"bytes,2,opt,name=config,proto3,oneof" json:"config,omitempty"`
 	Comment       *string                `protobuf:"bytes,3,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
 	ServerIp      *string                `protobuf:"bytes,4,opt,name=server_ip,json=serverIp,proto3,oneof" json:"server_ip,omitempty"`
+	FrpsUrls      []string               `protobuf:"bytes,5,rep,name=frps_urls,json=frpsUrls,proto3" json:"frps_urls,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -503,6 +504,13 @@ func (x *UpdateFRPSRequest) GetServerIp() string {
 		return *x.ServerIp
 	}
 	return ""
+}
+
+func (x *UpdateFRPSRequest) GetFrpsUrls() []string {
+	if x != nil {
+		return x.FrpsUrls
+	}
+	return nil
 }
 
 type UpdateFRPSResponse struct {
@@ -961,12 +969,13 @@ const file_api_server_proto_rawDesc = "" +
 	"_server_id\"N\n" +
 	"\x14DeleteServerResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status\"\xc6\x01\n" +
+	"\a_status\"\xe3\x01\n" +
 	"\x11UpdateFRPSRequest\x12 \n" +
 	"\tserver_id\x18\x01 \x01(\tH\x00R\bserverId\x88\x01\x01\x12\x1b\n" +
 	"\x06config\x18\x02 \x01(\fH\x01R\x06config\x88\x01\x01\x12\x1d\n" +
 	"\acomment\x18\x03 \x01(\tH\x02R\acomment\x88\x01\x01\x12 \n" +
-	"\tserver_ip\x18\x04 \x01(\tH\x03R\bserverIp\x88\x01\x01B\f\n" +
+	"\tserver_ip\x18\x04 \x01(\tH\x03R\bserverIp\x88\x01\x01\x12\x1b\n" +
+	"\tfrps_urls\x18\x05 \x03(\tR\bfrpsUrlsB\f\n" +
 	"\n" +
 	"_server_idB\t\n" +
 	"\a_configB\n" +

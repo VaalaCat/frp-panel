@@ -289,6 +289,7 @@ type Client struct {
 	Stopped        *bool                  `protobuf:"varint,7,opt,name=stopped,proto3,oneof" json:"stopped,omitempty"`
 	ClientIds      []string               `protobuf:"bytes,8,rep,name=client_ids,json=clientIds,proto3" json:"client_ids,omitempty"` // some client can connected to more than one server, make a shadow client to handle this
 	OriginClientId *string                `protobuf:"bytes,9,opt,name=origin_client_id,json=originClientId,proto3,oneof" json:"origin_client_id,omitempty"`
+	FrpsUrl        *string                `protobuf:"bytes,10,opt,name=frps_url,json=frpsUrl,proto3,oneof" json:"frps_url,omitempty"` // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -379,13 +380,21 @@ func (x *Client) GetOriginClientId() string {
 	return ""
 }
 
+func (x *Client) GetFrpsUrl() string {
+	if x != nil && x.FrpsUrl != nil {
+		return *x.FrpsUrl
+	}
+	return ""
+}
+
 type Server struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Secret        *string                `protobuf:"bytes,2,opt,name=secret,proto3,oneof" json:"secret,omitempty"`
 	Ip            *string                `protobuf:"bytes,3,opt,name=ip,proto3,oneof" json:"ip,omitempty"`
-	Config        *string                `protobuf:"bytes,4,opt,name=config,proto3,oneof" json:"config,omitempty"`   // 在定义上，ip和port只是为了方便使用
-	Comment       *string                `protobuf:"bytes,5,opt,name=comment,proto3,oneof" json:"comment,omitempty"` // 用户自定义的备注
+	Config        *string                `protobuf:"bytes,4,opt,name=config,proto3,oneof" json:"config,omitempty"`               // 在定义上，ip和port只是为了方便使用
+	Comment       *string                `protobuf:"bytes,5,opt,name=comment,proto3,oneof" json:"comment,omitempty"`             // 用户自定义的备注
+	FrpsUrls      []string               `protobuf:"bytes,6,rep,name=frps_urls,json=frpsUrls,proto3" json:"frps_urls,omitempty"` // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000，可以有多个
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -453,6 +462,13 @@ func (x *Server) GetComment() string {
 		return *x.Comment
 	}
 	return ""
+}
+
+func (x *Server) GetFrpsUrls() []string {
+	if x != nil {
+		return x.FrpsUrls
+	}
+	return nil
 }
 
 type User struct {
@@ -846,7 +862,7 @@ const file_common_proto_rawDesc = "" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12\x17\n" +
 	"\x04data\x18\x02 \x01(\tH\x01R\x04data\x88\x01\x01B\t\n" +
 	"\a_statusB\a\n" +
-	"\x05_data\"\xdd\x02\n" +
+	"\x05_data\"\x8a\x03\n" +
 	"\x06Client\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x1b\n" +
 	"\x06secret\x18\x02 \x01(\tH\x01R\x06secret\x88\x01\x01\x12\x1b\n" +
@@ -856,7 +872,9 @@ const file_common_proto_rawDesc = "" +
 	"\astopped\x18\a \x01(\bH\x05R\astopped\x88\x01\x01\x12\x1d\n" +
 	"\n" +
 	"client_ids\x18\b \x03(\tR\tclientIds\x12-\n" +
-	"\x10origin_client_id\x18\t \x01(\tH\x06R\x0eoriginClientId\x88\x01\x01B\x05\n" +
+	"\x10origin_client_id\x18\t \x01(\tH\x06R\x0eoriginClientId\x88\x01\x01\x12\x1e\n" +
+	"\bfrps_url\x18\n" +
+	" \x01(\tH\aR\afrpsUrl\x88\x01\x01B\x05\n" +
 	"\x03_idB\t\n" +
 	"\a_secretB\t\n" +
 	"\a_configB\n" +
@@ -866,13 +884,15 @@ const file_common_proto_rawDesc = "" +
 	"_server_idB\n" +
 	"\n" +
 	"\b_stoppedB\x13\n" +
-	"\x11_origin_client_id\"\xbb\x01\n" +
+	"\x11_origin_client_idB\v\n" +
+	"\t_frps_url\"\xd8\x01\n" +
 	"\x06Server\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x1b\n" +
 	"\x06secret\x18\x02 \x01(\tH\x01R\x06secret\x88\x01\x01\x12\x13\n" +
 	"\x02ip\x18\x03 \x01(\tH\x02R\x02ip\x88\x01\x01\x12\x1b\n" +
 	"\x06config\x18\x04 \x01(\tH\x03R\x06config\x88\x01\x01\x12\x1d\n" +
-	"\acomment\x18\x05 \x01(\tH\x04R\acomment\x88\x01\x01B\x05\n" +
+	"\acomment\x18\x05 \x01(\tH\x04R\acomment\x88\x01\x01\x12\x1b\n" +
+	"\tfrps_urls\x18\x06 \x03(\tR\bfrpsUrlsB\x05\n" +
 	"\x03_idB\t\n" +
 	"\a_secretB\x05\n" +
 	"\x03_ipB\t\n" +

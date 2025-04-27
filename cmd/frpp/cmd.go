@@ -35,6 +35,11 @@ type CommonArgs struct {
 func buildCommand() *cobra.Command {
 	cfg := conf.NewConfig()
 
+	logger.UpdateLoggerOpt(
+		cfg.Logger.FRPLoggerLevel,
+		cfg.Logger.DefaultLoggerLevel,
+	)
+
 	return NewRootCmd(
 		NewMasterCmd(cfg),
 		NewClientCmd(cfg),
@@ -392,7 +397,7 @@ func patchConfig(appInstance app.Application, commonArgs CommonArgs) conf.Config
 
 func warnDepParam(cmd *cobra.Command) {
 	if appSecret, _ := cmd.Flags().GetString("app"); len(appSecret) != 0 {
-		logger.Logger(context.Background()).Fatalf(
+		logger.Logger(context.Background()).Errorf(
 			"\n⚠️\n\n-a / -app / APP_SECRET 参数已停止使用，请删除该参数重新启动\n\n" +
 				"The -a / -app / APP_SECRET parameter is deprecated. Please remove it and restart.\n\n")
 	}

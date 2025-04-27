@@ -27,8 +27,10 @@ require (
 	github.com/shirou/gopsutil/v4 v4.24.11
 	github.com/sirupsen/logrus v1.9.3
 	github.com/sourcegraph/conc v0.3.0
+	github.com/spf13/cast v1.7.1
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
+	github.com/tidwall/pretty v1.2.1
 	github.com/tiendc/go-deepcopy v1.2.0
 	go.uber.org/fx v1.23.0
 	golang.org/x/crypto v0.37.0
@@ -114,7 +116,6 @@ require (
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/templexxx/cpu v0.1.1 // indirect
 	github.com/templexxx/xorsimd v0.4.3 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect

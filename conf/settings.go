@@ -53,6 +53,10 @@ type Config struct {
 		TLSInsecureSkipVerify bool   `env:"TLS_INSECURE_SKIP_VERIFY" env-default:"true" env-description:"skip tls verify"`
 	} `env-prefix:"CLIENT_"`
 	IsDebug bool `env:"IS_DEBUG" env-default:"false" env-description:"is debug mode"`
+	Logger  struct {
+		DefaultLoggerLevel string `env:"DEFAULT_LOGGER_LEVEL" env-default:"info" env-description:"frp-panel internal default logger level"`
+		FRPLoggerLevel     string `env:"FRP_LOGGER_LEVEL" env-default:"info" env-description:"frp logger level"`
+	} `env-prefix:"LOGGER_"`
 }
 
 func NewConfig() Config {

@@ -42,6 +42,7 @@ message Client {
   optional bool stopped = 7;
   repeated string client_ids = 8; // some client can connected to more than one server, make a shadow client to handle this
   optional string origin_client_id = 9;
+  optional string frps_url = 10; // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000
 }
 
 message Server {
@@ -50,6 +51,7 @@ message Server {
   optional string ip = 3;
   optional string config = 4; // 在定义上，ip和port只是为了方便使用
   optional string comment = 5; // 用户自定义的备注
+  repeated string frps_urls = 6; // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000，可以有多个
 }
 
 message User {

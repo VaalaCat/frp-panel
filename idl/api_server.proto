@@ -49,6 +49,7 @@ message UpdateFRPSRequest {
   optional bytes config = 2;
   optional string comment = 3;
   optional string server_ip = 4;
+  repeated string frps_urls = 5;
 }
 
 message UpdateFRPSResponse {

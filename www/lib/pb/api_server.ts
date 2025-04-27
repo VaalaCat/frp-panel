@@ -137,6 +137,10 @@ export interface UpdateFRPSRequest {
      * @generated from protobuf field: optional string server_ip = 4;
      */
     serverIp?: string;
+    /**
+     * @generated from protobuf field: repeated string frps_urls = 5;
+     */
+    frpsUrls: string[];
 }
 /**
  * @generated from protobuf message api_server.UpdateFRPSResponse
@@ -655,11 +659,13 @@ class UpdateFRPSRequest$Type extends MessageType<UpdateFRPSRequest> {
             { no: 1, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "config", kind: "scalar", opt: true, T: 12 /*ScalarType.BYTES*/ },
             { no: 3, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "server_ip", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 4, name: "server_ip", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "frps_urls", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<UpdateFRPSRequest>): UpdateFRPSRequest {
         const message = globalThis.Object.create((this.messagePrototype!));
+        message.frpsUrls = [];
         if (value !== undefined)
             reflectionMergePartial<UpdateFRPSRequest>(this, message, value);
         return message;
@@ -680,6 +686,9 @@ class UpdateFRPSRequest$Type extends MessageType<UpdateFRPSRequest> {
                     break;
                 case /* optional string server_ip */ 4:
                     message.serverIp = reader.string();
+                    break;
+                case /* repeated string frps_urls */ 5:
+                    message.frpsUrls.push(reader.string());
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -705,6 +714,9 @@ class UpdateFRPSRequest$Type extends MessageType<UpdateFRPSRequest> {
         /* optional string server_ip = 4; */
         if (message.serverIp !== undefined)
             writer.tag(4, WireType.LengthDelimited).string(message.serverIp);
+        /* repeated string frps_urls = 5; */
+        for (let i = 0; i < message.frpsUrls.length; i++)
+            writer.tag(5, WireType.LengthDelimited).string(message.frpsUrls[i]);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

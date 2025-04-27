@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { getServer } from '@/api/server'
@@ -9,6 +9,7 @@ import FRPSForm from './frps_form'
 import { useSearchParams } from 'next/navigation'
 import { ServerSelector } from '../base/server-selector'
 import { useTranslation } from 'react-i18next';
+import StringListInput from '../base/list-input'
 
 export interface FRPSFormCardProps {
   serverID?: string
@@ -18,6 +19,8 @@ export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultSer
   const [serverID, setServerID] = useState<string | undefined>()
   const searchParams = useSearchParams()
   const paramServerID = searchParams.get('serverID')
+  const [frpsUrls, setFrpsUrls] = useState<string[]>([])
+
   const { data: server, refetch: refetchServer } = useQuery({
     queryKey: ['getServer', serverID],
     queryFn: () => {
@@ -25,6 +28,10 @@ export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultSer
     },
   })
   const { t } = useTranslation();
+
+  useEffect(() => {
+    setFrpsUrls(server?.server?.frpsUrls || [])
+  }, [server])
 
   useEffect(() => {
     if (defaultServerID) {
@@ -64,13 +71,18 @@ export const FRPSFormCard: React.FC<FRPSFormCardProps> = ({ serverID: defaultSer
           </div>
           <Switch onCheckedChange={setAdvanceMode} />
         </div>
-        <div className="flex flex-col w-full pt-2">
+        <div className="flex flex-col w-full pt-2 gap-2">
           <Label className="text-sm font-medium">{t('server.serverLabel')}</Label>
           <ServerSelector serverID={serverID} setServerID={handleServerChange} onOpenChange={refetchServer} />
+          <Label className="text-sm font-medium">{t('server.frpsUrl.title')}</Label>
+          <p className="text-sm text-muted-foreground">{t('server.frpsUrl.description')}</p>
+          <StringListInput className='w-full' value={frpsUrls} onChange={setFrpsUrls} placeholder='eg. tcp://example.com:7000' />
         </div>
-        {serverID && server && server.server && !advanceMode && <FRPSForm key={serverID} serverID={serverID} server={server.server} />}
+        {serverID && server && server.server && !advanceMode && (
+          <FRPSForm key={serverID} serverID={serverID} server={server.server} frpsUrls={frpsUrls} />
+        )}
         {serverID && server && server.server && advanceMode && (
-          <FRPSEditor serverID={serverID} server={server.server} />
+          <FRPSEditor serverID={serverID} server={server.server} frpsUrls={frpsUrls} />
         )}
       </CardContent>
       <CardFooter></CardFooter>

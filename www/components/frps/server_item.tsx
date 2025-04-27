@@ -46,6 +46,7 @@ export type ServerTableSchema = {
   info?: string
   ip: string
   config?: string
+  frpsUrls: string[]
 }
 
 export const columns: ColumnDef<ServerTableSchema>[] = [

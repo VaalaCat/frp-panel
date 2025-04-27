@@ -3,14 +3,16 @@ import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
 
 interface StringListInputProps {
   value: string[];
   onChange: React.Dispatch<React.SetStateAction<string[]>>;
   placeholder?: string;
+  className?: string;
 }
 
-const StringListInput: React.FC<StringListInputProps> = ({ value, onChange, placeholder }) => {
+const StringListInput: React.FC<StringListInputProps> = ({ value, onChange, placeholder, className }) => {
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState('');
 
@@ -34,7 +36,7 @@ const StringListInput: React.FC<StringListInputProps> = ({ value, onChange, plac
   };
 
   return (
-    <div className="mx-auto">
+    <div className={cn("mx-auto", className)}>
       <div className="flex items-center mb-4">
         <Input
           type="text"

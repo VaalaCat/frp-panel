@@ -117,19 +117,19 @@ export const APITest = () => {
       <Separator />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-4">
         <Button
-          onClick={async () => {
-            console.log(
-              'attempting update frps:',
-              await updateFRPS({
-                serverId: serverID,
-                config: Buffer.from(
-                  JSON.stringify({
-                    bindPort: 1122,
-                  } as ServerConfig),
-                ),
-              }),
-            )
-          }}
+          // onClick={async () => {
+          //   console.log(
+          //     'attempting update frps:',
+          //     await updateFRPS({
+          //       serverId: serverID,
+          //       config: Buffer.from(
+          //         JSON.stringify({
+          //           bindPort: 1122,
+          //         } as ServerConfig),
+          //       ),
+          //     }),
+          //   )
+          // }}
         >
           update frps
         </Button>
@@ -181,11 +181,11 @@ export const APITest = () => {
               await updateFRPC({
                 clientId: clientID,
                 serverId: serverID,
-                config: Buffer.from(
-                  JSON.stringify({
-                    proxies: [{ name: 'test', type: 'tcp', localIP: '127.0.0.1', localPort: 1234, remotePort: 4321 }],
-                  } as ClientConfig),
-                ),
+                // config: Buffer.from(
+                //   JSON.stringify({
+                //     proxies: [{ name: 'test', type: 'tcp', localIP: '127.0.0.1', localPort: 1234, remotePort: 4321 }],
+                //   } as ClientConfig),
+                // ),
               }),
             )
           }}

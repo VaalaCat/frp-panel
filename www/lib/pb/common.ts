@@ -81,6 +81,10 @@ export interface Client {
      * @generated from protobuf field: optional string origin_client_id = 9;
      */
     originClientId?: string;
+    /**
+     * @generated from protobuf field: optional string frps_url = 10;
+     */
+    frpsUrl?: string; // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000
 }
 /**
  * @generated from protobuf message common.Server
@@ -106,6 +110,10 @@ export interface Server {
      * @generated from protobuf field: optional string comment = 5;
      */
     comment?: string; // 用户自定义的备注
+    /**
+     * @generated from protobuf field: repeated string frps_urls = 6;
+     */
+    frpsUrls: string[]; // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000，可以有多个
 }
 /**
  * @generated from protobuf message common.User
@@ -458,7 +466,8 @@ class Client$Type extends MessageType<Client> {
             { no: 6, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 7, name: "stopped", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
             { no: 8, name: "client_ids", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
-            { no: 9, name: "origin_client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 9, name: "origin_client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 10, name: "frps_url", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<Client>): Client {
@@ -497,6 +506,9 @@ class Client$Type extends MessageType<Client> {
                 case /* optional string origin_client_id */ 9:
                     message.originClientId = reader.string();
                     break;
+                case /* optional string frps_url */ 10:
+                    message.frpsUrl = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -533,6 +545,9 @@ class Client$Type extends MessageType<Client> {
         /* optional string origin_client_id = 9; */
         if (message.originClientId !== undefined)
             writer.tag(9, WireType.LengthDelimited).string(message.originClientId);
+        /* optional string frps_url = 10; */
+        if (message.frpsUrl !== undefined)
+            writer.tag(10, WireType.LengthDelimited).string(message.frpsUrl);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -551,11 +566,13 @@ class Server$Type extends MessageType<Server> {
             { no: 2, name: "secret", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "ip", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 4, name: "config", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 5, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 5, name: "comment", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 6, name: "frps_urls", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<Server>): Server {
         const message = globalThis.Object.create((this.messagePrototype!));
+        message.frpsUrls = [];
         if (value !== undefined)
             reflectionMergePartial<Server>(this, message, value);
         return message;
@@ -579,6 +596,9 @@ class Server$Type extends MessageType<Server> {
                     break;
                 case /* optional string comment */ 5:
                     message.comment = reader.string();
+                    break;
+                case /* repeated string frps_urls */ 6:
+                    message.frpsUrls.push(reader.string());
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -607,6 +627,9 @@ class Server$Type extends MessageType<Server> {
         /* optional string comment = 5; */
         if (message.comment !== undefined)
             writer.tag(5, WireType.LengthDelimited).string(message.comment);
+        /* repeated string frps_urls = 6; */
+        for (let i = 0; i < message.frpsUrls.length; i++)
+            writer.tag(6, WireType.LengthDelimited).string(message.frpsUrls[i]);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

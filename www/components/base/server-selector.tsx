@@ -37,7 +37,7 @@ export const ServerSelector: React.FC<ServerSelectorProps> = ({
 
   useEffect(() => {
     if (serverID) {
-      setServer && setServer(serverList?.servers.find((server) => server.id == serverID) || {})
+      setServer && setServer(serverList?.servers.find((server) => server.id == serverID) || {frpsUrls: []})
     }
   }, [serverID])
 

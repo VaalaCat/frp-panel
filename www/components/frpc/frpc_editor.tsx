@@ -9,7 +9,7 @@ import { RespCode } from '@/lib/pb/common'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client, refetchClient }) => {
+export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client, refetchClient, frpsUrl }) => {
   const { t } = useTranslation()
 
   const [configContent, setConfigContent] = useState<string>('{}')
@@ -25,6 +25,7 @@ export const FRPCEditor: React.FC<FRPCFormProps> = ({ clientID, serverID, client
         config: Buffer.from(editorValue),
         serverId: serverID,
         comment: clientComment,
+        frpsUrl: frpsUrl, 
       })
       if (res.status?.code !== RespCode.SUCCESS) {
         toast(t('client.operation.update_failed', {

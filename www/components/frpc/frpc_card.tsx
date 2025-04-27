@@ -15,6 +15,9 @@ import { TypedProxyConfig } from '@/types/proxy'
 import { ClientSelector } from '../base/client-selector'
 import { ServerSelector } from '../base/server-selector'
 import { useTranslation } from 'react-i18next'
+import { Input } from '../ui/input'
+import { Server } from '@/lib/pb/common'
+import { SuggestiveInput } from '../base/suggestive-input'
 
 export interface FRPCFormCardProps {
   clientID?: string
@@ -32,6 +35,8 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
   const searchParams = useSearchParams()
   const paramClientID = searchParams.get('clientID')
   const [clientProxyConfigs, setClientProxyConfigs] = useState<TypedProxyConfig[]>([])
+  const [frpsUrl, setFrpsUrl] = useState<string | undefined>()
+  const [selectedServer, setSelectedServer] = useState<Server | undefined>(undefined)
 
   useEffect(() => {
     if (defaultClientID) {
@@ -69,6 +74,10 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
     if (clientConf != undefined && clientConf.proxies == undefined) {
       setClientProxyConfigs([])
     }
+
+    if (client?.client?.frpsUrl) {
+      setFrpsUrl(client?.client?.frpsUrl)
+    }
   }, [client, refetchClient, setClientProxyConfigs])
 
   useEffect(() => {
@@ -105,9 +114,12 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
         </div>
         <div className="flex flex-col w-full pt-2 space-y-2">
           <Label className="text-sm font-medium">{t('frpc.form.server')}</Label>
-          <ServerSelector serverID={serverID} setServerID={setServerID} />
+          <ServerSelector serverID={serverID} setServerID={setServerID} setServer={setSelectedServer} />
           <Label className="text-sm font-medium">{t('frpc.form.client')}</Label>
           <ClientSelector clientID={clientID} setClientID={setClientID} />
+          <Label className="text-sm font-medium">{t('frpc.form.frps_url.title')}</Label>
+          <p className="text-sm text-muted-foreground">{t('frpc.form.frps_url.hint')}</p>
+          <SuggestiveInput value={frpsUrl || ''} onChange={setFrpsUrl} suggestions={selectedServer?.frpsUrls || []} />
         </div>
         {clientID && !advanceMode && <div className='flex flex-col w-full pt-2 space-y-2'>
           <Label className="text-sm font-medium">{t('frpc.form.comment.title', { id: clientID })}</Label>
@@ -120,14 +132,18 @@ export const FRPCFormCard: React.FC<FRPCFormCardProps> = ({
           clientConfig={JSON.parse(client?.client?.config || '{}') as ClientConfig} refetchClient={refetchClient}
           clientID={clientID} serverID={serverID}
           clientProxyConfigs={clientProxyConfigs}
-          setClientProxyConfigs={setClientProxyConfigs} />
+          setClientProxyConfigs={setClientProxyConfigs}
+          frpsUrl={frpsUrl}
+        />
         }
         {clientID && serverID && advanceMode && <FRPCEditor
           client={client?.client}
           clientConfig={JSON.parse(client?.client?.config || '{}') as ClientConfig} refetchClient={refetchClient}
           clientID={clientID} serverID={serverID}
           clientProxyConfigs={clientProxyConfigs}
-          setClientProxyConfigs={setClientProxyConfigs} />
+          setClientProxyConfigs={setClientProxyConfigs}
+          frpsUrl={frpsUrl}
+        />
         }
       </CardContent>
     </Card>

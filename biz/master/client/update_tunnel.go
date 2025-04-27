@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/defs"
@@ -16,6 +17,7 @@ import (
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/samber/lo"
+	"github.com/spf13/cast"
 )
 
 func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPCResponse, error) {
@@ -77,6 +79,13 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 		}, fmt.Errorf("cannot get server")
 	}
 
+	if len(srv.ConfigContent) == 0 {
+		logger.Logger(c).Errorf("cannot get server, server is not prepared, id: [%s]", req.GetServerId())
+		return &pb.UpdateFRPCResponse{
+			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "server is not prepared, pls update server config first"},
+		}, fmt.Errorf("server is not prepared, pls update server config first")
+	}
+
 	srvConf, err := srv.GetConfigContent()
 	if srvConf == nil || err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get server, id: [%s]", serverID)
@@ -85,14 +94,47 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 
 	cliCfg.ServerAddr = srv.ServerIP
 	switch cliCfg.Transport.Protocol {
-	case "tcp":
-		cliCfg.ServerPort = srvConf.BindPort
 	case "kcp":
 		cliCfg.ServerPort = srvConf.KCPBindPort
 	case "quic":
 		cliCfg.ServerPort = srvConf.QUICBindPort
 	default:
 		cliCfg.ServerPort = srvConf.BindPort
+	}
+
+	if len(req.GetFrpsUrl()) > 0 || len(cli.FRPsUrl) > 0 {
+		// 有一个有就需要覆盖，优先请求的url
+		var (
+			parsedFrpsUrl *url.URL
+			err           error
+			urlToParse    string
+		)
+		if len(req.GetFrpsUrl()) > 0 {
+			parsedFrpsUrl, err = ValidateFrpsUrl(req.GetFrpsUrl())
+			if err != nil {
+				logger.Logger(c).WithError(err).Errorf("invalid frps url, url: [%s]", req.GetFrpsUrl())
+				return &pb.UpdateFRPCResponse{
+					Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
+				}, err
+			}
+			urlToParse = req.GetFrpsUrl()
+		}
+
+		if len(cli.FRPsUrl) > 0 && parsedFrpsUrl == nil {
+			parsedFrpsUrl, err = ValidateFrpsUrl(cli.FRPsUrl)
+			if err != nil {
+				logger.Logger(c).WithError(err).Errorf("invalid old frps url, url: [%s]", cli.FRPsUrl)
+				return &pb.UpdateFRPCResponse{
+					Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
+				}, err
+			}
+			urlToParse = cli.FRPsUrl
+		}
+
+		cliCfg.ServerAddr = parsedFrpsUrl.Hostname()
+		cliCfg.ServerPort = cast.ToInt(parsedFrpsUrl.Port())
+		cliCfg.Transport.Protocol = parsedFrpsUrl.Scheme
+		cli.FRPsUrl = urlToParse
 	}
 
 	cliCfg.User = userInfo.GetUserName()

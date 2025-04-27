@@ -14,6 +14,7 @@ import (
 	"github.com/fatedier/frp/client/proxy"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
+	"github.com/fatedier/frp/pkg/featuregate"
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc"
 )
@@ -31,6 +32,12 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 	proxyCfgs []v1.ProxyConfigurer,
 	visitorCfgs []v1.VisitorConfigurer) app.ClientHandler {
 	ctx := context.Background()
+
+	if len(commonCfg.FeatureGates) > 0 {
+		if err := featuregate.SetFromMap(commonCfg.FeatureGates); err != nil {
+			logger.Logger(ctx).WithError(err).Errorf("there's a feature gate settings, but set failed: %+v, skip", commonCfg.FeatureGates)
+		}
+	}
 
 	warning, err := validation.ValidateAllClientConfig(commonCfg, proxyCfgs, visitorCfgs)
 	if warning != nil {

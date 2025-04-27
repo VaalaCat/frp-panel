@@ -107,7 +107,7 @@ function VisitPreviewField({ row }: { row: Row<ProxyConfigTableSchema> }) {
   const typedProxyConfig = JSON.parse(row.original.config || '{}') as TypedProxyConfig
 
   return <VisitPreview
-    server={server?.server || {}}
+    server={server?.server || {frpsUrls: []}}
     typedProxyConfig={typedProxyConfig} />
 }
 

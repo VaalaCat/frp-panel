@@ -24,12 +24,13 @@ export interface FRPCFormProps {
   serverID: string
   client?: Client
   clientConfig: ClientConfig
+  frpsUrl?: string
   refetchClient: (options?: RefetchOptions) => Promise<QueryObserverResult<GetClientResponse, Error>>
   clientProxyConfigs: TypedProxyConfig[]
   setClientProxyConfigs: React.Dispatch<React.SetStateAction<TypedProxyConfig[]>>
 }
 
-export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, clientConfig, client, refetchClient, clientProxyConfigs, setClientProxyConfigs }) => {
+export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, clientConfig, client, refetchClient, clientProxyConfigs, setClientProxyConfigs, frpsUrl }) => {
   const { t } = useTranslation()
   const [proxyType, setProxyType] = useState<ProxyType>('http')
   const [proxyName, setProxyName] = useState<string | undefined>()
@@ -84,6 +85,7 @@ export const FRPCForm: React.FC<FRPCFormProps> = ({ clientID, serverID, clientCo
         ),
         serverId: serverID,
         clientId: clientID,
+        frpsUrl: frpsUrl,
       })
       await refetchClient()
       toast(t('proxy.status.update'), {

@@ -147,6 +147,10 @@
       "description": "编辑服务器原始配置文件"
     },
     "serverLabel": "服务器",
+    "frpsUrl": {
+      "title": "FRP 服务器覆盖地址 - 可选",
+      "description": "客户端可以使用该地址连接，而不是使用默认的IP。在端口转发/CDN/反向代理时很有用。格式：[tcp/kcp/websocket]://127.0.0.1:7000"
+    },
     "install": {
       "title": "安装命令",
       "description": "请选择您的操作系统并复制相应的安装命令",
@@ -211,7 +215,7 @@
       "vhost_http_port": "HTTP 监听端口",
       "subdomain_host": "域名后缀",
       "quic_bind_port": "Quic 监听端口",
-      "kcp_bind_port":"KCP 监听端口"
+      "kcp_bind_port": "KCP 监听端口"
     },
     "create": {
       "button": "新建",
@@ -452,6 +456,10 @@
         "title": "节点 {{id}} 的备注",
         "hint": "可以到高级模式修改备注哦！",
         "empty": "空空如也"
+      },
+      "frps_url": {
+        "title": "FRP 服务端覆盖地址 - 可选",
+        "hint": "可以覆盖 master 存储的服务端地址，用于处理端口转发或反向代理/CDN时，域名/IP/端口和真实端口不一致的问题。格式：[tcp/kcp/websocket]://127.0.0.1:7000"
       }
     }
   },

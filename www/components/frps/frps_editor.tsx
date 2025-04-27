@@ -10,7 +10,7 @@ import { RespCode } from '@/lib/pb/common'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
+export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID, frpsUrls }) => {
   const { t } = useTranslation()
   const { data: serverResp, refetch: refetchServer } = useQuery({
     queryKey: ['getServer', serverID],
@@ -27,6 +27,7 @@ export const FRPSEditor: React.FC<FRPSFormProps> = ({ server, serverID }) => {
   const handleSubmit = async () => {
     try {
       let res = await updateFrps.mutateAsync({
+        frpsUrls: frpsUrls,
         serverId: serverID,
         //@ts-ignore
         config: Buffer.from(editorValue),

@@ -49,6 +49,7 @@ message UpdateFRPCRequest {
   optional string server_id = 2;
   optional bytes config = 3;
   optional string comment = 4;
+  optional string frps_url = 5;
 }
 
 message UpdateFRPCResponse {

@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/models"
@@ -9,6 +10,7 @@ import (
 	"github.com/VaalaCat/frp-panel/services/dao"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/samber/lo"
+	"github.com/spf13/cast"
 	"github.com/tiendc/go-deepcopy"
 )
 
@@ -112,4 +114,35 @@ func ChildClientForServer(c *app.Context, serverID string, clientEntity *models.
 	}
 
 	return copiedClient, nil
+}
+
+func ValidFrpsScheme(scheme string) bool {
+	return scheme == "tcp" ||
+		scheme == "kcp" || scheme == "quic" ||
+		scheme == "websocket" || scheme == "wss"
+}
+
+func ValidateFrpsUrl(urlStr string) (*url.URL, error) {
+	parsedFrpsUrl, err := url.Parse(urlStr)
+	if err != nil {
+		return nil, fmt.Errorf("parse frps url error")
+	}
+
+	if !ValidFrpsScheme(parsedFrpsUrl.Scheme) {
+		return nil, fmt.Errorf("invalid frps scheme")
+	}
+
+	if len(parsedFrpsUrl.Host) == 0 {
+		return nil, fmt.Errorf("invalid frps host")
+	}
+
+	if len(parsedFrpsUrl.Hostname()) == 0 {
+		return nil, fmt.Errorf("invalid frps hostname")
+	}
+
+	if cast.ToInt(parsedFrpsUrl.Port()) == 0 {
+		return nil, fmt.Errorf("invalid frps port")
+	}
+
+	return parsedFrpsUrl, nil
 }

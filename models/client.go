@@ -25,6 +25,7 @@ type ClientEntity struct {
 	Comment        string `json:"comment"`
 	IsShadow       bool   `json:"is_shadow" gorm:"index"`
 	OriginClientID string `json:"origin_client_id" gorm:"index"`
+	FRPsUrl        string `json:"frps_url" gorm:"index"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      gorm.DeletedAt `gorm:"index"`

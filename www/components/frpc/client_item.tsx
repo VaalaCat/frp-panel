@@ -48,6 +48,7 @@ export type ClientTableSchema = {
   info?: string
   config?: string
   originClient: Client
+  clientIds: string[]
 }
 
 export interface TableMetaType extends TableMeta<ClientTableSchema> {

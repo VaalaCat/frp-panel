@@ -73,6 +73,7 @@ func GetClientHandler(ctx *app.Context, req *pb.GetClientRequest) (*pb.GetClient
 			ServerId:  lo.ToPtr(client.ServerID),
 			Stopped:   lo.ToPtr(client.Stopped),
 			Comment:   lo.ToPtr(client.Comment),
+			FrpsUrl:   lo.ToPtr(client.FRPsUrl),
 			ClientIds: nil,
 		}
 	}

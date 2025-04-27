@@ -30,9 +30,10 @@ export const ServerConfigZodSchema = ServerConfigSchema
 export interface FRPSFormProps {
   serverID: string
   server: Server
+  frpsUrls: string[]
 }
 
-const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
+const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server, frpsUrls }) => {
   const { t } = useTranslation()
   const form = useForm<z.infer<typeof ServerConfigZodSchema>>({
     resolver: zodResolver(ServerConfigZodSchema),
@@ -54,6 +55,7 @@ const FRPSForm: React.FC<FRPSFormProps> = ({ serverID, server }) => {
       let resp = await updateFrps.mutateAsync({
         serverIp: publicHost,
         serverId: serverID,
+        frpsUrls: frpsUrls,
         // @ts-ignore
         config: Buffer.from(
           JSON.stringify({

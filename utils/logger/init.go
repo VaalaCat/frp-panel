@@ -2,6 +2,7 @@ package logger
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,17 +15,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func InitFrpLogger() {
+func initFrpLogger(frpLogLevel log.Level) {
 	frplog.Logger = log.New(
 		log.WithCaller(true),
 		log.AddCallerSkip(1),
-		log.WithLevel(log.InfoLevel),
+		log.WithLevel(frpLogLevel),
 		log.WithOutput(logger))
 }
 
 func InitLogger() {
 	// projectRoot, projectPkg, _ := findProjectRootAndModule()
-	InitFrpLogger()
 
 	Instance().SetReportCaller(true)
 	Instance().SetFormatter(NewCustomFormatter(false, true))
@@ -32,6 +32,36 @@ func InitLogger() {
 
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(NewCustomFormatter(false, true))
+}
+
+func UpdateLoggerOpt(frpLogLevel string, logrusLevel string) {
+	ctx := context.Background()
+
+	frpLogLevel = strings.ToLower(frpLogLevel)
+	logrusLevel = strings.ToLower(logrusLevel)
+
+	if frpLogLevel == "" {
+		frpLogLevel = "info"
+	}
+	if logrusLevel == "" {
+		logrusLevel = "info"
+	}
+
+	frpLv, err := log.ParseLevel(frpLogLevel)
+	if err != nil {
+		Logger(ctx).WithError(err).Errorf("invalid frp log level: %s, use info", frpLogLevel)
+		frpLv = log.InfoLevel
+	}
+	logrusLv, err := logrus.ParseLevel(logrusLevel)
+	if err != nil {
+		Logger(ctx).WithError(err).Errorf("invalid logrus log level: %s, use info", logrusLevel)
+		logrusLv = logrus.InfoLevel
+	}
+
+	Instance().SetLevel(logrusLv)
+	logrus.SetLevel(logrusLv)
+
+	initFrpLogger(frpLv)
 }
 
 func NewCallerPrettyfier(projectRoot, projectPkg string) func(frame *runtime.Frame) (function string, file string) {
