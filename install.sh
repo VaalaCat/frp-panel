@@ -75,6 +75,12 @@ find_frpp_executable() {
     echo "$executable_path"
 }
 
+if [ -n "$1" ]; then
+    start_params="$@"
+else
+    start_params=$(get_start_params)
+fi
+
 if systemctl list-units --type=service | grep -q frpp; then
     echo "frpp 服务存在"
     executable_path=$(find_frpp_executable)
@@ -85,21 +91,19 @@ if systemctl list-units --type=service | grep -q frpp; then
     echo "更新程序到原路径：$executable_path"
     sudo rm -rf "$executable_path"
     sudo cp "$new_executable_path" "$executable_path"
-    sudo systemctl restart frpp
-    echo "frpp 服务已更新。"
     $executable_path version
+    sudo $executable_path uninstall
+    sudo $executable_path install $start_params
+    sudo systemctl daemon-reload
+    echo "参数已重写，请执行 cat /etc/systemd/system/frpp.service 仔细检查启动命令，避免无法启动"
+    echo "执行 sudo systemctl restart frpp 重启服务"
+    echo "执行 sudo systemctl status frpp 查看服务状态"
     exit 0
 else
     echo "frpp 服务不存在，进行安装"
 fi
 
 sudo cp "$new_executable_path" .
-
-if [ -n "$1" ]; then
-    start_params="$@"
-else
-    start_params=$(get_start_params)
-fi
 
 sudo ./frp-panel install $start_params
 
