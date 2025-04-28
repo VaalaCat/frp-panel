@@ -62,6 +62,20 @@ func (q *queryImpl) UpdateUser(userInfo models.UserInfo, user *models.UserEntity
 	}).Error
 }
 
+func (q *queryImpl) AdminUpdateUser(userInfo models.UserInfo, user *models.UserEntity) error {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	user.UserID = userInfo.GetUserID()
+	return db.Model(&models.User{}).Where(
+		&models.User{
+			UserEntity: &models.UserEntity{
+				UserID: userInfo.GetUserID(),
+			},
+		},
+	).Save(&models.User{
+		UserEntity: user,
+	}).Error
+}
+
 func (q *queryImpl) GetUserByUserName(userName string) (*models.UserEntity, error) {
 	if userName == "" {
 		return nil, fmt.Errorf("invalid user name")

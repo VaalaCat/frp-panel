@@ -263,7 +263,8 @@
       "button": "批量配置",
       "title": "批量配置",
       "description": "提前下载好二进制文件，运行以下命令，client 将自动生成配置文件保存",
-      "copy": "复制命令"
+      "copy": "复制命令",
+      "sign_token": "生成令牌"
     },
     "actions_menu": {
       "title": "客户端操作",

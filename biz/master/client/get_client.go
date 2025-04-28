@@ -1,6 +1,8 @@
 package client
 
 import (
+	"strings"
+
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -31,6 +33,10 @@ func GetClientHandler(ctx *app.Context, req *pb.GetClientRequest) (*pb.GetClient
 		}, nil
 	}
 
+	if !strings.Contains(clientID, ".") {
+		clientID = app.GlobalClientID(userInfo.GetUserName(), "c", clientID)
+	}
+
 	respCli := &pb.Client{}
 	if len(serverID) == 0 {
 		client, err := dao.NewQuery(ctx).GetClientByClientID(userInfo, clientID)
@@ -50,6 +56,8 @@ func GetClientHandler(ctx *app.Context, req *pb.GetClientRequest) (*pb.GetClient
 			Stopped:   lo.ToPtr(client.Stopped),
 			Comment:   lo.ToPtr(client.Comment),
 			ClientIds: clientIDs,
+			Ephemeral: &client.Ephemeral,
+			// LastSeenAt: lo.ToPtr(client.LastSeenAt.UnixMilli()),
 		}
 	} else {
 		client, err := dao.NewQuery(ctx).GetClientByFilter(userInfo, &models.ClientEntity{
@@ -73,8 +81,12 @@ func GetClientHandler(ctx *app.Context, req *pb.GetClientRequest) (*pb.GetClient
 			ServerId:  lo.ToPtr(client.ServerID),
 			Stopped:   lo.ToPtr(client.Stopped),
 			Comment:   lo.ToPtr(client.Comment),
-			FrpsUrl:   lo.ToPtr(client.FRPsUrl),
+			FrpsUrl:   lo.ToPtr(client.FrpsUrl),
+			Ephemeral: &client.Ephemeral,
 			ClientIds: nil,
+		}
+		if client.LastSeenAt != nil {
+			respCli.LastSeenAt = lo.ToPtr(client.LastSeenAt.UnixMilli())
 		}
 	}
 

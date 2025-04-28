@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Cert struct {
 	gorm.Model
-	Name     string `gorm:"uniqueIndex"`
+	Name     string `gorm:"type:varchar(255);uniqueIndex"`
 	CertFile []byte
 	KeyFile  []byte
 	CaFile   []byte

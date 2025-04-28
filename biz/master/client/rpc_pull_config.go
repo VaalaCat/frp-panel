@@ -1,8 +1,6 @@
 package client
 
 import (
-	"fmt"
-
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
@@ -23,6 +21,11 @@ func RPCPullConfig(ctx *app.Context, req *pb.PullClientConfigReq) (*pb.PullClien
 		return nil, err
 	}
 
+	if err := dao.NewQuery(ctx).AdminUpdateClientLastSeen(cli.ClientID); err != nil {
+		logger.Logger(ctx).WithError(err).Errorf("update client last_seen_at time error, req:[%s] clientId:[%s]",
+			req.String(), cli.ClientID)
+	}
+
 	if cli.IsShadow {
 		proxies, err := dao.NewQuery(ctx).AdminListProxyConfigsWithFilters(&models.ProxyConfigEntity{
 			OriginClientID: cli.ClientID,
@@ -34,7 +37,12 @@ func RPCPullConfig(ctx *app.Context, req *pb.PullClientConfigReq) (*pb.PullClien
 	}
 
 	if cli.Stopped && cli.IsShadow {
-		return nil, fmt.Errorf("client is stopped")
+		return &pb.PullClientConfigResp{
+			Client: &pb.Client{
+				Id:      lo.ToPtr(cli.ClientID),
+				Stopped: lo.ToPtr(true),
+			},
+		}, nil
 	}
 
 	return &pb.PullClientConfigResp{

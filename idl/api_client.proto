@@ -7,6 +7,7 @@ option go_package="../pb";
 
 message InitClientRequest {
   optional string client_id = 1;
+  optional bool ephemeral = 2;
 }
 
 message InitClientResponse {

@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
@@ -47,8 +48,12 @@ func RegisterHandler(c *app.Context, req *pb.RegisterRequest) (*pb.RegisterRespo
 		Password: hashedPassword,
 		Email:    email,
 		Status:   models.STATUS_NORMAL,
-		Role:     models.ROLE_NORMAL,
+		Role:     defs.UserRole_Normal,
 		Token:    uuid.New().String(),
+	}
+
+	if userCount == 0 {
+		newUser.Role = defs.UserRole_Admin
 	}
 
 	err = dao.NewQuery(c).CreateUser(newUser)

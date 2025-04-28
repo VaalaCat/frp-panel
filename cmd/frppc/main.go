@@ -1,13 +1,8 @@
 package main
 
 import (
-	"sync"
-
-	"github.com/VaalaCat/frp-panel/biz/common"
-	"github.com/VaalaCat/frp-panel/biz/master/shell"
+	"github.com/VaalaCat/frp-panel/cmd/frpp/shared"
 	"github.com/VaalaCat/frp-panel/conf"
-	"github.com/VaalaCat/frp-panel/services/app"
-	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/fatedier/golib/crypto"
 	"github.com/spf13/cobra"
@@ -15,20 +10,20 @@ import (
 
 func main() {
 	crypto.DefaultSalt = "frp"
-
 	logger.InitLogger()
 	cobra.MousetrapHelpText = ""
-	cfg := conf.NewConfig()
 
-	appInstance := app.NewApp()
-	appInstance.SetConfig(cfg)
-	appInstance.SetClientsManager(rpc.NewClientsManager())
-	appInstance.SetStreamLogHookMgr(&common.HookMgr{})
-	appInstance.SetShellPTYMgr(shell.NewPTYMgr())
-	appInstance.SetClientRecvMap(&sync.Map{})
+	rootCmd := shared.NewRootCmd(
+		shared.NewClientCmd(conf.NewConfig()),
+		shared.NewJoinCmd(),
+		shared.NewInstallServiceCmd(),
+		shared.NewUninstallServiceCmd(),
+		shared.NewStartServiceCmd(),
+		shared.NewStopServiceCmd(),
+		shared.NewRestartServiceCmd(),
+		shared.NewVersionCmd(),
+	)
 
-	initCommand(appInstance)
-
-	setMasterCommandIfNonePresent()
+	shared.SetClientCommandIfNonePresent(rootCmd)
 	rootCmd.Execute()
 }

@@ -1,4 +1,4 @@
-package main
+package shared
 
 import (
 	"context"
@@ -15,6 +15,7 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
 	bizserver "github.com/VaalaCat/frp-panel/biz/server"
 	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/api"
@@ -22,11 +23,13 @@ import (
 	"github.com/VaalaCat/frp-panel/services/dao"
 	"github.com/VaalaCat/frp-panel/services/master"
 	"github.com/VaalaCat/frp-panel/services/mux"
+	"github.com/VaalaCat/frp-panel/services/rbac"
 	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/services/watcher"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/VaalaCat/frp-panel/utils/wsgrpc"
+	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"github.com/gorilla/websocket"
@@ -37,9 +40,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-//go:embed all:out
-var fs embed.FS
 
 func NewLogHookManager() app.StreamLogHookMgr {
 	return &bizcommon.HookMgr{}
@@ -70,10 +70,6 @@ func NewClientsManager() app.ClientsManager {
 	return rpc.NewClientsManager()
 }
 
-func NewFs() embed.FS {
-	return fs
-}
-
 func NewPatchedConfig(param struct {
 	fx.In
 
@@ -96,7 +92,7 @@ func NewClientLogManager() app.ClientLogManager {
 
 func NewDBManager(ctx *app.Context, appInstance app.Application) app.DBManager {
 	logger.Logger(ctx).Infof("start to init database, type: %s", appInstance.GetConfig().DB.Type)
-	mgr := models.NewDBManager(nil, appInstance.GetConfig().DB.Type)
+	mgr := models.NewDBManager(appInstance.GetConfig().DB.Type)
 	appInstance.SetDBManager(mgr)
 
 	if appInstance.GetConfig().IsDebug {
@@ -104,7 +100,7 @@ func NewDBManager(ctx *app.Context, appInstance app.Application) app.DBManager {
 	}
 
 	switch appInstance.GetConfig().DB.Type {
-	case "sqlite3":
+	case defs.DBTypeSQLite3:
 		if err := utils.EnsureDirectoryExists(appInstance.GetConfig().DB.DSN); err != nil {
 			logger.Logger(ctx).WithError(err).Warnf("ensure directory failed, data location: [%s], keep data in current directory",
 				appInstance.GetConfig().DB.DSN)
@@ -117,26 +113,33 @@ func NewDBManager(ctx *app.Context, appInstance app.Application) app.DBManager {
 		if sqlitedb, err := gorm.Open(sqlite.Open(appInstance.GetConfig().DB.DSN), &gorm.Config{}); err != nil {
 			logger.Logger(ctx).Panic(err)
 		} else {
-			appInstance.GetDBManager().SetDB("sqlite3", sqlitedb)
+			appInstance.GetDBManager().SetDB(defs.DBTypeSQLite3, defs.DBRoleDefault, sqlitedb)
 			logger.Logger(ctx).Infof("init database success, data location: [%s]", appInstance.GetConfig().DB.DSN)
 		}
-	case "mysql":
+	case defs.DBTypeMysql:
 		if mysqlDB, err := gorm.Open(mysql.Open(appInstance.GetConfig().DB.DSN), &gorm.Config{}); err != nil {
 			logger.Logger(ctx).Panic(err)
 		} else {
-			appInstance.GetDBManager().SetDB("mysql", mysqlDB)
+			appInstance.GetDBManager().SetDB(defs.DBTypeMysql, defs.DBRoleDefault, mysqlDB)
 			logger.Logger(ctx).Infof("init database success, data type: [%s]", "mysql")
 		}
-	case "postgres":
+	case defs.DBTypePostgres:
 		if postgresDB, err := gorm.Open(postgres.Open(appInstance.GetConfig().DB.DSN), &gorm.Config{}); err != nil {
 			logger.Logger(ctx).Panic(err)
 		} else {
-			appInstance.GetDBManager().SetDB("postgres", postgresDB)
+			appInstance.GetDBManager().SetDB(defs.DBTypePostgres, defs.DBRoleDefault, postgresDB)
 			logger.Logger(ctx).Infof("init database success, data type: [%s]", "postgres")
 		}
 	default:
 		logger.Logger(ctx).Panicf("currently unsupported database type: %s", appInstance.GetConfig().DB.Type)
 	}
+
+	memoryDB, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		logger.Logger(ctx).Panic(err)
+	}
+	appInstance.GetDBManager().SetDB(defs.DBTypeSQLite3, defs.DBRoleRam, memoryDB)
+	logger.Logger(ctx).Infof("init memory database success")
 
 	appInstance.GetDBManager().Init()
 	return mgr
@@ -279,7 +282,94 @@ func NewDefaultServerConfig(ctx *app.Context) conf.Config {
 
 const splitter = "\n--------------------------------------------\n"
 
-func NewConfigPrinter(ctx *app.Context, config conf.Config) {
+func NewConfigPrinter(param struct {
+	fx.In
+
+	Ctx    *app.Context
+	Config conf.Config
+}) {
+	var (
+		ctx    = param.Ctx
+		config = param.Config
+	)
 	logger.Logger(ctx).Infof("%srunning config is: %s%s", splitter, config.PrintStr(), splitter)
 	logger.Logger(ctx).Infof("%scurrent version: \n%s%s", splitter, conf.GetVersion().String(), splitter)
+}
+
+func NewAutoJoin(param struct {
+	fx.In
+
+	Role       defs.AppRole
+	Ctx        *app.Context
+	Cfg        conf.Config `name:"argsPatchedConfig"`
+	CommonArgs CommonArgs
+}) conf.Config {
+	var (
+		ctx          = param.Ctx
+		clientID     = param.Cfg.Client.ID
+		clientSecret = param.Cfg.Client.Secret
+		autoJoin     = false
+		appInstance  = param.Ctx.GetApp()
+	)
+
+	appInstance.SetConfig(param.Cfg)
+
+	if param.Role != defs.AppRole_Client {
+		return param.Cfg
+	}
+
+	// 用户不输入clientID和clientSecret时，使用autoJoin
+	if len(clientSecret) == 0 || len(clientID) == 0 {
+		if param.CommonArgs.JoinToken != nil && len(*param.CommonArgs.JoinToken) > 0 {
+			autoJoin = true
+		} else {
+			if len(clientSecret) == 0 {
+				logger.Logger(ctx).Fatal("client secret cannot be empty")
+			}
+
+			if len(clientID) == 0 {
+				logger.Logger(ctx).Fatal("client id cannot be empty")
+			}
+		}
+	}
+
+	if autoJoin {
+		logger.Logger(ctx).Infof("start to try join master, clientID: [%s], clientSecret: [%s]", clientID, clientSecret)
+		cli, err := JoinMaster(param.Cfg, param.CommonArgs)
+		if err != nil {
+			logger.Logger(ctx).Fatalf("join master failed: %s", err.Error())
+		}
+		logger.Logger(ctx).Infof("join master success, clientID: [%s], clientInfo: [%s]", cli.GetId(), cli.String())
+		tmpCfg := appInstance.GetConfig()
+		tmpCfg.Client.ID = cli.GetId()
+		tmpCfg.Client.Secret = cli.GetSecret()
+		appInstance.SetConfig(tmpCfg)
+	}
+	return appInstance.GetConfig()
+}
+
+func NewPermissionManager(param struct {
+	fx.In
+
+	Enforcer    *casbin.Enforcer
+	AppInstance app.Application
+}) app.PermissionManager {
+	permMgr := rbac.NewPermManager(param.Enforcer)
+	param.AppInstance.SetPermManager(permMgr)
+	return permMgr
+}
+
+func NewEnforcer(param struct {
+	fx.In
+
+	Ctx         *app.Context
+	DBmanager   app.DBManager
+	AppInstance app.Application
+}) *casbin.Enforcer {
+	e, err := rbac.InitializeCasbin(param.Ctx, param.DBmanager.GetDefaultDB())
+	if err != nil {
+		logger.Logger(param.Ctx).WithError(err).Fatal("initialize casbin failed")
+	}
+	param.AppInstance.SetEnforcer(e)
+	return e
 }

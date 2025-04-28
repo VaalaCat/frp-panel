@@ -102,7 +102,7 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 		cliCfg.ServerPort = srvConf.BindPort
 	}
 
-	if len(req.GetFrpsUrl()) > 0 || len(cli.FRPsUrl) > 0 {
+	if len(req.GetFrpsUrl()) > 0 || len(cli.FrpsUrl) > 0 {
 		// 有一个有就需要覆盖，优先请求的url
 		var (
 			parsedFrpsUrl *url.URL
@@ -120,21 +120,21 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 			urlToParse = req.GetFrpsUrl()
 		}
 
-		if len(cli.FRPsUrl) > 0 && parsedFrpsUrl == nil {
-			parsedFrpsUrl, err = ValidateFrpsUrl(cli.FRPsUrl)
+		if len(cli.FrpsUrl) > 0 && parsedFrpsUrl == nil {
+			parsedFrpsUrl, err = ValidateFrpsUrl(cli.FrpsUrl)
 			if err != nil {
-				logger.Logger(c).WithError(err).Errorf("invalid old frps url, url: [%s]", cli.FRPsUrl)
+				logger.Logger(c).WithError(err).Errorf("invalid old frps url, url: [%s]", cli.FrpsUrl)
 				return &pb.UpdateFRPCResponse{
 					Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
 				}, err
 			}
-			urlToParse = cli.FRPsUrl
+			urlToParse = cli.FrpsUrl
 		}
 
 		cliCfg.ServerAddr = parsedFrpsUrl.Hostname()
 		cliCfg.ServerPort = cast.ToInt(parsedFrpsUrl.Port())
 		cliCfg.Transport.Protocol = parsedFrpsUrl.Scheme
-		cli.FRPsUrl = urlToParse
+		cli.FrpsUrl = urlToParse
 	}
 
 	cliCfg.User = userInfo.GetUserName()

@@ -134,6 +134,12 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 				return fmt.Errorf("invalid secret, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
 			}
 
+			if cliType == defs.CliTypeClient {
+				if err := dao.NewQuery(ctx).AdminUpdateClientLastSeen(req.GetClientId()); err != nil {
+					logger.Logger(ctx).Errorf("cannot update client last seen, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
+				}
+			}
+
 			s.appInstance.GetClientsManager().Set(req.GetClientId(), cliType, sender)
 			done = rpc.Recv(s.appInstance, req.GetClientId())
 			sender.Send(&pb.ServerMessage{

@@ -43,6 +43,8 @@ message Client {
   repeated string client_ids = 8; // some client can connected to more than one server, make a shadow client to handle this
   optional string origin_client_id = 9;
   optional string frps_url = 10; // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000
+  optional bool ephemeral = 11; // 是否临时节点
+  optional int64 last_seen_at = 12; // 最后一次心跳时间戳
 }
 
 message Server {

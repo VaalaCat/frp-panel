@@ -23,3 +23,18 @@ message RegisterRequest {
 message RegisterResponse {
   optional common.Status status = 1;
 }
+
+message APIPermission {
+	optional string method = 1;
+	optional string path = 2;
+}
+
+message SignTokenRequest {
+  optional int64 expires_in = 1;
+  repeated APIPermission permissions = 2;
+}
+
+message SignTokenResponse {
+  optional common.Status status = 1;
+  optional string token = 2;
+}

@@ -24,6 +24,7 @@ const (
 type InitClientRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ClientId      *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	Ephemeral     *bool                  `protobuf:"varint,2,opt,name=ephemeral,proto3,oneof" json:"ephemeral,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,6 +64,13 @@ func (x *InitClientRequest) GetClientId() string {
 		return *x.ClientId
 	}
 	return ""
+}
+
+func (x *InitClientRequest) GetEphemeral() bool {
+	if x != nil && x.Ephemeral != nil {
+		return *x.Ephemeral
+	}
+	return false
 }
 
 type InitClientResponse struct {
@@ -1498,11 +1506,14 @@ var File_api_client_proto protoreflect.FileDescriptor
 const file_api_client_proto_rawDesc = "" +
 	"\n" +
 	"\x10api_client.proto\x12\n" +
-	"api_client\x1a\fcommon.proto\"C\n" +
+	"api_client\x1a\fcommon.proto\"t\n" +
 	"\x11InitClientRequest\x12 \n" +
-	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01B\f\n" +
+	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01\x12!\n" +
+	"\tephemeral\x18\x02 \x01(\bH\x01R\tephemeral\x88\x01\x01B\f\n" +
 	"\n" +
-	"_client_id\"|\n" +
+	"_client_idB\f\n" +
+	"\n" +
+	"_ephemeral\"|\n" +
 	"\x12InitClientResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12 \n" +
 	"\tclient_id\x18\x02 \x01(\tH\x01R\bclientId\x88\x01\x01B\t\n" +

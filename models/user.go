@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/defs"
 	"gorm.io/gorm"
 )
 
@@ -30,9 +31,9 @@ var _ UserInfo = (*UserEntity)(nil)
 
 type UserEntity struct {
 	UserID    int    `json:"user_id" gorm:"primaryKey"`
-	UserName  string `json:"user_name" gorm:"uniqueIndex;not null"`
+	UserName  string `json:"user_name" gorm:"type:varchar(255);uniqueIndex;not null"`
 	Password  string `json:"password"`
-	Email     string `json:"email" gorm:"uniqueIndex;not null"`
+	Email     string `json:"email" gorm:"type:varchar(255);uniqueIndex;not null"`
 	Status    int    `json:"status"`
 	Role      string `json:"role"`
 	TenantID  int    `json:"tenant_id"`
@@ -40,6 +41,8 @@ type UserEntity struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	Groups []*UserGroup `json:"groups,omitempty" gorm:"many2many:user_group_memberships;"`
 }
 
 func (u *UserEntity) GetUserID() int {
@@ -99,7 +102,7 @@ func (u *UserEntity) Valid() bool {
 }
 
 func (u *UserEntity) IsAdmin() bool {
-	return u.Role == ROLE_ADMIN
+	return u.Role == defs.UserRole_Admin
 }
 
 func (u *User) TableName() string {

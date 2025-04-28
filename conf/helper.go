@@ -58,19 +58,38 @@ func FRPsAuthOption(cfg Config, isDefault bool) v1.HTTPPluginOptions {
 	}
 }
 
-func GetCommonJWT(cfg Config, uid string) string {
-	token, _ := utils.GetJwtTokenFromMap(JWTSecret(cfg),
+func GetJWTWithPayload(cfg Config, uid int, payload map[string]interface{}) (string, error) {
+	payload[defs.UserIDKey] = uid
+	return utils.GetJwtTokenFromMap(JWTSecret(cfg),
 		time.Now().Unix(),
 		int64(cfg.App.CookieAge),
-		map[string]string{defs.UserIDKey: uid})
+		payload)
+}
+
+func GetJWTWithAllPermission(cfg Config, uid int) string {
+	token, _ := GetJWTWithPayload(cfg, uid, map[string]interface{}{
+		defs.TokenPayloadKey_Permissions: AllPermission(),
+	})
 	return token
 }
 
-func GetCommonJWTWithExpireTime(cfg Config, uid string, expSec int) string {
+func AllPermission() []defs.APIPermission {
+	return []defs.APIPermission{{
+		Method: "*",
+		Path:   "*",
+	}}
+}
+
+func GetCommonJWT(cfg Config, uid int) string {
+	token, _ := GetJWTWithPayload(cfg, uid, map[string]interface{}{})
+	return token
+}
+
+func GetCommonJWTWithExpireTime(cfg Config, uid int64, expSec int) string {
 	token, _ := utils.GetJwtTokenFromMap(JWTSecret(cfg),
 		time.Now().Unix(),
 		int64(expSec),
-		map[string]string{defs.UserIDKey: uid})
+		map[string]interface{}{defs.UserIDKey: uid})
 	return token
 }
 

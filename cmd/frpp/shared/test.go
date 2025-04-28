@@ -1,4 +1,4 @@
-package main
+package shared
 
 // func serverThings() {
 // 	time.Sleep(5 * time.Second)

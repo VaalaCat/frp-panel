@@ -78,7 +78,7 @@ export const LinuxInstallCommand = <T extends Client | Server>(
   item: T,
   info: GetPlatformInfoResponse,
 ) => {
-  return `curl -sSL https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --${ExecCommandStr(type, item, info, ' ')}`
+  return `curl -fSL https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --${ExecCommandStr(type, item, info, ' ')}`
 }
 
 export const ClientEnvFile = <T extends Client | Server>(

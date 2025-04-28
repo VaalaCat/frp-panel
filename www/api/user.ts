@@ -1,5 +1,6 @@
 import http from '@/api/http'
 import { API_PATH } from '@/lib/consts'
+import { SignTokenRequest, SignTokenResponse } from '@/lib/pb/api_auth'
 import {
   GetUserInfoRequest,
   GetUserInfoResponse,
@@ -19,4 +20,9 @@ export const getUserInfo = async (req: GetUserInfoRequest) => {
 export const updateUserInfo = async (req: UpdateUserInfoRequest) => {
   const res = await http.post(API_PATH + '/user/update', UpdateUserInfoRequest.toJson(req))
   return UpdateUserInfoResponse.fromJson((res.data as BaseResponse).body)
+}
+
+export const signToken = async (req: SignTokenRequest) => {
+  const res = await http.post(API_PATH + '/user/sign-token', SignTokenRequest.toJson(req))
+  return SignTokenResponse.fromJson((res.data as BaseResponse).body)
 }

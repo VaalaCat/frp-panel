@@ -7,6 +7,7 @@ import (
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/dao"
 	"github.com/VaalaCat/frp-panel/utils"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/google/uuid"
 )
 
@@ -28,6 +29,8 @@ func InitClientHandler(c *app.Context, req *pb.InitClientRequest) (*pb.InitClien
 
 	globalClientID := app.GlobalClientID(userInfo.GetUserName(), "c", userClientID)
 
+	logger.Logger(c).Infof("start to init client, request:[%s], transformed global client id:[%s]", req.String(), globalClientID)
+
 	if err := dao.NewQuery(c).CreateClient(userInfo,
 		&models.ClientEntity{
 			ClientID:      globalClientID,
@@ -35,6 +38,7 @@ func InitClientHandler(c *app.Context, req *pb.InitClientRequest) (*pb.InitClien
 			UserID:        userInfo.GetUserID(),
 			ConnectSecret: uuid.New().String(),
 			IsShadow:      true,
+			Ephemeral:     req.GetEphemeral(),
 		}); err != nil {
 		return &pb.InitClientResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()}}, err
 	}

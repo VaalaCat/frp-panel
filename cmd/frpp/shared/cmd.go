@@ -1,7 +1,8 @@
-package main
+package shared
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	"os"
@@ -30,9 +31,10 @@ type CommonArgs struct {
 	RpcPort   *int
 	ApiPort   *int
 	ApiScheme *string
+	JoinToken *string
 }
 
-func buildCommand() *cobra.Command {
+func BuildCommand(fs embed.FS) *cobra.Command {
 	cfg := conf.NewConfig()
 
 	logger.UpdateLoggerOpt(
@@ -41,7 +43,7 @@ func buildCommand() *cobra.Command {
 	)
 
 	return NewRootCmd(
-		NewMasterCmd(cfg),
+		NewMasterCmd(cfg, fs),
 		NewClientCmd(cfg),
 		NewServerCmd(cfg),
 		NewJoinCmd(),
@@ -59,6 +61,7 @@ func AddCommonFlags(commonCmd *cobra.Command) {
 	commonCmd.Flags().StringP("id", "i", "", "client id")
 	commonCmd.Flags().String("rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
 	commonCmd.Flags().String("api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
+	commonCmd.Flags().StringP("join-token", "j", "", "your token from master, auto join with out webui")
 
 	// deprecated start
 	commonCmd.Flags().StringP("app", "a", "", "app secret")
@@ -109,12 +112,11 @@ func GetCommonArgs(cmd *cobra.Command) CommonArgs {
 		commonArgs.ApiScheme = &apiScheme
 	}
 
-	return commonArgs
-}
+	if joinToken, err := cmd.Flags().GetString("join-token"); err == nil {
+		commonArgs.JoinToken = &joinToken
+	}
 
-type JoinArgs struct {
-	CommonArgs
-	JoinToken *string
+	return commonArgs
 }
 
 func NewJoinCmd() *cobra.Command {
@@ -122,29 +124,25 @@ func NewJoinCmd() *cobra.Command {
 		Use:   "join [-j join token] [-r rpc host] [-p api port] [-e api scheme]",
 		Short: "join to master with token, save param to config",
 		Run: func(cmd *cobra.Command, args []string) {
+			ctx := context.Background()
 			commonArgs := GetCommonArgs(cmd)
 
 			warnDepParam(cmd)
 
-			joinArgs := &JoinArgs{
-				CommonArgs: commonArgs,
+			cli, err := JoinMaster(conf.NewConfig(), commonArgs)
+			if err != nil {
+				logger.Logger(ctx).Fatalf("join master failed: %s", err.Error())
 			}
-			if joinToken, err := cmd.Flags().GetString("join-token"); err == nil {
-				joinArgs.JoinToken = &joinToken
-			}
-
-			appInstance := app.NewApp()
-			pullRunConfig(appInstance, joinArgs)
+			saveConfig(ctx, cli, commonArgs)
 		},
 	}
 
-	joinCmd.Flags().StringP("join-token", "j", "", "your token from master")
 	AddCommonFlags(joinCmd)
 
 	return joinCmd
 }
 
-func NewMasterCmd(cfg conf.Config) *cobra.Command {
+func NewMasterCmd(cfg conf.Config, fs embed.FS) *cobra.Command {
 	return &cobra.Command{
 		Use:   "master",
 		Short: "run frp-panel manager",
@@ -159,6 +157,8 @@ func NewMasterCmd(cfg conf.Config) *cobra.Command {
 				fx.Supply(
 					CommonArgs{},
 					fx.Annotate(cfg, fx.ResultTags(`name:"originConfig"`)),
+					fs,
+					defs.AppRole_Master,
 				),
 				fx.Provide(fx.Annotate(NewDefaultServerConfig, fx.ResultTags(`name:"defaultServerConfig"`))),
 				fx.Invoke(NewConfigPrinter),
@@ -202,6 +202,7 @@ func NewClientCmd(cfg conf.Config) *cobra.Command {
 				fx.Supply(
 					commonArgs,
 					fx.Annotate(cfg, fx.ResultTags(`name:"originConfig"`)),
+					defs.AppRole_Client,
 				),
 				fx.Invoke(NewConfigPrinter),
 				fx.Invoke(runClient),
@@ -246,6 +247,7 @@ func NewServerCmd(cfg conf.Config) *cobra.Command {
 				fx.Supply(
 					commonArgs,
 					fx.Annotate(cfg, fx.ResultTags(`name:"originConfig"`)),
+					defs.AppRole_Server,
 				),
 				fx.Invoke(runServer),
 			}
@@ -403,7 +405,7 @@ func warnDepParam(cmd *cobra.Command) {
 	}
 }
 
-func setMasterCommandIfNonePresent(rootCmd *cobra.Command) {
+func SetMasterCommandIfNonePresent(rootCmd *cobra.Command) {
 	cmd, _, err := rootCmd.Find(os.Args[1:])
 	if err == nil && cmd.Use == rootCmd.Use && cmd.Flags().Parse(os.Args[1:]) != pflag.ErrHelp {
 		args := append([]string{"master"}, os.Args[1:]...)
@@ -411,96 +413,120 @@ func setMasterCommandIfNonePresent(rootCmd *cobra.Command) {
 	}
 }
 
-func pullRunConfig(appInstance app.Application, joinArgs *JoinArgs) {
+func SetClientCommandIfNonePresent(rootCmd *cobra.Command) {
+	cmd, _, err := rootCmd.Find(os.Args[1:])
+	if err == nil && cmd.Use == rootCmd.Use && cmd.Flags().Parse(os.Args[1:]) != pflag.ErrHelp {
+		args := append([]string{"client"}, os.Args[1:]...)
+		rootCmd.SetArgs(args)
+	}
+}
+
+func JoinMaster(cfg conf.Config, joinArgs CommonArgs) (*pb.Client, error) {
 	c := context.Background()
 	if err := checkPullParams(joinArgs); err != nil {
 		logger.Logger(c).Errorf("check pull params failed: %s", err.Error())
-		return
-	}
-
-	if err := utils.EnsureDirectoryExists(defs.SysEnvPath); err != nil {
-		logger.Logger(c).Errorf("ensure directory failed: %s", err.Error())
-		return
+		return nil, err
 	}
 
 	var clientID string
 
 	if cliID := joinArgs.ClientID; cliID == nil || len(*cliID) == 0 {
 		clientID = utils.GetHostnameWithIP()
+	} else {
+		clientID = *cliID
 	}
 
 	clientID = utils.MakeClientIDPermited(clientID)
-	patchConfig(appInstance, joinArgs.CommonArgs)
 
-	initResp, err := rpc.InitClient(appInstance, clientID, *joinArgs.JoinToken)
-	if err != nil {
-		logger.Logger(c).Errorf("init client failed: %s", err.Error())
-		return
-	}
-	if initResp == nil {
-		logger.Logger(c).Errorf("init resp is nil")
-		return
-	}
-	if initResp.GetStatus().GetCode() != pb.RespCode_RESP_CODE_SUCCESS {
-		logger.Logger(c).Errorf("init client failed with status: %s", initResp.GetStatus().GetMessage())
-		return
+	logger.Logger(c).Infof("join master with param, clientId:[%s] joinArgs:[%s]", clientID, utils.MarshalForJson(joinArgs))
+
+	// 检测是否存在已有的client
+	clientResp, err := rpc.GetClient(cfg, clientID, *joinArgs.JoinToken)
+	if err != nil || clientResp == nil || clientResp.GetStatus().GetCode() != pb.RespCode_RESP_CODE_SUCCESS {
+		logger.Logger(c).Infof("client [%s] not found, try to init client", clientID)
+
+		// 创建短期client
+		initResp, err := rpc.InitClient(cfg, clientID, *joinArgs.JoinToken, true)
+		if err != nil {
+			logger.Logger(c).Errorf("init client failed: %s", err.Error())
+			return nil, err
+		}
+		if initResp == nil {
+			logger.Logger(c).Errorf("init resp is nil")
+			return nil, err
+		}
+		if initResp.GetStatus().GetCode() != pb.RespCode_RESP_CODE_SUCCESS {
+			logger.Logger(c).Errorf("init client failed with status: %s", initResp.GetStatus().GetMessage())
+			return nil, err
+		}
+
+		clientID = initResp.GetClientId()
+		clientResp, err = rpc.GetClient(cfg, clientID, *joinArgs.JoinToken)
+		if err != nil {
+			logger.Logger(c).Errorf("get client failed: %s", err.Error())
+			return nil, err
+		}
 	}
 
-	clientID = initResp.GetClientId()
-	clientResp, err := rpc.GetClient(appInstance, clientID, *joinArgs.JoinToken)
-	if err != nil {
-		logger.Logger(c).Errorf("get client failed: %s", err.Error())
-		return
-	}
 	if clientResp == nil {
 		logger.Logger(c).Errorf("client resp is nil")
-		return
+		return nil, err
 	}
 	if clientResp.GetStatus().GetCode() != pb.RespCode_RESP_CODE_SUCCESS {
 		logger.Logger(c).Errorf("client resp code is not success: %s", clientResp.GetStatus().GetMessage())
-		return
+		return nil, err
 	}
 
 	client := clientResp.GetClient()
 	if client == nil {
 		logger.Logger(c).Errorf("client is nil")
+		return nil, err
+	}
+
+	return client, nil
+}
+
+func saveConfig(ctx context.Context, cli *pb.Client, joinArgs CommonArgs) {
+	if err := utils.EnsureDirectoryExists(defs.SysEnvPath); err != nil {
+		logger.Logger(ctx).Errorf("ensure directory failed: %s", err.Error())
 		return
 	}
 
 	envMap, err := godotenv.Read(defs.SysEnvPath)
 	if err != nil {
 		envMap = make(map[string]string)
-		logger.Logger(c).Warnf("read env file failed, try to create: %s", err.Error())
+		logger.Logger(ctx).Warnf("read env file failed, try to create: %s", err.Error())
 	}
 
-	envMap[defs.EnvClientID] = clientID
-	envMap[defs.EnvClientSecret] = client.GetSecret()
+	envMap[defs.EnvClientID] = cli.GetId()
+	envMap[defs.EnvClientSecret] = cli.GetSecret()
 	envMap[defs.EnvClientAPIUrl] = *joinArgs.ApiUrl
 	envMap[defs.EnvClientRPCUrl] = *joinArgs.RpcUrl
 
 	if err = godotenv.Write(envMap, defs.SysEnvPath); err != nil {
-		logger.Logger(c).Errorf("write env file failed: %s", err.Error())
+		logger.Logger(ctx).Errorf("write env file failed: %s", err.Error())
 		return
 	}
-	logger.Logger(c).Infof("config saved to env file: %s, you can use `frp-panel client` without args to run client,\n\nconfig is: [%v]", defs.SysEnvPath, envMap)
+	logger.Logger(ctx).Infof("config saved to env file: %s, you can use `frp-panel client` without args to run client,\n\nconfig is: [%v]",
+		defs.SysEnvPath, envMap)
 }
 
-func checkPullParams(joinArgs *JoinArgs) error {
+func checkPullParams(joinArgs CommonArgs) error {
 	if joinToken := joinArgs.JoinToken; joinToken != nil && len(*joinToken) == 0 {
 		return errors.New("join token is empty")
 	}
 
-	if apiUrl := joinArgs.ApiUrl; apiUrl == nil || len(*apiUrl) == 0 {
-		if apiHost := joinArgs.ApiHost; apiHost == nil || len(*apiHost) == 0 {
-			return errors.New("api host is empty")
-		}
-		if apiScheme := joinArgs.ApiScheme; apiScheme == nil || len(*apiScheme) == 0 {
-			return errors.New("api scheme is empty")
-		}
+	var (
+		apiUrlAvaliable = joinArgs.ApiUrl != nil && len(*joinArgs.ApiUrl) > 0
+		rpcUrlAvaliable = joinArgs.RpcUrl != nil && len(*joinArgs.RpcUrl) > 0
+	)
+
+	if !apiUrlAvaliable {
+		return errors.New("api url is empty")
 	}
 
-	if apiPort := joinArgs.ApiPort; apiPort == nil || *apiPort == 0 {
-		return errors.New("api port is empty")
+	if !rpcUrlAvaliable {
+		return errors.New("rpc url is empty")
 	}
 
 	return nil

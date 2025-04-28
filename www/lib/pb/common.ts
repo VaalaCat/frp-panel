@@ -85,6 +85,14 @@ export interface Client {
      * @generated from protobuf field: optional string frps_url = 10;
      */
     frpsUrl?: string; // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000
+    /**
+     * @generated from protobuf field: optional bool ephemeral = 11;
+     */
+    ephemeral?: boolean; // 是否临时节点
+    /**
+     * @generated from protobuf field: optional int64 last_seen_at = 12;
+     */
+    lastSeenAt?: bigint; // 最后一次心跳时间戳
 }
 /**
  * @generated from protobuf message common.Server
@@ -467,7 +475,9 @@ class Client$Type extends MessageType<Client> {
             { no: 7, name: "stopped", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
             { no: 8, name: "client_ids", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
             { no: 9, name: "origin_client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 10, name: "frps_url", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 10, name: "frps_url", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 11, name: "ephemeral", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
+            { no: 12, name: "last_seen_at", kind: "scalar", opt: true, T: 3 /*ScalarType.INT64*/, L: 0 /*LongType.BIGINT*/ }
         ]);
     }
     create(value?: PartialMessage<Client>): Client {
@@ -509,6 +519,12 @@ class Client$Type extends MessageType<Client> {
                 case /* optional string frps_url */ 10:
                     message.frpsUrl = reader.string();
                     break;
+                case /* optional bool ephemeral */ 11:
+                    message.ephemeral = reader.bool();
+                    break;
+                case /* optional int64 last_seen_at */ 12:
+                    message.lastSeenAt = reader.int64().toBigInt();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -548,6 +564,12 @@ class Client$Type extends MessageType<Client> {
         /* optional string frps_url = 10; */
         if (message.frpsUrl !== undefined)
             writer.tag(10, WireType.LengthDelimited).string(message.frpsUrl);
+        /* optional bool ephemeral = 11; */
+        if (message.ephemeral !== undefined)
+            writer.tag(11, WireType.Varint).bool(message.ephemeral);
+        /* optional int64 last_seen_at = 12; */
+        if (message.lastSeenAt !== undefined)
+            writer.tag(12, WireType.Varint).int64(message.lastSeenAt);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

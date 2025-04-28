@@ -53,7 +53,7 @@ func UpdateFrpsHander(c *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPS
 	}
 
 	if len(req.GetFrpsUrls()) > 0 {
-		srv.FRPsUrls = req.GetFrpsUrls()
+		srv.FrpsUrls = req.GetFrpsUrls()
 	}
 
 	if err := dao.NewQuery(c).UpdateServer(userInfo, srv); err != nil {

@@ -227,6 +227,10 @@ export const ClientInfo = ({ client }: { client: ClientTableSchema }) => {
           {`需要升级！`}
         </Badge>
       }
+      {client.originClient.ephemeral && <Badge variant={"secondary"} className={`p-2 border font-mono w-fit text-nowrap rounded-full h-6`}>
+        {`临时`}
+      </Badge>}
+        
     </div>
   )
 }

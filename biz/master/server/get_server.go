@@ -39,7 +39,7 @@ func GetServerHandler(c *app.Context, req *pb.GetServerRequest) (*pb.GetServerRe
 			Secret:   lo.ToPtr(serverEntity.ConnectSecret),
 			Comment:  lo.ToPtr(serverEntity.Comment),
 			Ip:       lo.ToPtr(serverEntity.ServerIP),
-			FrpsUrls: serverEntity.FRPsUrls,
+			FrpsUrls: serverEntity.FrpsUrls,
 		},
 	}, nil
 }

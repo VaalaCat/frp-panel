@@ -25,7 +25,7 @@ type RespType interface {
 		pb.StartFRPCResponse | pb.StopFRPCResponse | pb.StartFRPSResponse | pb.StopFRPSResponse |
 		pb.GetProxyStatsByClientIDResponse | pb.GetProxyStatsByServerIDResponse |
 		pb.CreateProxyConfigResponse | pb.ListProxyConfigsResponse | pb.UpdateProxyConfigResponse |
-		pb.DeleteProxyConfigResponse | pb.GetProxyConfigResponse
+		pb.DeleteProxyConfigResponse | pb.GetProxyConfigResponse | pb.SignTokenResponse
 }
 
 func OKResp[T RespType](c *gin.Context, origin *T) {

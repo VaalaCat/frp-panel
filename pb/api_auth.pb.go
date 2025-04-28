@@ -229,6 +229,162 @@ func (x *RegisterResponse) GetStatus() *Status {
 	return nil
 }
 
+type APIPermission struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Method        *string                `protobuf:"bytes,1,opt,name=method,proto3,oneof" json:"method,omitempty"`
+	Path          *string                `protobuf:"bytes,2,opt,name=path,proto3,oneof" json:"path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *APIPermission) Reset() {
+	*x = APIPermission{}
+	mi := &file_api_auth_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *APIPermission) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*APIPermission) ProtoMessage() {}
+
+func (x *APIPermission) ProtoReflect() protoreflect.Message {
+	mi := &file_api_auth_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use APIPermission.ProtoReflect.Descriptor instead.
+func (*APIPermission) Descriptor() ([]byte, []int) {
+	return file_api_auth_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *APIPermission) GetMethod() string {
+	if x != nil && x.Method != nil {
+		return *x.Method
+	}
+	return ""
+}
+
+func (x *APIPermission) GetPath() string {
+	if x != nil && x.Path != nil {
+		return *x.Path
+	}
+	return ""
+}
+
+type SignTokenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ExpiresIn     *int64                 `protobuf:"varint,1,opt,name=expires_in,json=expiresIn,proto3,oneof" json:"expires_in,omitempty"`
+	Permissions   []*APIPermission       `protobuf:"bytes,2,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SignTokenRequest) Reset() {
+	*x = SignTokenRequest{}
+	mi := &file_api_auth_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignTokenRequest) ProtoMessage() {}
+
+func (x *SignTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_auth_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignTokenRequest.ProtoReflect.Descriptor instead.
+func (*SignTokenRequest) Descriptor() ([]byte, []int) {
+	return file_api_auth_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SignTokenRequest) GetExpiresIn() int64 {
+	if x != nil && x.ExpiresIn != nil {
+		return *x.ExpiresIn
+	}
+	return 0
+}
+
+func (x *SignTokenRequest) GetPermissions() []*APIPermission {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+type SignTokenResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	Token         *string                `protobuf:"bytes,2,opt,name=token,proto3,oneof" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SignTokenResponse) Reset() {
+	*x = SignTokenResponse{}
+	mi := &file_api_auth_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignTokenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignTokenResponse) ProtoMessage() {}
+
+func (x *SignTokenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_auth_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignTokenResponse.ProtoReflect.Descriptor instead.
+func (*SignTokenResponse) Descriptor() ([]byte, []int) {
+	return file_api_auth_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SignTokenResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *SignTokenResponse) GetToken() string {
+	if x != nil && x.Token != nil {
+		return *x.Token
+	}
+	return ""
+}
+
 var File_api_auth_proto protoreflect.FileDescriptor
 
 const file_api_auth_proto_rawDesc = "" +
@@ -253,7 +409,22 @@ const file_api_auth_proto_rawDesc = "" +
 	"\x06_email\"J\n" +
 	"\x10RegisterResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_statusB\aZ\x05../pbb\x06proto3"
+	"\a_status\"Y\n" +
+	"\rAPIPermission\x12\x1b\n" +
+	"\x06method\x18\x01 \x01(\tH\x00R\x06method\x88\x01\x01\x12\x17\n" +
+	"\x04path\x18\x02 \x01(\tH\x01R\x04path\x88\x01\x01B\t\n" +
+	"\a_methodB\a\n" +
+	"\x05_path\"\x80\x01\n" +
+	"\x10SignTokenRequest\x12\"\n" +
+	"\n" +
+	"expires_in\x18\x01 \x01(\x03H\x00R\texpiresIn\x88\x01\x01\x129\n" +
+	"\vpermissions\x18\x02 \x03(\v2\x17.api_auth.APIPermissionR\vpermissionsB\r\n" +
+	"\v_expires_in\"p\n" +
+	"\x11SignTokenResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12\x19\n" +
+	"\x05token\x18\x02 \x01(\tH\x01R\x05token\x88\x01\x01B\t\n" +
+	"\a_statusB\b\n" +
+	"\x06_tokenB\aZ\x05../pbb\x06proto3"
 
 var (
 	file_api_auth_proto_rawDescOnce sync.Once
@@ -267,22 +438,27 @@ func file_api_auth_proto_rawDescGZIP() []byte {
 	return file_api_auth_proto_rawDescData
 }
 
-var file_api_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_api_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_api_auth_proto_goTypes = []any{
-	(*LoginRequest)(nil),     // 0: api_auth.LoginRequest
-	(*LoginResponse)(nil),    // 1: api_auth.LoginResponse
-	(*RegisterRequest)(nil),  // 2: api_auth.RegisterRequest
-	(*RegisterResponse)(nil), // 3: api_auth.RegisterResponse
-	(*Status)(nil),           // 4: common.Status
+	(*LoginRequest)(nil),      // 0: api_auth.LoginRequest
+	(*LoginResponse)(nil),     // 1: api_auth.LoginResponse
+	(*RegisterRequest)(nil),   // 2: api_auth.RegisterRequest
+	(*RegisterResponse)(nil),  // 3: api_auth.RegisterResponse
+	(*APIPermission)(nil),     // 4: api_auth.APIPermission
+	(*SignTokenRequest)(nil),  // 5: api_auth.SignTokenRequest
+	(*SignTokenResponse)(nil), // 6: api_auth.SignTokenResponse
+	(*Status)(nil),            // 7: common.Status
 }
 var file_api_auth_proto_depIdxs = []int32{
-	4, // 0: api_auth.LoginResponse.status:type_name -> common.Status
-	4, // 1: api_auth.RegisterResponse.status:type_name -> common.Status
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	7, // 0: api_auth.LoginResponse.status:type_name -> common.Status
+	7, // 1: api_auth.RegisterResponse.status:type_name -> common.Status
+	4, // 2: api_auth.SignTokenRequest.permissions:type_name -> api_auth.APIPermission
+	7, // 3: api_auth.SignTokenResponse.status:type_name -> common.Status
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_auth_proto_init() }
@@ -295,13 +471,16 @@ func file_api_auth_proto_init() {
 	file_api_auth_proto_msgTypes[1].OneofWrappers = []any{}
 	file_api_auth_proto_msgTypes[2].OneofWrappers = []any{}
 	file_api_auth_proto_msgTypes[3].OneofWrappers = []any{}
+	file_api_auth_proto_msgTypes[4].OneofWrappers = []any{}
+	file_api_auth_proto_msgTypes[5].OneofWrappers = []any{}
+	file_api_auth_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_auth_proto_rawDesc), len(file_api_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

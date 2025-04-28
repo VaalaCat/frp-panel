@@ -2,6 +2,7 @@ package dao
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/samber/lo"
@@ -175,8 +176,6 @@ func (q *queryImpl) ListClients(userInfo models.UserInfo, page, pageSize int) ([
 		Where(
 			db.Where(
 				normalClientFilter(db),
-			).Or(
-				"is_shadow = ?", true,
 			),
 		).Offset(offset).Limit(pageSize).Find(&clients).Error
 	if err != nil {
@@ -331,10 +330,30 @@ func (q *queryImpl) AdminGetClientIDsInShadowByClientID(clientID string) ([]stri
 	}), nil
 }
 
+func (q *queryImpl) AdminUpdateClientLastSeen(clientID string) error {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	return db.Model(&models.Client{
+		ClientEntity: &models.ClientEntity{
+			ClientID: clientID,
+		}}).Update("last_seen_at", time.Now()).Error
+}
+
 func normalClientFilter(db *gorm.DB) *gorm.DB {
 	// 1. 没shadow过的老client
 	// 2. shadow过的shadow client
-	return db.Where("origin_client_id is NULL").
-		Or("is_shadow = ?", true).
-		Or("LENGTH(origin_client_id) = ?", 0)
+	// 3. 非临时节点
+	return db.Where(
+		db.Where("origin_client_id is NULL").
+			Or("is_shadow = ?", true).
+			Or("LENGTH(origin_client_id) = ?", 0),
+	).
+		Where(
+			db.Where(
+				db.Where("ephemeral is NULL").
+					Or("ephemeral = ?", false),
+			).Or(
+				db.Where("ephemeral = ?", true).
+					Where("last_seen_at > ?", time.Now().Add(-5*time.Minute)),
+			),
+		)
 }

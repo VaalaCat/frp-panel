@@ -54,6 +54,14 @@ const (
 	CliTypeClient = "client"
 )
 
+type AppRole string
+
+const (
+	AppRole_Client AppRole = CliTypeClient
+	AppRole_Server AppRole = CliTypeServer
+	AppRole_Master AppRole = "master"
+)
+
 const (
 	DefaultServerID    = "default"
 	DefaultAdminUserID = 1
@@ -76,4 +84,28 @@ const (
 	EnvMasterAPIScheme = "MASTER_API_SCHEME"
 	EnvClientAPIUrl    = "CLIENT_API_URL"
 	EnvClientRPCUrl    = "CLIENT_RPC_URL"
+)
+
+const (
+	DBRoleDefault = "default"
+	DBRoleRam     = "ram"
+)
+
+const (
+	DBTypeSQLite3  = "sqlite3"
+	DBTypeMysql    = "mysql"
+	DBTypePostgres = "postgres"
+)
+
+const (
+	UserRole_Admin  = "admin"
+	UserRole_Normal = "normal"
+)
+
+type TokenStatus string
+
+const (
+	TokenStatusActive   TokenStatus = "active"
+	TokenStatusInactive TokenStatus = "inactive"
+	TokenStatusRevoked  TokenStatus = "revoked"
 )

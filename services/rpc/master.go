@@ -105,13 +105,14 @@ func GetClientCert(appInstance app.Application, clientID, clientSecret string, c
 	return resp.Cert
 }
 
-func InitClient(appInstance app.Application, clientID, joinToken string) (*pb.InitClientResponse, error) {
-	apiEndpoint := conf.GetAPIURL(appInstance.GetConfig())
+func InitClient(cfg conf.Config, clientID, joinToken string, ephemeral bool) (*pb.InitClientResponse, error) {
+	apiEndpoint := conf.GetAPIURL(cfg)
 
 	c := httpCli()
 
 	rawReq, err := proto.Marshal(&pb.InitClientRequest{
-		ClientId: &clientID,
+		ClientId:  &clientID,
+		Ephemeral: &ephemeral,
 	})
 	if err != nil {
 		return nil, err
@@ -132,8 +133,8 @@ func InitClient(appInstance app.Application, clientID, joinToken string) (*pb.In
 	return resp, nil
 }
 
-func GetClient(appInstance app.Application, clientID, joinToken string) (*pb.GetClientResponse, error) {
-	apiEndpoint := conf.GetAPIURL(appInstance.GetConfig())
+func GetClient(cfg conf.Config, clientID, joinToken string) (*pb.GetClientResponse, error) {
+	apiEndpoint := conf.GetAPIURL(cfg)
 	c := httpCli()
 
 	rawReq, err := proto.Marshal(&pb.GetClientRequest{

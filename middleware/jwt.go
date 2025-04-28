@@ -13,6 +13,7 @@ import (
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/cast"
 )
 
 // JWTMAuth check if authed and set uid to context
@@ -30,14 +31,14 @@ func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 					c.Set(k, v)
 				}
 				logger.Logger(c).Infof("query auth success")
-				if err = resignAndPatchCtxJWT(c, appInstance, t, tokenStr); err != nil {
+				if err = resignAndPatchCtxJWT(c, appInstance, cast.ToInt(t[defs.UserIDKey]), t, tokenStr); err != nil {
 					logger.Logger(c).WithError(err).Errorf("resign jwt error")
 					common.ErrUnAuthorized(c, "resign jwt error")
 					c.Abort()
 					return
 				}
 				c.Next()
-				SetToken(c, appInstance, utils.ToStr(t[defs.UserIDKey]))
+				SetToken(c, appInstance, cast.ToInt(t[defs.UserIDKey]), t)
 				return
 			}
 			logger.Logger(c).Infof("query auth failed")
@@ -50,7 +51,7 @@ func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 					c.Set(k, v)
 				}
 				logger.Logger(c).Infof("cookie auth success")
-				if err = resignAndPatchCtxJWT(c, appInstance, t, cookieToken); err != nil {
+				if err = resignAndPatchCtxJWT(c, appInstance, cast.ToInt(t[defs.UserIDKey]), t, cookieToken); err != nil {
 					logger.Logger(c).WithError(err).Errorf("resign jwt error")
 					common.ErrUnAuthorized(c, "resign jwt error")
 					c.Abort()
@@ -80,7 +81,7 @@ func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 				c.Set(k, v)
 			}
 			logger.Logger(c).Infof("header auth success")
-			if err = resignAndPatchCtxJWT(c, appInstance, t, tokenStr); err != nil {
+			if err = resignAndPatchCtxJWT(c, appInstance, cast.ToInt(t[defs.UserIDKey]), t, tokenStr); err != nil {
 				logger.Logger(c).WithError(err).Errorf("resign jwt error")
 				common.ErrUnAuthorized(c, "resign jwt error")
 				c.Abort()
@@ -94,7 +95,7 @@ func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 	}
 }
 
-func resignAndPatchCtxJWT(c *gin.Context, appInstance app.Application, t jwt.MapClaims, tokenStr string) error {
+func resignAndPatchCtxJWT(c *gin.Context, appInstance app.Application, userID int, t jwt.MapClaims, tokenStr string) error {
 	tokenExpire, _ := t.GetExpirationTime()
 	now := time.Now().Add(time.Duration(appInstance.GetConfig().App.CookieAge/2) * time.Second)
 	if now.Before(tokenExpire.Time) {
@@ -103,47 +104,32 @@ func resignAndPatchCtxJWT(c *gin.Context, appInstance app.Application, t jwt.Map
 		return nil
 	}
 
-	token, err := utils.GetJwtTokenFromMap(conf.JWTSecret(appInstance.GetConfig()),
-		time.Now().Unix(),
-		int64(appInstance.GetConfig().App.CookieAge),
-		map[string]string{defs.UserIDKey: utils.ToStr(t[defs.UserIDKey])})
+	tokenStr, err := SetToken(c, appInstance, userID, t)
 	if err != nil {
-		c.Set(defs.TokenKey, tokenStr)
 		logger.Logger(c).WithError(err).Errorf("resign jwt error")
 		return err
 	}
 
+	PushTokenStr(c, appInstance, tokenStr)
+
 	logger.Logger(c).Infof("jwt going to expire, resigning token")
-	c.Header(defs.SetAuthorizationKey, token)
-	c.SetCookie(appInstance.GetConfig().App.CookieName,
-		token,
-		appInstance.GetConfig().App.CookieAge,
-		appInstance.GetConfig().App.CookiePath,
-		appInstance.GetConfig().App.CookieDomain,
-		appInstance.GetConfig().App.CookieSecure,
-		appInstance.GetConfig().App.CookieHTTPOnly)
-	c.Set(defs.TokenKey, token)
 	return nil
 }
 
-func SetToken(c *gin.Context, appInstance app.Application, uid string) (string, error) {
-	logger.Logger(c).Infof("set token for uid:[%s]", uid)
-	token, err := utils.GetJwtTokenFromMap(conf.JWTSecret(appInstance.GetConfig()),
-		time.Now().Unix(),
-		int64(appInstance.GetConfig().App.CookieAge),
-		map[string]string{defs.UserIDKey: uid})
+// SetToken 设置新token并写入ctx
+func SetToken(c *gin.Context, appInstance app.Application, userID int, payload jwt.MapClaims) (string, error) {
+	logger.Logger(c).Debugf("set token for userID:[%d]", userID)
+	if payload == nil {
+		payload = make(map[string]interface{})
+	}
+
+	payload[defs.UserIDKey] = userID
+
+	token, err := conf.GetJWTWithPayload(appInstance.GetConfig(), userID, payload)
 	if err != nil {
 		return "", err
 	}
-	c.SetCookie(appInstance.GetConfig().App.CookieName,
-		token,
-		appInstance.GetConfig().App.CookieAge,
-		appInstance.GetConfig().App.CookiePath,
-		appInstance.GetConfig().App.CookieDomain,
-		appInstance.GetConfig().App.CookieSecure,
-		appInstance.GetConfig().App.CookieHTTPOnly)
 	c.Set(defs.TokenKey, token)
-	c.Header(defs.SetAuthorizationKey, token)
 	return token, nil
 }
 

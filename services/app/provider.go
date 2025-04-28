@@ -4,8 +4,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/utils"
+	"github.com/casbin/casbin/v2"
 
 	"github.com/fatedier/frp/client/proxy"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
@@ -66,10 +68,10 @@ type ClientLogManager interface {
 
 // models/db.go
 type DBManager interface {
-	GetDB(dbType string) *gorm.DB
+	GetDB(dbType string, dbRole string) *gorm.DB
 	GetDefaultDB() *gorm.DB
-	SetDB(dbType string, db *gorm.DB)
-	RemoveDB(dbType string)
+	SetDB(dbType string, dbRole string, db *gorm.DB)
+	RemoveDB(dbType string, dbRole string)
 	SetDebug(bool)
 	Init()
 }
@@ -156,4 +158,16 @@ type ServerHandler interface {
 // rpc/master.go
 type MasterClient interface {
 	Call() pb.MasterClient
+}
+
+// services/rbac/perm_manager.go
+type PermissionManager interface {
+	AddUserToGroup(userID int, groupID string, tenantID int) (bool, error)
+	CheckPermission(userID int, objType defs.RBACObj, objID string, action defs.RBACAction, tenantID int) (bool, error)
+	Enforcer() *casbin.Enforcer
+	GrantGroupPermission(groupID string, objType defs.RBACObj, objID string, action defs.RBACAction, tenantID int) (bool, error)
+	GrantUserPermission(userID int, objType defs.RBACObj, objID string, action defs.RBACAction, tenantID int) (bool, error)
+	RemoveUserFromGroup(userID int, groupID string, tenantID int) (bool, error)
+	RevokeGroupPermission(groupID string, objType defs.RBACObj, objID string, action defs.RBACAction, tenantID int) (bool, error)
+	RevokeUserPermission(userID int, objType defs.RBACObj, objID string, action defs.RBACAction, tenantID int) (bool, error)
 }

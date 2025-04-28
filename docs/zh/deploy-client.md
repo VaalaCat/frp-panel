@@ -19,19 +19,19 @@ Client 推荐使用 docker 部署，直接部署在客户机中，可以通过�
 点击对应客户端的 `ID (点击查看安装命令)` 一列，弹出不同系统的安装命令，粘贴到对应终端即可安装，这里以 Linux 为例
 
 ```
-curl -sSL https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --  client -s abc -i user.s.client1 -a 123123 -r frpp-rpc.example.com -c 9001 -p 9000 -e http
+curl -fSL https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --  client -s abc -i user.s.client1 -a 123123 -r frpp-rpc.example.com -c 9001 -p 9000 -e http
 ```
 
 如果你在国内，可以增加github加速到安装脚本前
 
 ```
-curl -sSL https://ghfast.top/https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --  client -s abc -i user.s.client1 -a 123123 -r frpp-rpc.example.com -c 9001 -p 9000 -e http
+curl -fSL https://ghfast.top/https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --  client -s abc -i user.s.client1 -a 123123 -r frpp-rpc.example.com -c 9001 -p 9000 -e http
 ```
 
 注意，如果你使用 反向代理 TLS，需要修改这行命令类似如下：
 
 ```bash
-curl -sSL https://ghfast.top/https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --  frp-panel client -s abc -i user.s.client1 -a 123123 -t frpp.example.com -r frpp-rpc.example.com -c 443 -p 443 -e https
+curl -fSL https://ghfast.top/https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --  frp-panel client -s abc -i user.s.client1 -a 123123 -t frpp.example.com -r frpp-rpc.example.com -c 443 -p 443 -e https
 ```
 
 ## Docker Compose 部署

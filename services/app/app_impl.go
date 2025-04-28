@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/casbin/casbin/v2"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -22,6 +23,39 @@ type application struct {
 	serverController ServerController
 	rpcCred          credentials.TransportCredentials
 	conf             conf.Config
+	currentRole      string
+	permManager      PermissionManager
+	enforcer         *casbin.Enforcer
+}
+
+// GetEnforcer implements Application.
+func (a *application) GetEnforcer() *casbin.Enforcer {
+	return a.enforcer
+}
+
+// SetEnforcer implements Application.
+func (a *application) SetEnforcer(c *casbin.Enforcer) {
+	a.enforcer = c
+}
+
+// GetPermManager implements Application.
+func (a *application) GetPermManager() PermissionManager {
+	return a.permManager
+}
+
+// SetPermManager implements Application.
+func (a *application) SetPermManager(p PermissionManager) {
+	a.permManager = p
+}
+
+// GetCurrentRole implements Application.
+func (a *application) GetCurrentRole() string {
+	return a.currentRole
+}
+
+// SetCurrentRole implements Application.
+func (a *application) SetCurrentRole(r string) {
+	a.currentRole = r
 }
 
 // GetClientCred implements Application.

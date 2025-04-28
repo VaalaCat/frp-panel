@@ -23,6 +23,10 @@ export interface InitClientRequest {
      * @generated from protobuf field: optional string client_id = 1;
      */
     clientId?: string;
+    /**
+     * @generated from protobuf field: optional bool ephemeral = 2;
+     */
+    ephemeral?: boolean;
 }
 /**
  * @generated from protobuf message api_client.InitClientResponse
@@ -391,7 +395,8 @@ export interface GetProxyConfigResponse {
 class InitClientRequest$Type extends MessageType<InitClientRequest> {
     constructor() {
         super("api_client.InitClientRequest", [
-            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "ephemeral", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<InitClientRequest>): InitClientRequest {
@@ -408,6 +413,9 @@ class InitClientRequest$Type extends MessageType<InitClientRequest> {
                 case /* optional string client_id */ 1:
                     message.clientId = reader.string();
                     break;
+                case /* optional bool ephemeral */ 2:
+                    message.ephemeral = reader.bool();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -423,6 +431,9 @@ class InitClientRequest$Type extends MessageType<InitClientRequest> {
         /* optional string client_id = 1; */
         if (message.clientId !== undefined)
             writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional bool ephemeral = 2; */
+        if (message.ephemeral !== undefined)
+            writer.tag(2, WireType.Varint).bool(message.ephemeral);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

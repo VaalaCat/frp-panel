@@ -6,9 +6,9 @@ import (
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/dao"
-	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 )
 
 func AuthCtx(appInstance app.Application) func(*gin.Context) {
@@ -22,9 +22,9 @@ func AuthCtx(appInstance app.Application) func(*gin.Context) {
 			logger.Logger(c).Info("finish auth user middleware")
 		}()
 
-		userID, ok := utils.GetValue[int](c, defs.UserIDKey)
-		if !ok {
-			logger.Logger(c).Errorf("invalid user id")
+		userID, err := cast.ToIntE(c.Value(defs.UserIDKey))
+		if err != nil {
+			logger.Logger(c).WithError(err).Errorf("invalid user id: %v", c.Value(defs.UserIDKey))
 			common.ErrUnAuthorized(c, "token invalid")
 			c.Abort()
 			return
@@ -61,7 +61,7 @@ func AuthCtx(appInstance app.Application) func(*gin.Context) {
 
 func AuthAdmin(c *gin.Context) {
 	u := common.GetUserInfo(c)
-	if u != nil && u.GetRole() == models.ROLE_ADMIN {
+	if u != nil && u.GetRole() == defs.UserRole_Admin {
 		common.ErrUnAuthorized(c, "permission denied")
 		c.Abort()
 		return

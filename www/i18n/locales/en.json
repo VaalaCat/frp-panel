@@ -258,7 +258,8 @@
       "button": "Batch Configuration",
       "title": "Batch Configuration",
       "description": "Download the binary files in advance, run the following command, and the client will automatically generate and save the configuration file.",
-      "copy": "Copy Command"
+      "copy": "Copy Command",
+      "sign_token": "Generate Token"
     },
     "start": {
       "title": "Start Command",

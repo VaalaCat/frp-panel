@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/credentials"
 )
@@ -36,6 +37,12 @@ type Application interface {
 	SetConfig(conf.Config)
 	GetRPCCred() credentials.TransportCredentials
 	SetRPCCred(credentials.TransportCredentials)
+	GetCurrentRole() string
+	SetCurrentRole(string)
+	GetEnforcer() *casbin.Enforcer
+	SetEnforcer(*casbin.Enforcer)
+	GetPermManager() PermissionManager
+	SetPermManager(PermissionManager)
 }
 
 type Context struct {

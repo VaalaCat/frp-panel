@@ -289,7 +289,9 @@ type Client struct {
 	Stopped        *bool                  `protobuf:"varint,7,opt,name=stopped,proto3,oneof" json:"stopped,omitempty"`
 	ClientIds      []string               `protobuf:"bytes,8,rep,name=client_ids,json=clientIds,proto3" json:"client_ids,omitempty"` // some client can connected to more than one server, make a shadow client to handle this
 	OriginClientId *string                `protobuf:"bytes,9,opt,name=origin_client_id,json=originClientId,proto3,oneof" json:"origin_client_id,omitempty"`
-	FrpsUrl        *string                `protobuf:"bytes,10,opt,name=frps_url,json=frpsUrl,proto3,oneof" json:"frps_url,omitempty"` // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000
+	FrpsUrl        *string                `protobuf:"bytes,10,opt,name=frps_url,json=frpsUrl,proto3,oneof" json:"frps_url,omitempty"`             // 客户端用于连接frps的url，解决 frp 在 CDN 后的问题，格式类似 [tcp/ws/wss/quic/kcp]://example.com:7000
+	Ephemeral      *bool                  `protobuf:"varint,11,opt,name=ephemeral,proto3,oneof" json:"ephemeral,omitempty"`                       // 是否临时节点
+	LastSeenAt     *int64                 `protobuf:"varint,12,opt,name=last_seen_at,json=lastSeenAt,proto3,oneof" json:"last_seen_at,omitempty"` // 最后一次心跳时间戳
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -385,6 +387,20 @@ func (x *Client) GetFrpsUrl() string {
 		return *x.FrpsUrl
 	}
 	return ""
+}
+
+func (x *Client) GetEphemeral() bool {
+	if x != nil && x.Ephemeral != nil {
+		return *x.Ephemeral
+	}
+	return false
+}
+
+func (x *Client) GetLastSeenAt() int64 {
+	if x != nil && x.LastSeenAt != nil {
+		return *x.LastSeenAt
+	}
+	return 0
 }
 
 type Server struct {
@@ -862,7 +878,7 @@ const file_common_proto_rawDesc = "" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12\x17\n" +
 	"\x04data\x18\x02 \x01(\tH\x01R\x04data\x88\x01\x01B\t\n" +
 	"\a_statusB\a\n" +
-	"\x05_data\"\x8a\x03\n" +
+	"\x05_data\"\xf3\x03\n" +
 	"\x06Client\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x1b\n" +
 	"\x06secret\x18\x02 \x01(\tH\x01R\x06secret\x88\x01\x01\x12\x1b\n" +
@@ -874,7 +890,10 @@ const file_common_proto_rawDesc = "" +
 	"client_ids\x18\b \x03(\tR\tclientIds\x12-\n" +
 	"\x10origin_client_id\x18\t \x01(\tH\x06R\x0eoriginClientId\x88\x01\x01\x12\x1e\n" +
 	"\bfrps_url\x18\n" +
-	" \x01(\tH\aR\afrpsUrl\x88\x01\x01B\x05\n" +
+	" \x01(\tH\aR\afrpsUrl\x88\x01\x01\x12!\n" +
+	"\tephemeral\x18\v \x01(\bH\bR\tephemeral\x88\x01\x01\x12%\n" +
+	"\flast_seen_at\x18\f \x01(\x03H\tR\n" +
+	"lastSeenAt\x88\x01\x01B\x05\n" +
 	"\x03_idB\t\n" +
 	"\a_secretB\t\n" +
 	"\a_configB\n" +
@@ -885,7 +904,10 @@ const file_common_proto_rawDesc = "" +
 	"\n" +
 	"\b_stoppedB\x13\n" +
 	"\x11_origin_client_idB\v\n" +
-	"\t_frps_url\"\xd8\x01\n" +
+	"\t_frps_urlB\f\n" +
+	"\n" +
+	"_ephemeralB\x0f\n" +
+	"\r_last_seen_at\"\xd8\x01\n" +
 	"\x06Server\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x1b\n" +
 	"\x06secret\x18\x02 \x01(\tH\x01R\x06secret\x88\x01\x01\x12\x13\n" +

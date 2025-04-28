@@ -54,7 +54,7 @@ func ListServersHandler(c *app.Context, req *pb.ListServersRequest) (*pb.ListSer
 				Secret:   lo.ToPtr(c.ConnectSecret),
 				Ip:       lo.ToPtr(c.ServerIP),
 				Comment:  lo.ToPtr(c.Comment),
-				FrpsUrls: c.FRPsUrls,
+				FrpsUrls: c.FrpsUrls,
 			}
 		}),
 		Total: lo.ToPtr(int32(serverCounts)),

@@ -1,13 +1,14 @@
-package main
+package shared
 
 import (
 	"go.uber.org/fx"
 )
 
 var (
-	clientMod = fx.Module("cmd.client", fx.Provide(
-		fx.Annotate(NewWatcher, fx.ResultTags(`name:"clientTaskManager"`)),
-	))
+	clientMod = fx.Module("cmd.client",
+		fx.Provide(
+			fx.Annotate(NewWatcher, fx.ResultTags(`name:"clientTaskManager"`)),
+		))
 
 	serverMod = fx.Module("cmd.server", fx.Provide(
 		fx.Annotate(NewServerAPI, fx.ResultTags(`name:"serverApiService"`)),
@@ -16,12 +17,13 @@ var (
 	))
 
 	masterMod = fx.Module("cmd.master", fx.Provide(
+		NewPermissionManager,
+		NewEnforcer,
 		NewListenerOptions,
 		NewDBManager,
 		NewWSListener,
 		NewMasterTLSConfig,
 		NewWSUpgrader,
-		NewFs,
 		NewClientLogManager,
 		fx.Annotate(NewWatcher, fx.ResultTags(`name:"masterTaskManager"`)),
 		fx.Annotate(NewMasterRouter, fx.ResultTags(`name:"masterRouter"`)),
@@ -34,11 +36,12 @@ var (
 	))
 
 	commonMod = fx.Module("common", fx.Provide(
-		NewPatchedConfig,
 		NewLogHookManager,
 		NewPTYManager,
 		NewBaseApp,
 		NewContext,
 		NewClientsManager,
+		NewAutoJoin,
+		fx.Annotate(NewPatchedConfig, fx.ResultTags(`name:"argsPatchedConfig"`)),
 	))
 )

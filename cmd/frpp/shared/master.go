@@ -1,4 +1,4 @@
-package main
+package shared
 
 import (
 	"context"
@@ -35,6 +35,7 @@ type runMasterParam struct {
 	TaskManager         watcher.Client       `name:"masterTaskManager"`
 	WsListener          *wsgrpc.WSListener
 	DefaultServerConfig conf.Config `name:"defaultServerConfig"`
+	PermManager         app.PermissionManager
 }
 
 func runMaster(param runMasterParam) {

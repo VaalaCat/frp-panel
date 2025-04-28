@@ -59,7 +59,7 @@ func ListClientsHandler(ctx *app.Context, req *pb.ListClientsRequest) (*pb.ListC
 			logger.Logger(ctx).Errorf("get client ids in shadow by client id error: %v", err)
 		}
 
-		return &pb.Client{
+		respCli := &pb.Client{
 			Id:        lo.ToPtr(c.ClientID),
 			Secret:    lo.ToPtr(c.ConnectSecret),
 			Config:    lo.ToPtr(string(c.ConfigContent)),
@@ -67,7 +67,12 @@ func ListClientsHandler(ctx *app.Context, req *pb.ListClientsRequest) (*pb.ListC
 			Stopped:   lo.ToPtr(c.Stopped),
 			Comment:   lo.ToPtr(c.Comment),
 			ClientIds: clientIDs,
+			Ephemeral: lo.ToPtr(c.Ephemeral),
 		}
+		if c.LastSeenAt != nil {
+			respCli.LastSeenAt = lo.ToPtr(c.LastSeenAt.UnixMilli())
+		}
+		return respCli
 	})
 
 	return &pb.ListClientsResponse{

@@ -18,7 +18,7 @@ func GetValue[T any](c context.Context, key string) (T, bool) {
 	return v, true
 }
 
-func getValue[T any](c context.Context, key string) (interface{}, bool) {
+func getValue[T any](c context.Context, key string) (any, bool) {
 	val := c.Value(key)
 	if val == nil {
 		return *new(T), false
