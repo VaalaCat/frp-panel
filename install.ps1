@@ -31,7 +31,7 @@ Write-Host "Check network connection to google" -BackgroundColor DarkGreen -Fore
 
 $networkAvailable = Test-Connection -ComputerName google.com -Count 1 -ErrorAction SilentlyContinue
 if([string]::IsNullOrEmpty($networkAvailable)){
-    $download = "https://gh-proxy.com/https://github.com/$clientrepo/releases/latest/download/$file"
+    $download = "https://ghfast.top/https://github.com/$clientrepo/releases/latest/download/$file"
     Write-Host "Location:CN,use mirror address" -BackgroundColor DarkRed -ForegroundColor Green
 }else{
     $download = "https://github.com/$clientrepo/releases/latest/download/$file"

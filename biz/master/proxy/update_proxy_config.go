@@ -115,6 +115,7 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 		ServerId: &serverID,
 		Config:   rawCfg,
 		Comment:  &clientEntity.Comment,
+		FrpsUrl:  &clientEntity.FrpsUrl,
 	})
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot update frpc, id: [%s]", clientID)

@@ -236,6 +236,7 @@ func (q *queryImpl) AdminCreateProxyConfig(proxyCfg *models.ProxyConfig) error {
 }
 
 // RebuildProxyConfigFromClient rebuild proxy from client
+// skip stopped proxy
 func (q *queryImpl) RebuildProxyConfigFromClient(userInfo models.UserInfo, client *models.Client) error {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 
@@ -460,16 +461,19 @@ func (q *queryImpl) DeleteProxyConfigsByClientIDOrOriginClientID(userInfo models
 	}
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().
-		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
-			UserID:   userInfo.GetUserID(),
-			TenantID: userInfo.GetTenantID(),
-			ClientID: clientID,
-		}}).
-		Or(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
-			UserID:         userInfo.GetUserID(),
-			TenantID:       userInfo.GetTenantID(),
-			OriginClientID: clientID,
-		}}).
+		Where(
+			db.Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+				UserID:   userInfo.GetUserID(),
+				TenantID: userInfo.GetTenantID(),
+				ClientID: clientID,
+			}}).
+				Or(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+					UserID:         userInfo.GetUserID(),
+					TenantID:       userInfo.GetTenantID(),
+					OriginClientID: clientID,
+				}})).
+		Where(db.Where("stopped is NULL").
+			Or("stopped = ?", false)).
 		Delete(&models.ProxyConfig{}).Error
 }
 

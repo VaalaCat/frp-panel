@@ -248,6 +248,7 @@ type GetPlatformInfoResponse struct {
 	MasterApiScheme         string                 `protobuf:"bytes,11,opt,name=master_api_scheme,json=masterApiScheme,proto3" json:"master_api_scheme,omitempty"`
 	ClientRpcUrl            string                 `protobuf:"bytes,12,opt,name=client_rpc_url,json=clientRpcUrl,proto3" json:"client_rpc_url,omitempty"`
 	ClientApiUrl            string                 `protobuf:"bytes,13,opt,name=client_api_url,json=clientApiUrl,proto3" json:"client_api_url,omitempty"`
+	GithubProxyUrl          string                 `protobuf:"bytes,14,opt,name=github_proxy_url,json=githubProxyUrl,proto3" json:"github_proxy_url,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -373,6 +374,13 @@ func (x *GetPlatformInfoResponse) GetClientApiUrl() string {
 	return ""
 }
 
+func (x *GetPlatformInfoResponse) GetGithubProxyUrl() string {
+	if x != nil {
+		return x.GithubProxyUrl
+	}
+	return ""
+}
+
 var File_api_user_proto protoreflect.FileDescriptor
 
 const file_api_user_proto_rawDesc = "" +
@@ -392,7 +400,7 @@ const file_api_user_proto_rawDesc = "" +
 	"\x16UpdateUserInfoResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
 	"\a_status\"\x18\n" +
-	"\x16GetPlatformInfoRequest\"\x85\x05\n" +
+	"\x16GetPlatformInfoRequest\"\xaf\x05\n" +
 	"\x17GetPlatformInfoResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12,\n" +
 	"\x12total_client_count\x18\x02 \x01(\x05R\x10totalClientCount\x12,\n" +
@@ -407,7 +415,8 @@ const file_api_user_proto_rawDesc = "" +
 	" \x01(\x05R\rmasterApiPort\x12*\n" +
 	"\x11master_api_scheme\x18\v \x01(\tR\x0fmasterApiScheme\x12$\n" +
 	"\x0eclient_rpc_url\x18\f \x01(\tR\fclientRpcUrl\x12$\n" +
-	"\x0eclient_api_url\x18\r \x01(\tR\fclientApiUrlB\t\n" +
+	"\x0eclient_api_url\x18\r \x01(\tR\fclientApiUrl\x12(\n" +
+	"\x10github_proxy_url\x18\x0e \x01(\tR\x0egithubProxyUrlB\t\n" +
 	"\a_statusB\aZ\x05../pbb\x06proto3"
 
 var (

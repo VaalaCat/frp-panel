@@ -35,4 +35,5 @@ message GetPlatformInfoResponse {
   string master_api_scheme = 11;
   string client_rpc_url = 12;
   string client_api_url = 13;
+  string github_proxy_url = 14;
 }

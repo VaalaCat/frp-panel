@@ -24,6 +24,7 @@ type Config struct {
 		CookieSecure   bool   `env:"COOKIE_SECURE" env-default:"false" env-description:"cookie secure"`
 		CookieHTTPOnly bool   `env:"COOKIE_HTTP_ONLY" env-default:"true" env-description:"cookie http only"`
 		EnableRegister bool   `env:"ENABLE_REGISTER" env-default:"false" env-description:"enable register, only allow the first admin to register"`
+		GithubProxyUrl string `env:"GITHUB_PROXY_URL" env-default:"https://ghfast.top/" env-description:"github proxy url"`
 	} `env-prefix:"APP_"`
 	Master struct {
 		APIPort                   int    `env:"API_PORT" env-default:"9000" env-description:"master api port"`

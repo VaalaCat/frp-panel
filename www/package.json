@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build && rm -rf ../cmd/frpp/out && cp -r out ../cmd/frpp",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "i18n:extract": "pnpx i18next-parser"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -17,6 +18,7 @@
     "@protobuf-ts/runtime": "^2.9.3",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-avatar": "^1.0.4",
+    "@radix-ui/react-checkbox": "^1.2.3",
     "@radix-ui/react-collapsible": "^1.1.1",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
@@ -75,6 +77,7 @@
     "autoprefixer": "^10.4.16",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.0.4",
+    "i18next-parser": "^9.3.0",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3"

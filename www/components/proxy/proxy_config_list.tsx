@@ -28,7 +28,13 @@ export interface ProxyConfigListProps {
   TriggerRefetch?: string
 }
 
-export const ProxyConfigList: React.FC<ProxyConfigListProps> = ({ ProxyConfigs, Keyword, TriggerRefetch, ClientID, ServerID }) => {
+export const ProxyConfigList: React.FC<ProxyConfigListProps> = ({
+  ProxyConfigs,
+  Keyword,
+  TriggerRefetch,
+  ClientID,
+  ServerID,
+}) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const globalRefetchTrigger = useStore($proxyTableRefetchTrigger)
@@ -41,8 +47,9 @@ export const ProxyConfigList: React.FC<ProxyConfigListProps> = ({ ProxyConfigs, 
         serverID: proxy_config.serverId || '',
         name: proxy_config.name || '',
         type: proxy_config.type || '',
-        visitPreview: "for test",
+        visitPreview: 'for test',
         originalProxyConfig: proxy_config,
+        stopped: proxy_config.stopped,
       }) as ProxyConfigTableSchema,
   )
 
@@ -94,8 +101,9 @@ export const ProxyConfigList: React.FC<ProxyConfigListProps> = ({ ProxyConfigs, 
           config: proxy_config.config || '',
           localIP: proxy_config.config && ParseProxyConfig(proxy_config.config).localIP,
           localPort: proxy_config.config && ParseProxyConfig(proxy_config.config).localPort,
-          visitPreview: "",
+          visitPreview: '',
           originalProxyConfig: proxy_config,
+          stopped: proxy_config.stopped || false,
         } as ProxyConfigTableSchema
       }) ?? data,
     pageCount: Math.ceil(

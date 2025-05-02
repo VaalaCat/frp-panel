@@ -147,3 +147,23 @@ message GetProxyConfigResponse {
   optional common.ProxyConfig proxy_config = 2;
   optional common.ProxyWorkingStatus working_status = 3;
 }
+
+message StopProxyRequest {
+  optional string client_id = 1;
+  optional string server_id = 2;
+  optional string name = 3;
+}
+
+message StopProxyResponse {
+  optional common.Status status = 1;
+}
+
+message StartProxyRequest {
+  optional string client_id = 1;
+  optional string server_id = 2;
+  optional string name = 3;
+}
+
+message StartProxyResponse {
+  optional common.Status status = 1;
+}

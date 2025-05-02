@@ -1,0 +1,125 @@
+{
+  "nav": {
+    "user": {
+      "profile": "Profile",
+      "settings": "Settings"
+    }
+  },
+  "traffic": {
+    "stats": {
+      "title": "Traffic Statistics",
+      "description": "View real-time traffic statistics",
+      "label": "Traffic Stats"
+    },
+    "chart": {
+      "pie": {
+        "total": "Total Traffic"
+      }
+    }
+  },
+  "common": {
+    "refresh": "Refresh",
+    "clear": "Clear",
+    "streamlog": "Stream Log",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "newWindow": "New Window"
+  },
+  "auth": {
+    "email": {
+      "required": "Cannot be empty",
+      "invalid": "Please check your email address"
+    },
+    "confirmPassword": "Confirm Password"
+  },
+  "validation": {
+    "required": "Required field",
+    "portRange": {
+      "min": "Port cannot be less than 1",
+      "max": "Port cannot be greater than 65535"
+    },
+    "ipAddress": "Please enter a valid IP address"
+  },
+  "platform": {
+    "refresh": {
+      "data": "Refresh Data"
+    }
+  },
+  "server": {
+    "actions": "Actions",
+    "install": {
+      "copy": "Copy Command"
+    },
+    "start": {
+      "copy": "Copy Command"
+    },
+    "actions_menu": {
+      "edit": "Edit",
+      "start": "Start",
+      "stop": "Stop",
+      "detail": "Details"
+    },
+    "operation": {
+      "stop_success": "Stop successful",
+      "stop_failed": "Stop failed",
+      "start_success": "Start successful",
+      "start_failed": "Start failed"
+    }
+  },
+  "client": {
+    "actions": "Actions",
+    "install": {
+      "copy": "Copy Command"
+    },
+    "join": {
+      "copy": "Copy Command"
+    },
+    "start": {
+      "copy": "Copy Command"
+    },
+    "actions_menu": {
+      "edit": "Edit",
+      "start": "Start",
+      "stop": "Stop",
+      "detail": "Details",
+      "copy_command": "Copy Start Command"
+    },
+    "upgrade": ""
+  },
+  "proxy": {
+    "stats": {
+      "today_traffic_title": "Today's Traffic",
+      "today_traffic_total": "Today's Total",
+      "history_traffic_title": "Historical Traffic",
+      "history_traffic_total": "Historical Total"
+    },
+    "form": {
+      "expand": "Click to expand {{count}} tunnels",
+      "save": "Save",
+      "save_success": "Save successful",
+      "save_error": "Save failed",
+      "default_port": "Default Port",
+      "port_placeholder": "Port (1-65535)",
+      "ip_placeholder": "IP Address (eg. 127.0.0.1)",
+      "secret_placeholder": "Input Secret Key"
+    },
+    "config": {
+      "close": "Close"
+    }
+  },
+  "team": {
+    "add": "Add Team"
+  },
+  "language": {
+    "toggle": "Toggle Language",
+    "zh": "Chinese",
+    "en": "English"
+  }
+}

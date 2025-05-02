@@ -21,6 +21,7 @@ type ProxyConfigEntity struct {
 	TenantID       int    `json:"tenant_id" gorm:"index"`
 	OriginClientID string `json:"origin_client_id" gorm:"index"`
 	Content        []byte `json:"content"`
+	Stopped        bool   `json:"stopped" gorm:"index"`
 }
 
 func (*ProxyConfig) TableName() string {
@@ -45,4 +46,10 @@ func (p *ProxyConfigEntity) FillClientConfig(cli *ClientEntity) error {
 	p.TenantID = cli.TenantID
 	p.OriginClientID = cli.OriginClientID
 	return nil
+}
+
+func (p *ProxyConfigEntity) GetTypedProxyConfig() (v1.TypedProxyConfig, error) {
+	var cfg v1.TypedProxyConfig
+	err := cfg.UnmarshalJSON(p.Content)
+	return cfg, err
 }

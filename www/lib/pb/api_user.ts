@@ -109,6 +109,10 @@ export interface GetPlatformInfoResponse {
      * @generated from protobuf field: string client_api_url = 13;
      */
     clientApiUrl: string;
+    /**
+     * @generated from protobuf field: string github_proxy_url = 14;
+     */
+    githubProxyUrl: string;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class GetUserInfoRequest$Type extends MessageType<GetUserInfoRequest> {
@@ -321,7 +325,8 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
             { no: 10, name: "master_api_port", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 11, name: "master_api_scheme", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 12, name: "client_rpc_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 13, name: "client_api_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 13, name: "client_api_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 14, name: "github_proxy_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<GetPlatformInfoResponse>): GetPlatformInfoResponse {
@@ -338,6 +343,7 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         message.masterApiScheme = "";
         message.clientRpcUrl = "";
         message.clientApiUrl = "";
+        message.githubProxyUrl = "";
         if (value !== undefined)
             reflectionMergePartial<GetPlatformInfoResponse>(this, message, value);
         return message;
@@ -385,6 +391,9 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
                     break;
                 case /* string client_api_url */ 13:
                     message.clientApiUrl = reader.string();
+                    break;
+                case /* string github_proxy_url */ 14:
+                    message.githubProxyUrl = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -437,6 +446,9 @@ class GetPlatformInfoResponse$Type extends MessageType<GetPlatformInfoResponse> 
         /* string client_api_url = 13; */
         if (message.clientApiUrl !== "")
             writer.tag(13, WireType.LengthDelimited).string(message.clientApiUrl);
+        /* string github_proxy_url = 14; */
+        if (message.githubProxyUrl !== "")
+            writer.tag(14, WireType.LengthDelimited).string(message.githubProxyUrl);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

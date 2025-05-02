@@ -9,8 +9,12 @@ import {
   GetProxyConfigResponse,
   ListProxyConfigsRequest,
   ListProxyConfigsResponse,
+  StartProxyRequest,
+  StartProxyResponse,
+  StopProxyRequest,
+  StopProxyResponse,
   UpdateProxyConfigRequest,
-  UpdateProxyConfigResponse
+  UpdateProxyConfigResponse,
 } from '@/lib/pb/api_client'
 import { BaseResponse } from '@/types/api'
 
@@ -37,4 +41,14 @@ export const deleteProxyConfig = async (req: DeleteProxyConfigRequest) => {
 export const getProxyConfig = async (req: GetProxyConfigRequest) => {
   const res = await http.post(API_PATH + '/proxy/get_config', GetProxyConfigRequest.toJson(req))
   return GetProxyConfigResponse.fromJson((res.data as BaseResponse).body)
+}
+
+export const stopProxy = async (req: StopProxyRequest) => {
+  const res = await http.post(API_PATH + '/proxy/stop_proxy', StopProxyRequest.toJson(req))
+  return StopProxyResponse.fromJson((res.data as BaseResponse).body)
+}
+
+export const startProxy = async (req: StartProxyRequest) => {
+  const res = await http.post(API_PATH + '/proxy/start_proxy', StartProxyRequest.toJson(req))
+  return StartProxyResponse.fromJson((res.data as BaseResponse).body)
 }

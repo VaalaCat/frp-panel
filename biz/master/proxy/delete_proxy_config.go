@@ -65,6 +65,7 @@ func DeleteProxyConfig(c *app.Context, req *pb.DeleteProxyConfigRequest) (*pb.De
 		ServerId: &serverID,
 		Config:   rawCfg,
 		Comment:  &cli.Comment,
+		FrpsUrl:  &cli.FrpsUrl,
 	})
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot update frpc, id: [%s]", clientID)

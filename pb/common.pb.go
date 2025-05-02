@@ -704,6 +704,7 @@ type ProxyConfig struct {
 	ServerId       *string                `protobuf:"bytes,5,opt,name=server_id,json=serverId,proto3,oneof" json:"server_id,omitempty"`
 	Config         *string                `protobuf:"bytes,6,opt,name=config,proto3,oneof" json:"config,omitempty"`
 	OriginClientId *string                `protobuf:"bytes,7,opt,name=origin_client_id,json=originClientId,proto3,oneof" json:"origin_client_id,omitempty"`
+	Stopped        *bool                  `protobuf:"varint,8,opt,name=stopped,proto3,oneof" json:"stopped,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -785,6 +786,13 @@ func (x *ProxyConfig) GetOriginClientId() string {
 		return *x.OriginClientId
 	}
 	return ""
+}
+
+func (x *ProxyConfig) GetStopped() bool {
+	if x != nil && x.Stopped != nil {
+		return *x.Stopped
+	}
+	return false
 }
 
 type ProxyWorkingStatus struct {
@@ -959,7 +967,7 @@ const file_common_proto_rawDesc = "" +
 	"\x12_today_traffic_outB\x15\n" +
 	"\x13_history_traffic_inB\x16\n" +
 	"\x14_history_traffic_outB\r\n" +
-	"\v_first_sync\"\xb9\x02\n" +
+	"\v_first_sync\"\xe4\x02\n" +
 	"\vProxyConfig\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x17\n" +
@@ -967,7 +975,8 @@ const file_common_proto_rawDesc = "" +
 	"\tclient_id\x18\x04 \x01(\tH\x03R\bclientId\x88\x01\x01\x12 \n" +
 	"\tserver_id\x18\x05 \x01(\tH\x04R\bserverId\x88\x01\x01\x12\x1b\n" +
 	"\x06config\x18\x06 \x01(\tH\x05R\x06config\x88\x01\x01\x12-\n" +
-	"\x10origin_client_id\x18\a \x01(\tH\x06R\x0eoriginClientId\x88\x01\x01B\x05\n" +
+	"\x10origin_client_id\x18\a \x01(\tH\x06R\x0eoriginClientId\x88\x01\x01\x12\x1d\n" +
+	"\astopped\x18\b \x01(\bH\aR\astopped\x88\x01\x01B\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\a\n" +
 	"\x05_typeB\f\n" +
@@ -976,7 +985,9 @@ const file_common_proto_rawDesc = "" +
 	"\n" +
 	"_server_idB\t\n" +
 	"\a_configB\x13\n" +
-	"\x11_origin_client_id\"\xd5\x01\n" +
+	"\x11_origin_client_idB\n" +
+	"\n" +
+	"\b_stopped\"\xd5\x01\n" +
 	"\x12ProxyWorkingStatus\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x17\n" +
 	"\x04type\x18\x02 \x01(\tH\x01R\x04type\x88\x01\x01\x12\x1b\n" +

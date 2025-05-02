@@ -2,26 +2,35 @@ import { HeaderOperations } from './common'
 
 export interface ClientPluginOptions {}
 
+export type ClientPluginType =
+  | 'http_proxy'
+  | 'http2https'
+  | 'https2http'
+  | 'https2https'
+  | 'socks5'
+  | 'static_file'
+  | 'unix_domain_socket'
+
 export interface TypedClientPluginOptions {
-  type: string
+  type: ClientPluginType
   clientPluginOptions?: ClientPluginOptions
 }
 
 export interface HTTP2HTTPSPluginOptions {
-  type?: string
+  type: 'http2https'
   localAddr?: string
   hostHeaderRewrite?: string
   requestHeaders?: HeaderOperations
 }
 
 export interface HTTPProxyPluginOptions {
-  type?: string
+  type: 'http_proxy'
   httpUser?: string
   httpPassword?: string
 }
 
 export interface HTTPS2HTTPPluginOptions {
-  type?: string
+  type: 'https2http'
   localAddr?: string
   hostHeaderRewrite?: string
   requestHeaders?: HeaderOperations
@@ -30,7 +39,7 @@ export interface HTTPS2HTTPPluginOptions {
 }
 
 export interface HTTPS2HTTPSPluginOptions {
-  type?: string
+  type: 'https2https'
   localAddr?: string
   hostHeaderRewrite?: string
   requestHeaders?: HeaderOperations
@@ -39,13 +48,13 @@ export interface HTTPS2HTTPSPluginOptions {
 }
 
 export interface Socks5PluginOptions {
-  type?: string
+  type: 'socks5'
   username?: string
   password?: string
 }
 
 export interface StaticFilePluginOptions {
-  type?: string
+  type: 'static_file'
   localPath?: string
   stripPrefix?: string
   httpUser?: string
@@ -53,6 +62,6 @@ export interface StaticFilePluginOptions {
 }
 
 export interface UnixDomainSocketPluginOptions {
-  type?: string
+  type: 'unix_domain_socket'
   unixPath?: string
 }

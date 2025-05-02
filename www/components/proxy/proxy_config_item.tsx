@@ -22,6 +22,7 @@ export type ProxyConfigTableSchema = {
   visitPreview: string
   config?: string
   originalProxyConfig: ProxyConfig
+  stopped: boolean
 }
 
 export const columns: ColumnDef<ProxyConfigTableSchema>[] = [
@@ -32,7 +33,7 @@ export const columns: ColumnDef<ProxyConfigTableSchema>[] = [
       return t('proxy.item.client_id')
     },
     cell: ({ row }) => {
-      return <div className='font-mono text-nowrap'>{row.original.originalProxyConfig.originClientId}</div>
+      return <div className="font-mono text-nowrap">{row.original.originalProxyConfig.originClientId}</div>
     },
   },
   {
@@ -42,7 +43,7 @@ export const columns: ColumnDef<ProxyConfigTableSchema>[] = [
       return t('proxy.item.proxy_name')
     },
     cell: ({ row }) => {
-      return <div className='font-mono text-nowrap'>{row.original.name}</div>
+      return <div className="font-mono text-nowrap">{row.original.name}</div>
     },
   },
   {
@@ -52,7 +53,7 @@ export const columns: ColumnDef<ProxyConfigTableSchema>[] = [
       return t('proxy.item.proxy_type')
     },
     cell: ({ row }) => {
-      return <div className='font-mono text-nowrap'>{row.original.type}</div>
+      return <div className="font-mono text-nowrap">{row.original.type}</div>
     },
   },
   {
@@ -62,7 +63,7 @@ export const columns: ColumnDef<ProxyConfigTableSchema>[] = [
       return t('proxy.item.server_id')
     },
     cell: ({ row }) => {
-      return <div className='font-mono text-nowrap'>{row.original.serverID}</div>
+      return <div className="font-mono text-nowrap">{row.original.serverID}</div>
     },
   },
   {
@@ -86,14 +87,16 @@ export const columns: ColumnDef<ProxyConfigTableSchema>[] = [
   {
     id: 'action',
     cell: ({ row }) => {
-      return <ProxyConfigActions
-        row={row}
-        serverID={row.original.serverID}
-        clientID={row.original.clientID}
-        name={row.original.name}
-      />
+      return (
+        <ProxyConfigActions
+          row={row}
+          serverID={row.original.serverID}
+          clientID={row.original.clientID}
+          name={row.original.name}
+        />
+      )
     },
-  }
+  },
 ]
 
 function VisitPreviewField({ row }: { row: Row<ProxyConfigTableSchema> }) {
@@ -106,9 +109,7 @@ function VisitPreviewField({ row }: { row: Row<ProxyConfigTableSchema> }) {
 
   const typedProxyConfig = JSON.parse(row.original.config || '{}') as TypedProxyConfig
 
-  return <VisitPreview
-    server={server?.server || {frpsUrls: []}}
-    typedProxyConfig={typedProxyConfig} />
+  return <VisitPreview server={server?.server || { frpsUrls: [] }} typedProxyConfig={typedProxyConfig} />
 }
 
 function ProxyStatus({ row }: { row: Row<ProxyConfigTableSchema> }) {
@@ -119,10 +120,10 @@ function ProxyStatus({ row }: { row: Row<ProxyConfigTableSchema> }) {
       return getProxyConfig({
         clientId: row.original.clientID,
         serverId: row.original.serverID,
-        name: row.original.name
+        name: row.original.name,
       })
     },
-    refetchInterval: 10000
+    refetchInterval: 10000,
   })
 
   function getStatusColor(status: string): string {
@@ -130,23 +131,28 @@ function ProxyStatus({ row }: { row: Row<ProxyConfigTableSchema> }) {
       case 'new':
         return 'text-blue-500'
       case 'wait start':
-        return 'text-yellow-400';
+        return 'text-yellow-400'
       case 'start error':
-        return 'text-red-500';
+        return 'text-red-500'
       case 'running':
-        return 'text-green-500';
+        return 'text-green-500'
       case 'check failed':
-        return 'text-orange-500';
+        return 'text-orange-500'
       case 'error':
-        return 'text-red-600';
+        return 'text-red-600'
       default:
-        return 'text-gray-500';
+        return 'text-gray-500'
     }
   }
 
-  return <div className="flex items-center gap-2 flex-row text-nowrap">
-    <Badge variant={"secondary"} className={`p-2 border rounded font-mono w-fit ${getStatusColor(data?.workingStatus?.status || 'unknown')} text-nowrap rounded-full h-6`}>
-      {data?.workingStatus?.status || "loading"}
-    </Badge>
-  </div>
+  return (
+    <div className="flex items-center gap-2 flex-row text-nowrap">
+      <Badge
+        variant={'secondary'}
+        className={`p-2 border rounded font-mono w-fit ${getStatusColor(data?.workingStatus?.status || 'unknown')} text-nowrap rounded-full h-6`}
+      >
+        {data?.workingStatus?.status || 'loading'}
+      </Badge>
+    </div>
+  )
 }

@@ -74,6 +74,7 @@ func ListProxyConfigs(ctx *app.Context, req *pb.ListProxyConfigsRequest) (*pb.Li
 			ServerId:       lo.ToPtr(item.ServerID),
 			Config:         lo.ToPtr(string(item.Content)),
 			OriginClientId: lo.ToPtr(item.OriginClientID),
+			Stopped:        lo.ToPtr(item.Stopped),
 		}
 	})
 

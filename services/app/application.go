@@ -62,6 +62,10 @@ func (c *Context) GetCtx() context.Context {
 	return c.Context
 }
 
+func (c *Context) Background() *Context {
+	return NewContext(context.Background(), c.appInstance)
+}
+
 func NewContext(c context.Context, appInstance Application) *Context {
 	return &Context{
 		Context:     c,

@@ -76,5 +76,6 @@ func getPlatformInfo(appInstance app.Application, c *gin.Context) (*pb.GetPlatfo
 		MasterApiScheme:         appInstance.GetConfig().Master.APIScheme,
 		ClientRpcUrl:            clientRPCUrl,
 		ClientApiUrl:            clientAPIUrl,
+		GithubProxyUrl:          appInstance.GetConfig().App.GithubProxyUrl,
 	}, nil
 }

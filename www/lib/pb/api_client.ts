@@ -391,6 +391,58 @@ export interface GetProxyConfigResponse {
      */
     workingStatus?: ProxyWorkingStatus;
 }
+/**
+ * @generated from protobuf message api_client.StopProxyRequest
+ */
+export interface StopProxyRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 2;
+     */
+    serverId?: string;
+    /**
+     * @generated from protobuf field: optional string name = 3;
+     */
+    name?: string;
+}
+/**
+ * @generated from protobuf message api_client.StopProxyResponse
+ */
+export interface StopProxyResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.StartProxyRequest
+ */
+export interface StartProxyRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 2;
+     */
+    serverId?: string;
+    /**
+     * @generated from protobuf field: optional string name = 3;
+     */
+    name?: string;
+}
+/**
+ * @generated from protobuf message api_client.StartProxyResponse
+ */
+export interface StartProxyResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class InitClientRequest$Type extends MessageType<InitClientRequest> {
     constructor() {
@@ -1899,3 +1951,215 @@ class GetProxyConfigResponse$Type extends MessageType<GetProxyConfigResponse> {
  * @generated MessageType for protobuf message api_client.GetProxyConfigResponse
  */
 export const GetProxyConfigResponse = new GetProxyConfigResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StopProxyRequest$Type extends MessageType<StopProxyRequest> {
+    constructor() {
+        super("api_client.StopProxyRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<StopProxyRequest>): StopProxyRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StopProxyRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StopProxyRequest): StopProxyRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string server_id */ 2:
+                    message.serverId = reader.string();
+                    break;
+                case /* optional string name */ 3:
+                    message.name = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StopProxyRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 2; */
+        if (message.serverId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.serverId);
+        /* optional string name = 3; */
+        if (message.name !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.name);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StopProxyRequest
+ */
+export const StopProxyRequest = new StopProxyRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StopProxyResponse$Type extends MessageType<StopProxyResponse> {
+    constructor() {
+        super("api_client.StopProxyResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<StopProxyResponse>): StopProxyResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StopProxyResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StopProxyResponse): StopProxyResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StopProxyResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StopProxyResponse
+ */
+export const StopProxyResponse = new StopProxyResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StartProxyRequest$Type extends MessageType<StartProxyRequest> {
+    constructor() {
+        super("api_client.StartProxyRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<StartProxyRequest>): StartProxyRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StartProxyRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StartProxyRequest): StartProxyRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string server_id */ 2:
+                    message.serverId = reader.string();
+                    break;
+                case /* optional string name */ 3:
+                    message.name = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StartProxyRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 2; */
+        if (message.serverId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.serverId);
+        /* optional string name = 3; */
+        if (message.name !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.name);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StartProxyRequest
+ */
+export const StartProxyRequest = new StartProxyRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StartProxyResponse$Type extends MessageType<StartProxyResponse> {
+    constructor() {
+        super("api_client.StartProxyResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<StartProxyResponse>): StartProxyResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StartProxyResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StartProxyResponse): StartProxyResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StartProxyResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StartProxyResponse
+ */
+export const StartProxyResponse = new StartProxyResponse$Type();

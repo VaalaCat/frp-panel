@@ -31,21 +31,25 @@ func GetProxyConfig(c *app.Context, req *pb.GetProxyConfigRequest) (*pb.GetProxy
 		return nil, err
 	}
 
-	resp := &pb.GetProxyConfigResponse{}
-	if err := rpc.CallClientWrapper(c, proxyConfig.OriginClientID, pb.Event_EVENT_GET_PROXY_INFO, &pb.GetProxyConfigRequest{
-		ClientId: lo.ToPtr(proxyConfig.ClientID),
-		ServerId: lo.ToPtr(proxyConfig.ServerID),
-		Name:     lo.ToPtr(fmt.Sprintf("%s.%s", userInfo.GetUserName(), proxyName)),
-	}, resp); err != nil {
-		resp.WorkingStatus = &pb.ProxyWorkingStatus{
-			Status: lo.ToPtr("error"),
+	resp := &pb.GetProxyConfigResponse{WorkingStatus: &pb.ProxyWorkingStatus{
+		Status: lo.ToPtr("stopped"),
+	}}
+	if !proxyConfig.Stopped {
+		if err := rpc.CallClientWrapper(c, proxyConfig.OriginClientID, pb.Event_EVENT_GET_PROXY_INFO, &pb.GetProxyConfigRequest{
+			ClientId: lo.ToPtr(proxyConfig.ClientID),
+			ServerId: lo.ToPtr(proxyConfig.ServerID),
+			Name:     lo.ToPtr(fmt.Sprintf("%s.%s", userInfo.GetUserName(), proxyName)),
+		}, resp); err != nil {
+			resp.WorkingStatus = &pb.ProxyWorkingStatus{
+				Status: lo.ToPtr("error"),
+			}
+			logger.Logger(c).WithError(err).Errorf("cannot get proxy config, client: [%s], server: [%s], proxy name: [%s]", proxyConfig.OriginClientID, proxyConfig.ServerID, proxyConfig.Name)
 		}
-		logger.Logger(c).WithError(err).Errorf("cannot get proxy config, client: [%s], server: [%s], proxy name: [%s]", proxyConfig.OriginClientID, proxyConfig.ServerID, proxyConfig.Name)
-	}
 
-	if len(resp.GetWorkingStatus().GetStatus()) == 0 {
-		resp.WorkingStatus = &pb.ProxyWorkingStatus{
-			Status: lo.ToPtr("unknown"),
+		if len(resp.GetWorkingStatus().GetStatus()) == 0 {
+			resp.WorkingStatus = &pb.ProxyWorkingStatus{
+				Status: lo.ToPtr("unknown"),
+			}
 		}
 	}
 
@@ -59,6 +63,7 @@ func GetProxyConfig(c *app.Context, req *pb.GetProxyConfigRequest) (*pb.GetProxy
 			ServerId:       lo.ToPtr(proxyConfig.ServerID),
 			Config:         lo.ToPtr(string(proxyConfig.Content)),
 			OriginClientId: lo.ToPtr(proxyConfig.OriginClientID),
+			Stopped:        lo.ToPtr(proxyConfig.Stopped),
 		},
 		WorkingStatus: resp.GetWorkingStatus(),
 	}, nil

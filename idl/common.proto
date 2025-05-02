@@ -87,6 +87,7 @@ message ProxyConfig {
 	optional string server_id = 5;
   optional string config = 6;
   optional string origin_client_id = 7;
+  optional bool stopped = 8;
 }
 
 message ProxyWorkingStatus {

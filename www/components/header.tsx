@@ -15,7 +15,7 @@ export const Header = ({ title }: { title?: string }) => {
   const token = useStore($token)
   const currentPath = router.pathname
 
-  const {isPending} = useQuery({
+  const { isPending } = useQuery({
     queryKey: ['userInfo', currentPath],
     queryFn: getUserInfo,
     retry: false,
@@ -24,7 +24,7 @@ export const Header = ({ title }: { title?: string }) => {
   useEffect(() => {
     // 只有在初始化完成后才进行状态检查和跳转
     if (!isPending) {
-      console.log('isInitializing', isOnline, token, currentPath)
+      // console.log('isInitializing', isOnline, token, currentPath)
       // 如果用户未登录且不在登录/注册页面，则跳转到登录页
       const isAuthPage = ['/login', '/register'].includes(currentPath)
       if ((!token || !isOnline) && !isAuthPage) {
@@ -35,7 +35,7 @@ export const Header = ({ title }: { title?: string }) => {
 
   return (
     <div className="flex w-full justify-between items-center gap-2">
-      {title && <p className='font-bold'>{title}</p>}
+      {title && <p className="font-bold">{title}</p>}
       {!title && <p></p>}
       <LanguageSwitcher />
     </div>
@@ -56,7 +56,7 @@ export const RegisterAndLogin = () => {
     $platformInfo.set(platformInfo.data)
   }, [platformInfo])
 
-  const {data: userInfoQuery} = useQuery({
+  const { data: userInfoQuery } = useQuery({
     queryKey: ['userInfo'],
     queryFn: getUserInfo,
   })

@@ -80,6 +80,8 @@ func ConfigureRouter(appInstance app.Application, router *gin.Engine) {
 			proxyRouter.POST("/update_config", app.Wrapper(appInstance, proxy.UpdateProxyConfig))
 			proxyRouter.POST("/delete_config", app.Wrapper(appInstance, proxy.DeleteProxyConfig))
 			proxyRouter.POST("/get_config", app.Wrapper(appInstance, proxy.GetProxyConfig))
+			proxyRouter.POST("/start_proxy", app.Wrapper(appInstance, proxy.StartProxy))
+			proxyRouter.POST("/stop_proxy", app.Wrapper(appInstance, proxy.StopProxy))
 		}
 		v1.GET("/pty/:clientID", shell.PTYHandler(appInstance))
 		v1.GET("/log", streamlog.GetLogHandler(appInstance))

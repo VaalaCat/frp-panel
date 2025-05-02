@@ -30,32 +30,7 @@ func CreateProxyConfig(c *app.Context, req *pb.CreateProxyConfigRequest) (*pb.Cr
 		serverID = req.GetServerId()
 	)
 
-	// 1. 检查是否有已连接该服务端的客户端
-	// 2. 检查是否有Shadow客户端
-	// 3. 如果没有，则新建Shadow客户端和子客户端
-	clientEntity, err := dao.NewQuery(c).GetClientByFilter(userInfo, &models.ClientEntity{OriginClientID: clientID, ServerID: serverID}, lo.ToPtr(false))
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		clientEntity, err = dao.NewQuery(c).GetClientByFilter(userInfo, &models.ClientEntity{ClientID: clientID}, nil)
-		if err != nil {
-			logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
-			return nil, err
-		}
-		if (!clientEntity.IsShadow || len(clientEntity.ConfigContent) != 0) && len(clientEntity.OriginClientID) == 0 {
-			// 没shadow过，需要shadow
-			_, err = client.MakeClientShadowed(c, serverID, clientEntity)
-			if err != nil {
-				logger.Logger(c).WithError(err).Errorf("cannot make client shadow, id: [%s]", clientID)
-				return nil, err
-			}
-		}
-		// shadow过，但没找到子客户端，需要新建
-		clientEntity, err = client.ChildClientForServer(c, serverID, clientEntity)
-		if err != nil {
-			logger.Logger(c).WithError(err).Errorf("cannot create child client, id: [%s]", clientID)
-			return nil, err
-		}
-	}
-	// 有任何失败，返回
+	clientEntity, err := getClientWithMakeShadow(c, clientID, serverID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, err
@@ -128,6 +103,7 @@ func CreateProxyConfig(c *app.Context, req *pb.CreateProxyConfigRequest) (*pb.Cr
 		ServerId: &serverID,
 		Config:   rawCfg,
 		Comment:  &clientEntity.Comment,
+		FrpsUrl:  &clientEntity.FrpsUrl,
 	})
 	if err != nil {
 		logger.Logger(c).WithError(err).Warnf("cannot update frpc failed, id: [%s]", clientID)

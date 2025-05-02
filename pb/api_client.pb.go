@@ -1501,6 +1501,214 @@ func (x *GetProxyConfigResponse) GetWorkingStatus() *ProxyWorkingStatus {
 	return nil
 }
 
+type StopProxyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	ServerId      *string                `protobuf:"bytes,2,opt,name=server_id,json=serverId,proto3,oneof" json:"server_id,omitempty"`
+	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopProxyRequest) Reset() {
+	*x = StopProxyRequest{}
+	mi := &file_api_client_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopProxyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopProxyRequest) ProtoMessage() {}
+
+func (x *StopProxyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopProxyRequest.ProtoReflect.Descriptor instead.
+func (*StopProxyRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *StopProxyRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *StopProxyRequest) GetServerId() string {
+	if x != nil && x.ServerId != nil {
+		return *x.ServerId
+	}
+	return ""
+}
+
+func (x *StopProxyRequest) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+type StopProxyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopProxyResponse) Reset() {
+	*x = StopProxyResponse{}
+	mi := &file_api_client_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopProxyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopProxyResponse) ProtoMessage() {}
+
+func (x *StopProxyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopProxyResponse.ProtoReflect.Descriptor instead.
+func (*StopProxyResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *StopProxyResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+type StartProxyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	ServerId      *string                `protobuf:"bytes,2,opt,name=server_id,json=serverId,proto3,oneof" json:"server_id,omitempty"`
+	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartProxyRequest) Reset() {
+	*x = StartProxyRequest{}
+	mi := &file_api_client_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartProxyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartProxyRequest) ProtoMessage() {}
+
+func (x *StartProxyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartProxyRequest.ProtoReflect.Descriptor instead.
+func (*StartProxyRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *StartProxyRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *StartProxyRequest) GetServerId() string {
+	if x != nil && x.ServerId != nil {
+		return *x.ServerId
+	}
+	return ""
+}
+
+func (x *StartProxyRequest) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+type StartProxyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartProxyResponse) Reset() {
+	*x = StartProxyResponse{}
+	mi := &file_api_client_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartProxyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartProxyResponse) ProtoMessage() {}
+
+func (x *StartProxyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartProxyResponse.ProtoReflect.Descriptor instead.
+func (*StartProxyResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *StartProxyResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
 var File_api_client_proto protoreflect.FileDescriptor
 
 const file_api_client_proto_rawDesc = "" +
@@ -1678,7 +1886,31 @@ const file_api_client_proto_rawDesc = "" +
 	"\x0eworking_status\x18\x03 \x01(\v2\x1a.common.ProxyWorkingStatusH\x02R\rworkingStatus\x88\x01\x01B\t\n" +
 	"\a_statusB\x0f\n" +
 	"\r_proxy_configB\x11\n" +
-	"\x0f_working_statusB\aZ\x05../pbb\x06proto3"
+	"\x0f_working_status\"\x94\x01\n" +
+	"\x10StopProxyRequest\x12 \n" +
+	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01\x12 \n" +
+	"\tserver_id\x18\x02 \x01(\tH\x01R\bserverId\x88\x01\x01\x12\x17\n" +
+	"\x04name\x18\x03 \x01(\tH\x02R\x04name\x88\x01\x01B\f\n" +
+	"\n" +
+	"_client_idB\f\n" +
+	"\n" +
+	"_server_idB\a\n" +
+	"\x05_name\"K\n" +
+	"\x11StopProxyResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"\x95\x01\n" +
+	"\x11StartProxyRequest\x12 \n" +
+	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01\x12 \n" +
+	"\tserver_id\x18\x02 \x01(\tH\x01R\bserverId\x88\x01\x01\x12\x17\n" +
+	"\x04name\x18\x03 \x01(\tH\x02R\x04name\x88\x01\x01B\f\n" +
+	"\n" +
+	"_client_idB\f\n" +
+	"\n" +
+	"_server_idB\a\n" +
+	"\x05_name\"L\n" +
+	"\x12StartProxyResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_statusB\aZ\x05../pbb\x06proto3"
 
 var (
 	file_api_client_proto_rawDescOnce sync.Once
@@ -1692,7 +1924,7 @@ func file_api_client_proto_rawDescGZIP() []byte {
 	return file_api_client_proto_rawDescData
 }
 
-var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_api_client_proto_goTypes = []any{
 	(*InitClientRequest)(nil),               // 0: api_client.InitClientRequest
 	(*InitClientResponse)(nil),              // 1: api_client.InitClientResponse
@@ -1722,38 +1954,44 @@ var file_api_client_proto_goTypes = []any{
 	(*UpdateProxyConfigResponse)(nil),       // 25: api_client.UpdateProxyConfigResponse
 	(*GetProxyConfigRequest)(nil),           // 26: api_client.GetProxyConfigRequest
 	(*GetProxyConfigResponse)(nil),          // 27: api_client.GetProxyConfigResponse
-	(*Status)(nil),                          // 28: common.Status
-	(*Client)(nil),                          // 29: common.Client
-	(*ProxyInfo)(nil),                       // 30: common.ProxyInfo
-	(*ProxyConfig)(nil),                     // 31: common.ProxyConfig
-	(*ProxyWorkingStatus)(nil),              // 32: common.ProxyWorkingStatus
+	(*StopProxyRequest)(nil),                // 28: api_client.StopProxyRequest
+	(*StopProxyResponse)(nil),               // 29: api_client.StopProxyResponse
+	(*StartProxyRequest)(nil),               // 30: api_client.StartProxyRequest
+	(*StartProxyResponse)(nil),              // 31: api_client.StartProxyResponse
+	(*Status)(nil),                          // 32: common.Status
+	(*Client)(nil),                          // 33: common.Client
+	(*ProxyInfo)(nil),                       // 34: common.ProxyInfo
+	(*ProxyConfig)(nil),                     // 35: common.ProxyConfig
+	(*ProxyWorkingStatus)(nil),              // 36: common.ProxyWorkingStatus
 }
 var file_api_client_proto_depIdxs = []int32{
-	28, // 0: api_client.InitClientResponse.status:type_name -> common.Status
-	28, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
-	29, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
-	28, // 3: api_client.GetClientResponse.status:type_name -> common.Status
-	29, // 4: api_client.GetClientResponse.client:type_name -> common.Client
-	28, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
-	28, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
-	28, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
-	28, // 8: api_client.StopFRPCResponse.status:type_name -> common.Status
-	28, // 9: api_client.StartFRPCResponse.status:type_name -> common.Status
-	28, // 10: api_client.GetProxyStatsByClientIDResponse.status:type_name -> common.Status
-	30, // 11: api_client.GetProxyStatsByClientIDResponse.proxy_infos:type_name -> common.ProxyInfo
-	28, // 12: api_client.ListProxyConfigsResponse.status:type_name -> common.Status
-	31, // 13: api_client.ListProxyConfigsResponse.proxy_configs:type_name -> common.ProxyConfig
-	28, // 14: api_client.CreateProxyConfigResponse.status:type_name -> common.Status
-	28, // 15: api_client.DeleteProxyConfigResponse.status:type_name -> common.Status
-	28, // 16: api_client.UpdateProxyConfigResponse.status:type_name -> common.Status
-	28, // 17: api_client.GetProxyConfigResponse.status:type_name -> common.Status
-	31, // 18: api_client.GetProxyConfigResponse.proxy_config:type_name -> common.ProxyConfig
-	32, // 19: api_client.GetProxyConfigResponse.working_status:type_name -> common.ProxyWorkingStatus
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	32, // 0: api_client.InitClientResponse.status:type_name -> common.Status
+	32, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
+	33, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
+	32, // 3: api_client.GetClientResponse.status:type_name -> common.Status
+	33, // 4: api_client.GetClientResponse.client:type_name -> common.Client
+	32, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
+	32, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
+	32, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
+	32, // 8: api_client.StopFRPCResponse.status:type_name -> common.Status
+	32, // 9: api_client.StartFRPCResponse.status:type_name -> common.Status
+	32, // 10: api_client.GetProxyStatsByClientIDResponse.status:type_name -> common.Status
+	34, // 11: api_client.GetProxyStatsByClientIDResponse.proxy_infos:type_name -> common.ProxyInfo
+	32, // 12: api_client.ListProxyConfigsResponse.status:type_name -> common.Status
+	35, // 13: api_client.ListProxyConfigsResponse.proxy_configs:type_name -> common.ProxyConfig
+	32, // 14: api_client.CreateProxyConfigResponse.status:type_name -> common.Status
+	32, // 15: api_client.DeleteProxyConfigResponse.status:type_name -> common.Status
+	32, // 16: api_client.UpdateProxyConfigResponse.status:type_name -> common.Status
+	32, // 17: api_client.GetProxyConfigResponse.status:type_name -> common.Status
+	35, // 18: api_client.GetProxyConfigResponse.proxy_config:type_name -> common.ProxyConfig
+	36, // 19: api_client.GetProxyConfigResponse.working_status:type_name -> common.ProxyWorkingStatus
+	32, // 20: api_client.StopProxyResponse.status:type_name -> common.Status
+	32, // 21: api_client.StartProxyResponse.status:type_name -> common.Status
+	22, // [22:22] is the sub-list for method output_type
+	22, // [22:22] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_api_client_proto_init() }
@@ -1790,13 +2028,17 @@ func file_api_client_proto_init() {
 	file_api_client_proto_msgTypes[25].OneofWrappers = []any{}
 	file_api_client_proto_msgTypes[26].OneofWrappers = []any{}
 	file_api_client_proto_msgTypes[27].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[28].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[29].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[30].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[31].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_client_proto_rawDesc), len(file_api_client_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   28,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

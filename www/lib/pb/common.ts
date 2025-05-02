@@ -233,6 +233,10 @@ export interface ProxyConfig {
      * @generated from protobuf field: optional string origin_client_id = 7;
      */
     originClientId?: string;
+    /**
+     * @generated from protobuf field: optional bool stopped = 8;
+     */
+    stopped?: boolean;
 }
 /**
  * @generated from protobuf message common.ProxyWorkingStatus
@@ -869,7 +873,8 @@ class ProxyConfig$Type extends MessageType<ProxyConfig> {
             { no: 4, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 5, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 6, name: "config", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 7, name: "origin_client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 7, name: "origin_client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 8, name: "stopped", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<ProxyConfig>): ProxyConfig {
@@ -904,6 +909,9 @@ class ProxyConfig$Type extends MessageType<ProxyConfig> {
                 case /* optional string origin_client_id */ 7:
                     message.originClientId = reader.string();
                     break;
+                case /* optional bool stopped */ 8:
+                    message.stopped = reader.bool();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -937,6 +945,9 @@ class ProxyConfig$Type extends MessageType<ProxyConfig> {
         /* optional string origin_client_id = 7; */
         if (message.originClientId !== undefined)
             writer.tag(7, WireType.LengthDelimited).string(message.originClientId);
+        /* optional bool stopped = 8; */
+        if (message.stopped !== undefined)
+            writer.tag(8, WireType.Varint).bool(message.stopped);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

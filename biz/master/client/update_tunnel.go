@@ -1,7 +1,6 @@
 package client
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -185,7 +184,7 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 	}
 
 	go func() {
-		childCtx := app.NewContext(context.Background(), c.GetApp())
+		childCtx := c.Background()
 		cliToUpdate, err := dao.NewQuery(childCtx).GetClientByFilter(userInfo, &models.ClientEntity{ClientID: cli.OriginClientID}, nil)
 		if err != nil {
 			logger.Logger(childCtx).WithError(err).Errorf("cannot get origin client, id: [%s]", cliToUpdate.OriginClientID)
