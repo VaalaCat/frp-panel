@@ -1,10 +1,11 @@
-"use client"
+'use client'
 
 import {
   ChevronsUpDown,
   LogOut,
-} from "lucide-react"
-
+  User as UserIcon, // 别名避免和 User 类型冲突
+} from 'lucide-react'
+import Link from 'next/link'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,26 +13,21 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/dropdown-menu'
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
 import { User } from '@/lib/pb/common'
-import { Avatar } from "./ui/avatar"
-import { UserAvatar } from "./base/avatar"
-import { $token, $userInfo } from "@/store/user"
-import { logout } from "@/api/auth"
-import { useTranslation } from 'react-i18next';
+import { Avatar } from './ui/avatar'
+import { UserAvatar } from './base/avatar'
+import { $token, $userInfo } from '@/store/user'
+import { logout } from '@/api/auth'
+import { useTranslation } from 'react-i18next'
 
 export interface NavUserProps {
   user: User
 }
 
 export function NavUser({ user }: NavUserProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const { isMobile } = useSidebar()
 
   return (
@@ -55,7 +51,7 @@ export function NavUser({ user }: NavUserProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
           >
@@ -70,16 +66,30 @@ export function NavUser({ user }: NavUserProps) {
                 </div>
               </div>
             </DropdownMenuLabel>
+
+            {/* 使用 next/link 创建 “User Info” 菜单项 */}
+            <DropdownMenuItem asChild>
+              <Link href="/user-info" className="w-full flex items-center space-x-2">
+                <UserIcon className="h-4 w-4" />
+                <span>{t('common.userInfo')}</span>
+              </Link>
+            </DropdownMenuItem>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <div onClick={
-                async () => {
+              <div
+                onClick={async () => {
                   $userInfo.set(undefined)
                   $token.set(undefined)
                   await logout()
                   window.location.reload()
-                }
-              } className="w-full flex flex-row space-x-2 items-center"><LogOut className="h-4 w-4" /><p>{t('common.logout')}</p></div>
+                }}
+                className="w-full flex items-center space-x-4"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>{t('common.logout')}</span>
+              </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
