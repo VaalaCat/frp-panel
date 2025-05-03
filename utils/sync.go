@@ -180,3 +180,16 @@ func (s *SyncMap[K, V]) Values() []V {
 
 	return values
 }
+
+func (s *SyncMap[K, V]) ToMap() map[K]V {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	var m = make(map[K]V, len(s.m))
+
+	for k, v := range s.m {
+		m[k] = v
+	}
+
+	return m
+}

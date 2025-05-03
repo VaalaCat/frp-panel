@@ -49,7 +49,7 @@ func DeleteProxyConfig(c *app.Context, req *pb.DeleteProxyConfigRequest) (*pb.De
 		return nil, err
 	}
 
-	if err := dao.NewQuery(c).UpdateClient(userInfo, cli); err != nil {
+	if err := dao.NewQuery(c).UpdateClient(userInfo, cli.ClientEntity); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot update client, id: [%s]", clientID)
 		return nil, err
 	}

@@ -29,10 +29,12 @@ func StartFRPCHandler(ctx *app.Context, req *pb.StartFRPCRequest) (*pb.StartFRPC
 		}, nil
 	}
 
-	client, err := dao.NewQuery(ctx).GetClientByClientID(userInfo, clientID)
+	cli, err := dao.NewQuery(ctx).GetClientByClientID(userInfo, clientID)
 	if err != nil {
 		return nil, err
 	}
+
+	client := cli.ClientEntity
 
 	client.Stopped = false
 

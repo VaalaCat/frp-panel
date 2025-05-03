@@ -68,8 +68,9 @@ const (
 )
 
 const (
-	PullConfigDuration    = 30 * time.Second
-	PushProxyInfoDuration = 30 * time.Second
+	PullConfigDuration        = 30 * time.Second
+	PushProxyInfoDuration     = 30 * time.Second
+	PullClientWorkersDuration = 30 * time.Second
 )
 
 const (
@@ -100,6 +101,50 @@ const (
 const (
 	UserRole_Admin  = "admin"
 	UserRole_Normal = "normal"
+	CapFileName     = "workerd.capnp"
+	WorkerInfoPath  = "workers"
+	WorkerCodePath  = "src"
+	DBTypeSqlite    = "sqlite"
+
+	DefaultHostName       = "127.0.0.1"
+	DefaultNodeName       = "default"
+	DefaultExternalPath   = "/"
+	DefaultEntry          = "entry.js"
+	DefaultSocketTemplate = "unix-abstract:/tmp/frpp-worker-%s.sock"
+	DefaultCode           = `export default {
+  async fetch(req, env) {
+    try {
+		let resp = new Response("worker: " + req.url + " is online! -- " + new Date())
+		return resp
+	} catch(e) {
+		return new Response(e.stack, { status: 500 })
+	}
+  }
+};`
+
+	DefaultConfigTemplate = `using Workerd = import "/workerd/workerd.capnp";
+
+const config :Workerd.Config = (
+  services = [
+    (name = "{{.WorkerId}}", worker = .v{{.WorkerId}}Worker),
+  ],
+
+  sockets = [
+    (
+      name = "{{.WorkerId}}",
+      address = "{{.Socket.Address}}",
+      http=(),
+      service="{{.WorkerId}}"
+    ),
+  ]
+);
+
+const v{{.WorkerId}}Worker :Workerd.Worker = (
+  modules = [
+    (name = "{{.CodeEntry}}", esModule = embed "src/{{.CodeEntry}}"),
+  ],
+  compatibilityDate = "2023-04-03",
+);`
 )
 
 type TokenStatus string
@@ -108,4 +153,24 @@ const (
 	TokenStatusActive   TokenStatus = "active"
 	TokenStatusInactive TokenStatus = "inactive"
 	TokenStatusRevoked  TokenStatus = "revoked"
+)
+
+const (
+	KeyNodeName    = "node_name"
+	KeyNodeSecret  = "node_secret"
+	KeyNodeProto   = "node_proto"
+	KeyWorkerProto = "worker_proto"
+)
+
+type WorkerStatus string
+
+const (
+	WorkerStatus_Unknown  WorkerStatus = "unknown"
+	WorkerStatus_Running  WorkerStatus = "running"
+	WorkerStatus_Inactive WorkerStatus = "inactive"
+)
+
+const (
+	FrpProxyAnnotationsKey_Ingress  = "ingress"
+	FrpProxyAnnotationsKey_WorkerId = "worker_id"
 )

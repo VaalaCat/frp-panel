@@ -11,6 +11,7 @@ import (
 	"github.com/VaalaCat/frp-panel/biz/master/shell"
 	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
 	"github.com/VaalaCat/frp-panel/biz/master/user"
+	"github.com/VaalaCat/frp-panel/biz/master/worker"
 	"github.com/VaalaCat/frp-panel/middleware"
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/gin-gonic/gin"
@@ -51,6 +52,7 @@ func ConfigureRouter(appInstance app.Application, router *gin.Engine) {
 			clientRouter.POST("/init", app.Wrapper(appInstance, client.InitClientHandler))
 			clientRouter.POST("/delete", app.Wrapper(appInstance, client.DeleteClientHandler))
 			clientRouter.POST("/list", app.Wrapper(appInstance, client.ListClientsHandler))
+			clientRouter.POST("/install_workerd", app.Wrapper(appInstance, worker.InstallWorkerd))
 		}
 		serverRouter := v1.Group("/server")
 		{
@@ -82,6 +84,17 @@ func ConfigureRouter(appInstance app.Application, router *gin.Engine) {
 			proxyRouter.POST("/get_config", app.Wrapper(appInstance, proxy.GetProxyConfig))
 			proxyRouter.POST("/start_proxy", app.Wrapper(appInstance, proxy.StartProxy))
 			proxyRouter.POST("/stop_proxy", app.Wrapper(appInstance, proxy.StopProxy))
+		}
+		workerHandler := v1.Group("/worker")
+		{
+			workerHandler.POST("/get", app.Wrapper(appInstance, worker.GetWorker))
+			workerHandler.POST("/status", app.Wrapper(appInstance, worker.GetWorkerStatus))
+			workerHandler.POST("/create", app.Wrapper(appInstance, worker.CreateWorker))
+			workerHandler.POST("/list", app.Wrapper(appInstance, worker.ListWorkers))
+			workerHandler.POST("/remove", app.Wrapper(appInstance, worker.RemoveWorker))
+			workerHandler.POST("/update", app.Wrapper(appInstance, worker.UpdateWorker))
+			workerHandler.POST("/create_ingress", app.Wrapper(appInstance, worker.CreateWorkerIngress))
+			workerHandler.POST("/get_ingress", app.Wrapper(appInstance, worker.GetWorkerIngress))
 		}
 		v1.GET("/pty/:clientID", shell.PTYHandler(appInstance))
 		v1.GET("/log", streamlog.GetLogHandler(appInstance))

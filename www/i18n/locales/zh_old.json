@@ -19,14 +19,11 @@
   },
   "common": {
     "refresh": "刷新",
-    "cancel": "取消",
-    "save": "保存",
     "delete": "删除",
     "edit": "编辑",
     "newWindow": "新窗口",
     "loading": "加载中...",
     "error": "错误",
-    "success": "成功",
     "warning": "警告",
     "info": "信息",
     "clear": "清空",
@@ -121,5 +118,9 @@
     "toggle": "切换语言",
     "zh": "中文",
     "en": "English"
+  },
+  "worker": {
+    "name": "Worker名称",
+    "id": "WorkerID"
   }
 }

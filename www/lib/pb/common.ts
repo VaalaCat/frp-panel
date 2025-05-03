@@ -264,6 +264,71 @@ export interface ProxyWorkingStatus {
     remoteAddr?: string;
 }
 /**
+ * @generated from protobuf message common.Worker
+ */
+export interface Worker {
+    /**
+     * @generated from protobuf field: optional string worker_id = 1;
+     */
+    workerId?: string;
+    /**
+     * @generated from protobuf field: optional string name = 2;
+     */
+    name?: string; // worker's name, also use at worker routing, must be unique, default is UID
+    /**
+     * @generated from protobuf field: optional uint32 user_id = 3;
+     */
+    userId?: number; // worker's user id
+    /**
+     * @generated from protobuf field: optional uint32 tenant_id = 4;
+     */
+    tenantId?: number;
+    /**
+     * @generated from protobuf field: optional common.Socket socket = 5;
+     */
+    socket?: Socket; // worker's socket, platfrom will obtain free port while init worker
+    /**
+     * @generated from protobuf field: optional string code_entry = 6;
+     */
+    codeEntry?: string; // worker's entry file, default is 'entry.js'
+    /**
+     * @generated from protobuf field: optional string code = 7;
+     */
+    code?: string; // worker's code
+    /**
+     * @generated from protobuf field: optional string config_template = 8;
+     */
+    configTemplate?: string; // worker's capnp file template
+}
+/**
+ * one WorkerList for one workerd instance
+ *
+ * @generated from protobuf message common.WorkerList
+ */
+export interface WorkerList {
+    /**
+     * @generated from protobuf field: repeated common.Worker workers = 1;
+     */
+    workers: Worker[];
+    /**
+     * @generated from protobuf field: optional string nodename = 2;
+     */
+    nodename?: string; // workerd runner host name, for HA
+}
+/**
+ * @generated from protobuf message common.Socket
+ */
+export interface Socket {
+    /**
+     * @generated from protobuf field: optional string name = 1;
+     */
+    name?: string;
+    /**
+     * @generated from protobuf field: optional string address = 2;
+     */
+    address?: string;
+}
+/**
  * @generated from protobuf enum common.RespCode
  */
 export enum RespCode {
@@ -1032,3 +1097,205 @@ class ProxyWorkingStatus$Type extends MessageType<ProxyWorkingStatus> {
  * @generated MessageType for protobuf message common.ProxyWorkingStatus
  */
 export const ProxyWorkingStatus = new ProxyWorkingStatus$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class Worker$Type extends MessageType<Worker> {
+    constructor() {
+        super("common.Worker", [
+            { no: 1, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "user_id", kind: "scalar", opt: true, T: 13 /*ScalarType.UINT32*/ },
+            { no: 4, name: "tenant_id", kind: "scalar", opt: true, T: 13 /*ScalarType.UINT32*/ },
+            { no: 5, name: "socket", kind: "message", T: () => Socket },
+            { no: 6, name: "code_entry", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 7, name: "code", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 8, name: "config_template", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<Worker>): Worker {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<Worker>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Worker): Worker {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string worker_id */ 1:
+                    message.workerId = reader.string();
+                    break;
+                case /* optional string name */ 2:
+                    message.name = reader.string();
+                    break;
+                case /* optional uint32 user_id */ 3:
+                    message.userId = reader.uint32();
+                    break;
+                case /* optional uint32 tenant_id */ 4:
+                    message.tenantId = reader.uint32();
+                    break;
+                case /* optional common.Socket socket */ 5:
+                    message.socket = Socket.internalBinaryRead(reader, reader.uint32(), options, message.socket);
+                    break;
+                case /* optional string code_entry */ 6:
+                    message.codeEntry = reader.string();
+                    break;
+                case /* optional string code */ 7:
+                    message.code = reader.string();
+                    break;
+                case /* optional string config_template */ 8:
+                    message.configTemplate = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: Worker, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string worker_id = 1; */
+        if (message.workerId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.workerId);
+        /* optional string name = 2; */
+        if (message.name !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.name);
+        /* optional uint32 user_id = 3; */
+        if (message.userId !== undefined)
+            writer.tag(3, WireType.Varint).uint32(message.userId);
+        /* optional uint32 tenant_id = 4; */
+        if (message.tenantId !== undefined)
+            writer.tag(4, WireType.Varint).uint32(message.tenantId);
+        /* optional common.Socket socket = 5; */
+        if (message.socket)
+            Socket.internalBinaryWrite(message.socket, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* optional string code_entry = 6; */
+        if (message.codeEntry !== undefined)
+            writer.tag(6, WireType.LengthDelimited).string(message.codeEntry);
+        /* optional string code = 7; */
+        if (message.code !== undefined)
+            writer.tag(7, WireType.LengthDelimited).string(message.code);
+        /* optional string config_template = 8; */
+        if (message.configTemplate !== undefined)
+            writer.tag(8, WireType.LengthDelimited).string(message.configTemplate);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message common.Worker
+ */
+export const Worker = new Worker$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class WorkerList$Type extends MessageType<WorkerList> {
+    constructor() {
+        super("common.WorkerList", [
+            { no: 1, name: "workers", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => Worker },
+            { no: 2, name: "nodename", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<WorkerList>): WorkerList {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.workers = [];
+        if (value !== undefined)
+            reflectionMergePartial<WorkerList>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: WorkerList): WorkerList {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated common.Worker workers */ 1:
+                    message.workers.push(Worker.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                case /* optional string nodename */ 2:
+                    message.nodename = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: WorkerList, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated common.Worker workers = 1; */
+        for (let i = 0; i < message.workers.length; i++)
+            Worker.internalBinaryWrite(message.workers[i], writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* optional string nodename = 2; */
+        if (message.nodename !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.nodename);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message common.WorkerList
+ */
+export const WorkerList = new WorkerList$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class Socket$Type extends MessageType<Socket> {
+    constructor() {
+        super("common.Socket", [
+            { no: 1, name: "name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "address", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<Socket>): Socket {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<Socket>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Socket): Socket {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string name */ 1:
+                    message.name = reader.string();
+                    break;
+                case /* optional string address */ 2:
+                    message.address = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: Socket, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string name = 1; */
+        if (message.name !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.name);
+        /* optional string address = 2; */
+        if (message.address !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.address);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message common.Socket
+ */
+export const Socket = new Socket$Type();

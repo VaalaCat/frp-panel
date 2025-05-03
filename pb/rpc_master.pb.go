@@ -43,6 +43,10 @@ const (
 	Event_EVENT_STOP_STREAM_LOG   Event = 16
 	Event_EVENT_START_PTY_CONNECT Event = 17
 	Event_EVENT_GET_PROXY_INFO    Event = 18
+	Event_EVENT_CREATE_WORKER     Event = 19
+	Event_EVENT_REMOVE_WORKER     Event = 20
+	Event_EVENT_GET_WORKER_STATUS Event = 21
+	Event_EVENT_INSTALL_WORKERD   Event = 22
 )
 
 // Enum value maps for Event.
@@ -67,6 +71,10 @@ var (
 		16: "EVENT_STOP_STREAM_LOG",
 		17: "EVENT_START_PTY_CONNECT",
 		18: "EVENT_GET_PROXY_INFO",
+		19: "EVENT_CREATE_WORKER",
+		20: "EVENT_REMOVE_WORKER",
+		21: "EVENT_GET_WORKER_STATUS",
+		22: "EVENT_INSTALL_WORKERD",
 	}
 	Event_value = map[string]int32{
 		"EVENT_UNSPECIFIED":       0,
@@ -88,6 +96,10 @@ var (
 		"EVENT_STOP_STREAM_LOG":   16,
 		"EVENT_START_PTY_CONNECT": 17,
 		"EVENT_GET_PROXY_INFO":    18,
+		"EVENT_CREATE_WORKER":     19,
+		"EVENT_REMOVE_WORKER":     20,
+		"EVENT_GET_WORKER_STATUS": 21,
+		"EVENT_INSTALL_WORKERD":   22,
 	}
 )
 
@@ -1096,6 +1108,102 @@ func (x *PTYServerMessage) GetDone() bool {
 	return false
 }
 
+type ListClientWorkersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Base          *ClientBase            `protobuf:"bytes,255,opt,name=base,proto3" json:"base,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListClientWorkersRequest) Reset() {
+	*x = ListClientWorkersRequest{}
+	mi := &file_rpc_master_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListClientWorkersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListClientWorkersRequest) ProtoMessage() {}
+
+func (x *ListClientWorkersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_master_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListClientWorkersRequest.ProtoReflect.Descriptor instead.
+func (*ListClientWorkersRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_master_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ListClientWorkersRequest) GetBase() *ClientBase {
+	if x != nil {
+		return x.Base
+	}
+	return nil
+}
+
+type ListClientWorkersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Workers       []*Worker              `protobuf:"bytes,2,rep,name=workers,proto3" json:"workers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListClientWorkersResponse) Reset() {
+	*x = ListClientWorkersResponse{}
+	mi := &file_rpc_master_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListClientWorkersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListClientWorkersResponse) ProtoMessage() {}
+
+func (x *ListClientWorkersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_master_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListClientWorkersResponse.ProtoReflect.Descriptor instead.
+func (*ListClientWorkersResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_master_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ListClientWorkersResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *ListClientWorkersResponse) GetWorkers() []*Worker {
+	if x != nil {
+		return x.Workers
+	}
+	return nil
+}
+
 var File_rpc_master_proto protoreflect.FileDescriptor
 
 const file_rpc_master_proto_rawDesc = "" +
@@ -1172,7 +1280,12 @@ const file_rpc_master_proto_rawDesc = "" +
 	"\x04done\x18\x04 \x01(\bR\x04doneB\a\n" +
 	"\x05_dataB\t\n" +
 	"\a_heightB\b\n" +
-	"\x06_width*\xb5\x03\n" +
+	"\x06_width\"C\n" +
+	"\x18ListClientWorkersRequest\x12'\n" +
+	"\x04base\x18\xff\x01 \x01(\v2\x12.master.ClientBaseR\x04base\"m\n" +
+	"\x19ListClientWorkersResponse\x12&\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusR\x06status\x12(\n" +
+	"\aworkers\x18\x02 \x03(\v2\x0e.common.WorkerR\aworkers*\x9f\x04\n" +
 	"\x05Event\x12\x15\n" +
 	"\x11EVENT_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15EVENT_REGISTER_CLIENT\x10\x01\x12\x19\n" +
@@ -1196,12 +1309,17 @@ const file_rpc_master_proto_rawDesc = "" +
 	"\x16EVENT_START_STREAM_LOG\x10\x0f\x12\x19\n" +
 	"\x15EVENT_STOP_STREAM_LOG\x10\x10\x12\x1b\n" +
 	"\x17EVENT_START_PTY_CONNECT\x10\x11\x12\x18\n" +
-	"\x14EVENT_GET_PROXY_INFO\x10\x122\xd7\x04\n" +
+	"\x14EVENT_GET_PROXY_INFO\x10\x12\x12\x17\n" +
+	"\x13EVENT_CREATE_WORKER\x10\x13\x12\x17\n" +
+	"\x13EVENT_REMOVE_WORKER\x10\x14\x12\x1b\n" +
+	"\x17EVENT_GET_WORKER_STATUS\x10\x15\x12\x19\n" +
+	"\x15EVENT_INSTALL_WORKERD\x10\x162\xb1\x05\n" +
 	"\x06Master\x12>\n" +
 	"\n" +
 	"ServerSend\x12\x15.master.ClientMessage\x1a\x15.master.ServerMessage(\x010\x01\x12M\n" +
 	"\x10PullClientConfig\x12\x1b.master.PullClientConfigReq\x1a\x1c.master.PullClientConfigResp\x12M\n" +
-	"\x10PullServerConfig\x12\x1b.master.PullServerConfigReq\x1a\x1c.master.PullServerConfigResp\x12;\n" +
+	"\x10PullServerConfig\x12\x1b.master.PullServerConfigReq\x1a\x1c.master.PullServerConfigResp\x12X\n" +
+	"\x11ListClientWorkers\x12 .master.ListClientWorkersRequest\x1a!.master.ListClientWorkersResponse\x12;\n" +
 	"\bFRPCAuth\x12\x16.master.FRPAuthRequest\x1a\x17.master.FRPAuthResponse\x12D\n" +
 	"\rPushProxyInfo\x12\x18.master.PushProxyInfoReq\x1a\x19.master.PushProxyInfoResp\x12R\n" +
 	"\x13PushClientStreamLog\x12\x1e.master.PushClientStreamLogReq\x1a\x19.master.PushStreamLogResp(\x01\x12R\n" +
@@ -1222,71 +1340,79 @@ func file_rpc_master_proto_rawDescGZIP() []byte {
 }
 
 var file_rpc_master_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_rpc_master_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_rpc_master_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_rpc_master_proto_goTypes = []any{
-	(Event)(0),                     // 0: master.Event
-	(*ServerBase)(nil),             // 1: master.ServerBase
-	(*ClientBase)(nil),             // 2: master.ClientBase
-	(*ServerMessage)(nil),          // 3: master.ServerMessage
-	(*ClientMessage)(nil),          // 4: master.ClientMessage
-	(*PullClientConfigReq)(nil),    // 5: master.PullClientConfigReq
-	(*PullClientConfigResp)(nil),   // 6: master.PullClientConfigResp
-	(*PullServerConfigReq)(nil),    // 7: master.PullServerConfigReq
-	(*PullServerConfigResp)(nil),   // 8: master.PullServerConfigResp
-	(*FRPAuthRequest)(nil),         // 9: master.FRPAuthRequest
-	(*FRPAuthResponse)(nil),        // 10: master.FRPAuthResponse
-	(*PushProxyInfoReq)(nil),       // 11: master.PushProxyInfoReq
-	(*PushProxyInfoResp)(nil),      // 12: master.PushProxyInfoResp
-	(*PushServerStreamLogReq)(nil), // 13: master.PushServerStreamLogReq
-	(*PushClientStreamLogReq)(nil), // 14: master.PushClientStreamLogReq
-	(*PushStreamLogResp)(nil),      // 15: master.PushStreamLogResp
-	(*PTYClientMessage)(nil),       // 16: master.PTYClientMessage
-	(*PTYServerMessage)(nil),       // 17: master.PTYServerMessage
-	(*Status)(nil),                 // 18: common.Status
-	(*Client)(nil),                 // 19: common.Client
-	(*Server)(nil),                 // 20: common.Server
-	(*ProxyInfo)(nil),              // 21: common.ProxyInfo
+	(Event)(0),                        // 0: master.Event
+	(*ServerBase)(nil),                // 1: master.ServerBase
+	(*ClientBase)(nil),                // 2: master.ClientBase
+	(*ServerMessage)(nil),             // 3: master.ServerMessage
+	(*ClientMessage)(nil),             // 4: master.ClientMessage
+	(*PullClientConfigReq)(nil),       // 5: master.PullClientConfigReq
+	(*PullClientConfigResp)(nil),      // 6: master.PullClientConfigResp
+	(*PullServerConfigReq)(nil),       // 7: master.PullServerConfigReq
+	(*PullServerConfigResp)(nil),      // 8: master.PullServerConfigResp
+	(*FRPAuthRequest)(nil),            // 9: master.FRPAuthRequest
+	(*FRPAuthResponse)(nil),           // 10: master.FRPAuthResponse
+	(*PushProxyInfoReq)(nil),          // 11: master.PushProxyInfoReq
+	(*PushProxyInfoResp)(nil),         // 12: master.PushProxyInfoResp
+	(*PushServerStreamLogReq)(nil),    // 13: master.PushServerStreamLogReq
+	(*PushClientStreamLogReq)(nil),    // 14: master.PushClientStreamLogReq
+	(*PushStreamLogResp)(nil),         // 15: master.PushStreamLogResp
+	(*PTYClientMessage)(nil),          // 16: master.PTYClientMessage
+	(*PTYServerMessage)(nil),          // 17: master.PTYServerMessage
+	(*ListClientWorkersRequest)(nil),  // 18: master.ListClientWorkersRequest
+	(*ListClientWorkersResponse)(nil), // 19: master.ListClientWorkersResponse
+	(*Status)(nil),                    // 20: common.Status
+	(*Client)(nil),                    // 21: common.Client
+	(*Server)(nil),                    // 22: common.Server
+	(*ProxyInfo)(nil),                 // 23: common.ProxyInfo
+	(*Worker)(nil),                    // 24: common.Worker
 }
 var file_rpc_master_proto_depIdxs = []int32{
 	0,  // 0: master.ServerMessage.event:type_name -> master.Event
 	0,  // 1: master.ClientMessage.event:type_name -> master.Event
 	2,  // 2: master.PullClientConfigReq.base:type_name -> master.ClientBase
-	18, // 3: master.PullClientConfigResp.status:type_name -> common.Status
-	19, // 4: master.PullClientConfigResp.client:type_name -> common.Client
+	20, // 3: master.PullClientConfigResp.status:type_name -> common.Status
+	21, // 4: master.PullClientConfigResp.client:type_name -> common.Client
 	1,  // 5: master.PullServerConfigReq.base:type_name -> master.ServerBase
-	18, // 6: master.PullServerConfigResp.status:type_name -> common.Status
-	20, // 7: master.PullServerConfigResp.server:type_name -> common.Server
+	20, // 6: master.PullServerConfigResp.status:type_name -> common.Status
+	22, // 7: master.PullServerConfigResp.server:type_name -> common.Server
 	1,  // 8: master.FRPAuthRequest.base:type_name -> master.ServerBase
-	18, // 9: master.FRPAuthResponse.status:type_name -> common.Status
+	20, // 9: master.FRPAuthResponse.status:type_name -> common.Status
 	1,  // 10: master.PushProxyInfoReq.base:type_name -> master.ServerBase
-	21, // 11: master.PushProxyInfoReq.proxy_infos:type_name -> common.ProxyInfo
-	18, // 12: master.PushProxyInfoResp.status:type_name -> common.Status
+	23, // 11: master.PushProxyInfoReq.proxy_infos:type_name -> common.ProxyInfo
+	20, // 12: master.PushProxyInfoResp.status:type_name -> common.Status
 	1,  // 13: master.PushServerStreamLogReq.base:type_name -> master.ServerBase
 	2,  // 14: master.PushClientStreamLogReq.base:type_name -> master.ClientBase
-	18, // 15: master.PushStreamLogResp.status:type_name -> common.Status
+	20, // 15: master.PushStreamLogResp.status:type_name -> common.Status
 	1,  // 16: master.PTYClientMessage.server_base:type_name -> master.ServerBase
 	2,  // 17: master.PTYClientMessage.client_base:type_name -> master.ClientBase
-	4,  // 18: master.Master.ServerSend:input_type -> master.ClientMessage
-	5,  // 19: master.Master.PullClientConfig:input_type -> master.PullClientConfigReq
-	7,  // 20: master.Master.PullServerConfig:input_type -> master.PullServerConfigReq
-	9,  // 21: master.Master.FRPCAuth:input_type -> master.FRPAuthRequest
-	11, // 22: master.Master.PushProxyInfo:input_type -> master.PushProxyInfoReq
-	14, // 23: master.Master.PushClientStreamLog:input_type -> master.PushClientStreamLogReq
-	13, // 24: master.Master.PushServerStreamLog:input_type -> master.PushServerStreamLogReq
-	16, // 25: master.Master.PTYConnect:input_type -> master.PTYClientMessage
-	3,  // 26: master.Master.ServerSend:output_type -> master.ServerMessage
-	6,  // 27: master.Master.PullClientConfig:output_type -> master.PullClientConfigResp
-	8,  // 28: master.Master.PullServerConfig:output_type -> master.PullServerConfigResp
-	10, // 29: master.Master.FRPCAuth:output_type -> master.FRPAuthResponse
-	12, // 30: master.Master.PushProxyInfo:output_type -> master.PushProxyInfoResp
-	15, // 31: master.Master.PushClientStreamLog:output_type -> master.PushStreamLogResp
-	15, // 32: master.Master.PushServerStreamLog:output_type -> master.PushStreamLogResp
-	17, // 33: master.Master.PTYConnect:output_type -> master.PTYServerMessage
-	26, // [26:34] is the sub-list for method output_type
-	18, // [18:26] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	2,  // 18: master.ListClientWorkersRequest.base:type_name -> master.ClientBase
+	20, // 19: master.ListClientWorkersResponse.status:type_name -> common.Status
+	24, // 20: master.ListClientWorkersResponse.workers:type_name -> common.Worker
+	4,  // 21: master.Master.ServerSend:input_type -> master.ClientMessage
+	5,  // 22: master.Master.PullClientConfig:input_type -> master.PullClientConfigReq
+	7,  // 23: master.Master.PullServerConfig:input_type -> master.PullServerConfigReq
+	18, // 24: master.Master.ListClientWorkers:input_type -> master.ListClientWorkersRequest
+	9,  // 25: master.Master.FRPCAuth:input_type -> master.FRPAuthRequest
+	11, // 26: master.Master.PushProxyInfo:input_type -> master.PushProxyInfoReq
+	14, // 27: master.Master.PushClientStreamLog:input_type -> master.PushClientStreamLogReq
+	13, // 28: master.Master.PushServerStreamLog:input_type -> master.PushServerStreamLogReq
+	16, // 29: master.Master.PTYConnect:input_type -> master.PTYClientMessage
+	3,  // 30: master.Master.ServerSend:output_type -> master.ServerMessage
+	6,  // 31: master.Master.PullClientConfig:output_type -> master.PullClientConfigResp
+	8,  // 32: master.Master.PullServerConfig:output_type -> master.PullServerConfigResp
+	19, // 33: master.Master.ListClientWorkers:output_type -> master.ListClientWorkersResponse
+	10, // 34: master.Master.FRPCAuth:output_type -> master.FRPAuthResponse
+	12, // 35: master.Master.PushProxyInfo:output_type -> master.PushProxyInfoResp
+	15, // 36: master.Master.PushClientStreamLog:output_type -> master.PushStreamLogResp
+	15, // 37: master.Master.PushServerStreamLog:output_type -> master.PushStreamLogResp
+	17, // 38: master.Master.PTYConnect:output_type -> master.PTYServerMessage
+	30, // [30:39] is the sub-list for method output_type
+	21, // [21:30] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_rpc_master_proto_init() }
@@ -1306,7 +1432,7 @@ func file_rpc_master_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rpc_master_proto_rawDesc), len(file_rpc_master_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   17,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

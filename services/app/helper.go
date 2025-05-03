@@ -61,7 +61,7 @@ func WrapperServerMsg[T common.ReqType, U common.RespType](appInstance Applicati
 
 	cliMsg, err := common.ProtoResp(resp)
 	if err != nil {
-		logger.Logger(context.Background()).WithError(err).Errorf("cannot marshal")
+		logger.Logger(context.Background()).WithError(err).Errorf("cannot marshal, may need to add this type to [getEvent] function")
 		return &pb.ClientMessage{
 			Event: pb.Event_EVENT_ERROR,
 			Data:  []byte(err.Error()),

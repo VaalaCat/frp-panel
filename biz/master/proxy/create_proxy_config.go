@@ -30,7 +30,7 @@ func CreateProxyConfig(c *app.Context, req *pb.CreateProxyConfigRequest) (*pb.Cr
 		serverID = req.GetServerId()
 	)
 
-	clientEntity, err := getClientWithMakeShadow(c, clientID, serverID)
+	clientEntity, err := GetClientWithMakeShadow(c, clientID, serverID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, err
@@ -39,13 +39,6 @@ func CreateProxyConfig(c *app.Context, req *pb.CreateProxyConfigRequest) (*pb.Cr
 	_, err = dao.NewQuery(c).GetServerByServerID(userInfo, serverID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get server, id: [%s]", serverID)
-		return nil, err
-	}
-
-	proxyCfg := &models.ProxyConfigEntity{}
-
-	if err := proxyCfg.FillClientConfig(clientEntity); err != nil {
-		logger.Logger(c).WithError(err).Errorf("cannot fill client config, id: [%s]", clientID)
 		return nil, err
 	}
 
@@ -59,43 +52,86 @@ func CreateProxyConfig(c *app.Context, req *pb.CreateProxyConfigRequest) (*pb.Cr
 		return nil, fmt.Errorf("invalid config")
 	}
 
-	if err := proxyCfg.FillTypedProxyConfig(typedProxyCfgs[0]); err != nil {
-		logger.Logger(c).WithError(err).Errorf("cannot fill typed proxy config")
+	if err := CreateProxyConfigWithTypedConfig(c, CreateProxyConfigWithTypedConfigParam{
+		ClientID:     clientID,
+		ServerID:     serverID,
+		ProxyCfg:     typedProxyCfgs[0],
+		ClientEntity: clientEntity,
+		Overwrite:    req.GetOverwrite(),
+	}); err != nil {
+		logger.Logger(c).WithError(err).Errorf("cannot create proxy config")
 		return nil, err
+	}
+
+	return &pb.CreateProxyConfigResponse{
+		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
+	}, nil
+}
+
+type CreateProxyConfigWithTypedConfigParam struct {
+	ClientID     string
+	ServerID     string
+	ProxyCfg     v1.TypedProxyConfig
+	ClientEntity *models.ClientEntity
+	Overwrite    bool
+	WorkerID     *string
+}
+
+func CreateProxyConfigWithTypedConfig(c *app.Context, param CreateProxyConfigWithTypedConfigParam) error {
+	var (
+		userInfo      = common.GetUserInfo(c)
+		clientID      = param.ClientID
+		serverID      = param.ServerID
+		clientEntity  = param.ClientEntity
+		typedProxyCfg = param.ProxyCfg
+		err           error
+		overwrite     = param.Overwrite
+	)
+
+	proxyCfg := &models.ProxyConfigEntity{}
+
+	if err := proxyCfg.FillClientConfig(clientEntity); err != nil {
+		logger.Logger(c).WithError(err).Errorf("cannot fill client config, id: [%s]", clientID)
+		return err
+	}
+
+	if err := proxyCfg.FillTypedProxyConfig(typedProxyCfg); err != nil {
+		logger.Logger(c).WithError(err).Errorf("cannot fill typed proxy config")
+		return err
 	}
 
 	var existedProxyCfg *models.ProxyConfig
 	existedProxyCfg, err = dao.NewQuery(c).GetProxyConfigByOriginClientIDAndName(userInfo, clientID, proxyCfg.Name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		logger.Logger(c).WithError(err).Errorf("cannot get proxy config, id: [%s]", clientID)
-		return nil, err
+		return err
 	}
 
-	if !req.GetOverwrite() && err == nil {
+	if !overwrite && err == nil {
 		logger.Logger(c).Errorf("proxy config already exist, cfg: [%+v]", proxyCfg)
-		return nil, fmt.Errorf("proxy config already exist")
+		return fmt.Errorf("proxy config already exist")
 	}
 
 	// update client config
 	if oldCfg, err := clientEntity.GetConfigContent(); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client config, id: [%s]", clientID)
-		return nil, err
+		return err
 	} else {
 		oldCfg.Proxies = lo.Filter(oldCfg.Proxies, func(proxy v1.TypedProxyConfig, _ int) bool {
-			return proxy.GetBaseConfig().Name != typedProxyCfgs[0].GetBaseConfig().Name
+			return proxy.GetBaseConfig().Name != typedProxyCfg.GetBaseConfig().Name
 		})
-		oldCfg.Proxies = append(oldCfg.Proxies, typedProxyCfgs...)
+		oldCfg.Proxies = append(oldCfg.Proxies, typedProxyCfg)
 
 		if err := clientEntity.SetConfigContent(*oldCfg); err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot set client config, id: [%s]", clientID)
-			return nil, err
+			return err
 		}
 	}
 
 	rawCfg, err := clientEntity.MarshalJSONConfig()
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot marshal client config, id: [%s]", clientID)
-		return nil, err
+		return err
 	}
 
 	_, err = client.UpdateFrpcHander(c, &pb.UpdateFRPCRequest{
@@ -117,11 +153,9 @@ func CreateProxyConfig(c *app.Context, req *pb.CreateProxyConfigRequest) (*pb.Cr
 			Name:     &proxyCfg.Name,
 		}); err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot delete old proxy, client: [%s], server: [%s], proxy: [%s]", clientID, clientEntity.ServerID, proxyCfg.Name)
-			return nil, err
+			return err
 		}
 	}
 
-	return &pb.CreateProxyConfigResponse{
-		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
-	}, nil
+	return nil
 }

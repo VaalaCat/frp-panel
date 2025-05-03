@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/utils"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/samber/lo"
@@ -12,6 +13,7 @@ import (
 
 type Client struct {
 	*ClientEntity
+	Workers []*Worker `json:"workers,omitempty" gorm:"many2many:worker_clients;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type ClientEntity struct {
@@ -74,4 +76,23 @@ func (c *ClientEntity) MarshalJSONConfig() ([]byte, error) {
 		return nil, err
 	}
 	return json.Marshal(cliCfg)
+}
+
+func (c *ClientEntity) ToPB() *pb.Client {
+	resp := &pb.Client{
+		Id:             &c.ClientID,
+		Secret:         &c.ConnectSecret,
+		Config:         lo.ToPtr(string(c.ConfigContent)),
+		Comment:        &c.Comment,
+		ServerId:       &c.ServerID,
+		Stopped:        &c.Stopped,
+		OriginClientId: &c.OriginClientID,
+		FrpsUrl:        &c.FrpsUrl,
+		Ephemeral:      &c.Ephemeral,
+	}
+	if c.LastSeenAt != nil {
+		resp.LastSeenAt = lo.ToPtr(c.LastSeenAt.UnixMilli())
+	}
+
+	return resp
 }

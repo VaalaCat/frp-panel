@@ -24,6 +24,10 @@ enum Event {
   EVENT_STOP_STREAM_LOG = 16;
   EVENT_START_PTY_CONNECT = 17;
   EVENT_GET_PROXY_INFO = 18;
+  EVENT_CREATE_WORKER = 19;
+  EVENT_REMOVE_WORKER = 20;
+  EVENT_GET_WORKER_STATUS = 21;
+  EVENT_INSTALL_WORKERD = 22;
 }
 
 message ServerBase {
@@ -122,10 +126,20 @@ message PTYServerMessage {
   bool done = 4;
 }
 
+message ListClientWorkersRequest {
+  ClientBase base = 255;
+}
+
+message ListClientWorkersResponse {
+  common.Status status = 1;
+  repeated common.Worker workers = 2;
+}
+
 service Master {
   rpc ServerSend(stream ClientMessage) returns(stream ServerMessage);
   rpc PullClientConfig(PullClientConfigReq) returns(PullClientConfigResp);
   rpc PullServerConfig(PullServerConfigReq) returns(PullServerConfigResp);
+  rpc ListClientWorkers(ListClientWorkersRequest) returns(ListClientWorkersResponse);
   rpc FRPCAuth(FRPAuthRequest) returns(FRPAuthResponse);
   rpc PushProxyInfo(PushProxyInfoReq) returns(PushProxyInfoResp);
   rpc PushClientStreamLog(stream PushClientStreamLogReq) returns(PushStreamLogResp);

@@ -23,11 +23,8 @@
     "streamlog": "Stream Log",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success",
     "warning": "Warning",
     "info": "Information",
-    "cancel": "Cancel",
-    "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
     "newWindow": "New Window"
@@ -121,5 +118,9 @@
     "toggle": "Toggle Language",
     "zh": "Chinese",
     "en": "English"
+  },
+  "worker": {
+    "name": "Worker Name",
+    "id": "Worker ID"
   }
 }

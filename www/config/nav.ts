@@ -7,6 +7,7 @@ import {
   ChartNetworkIcon,
   Scroll,
   Cable,
+  SquareFunction,
 } from "lucide-react"
 import { TbBuildingTunnel } from "react-icons/tb"
 
@@ -60,5 +61,10 @@ export const getNavItems = (t: any) => [
     title: t('nav.console'),
     url: "/console",
     icon: SquareTerminal,
+  },
+  {
+    title: t('nav.workers'),
+    url: "/workers",
+    icon: SquareFunction,
   },
 ]

@@ -10,6 +10,7 @@ import (
 	masterserver "github.com/VaalaCat/frp-panel/biz/master/server"
 	"github.com/VaalaCat/frp-panel/biz/master/shell"
 	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
+	"github.com/VaalaCat/frp-panel/biz/master/worker"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -24,6 +25,21 @@ import (
 type server struct {
 	pb.UnimplementedMasterServer
 	appInstance app.Application
+}
+
+// ListClientWorkers implements pb.MasterServer.
+func (s *server) ListClientWorkers(ctx context.Context, req *pb.ListClientWorkersRequest) (*pb.ListClientWorkersResponse, error) {
+	logger.Logger(ctx).Infof("list client workers, clientID: [%+v]", req.GetBase().GetClientId())
+	appCtx := app.NewContext(ctx, s.appInstance)
+
+	if _, err := client.ValidateClientRequest(appCtx, req.GetBase()); err != nil {
+		logger.Logger(ctx).WithError(err).Errorf("cannot validate client request")
+		return nil, err
+	}
+
+	logger.Logger(appCtx).Infof("validate client success, clientID: [%+v]", req.GetBase().GetClientId())
+
+	return worker.ListClientWorkers(appCtx, req)
 }
 
 func newRpcServer(appInstance app.Application, creds credentials.TransportCredentials) *grpc.Server {

@@ -29,11 +29,11 @@ func convertProxyStatsList(proxyList []*models.ProxyStatsEntity) []*pb.ProxyInfo
 	})
 }
 
-// getClientWithMakeShadow
+// GetClientWithMakeShadow
 // 1. 检查是否有已连接该服务端的客户端
 // 2. 检查是否有Shadow客户端
 // 3. 如果没有，则新建Shadow客户端和子客户端
-func getClientWithMakeShadow(c *app.Context, clientID, serverID string) (*models.ClientEntity, error) {
+func GetClientWithMakeShadow(c *app.Context, clientID, serverID string) (*models.ClientEntity, error) {
 	userInfo := common.GetUserInfo(c)
 	clientEntity, err := dao.NewQuery(c).GetClientByFilter(userInfo, &models.ClientEntity{OriginClientID: clientID, ServerID: serverID}, lo.ToPtr(false))
 	if errors.Is(err, gorm.ErrRecordNotFound) {

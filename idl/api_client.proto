@@ -167,3 +167,111 @@ message StartProxyRequest {
 message StartProxyResponse {
   optional common.Status status = 1;
 }
+
+message CreateWorkerRequest {
+  optional string client_id = 1;
+  optional common.Worker worker = 2;
+}
+
+message CreateWorkerResponse {
+  optional common.Status status = 1;
+  optional string worker_id = 2;
+}
+
+message RemoveWorkerRequest {
+  optional string client_id = 1;
+  optional string worker_id = 2;
+}
+
+message RemoveWorkerResponse {
+  optional common.Status status = 1;
+}
+
+message UpdateWorkerRequest {
+  repeated string client_ids = 1;
+  optional common.Worker worker = 2;
+}
+
+message UpdateWorkerResponse {
+  optional common.Status status = 1;
+}
+
+message RunWorkerRequest {
+  optional string client_id = 1;
+  optional string worker_id = 2;
+}
+
+message RunWorkerResponse {
+  optional common.Status status = 1;
+}
+
+message StopWorkerRequest {
+  optional string client_id = 1;
+  optional string worker_id = 2;
+}
+
+message StopWorkerResponse {
+  optional common.Status status = 1;
+}
+
+message ListWorkersRequest {
+  optional int32 page = 1;
+  optional int32 page_size = 2;
+  optional string keyword = 3;
+  optional string client_id = 4;
+  optional string server_id = 5;
+}
+
+message ListWorkersResponse {
+  optional common.Status status = 1;
+  optional int32 total = 2;
+  repeated common.Worker workers = 3;
+}
+
+// 为 client 在一个 server 创建ingress
+message CreateWorkerIngressRequest {
+  optional string client_id = 1;
+  optional string server_id = 2;
+  optional string worker_id = 3;
+}
+
+message CreateWorkerIngressResponse {
+  optional common.Status status = 1;
+}
+
+message GetWorkerIngressRequest {
+  optional string worker_id = 1;
+}
+
+message GetWorkerIngressResponse {
+  optional common.Status status = 1;
+  repeated common.ProxyConfig proxy_configs = 2;
+}
+
+message GetWorkerRequest {
+  optional string worker_id = 1;
+}
+
+message GetWorkerResponse {
+  optional common.Status status = 1;
+  optional common.Worker worker = 2;
+  repeated common.Client clients = 3; // worker 已经部署到的 client
+}
+
+message GetWorkerStatusRequest {
+  optional string worker_id = 1;
+}
+
+message GetWorkerStatusResponse {
+  optional common.Status status = 1;
+  map<string, string> worker_status = 2; // client_id -> status
+}
+
+message InstallWorkerdRequest {
+  optional string client_id = 1;
+  optional string download_url = 2;
+}
+
+message InstallWorkerdResponse {
+  optional common.Status status = 1;
+}

@@ -20,7 +20,7 @@ func StopProxy(ctx *app.Context, req *pb.StopProxyRequest) (*pb.StopProxyRespons
 		proxyName = req.GetName()
 	)
 
-	clientEntity, err := getClientWithMakeShadow(ctx, clientID, serverID)
+	clientEntity, err := GetClientWithMakeShadow(ctx, clientID, serverID)
 	if err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, err

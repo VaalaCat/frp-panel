@@ -26,11 +26,13 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 		serverID = req.GetServerId()
 	)
 
-	clientEntity, err := dao.NewQuery(c).GetClientByClientID(userInfo, clientID)
+	cli, err := dao.NewQuery(c).GetClientByClientID(userInfo, clientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, err
 	}
+
+	clientEntity := cli.ClientEntity
 
 	if clientEntity.ServerID != serverID {
 		logger.Logger(c).Errorf("client and server not match, find or create client, client: [%s], server: [%s]", clientID, serverID)
@@ -40,7 +42,7 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 			return nil, err
 		}
 
-		clientEntity, err = client.ChildClientForServer(c, serverID, originClient)
+		clientEntity, err = client.ChildClientForServer(c, serverID, originClient.ClientEntity)
 		if err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot create child client, id: [%s]", clientID)
 			return nil, err

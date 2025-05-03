@@ -43,6 +43,10 @@ type Application interface {
 	SetEnforcer(*casbin.Enforcer)
 	GetPermManager() PermissionManager
 	SetPermManager(PermissionManager)
+	GetWorkerExecManager() WorkerExecManager
+	SetWorkerExecManager(WorkerExecManager)
+	GetWorkersManager() WorkersManager
+	SetWorkersManager(WorkersManager)
 }
 
 type Context struct {

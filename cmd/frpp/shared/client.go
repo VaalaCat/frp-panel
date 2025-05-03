@@ -21,10 +21,11 @@ type runClientParam struct {
 
 	Lc fx.Lifecycle
 
-	Ctx         *app.Context
-	AppInstance app.Application
-	TaskManager watcher.Client `name:"clientTaskManager"`
-	Cfg         conf.Config
+	Ctx            *app.Context
+	AppInstance    app.Application
+	TaskManager    watcher.Client `name:"clientTaskManager"`
+	WorkersManager app.WorkersManager
+	Cfg            conf.Config
 }
 
 func runClient(param runClientParam) {
@@ -45,6 +46,8 @@ func runClient(param runClientParam) {
 
 	param.TaskManager.AddDurationTask(defs.PullConfigDuration,
 		bizclient.PullConfig, appInstance, clientID, clientSecret)
+	param.TaskManager.AddDurationTask(defs.PullClientWorkersDuration,
+		bizclient.PullWorkers, appInstance, clientID, clientSecret)
 
 	var wg conc.WaitGroup
 	param.Lc.Append(fx.Hook{
@@ -62,7 +65,10 @@ func runClient(param runClientParam) {
 			)
 			appInstance.SetClientRPCHandler(cliRpcHandler)
 
+			// --- init once start ---
 			initClientOnce(appInstance, clientID, clientSecret)
+			initClientWorkerOnce(appInstance, clientID, clientSecret)
+			// --- init once stop ----
 
 			wg.Go(cliRpcHandler.Run)
 			wg.Go(param.TaskManager.Run)
@@ -82,5 +88,12 @@ func initClientOnce(appInstance app.Application, clientID, clientSecret string) 
 	err := bizclient.PullConfig(appInstance, clientID, clientSecret)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot pull client config, wait for retry")
+	}
+}
+
+func initClientWorkerOnce(appInstance app.Application, clientID, clientSecret string) {
+	err := bizclient.PullWorkers(appInstance, clientID, clientSecret)
+	if err != nil {
+		logger.Logger(context.Background()).WithError(err).Errorf("cannot pull client workers, wait for retry")
 	}
 }

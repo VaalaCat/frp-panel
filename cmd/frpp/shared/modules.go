@@ -7,6 +7,8 @@ import (
 var (
 	clientMod = fx.Module("cmd.client",
 		fx.Provide(
+			NewWorkerExecManager,
+			NewWorkersManager,
 			fx.Annotate(NewWatcher, fx.ResultTags(`name:"clientTaskManager"`)),
 		))
 
