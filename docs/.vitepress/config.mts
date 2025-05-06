@@ -8,12 +8,10 @@ export default defineConfig({
   locales: {
     root: {
       label: '简体中文',
-      lang: 'zh',
       ...zhConfig
     },
     en: {
       label: 'English',
-      lang: 'en',
       ...enConfig
     }
   },

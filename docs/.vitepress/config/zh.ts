@@ -11,11 +11,11 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
       {
         text: '快速开始',
         collapsed: true,
-        link: '/zh/quick-start',
+        link: '/quick-start',
         items: [
-          { text: 'Master 部署', link: '/zh/deploy-master' },
-          { text: 'Server 部署', link: '/zh/deploy-server' },
-          { text: 'Client 部署', link: '/zh/deploy-client' },
+          { text: 'Master 部署', link: '/deploy-master' },
+          { text: 'Server 部署', link: '/deploy-server' },
+          { text: 'Client 部署', link: '/deploy-client' },
         ]
       }
     ],
