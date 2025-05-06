@@ -4,11 +4,11 @@ layout: home
 hero:
   name: "Frp-Panel Docs"
   text: "Multi-Node, Centralized & Visual FRP Management Platform"
-  tagline: Secure, modern open-source alternative to Cloudflare Tunnel/Tailscale Funnel/Ngrok platforms and proxies <br/> Cloudflare Tunnel/Tailscale Funnel/Ngrok platform and agent open source alternative
+  tagline: Secure, modern open-source alternative to Cloudflare Tunnel/Tailscale Funnel/Ngrok platforms and proxies
   actions:
     - theme: alt
       text: Quick Start
-      link: /en
+      link: /en/quick-start
 
 features:
   - title: 🚀 One-Click Deployment

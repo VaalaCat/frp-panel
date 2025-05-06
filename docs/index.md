@@ -8,10 +8,7 @@ hero:
   actions:
     - theme: alt
       text: 快速开始
-      link: /zh/quick-start
-    - theme: alt
-      text: Quick Start
-      link: /en
+      link: /quick-start
 
 features:
   - title: 🚀 一键启动
