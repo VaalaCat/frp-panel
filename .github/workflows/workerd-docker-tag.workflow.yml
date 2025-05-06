@@ -1,0 +1,48 @@
+name: Version Tag Release with workerd docker
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+jobs:
+  build-static:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: npm setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.24.x"
+      - name: npm install and build
+        run: |
+          cd www
+          npm install && npm install -g pnpm
+      - name: Install dependencies
+        run: |
+          go mod tidy
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+      - name: Compile server
+        run: bash ./build.sh --current
+      - name: Setup ko
+        uses: ko-build/setup-ko@v0.9
+        env:
+          KO_DOCKER_REPO: docker.io/vaalacat/frp-panel
+      - name: Build image with ko
+        env:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          echo "${password}" | ko login docker.io --username ${username} --password-stdin
+          ko build ./cmd/frpp --sbom=none --bare -t ${{ steps.get_version.outputs.VERSION }}-workerd

@@ -1,4 +1,4 @@
-name: Docker image with workerd
+name: Docker image with workerd latest
 on:
   push:
     branches: [main]
