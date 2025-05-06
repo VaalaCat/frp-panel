@@ -473,6 +473,94 @@ func (x *GetClientCertResponse) GetCert() []byte {
 	return nil
 }
 
+type StartSteamLogRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pkgs          []string               `protobuf:"bytes,1,rep,name=pkgs,proto3" json:"pkgs,omitempty"` // 需要获取哪些包的日志
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartSteamLogRequest) Reset() {
+	*x = StartSteamLogRequest{}
+	mi := &file_api_master_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartSteamLogRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartSteamLogRequest) ProtoMessage() {}
+
+func (x *StartSteamLogRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_master_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartSteamLogRequest.ProtoReflect.Descriptor instead.
+func (*StartSteamLogRequest) Descriptor() ([]byte, []int) {
+	return file_api_master_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *StartSteamLogRequest) GetPkgs() []string {
+	if x != nil {
+		return x.Pkgs
+	}
+	return nil
+}
+
+type StartSteamLogResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartSteamLogResponse) Reset() {
+	*x = StartSteamLogResponse{}
+	mi := &file_api_master_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartSteamLogResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartSteamLogResponse) ProtoMessage() {}
+
+func (x *StartSteamLogResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_master_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartSteamLogResponse.ProtoReflect.Descriptor instead.
+func (*StartSteamLogResponse) Descriptor() ([]byte, []int) {
+	return file_api_master_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *StartSteamLogResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
 var File_api_master_proto protoreflect.FileDescriptor
 
 const file_api_master_proto_rawDesc = "" +
@@ -527,6 +615,11 @@ const file_api_master_proto_rawDesc = "" +
 	"\x15GetClientCertResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12\x12\n" +
 	"\x04cert\x18\x02 \x01(\fR\x04certB\t\n" +
+	"\a_status\"*\n" +
+	"\x14StartSteamLogRequest\x12\x12\n" +
+	"\x04pkgs\x18\x01 \x03(\tR\x04pkgs\"O\n" +
+	"\x15StartSteamLogResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
 	"\a_statusB\aZ\x05../pbb\x06proto3"
 
 var (
@@ -542,7 +635,7 @@ func file_api_master_proto_rawDescGZIP() []byte {
 }
 
 var file_api_master_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_master_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_api_master_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_api_master_proto_goTypes = []any{
 	(ClientStatus_Status)(0),         // 0: api_master.ClientStatus.Status
 	(*ClientStatus)(nil),             // 1: api_master.ClientStatus
@@ -551,25 +644,28 @@ var file_api_master_proto_goTypes = []any{
 	(*GetClientsStatusResponse)(nil), // 4: api_master.GetClientsStatusResponse
 	(*GetClientCertRequest)(nil),     // 5: api_master.GetClientCertRequest
 	(*GetClientCertResponse)(nil),    // 6: api_master.GetClientCertResponse
-	nil,                              // 7: api_master.GetClientsStatusResponse.ClientsEntry
-	(ClientType)(0),                  // 8: common.ClientType
-	(*Status)(nil),                   // 9: common.Status
+	(*StartSteamLogRequest)(nil),     // 7: api_master.StartSteamLogRequest
+	(*StartSteamLogResponse)(nil),    // 8: api_master.StartSteamLogResponse
+	nil,                              // 9: api_master.GetClientsStatusResponse.ClientsEntry
+	(ClientType)(0),                  // 10: common.ClientType
+	(*Status)(nil),                   // 11: common.Status
 }
 var file_api_master_proto_depIdxs = []int32{
-	8, // 0: api_master.ClientStatus.client_type:type_name -> common.ClientType
-	0, // 1: api_master.ClientStatus.status:type_name -> api_master.ClientStatus.Status
-	2, // 2: api_master.ClientStatus.version:type_name -> api_master.ClientVersion
-	8, // 3: api_master.GetClientsStatusRequest.client_type:type_name -> common.ClientType
-	9, // 4: api_master.GetClientsStatusResponse.status:type_name -> common.Status
-	7, // 5: api_master.GetClientsStatusResponse.clients:type_name -> api_master.GetClientsStatusResponse.ClientsEntry
-	8, // 6: api_master.GetClientCertRequest.client_type:type_name -> common.ClientType
-	9, // 7: api_master.GetClientCertResponse.status:type_name -> common.Status
-	1, // 8: api_master.GetClientsStatusResponse.ClientsEntry.value:type_name -> api_master.ClientStatus
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	10, // 0: api_master.ClientStatus.client_type:type_name -> common.ClientType
+	0,  // 1: api_master.ClientStatus.status:type_name -> api_master.ClientStatus.Status
+	2,  // 2: api_master.ClientStatus.version:type_name -> api_master.ClientVersion
+	10, // 3: api_master.GetClientsStatusRequest.client_type:type_name -> common.ClientType
+	11, // 4: api_master.GetClientsStatusResponse.status:type_name -> common.Status
+	9,  // 5: api_master.GetClientsStatusResponse.clients:type_name -> api_master.GetClientsStatusResponse.ClientsEntry
+	10, // 6: api_master.GetClientCertRequest.client_type:type_name -> common.ClientType
+	11, // 7: api_master.GetClientCertResponse.status:type_name -> common.Status
+	11, // 8: api_master.StartSteamLogResponse.status:type_name -> common.Status
+	1,  // 9: api_master.GetClientsStatusResponse.ClientsEntry.value:type_name -> api_master.ClientStatus
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_api_master_proto_init() }
@@ -581,13 +677,14 @@ func file_api_master_proto_init() {
 	file_api_master_proto_msgTypes[0].OneofWrappers = []any{}
 	file_api_master_proto_msgTypes[3].OneofWrappers = []any{}
 	file_api_master_proto_msgTypes[5].OneofWrappers = []any{}
+	file_api_master_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_master_proto_rawDesc), len(file_api_master_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

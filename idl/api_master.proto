@@ -50,3 +50,11 @@ message GetClientCertResponse {
   optional common.Status status = 1;
   bytes cert = 2;
 }
+
+message StartSteamLogRequest {
+  repeated string pkgs = 1; // 需要获取哪些包的日志
+}
+
+message StartSteamLogResponse {
+  optional common.Status status = 1;
+}

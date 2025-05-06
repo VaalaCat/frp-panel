@@ -111,3 +111,11 @@
     max-height: var(--radix-popover-content-available-height);
   }
 }
+
+.hide-scroll-bar {
+  overflow: auto;
+}
+.hide-scroll-bar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}

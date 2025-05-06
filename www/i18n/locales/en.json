@@ -186,7 +186,8 @@
     "cancel": "Cancel",
     "clientType": "Client Type",
     "disconnect": "Disconnect",
-    "connect": "Connect"
+    "connect": "Connect",
+    "stream_log_pkgs_select": "Stream Log From"
   },
   "frpc": {
     "client_plugins": {

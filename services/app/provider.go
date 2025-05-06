@@ -18,6 +18,7 @@ import (
 // biz/common/stream_log.go
 type StreamLogHookMgr interface {
 	AddStream(send func(msg string), closeSend func())
+	SetPkgs(pkgs []string)
 	Close()
 	Lock()
 	TryLock() bool

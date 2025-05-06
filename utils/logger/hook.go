@@ -8,6 +8,7 @@ import (
 	"runtime/debug"
 	"sync"
 
+	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,9 +19,11 @@ type StreamLogHook struct {
 	streamEnabled bool
 	stdio         io.Writer
 	lock          *sync.Mutex
+	pkgs          map[string]bool // 只传输指定包的日志
 }
 
-func NewStreamLogHook(handler func(msg string), stopFunc func()) *StreamLogHook {
+func NewStreamLogHook(handler func(msg string), stopFunc func(), pkgs ...string) *StreamLogHook {
+	pkgs = lo.FilterMap(pkgs, func(v string, _ int) (string, bool) { return v, len(v) > 0 })
 	return &StreamLogHook{
 		ch:            make(chan string, 4096),
 		handler:       handler,
@@ -28,6 +31,7 @@ func NewStreamLogHook(handler func(msg string), stopFunc func()) *StreamLogHook 
 		stdio:         bufio.NewWriter(os.Stdout),
 		stopFunc:      stopFunc,
 		lock:          &sync.Mutex{},
+		pkgs:          lo.SliceToMap(pkgs, func(v string) (string, bool) { return v, true }),
 	}
 }
 
@@ -35,6 +39,18 @@ func (s *StreamLogHook) Fire(entry *logrus.Entry) error {
 	if !s.streamEnabled {
 		return nil
 	}
+
+	// 有过滤时需要过滤
+	if len(s.pkgs) > 0 {
+		pkgName, ok := entry.Data["pkg"].(string)
+		if !ok {
+			return nil
+		}
+		if _, ok := s.pkgs[pkgName]; !ok {
+			return nil
+		}
+	}
+
 	str, _ := entry.String()
 	s.ch <- str
 	return nil

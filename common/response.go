@@ -29,7 +29,8 @@ type RespType interface {
 		pb.StartProxyResponse | pb.StopProxyResponse |
 		pb.CreateWorkerResponse | pb.RemoveWorkerResponse | pb.RunWorkerResponse | pb.StopWorkerResponse | pb.UpdateWorkerResponse | pb.GetWorkerResponse |
 		pb.ListWorkersResponse | pb.CreateWorkerIngressResponse | pb.GetWorkerIngressResponse |
-		pb.GetWorkerStatusResponse | pb.InstallWorkerdResponse
+		pb.GetWorkerStatusResponse | pb.InstallWorkerdResponse |
+		pb.StartSteamLogResponse
 }
 
 func OKResp[T RespType](c *gin.Context, origin *T) {

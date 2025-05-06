@@ -99,7 +99,7 @@ export const ProxyConfigMutateForm = ({
 
   useEffect(() => {
     if (proxyName && proxyType) {
-      setProxyConfigs([{ name: proxyName, type: proxyType }])
+      setProxyConfigs([{...defaultProxyConfig, name: proxyName, type: proxyType }])
     }
   }, [proxyName, proxyType])
 

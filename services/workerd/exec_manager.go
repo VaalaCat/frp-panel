@@ -4,7 +4,6 @@ package workerd
 
 import (
 	"context"
-	"os"
 	"os/exec"
 	"syscall"
 	"time"
@@ -12,6 +11,7 @@ import (
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
+	"github.com/sirupsen/logrus"
 )
 
 type workerExecManager struct {
@@ -70,8 +70,8 @@ func (m *workerExecManager) RunCmd(uid string, cwd string, argv []string) {
 			cmd := exec.CommandContext(ctx, m.binaryPath, args...)
 			cmd.Dir = cwd
 			cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
+			cmd.Stdout = logger.LoggerWriter("workerd", logrus.InfoLevel)
+			cmd.Stderr = logger.LoggerWriter("workerd", logrus.ErrorLevel)
 			if err := cmd.Run(); err != nil {
 				logger.Logger(ctx).WithError(err).Errorf("command id: [%s] run failed, binary path: [%s], args: %s", uid, m.binaryPath, utils.MarshalForJson(args))
 			}

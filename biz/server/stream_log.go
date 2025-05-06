@@ -10,7 +10,7 @@ import (
 	"github.com/VaalaCat/frp-panel/utils/logger"
 )
 
-func StartSteamLogHandler(ctx *app.Context, req *pb.CommonRequest) (*pb.CommonResponse, error) {
+func StartSteamLogHandler(ctx *app.Context, req *pb.StartSteamLogRequest) (*pb.CommonResponse, error) {
 	return common.StartSteamLogHandler(ctx, req, initStreamLog)
 }
 

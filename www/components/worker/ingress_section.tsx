@@ -28,6 +28,8 @@ import { useStore } from '@nanostores/react'
 import { $proxyTableRefetchTrigger } from '@/store/refetch-trigger'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
+import { ServerSideVisitPreview, VisitPreview } from '../base/visit-preview'
+import { getServer } from '@/api/server'
 
 interface WorkerIngressProps {
   workerId: string
@@ -240,14 +242,20 @@ export function WorkerIngress({ workerId, refetchWorker, clients }: WorkerIngres
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                              <span className="text-xs font-medium text-muted-foreground mr-1">Server:</span>
-                              <span className="font-mono text-xs truncate max-w-[150px] md:max-w-[200px]">
-                                {ingress.serverId}
+                            <div className="flex items-center text-center">
+                              <span className="text-xs font-medium text-muted-foreground mr-1 font-mono">Server:</span>
+                              <span className="font-mono text-xs items-center hide-scroll-bar">
+                                <WorkerIngressPreview
+                                  serverId={ingress.serverId}
+                                  proxyCfg={JSON.parse(ingress.config || '{}') as TypedProxyConfig} />
                               </span>
                             </div>
                           </TooltipTrigger>
-                          <TooltipContent>{ingress.serverId}</TooltipContent>
+                          <TooltipContent>
+                            <div>
+                              ServerID: {ingress.serverId}
+                            </div>
+                          </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
 
@@ -255,7 +263,7 @@ export function WorkerIngress({ workerId, refetchWorker, clients }: WorkerIngres
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex items-center">
-                              <span className="text-xs font-medium text-muted-foreground mr-1">Client:</span>
+                              <span className="text-xs font-medium text-muted-foreground mr-1 font-mono">Client:</span>
                               <span className="font-mono text-xs truncate max-w-[150px] md:max-w-[200px]">
                                 {ingress.originClientId}
                               </span>
@@ -360,4 +368,17 @@ export const IngressDeleteForm = ({
       </Button>
     </DialogFooter>
   )
+}
+
+const WorkerIngressPreview = ({ serverId, proxyCfg }: { serverId?: string; proxyCfg: TypedProxyConfig }) => {
+  const { data: getServerResp } = useQuery({
+    queryKey: ['getServer', serverId],
+    queryFn: () => {
+      return getServer({ serverId: serverId })
+    },
+  })
+
+  return (<div className='font-mono text-xs'>
+    <ServerSideVisitPreview server={getServerResp?.server || { frpsUrls: [] }} typedProxyConfig={proxyCfg} withIcon={false} />
+  </div>)
 }

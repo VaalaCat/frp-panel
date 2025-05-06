@@ -20,7 +20,7 @@ func initFrpLogger(frpLogLevel log.Level) {
 		log.WithCaller(true),
 		log.AddCallerSkip(1),
 		log.WithLevel(frpLogLevel),
-		log.WithOutput(logger))
+		log.WithOutput(LoggerWriter("frp", logrus.InfoLevel)))
 }
 
 func InitLogger() {

@@ -1,7 +1,5 @@
 import { HeaderOperations } from './common'
 
-export interface ClientPluginOptions {}
-
 export type ClientPluginType =
   | 'http_proxy'
   | 'http2https'
@@ -11,10 +9,14 @@ export type ClientPluginType =
   | 'static_file'
   | 'unix_domain_socket'
 
-export interface TypedClientPluginOptions {
-  type: ClientPluginType
-  clientPluginOptions?: ClientPluginOptions
-}
+export type TypedClientPluginOptions =
+| HTTP2HTTPSPluginOptions
+| HTTPProxyPluginOptions
+| HTTPS2HTTPPluginOptions
+| HTTPS2HTTPSPluginOptions
+| Socks5PluginOptions
+| StaticFilePluginOptions
+| UnixDomainSocketPluginOptions
 
 export interface HTTP2HTTPSPluginOptions {
   type: 'http2https'

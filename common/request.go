@@ -28,7 +28,8 @@ type ReqType interface {
 		pb.StartProxyRequest | pb.StopProxyRequest |
 		pb.CreateWorkerRequest | pb.RemoveWorkerRequest | pb.RunWorkerRequest | pb.StopWorkerRequest | pb.UpdateWorkerRequest | pb.GetWorkerRequest |
 		pb.ListWorkersRequest | pb.CreateWorkerIngressRequest | pb.GetWorkerIngressRequest |
-		pb.GetWorkerStatusRequest | pb.InstallWorkerdRequest
+		pb.GetWorkerStatusRequest | pb.InstallWorkerdRequest |
+		pb.StartSteamLogRequest
 }
 
 func GetProtoRequest[T ReqType](c *gin.Context) (r *T, err error) {

@@ -186,7 +186,8 @@
     "cancel": "取消",
     "clientType": "客户端类型",
     "disconnect": "断开连接",
-    "connect": "连接"
+    "connect": "连接",
+    "stream_log_pkgs_select": "捕获日志的模块"
   },
   "frpc": {
     "client_plugins": {

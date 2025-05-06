@@ -157,6 +157,24 @@ export interface GetClientCertResponse {
      */
     cert: Uint8Array;
 }
+/**
+ * @generated from protobuf message api_master.StartSteamLogRequest
+ */
+export interface StartSteamLogRequest {
+    /**
+     * @generated from protobuf field: repeated string pkgs = 1;
+     */
+    pkgs: string[]; // 需要获取哪些包的日志
+}
+/**
+ * @generated from protobuf message api_master.StartSteamLogResponse
+ */
+export interface StartSteamLogResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class ClientStatus$Type extends MessageType<ClientStatus> {
     constructor() {
@@ -590,3 +608,96 @@ class GetClientCertResponse$Type extends MessageType<GetClientCertResponse> {
  * @generated MessageType for protobuf message api_master.GetClientCertResponse
  */
 export const GetClientCertResponse = new GetClientCertResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StartSteamLogRequest$Type extends MessageType<StartSteamLogRequest> {
+    constructor() {
+        super("api_master.StartSteamLogRequest", [
+            { no: 1, name: "pkgs", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<StartSteamLogRequest>): StartSteamLogRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.pkgs = [];
+        if (value !== undefined)
+            reflectionMergePartial<StartSteamLogRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StartSteamLogRequest): StartSteamLogRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated string pkgs */ 1:
+                    message.pkgs.push(reader.string());
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StartSteamLogRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated string pkgs = 1; */
+        for (let i = 0; i < message.pkgs.length; i++)
+            writer.tag(1, WireType.LengthDelimited).string(message.pkgs[i]);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_master.StartSteamLogRequest
+ */
+export const StartSteamLogRequest = new StartSteamLogRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StartSteamLogResponse$Type extends MessageType<StartSteamLogResponse> {
+    constructor() {
+        super("api_master.StartSteamLogResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<StartSteamLogResponse>): StartSteamLogResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StartSteamLogResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StartSteamLogResponse): StartSteamLogResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StartSteamLogResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_master.StartSteamLogResponse
+ */
+export const StartSteamLogResponse = new StartSteamLogResponse$Type();

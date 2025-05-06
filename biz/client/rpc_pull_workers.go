@@ -39,6 +39,11 @@ func PullWorkers(appInstance app.Application, clientID, clientSecret string) err
 
 	ctrl := ctx.GetApp().GetWorkersManager()
 	for _, worker := range resp.GetWorkers() {
+		_, err := ctrl.GetWorkerStatus(ctx, worker.GetWorkerId())
+		if err == nil {
+			logger.Logger(ctx).Infof("worker [%s] already running", worker.GetWorkerId())
+			continue
+		}
 		ctrl.RunWorker(ctx, worker.GetWorkerId(), workerd.NewWorkerdController(worker, ctx.GetApp().GetConfig().Client.Worker.WorkerdWorkDir))
 	}
 

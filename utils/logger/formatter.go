@@ -61,6 +61,8 @@ func (f *CustomFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	}
 
 	isFrpPkg := entry.Data["pkg"] == "frp"
+	isWorkerdPkg := entry.Data["pkg"] == "workerd"
+
 	resetCode := f.getReset()
 
 	var levelColorCode string
@@ -100,12 +102,15 @@ func (f *CustomFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		levelColor := f.getColor(levelColorCode)
 		fmt.Fprintf(b, " [%s%s%s]", levelColor, entry.Level.String(), resetCode)
 
-		if entry.HasCaller() {
-			fileName := filepath.Base(entry.Caller.File)
-			fatherDir := filepath.Base(filepath.Dir(entry.Caller.File))
-			callerColor := f.getColor(colorGray)
-			fmt.Fprintf(b, " [%s%s:%d%s]", callerColor, filepath.Join(fatherDir, fileName), entry.Caller.Line, resetCode)
+		if !isWorkerdPkg {
+			if entry.HasCaller() {
+				fileName := filepath.Base(entry.Caller.File)
+				fatherDir := filepath.Base(filepath.Dir(entry.Caller.File))
+				callerColor := f.getColor(colorGray)
+				fmt.Fprintf(b, " [%s%s:%d%s]", callerColor, filepath.Join(fatherDir, fileName), entry.Caller.Line, resetCode)
+			}
 		}
+
 		b.WriteString(" ")
 	}
 

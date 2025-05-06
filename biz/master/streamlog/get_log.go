@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -22,11 +23,19 @@ func GetLogHandler(appInstance app.Application) func(*gin.Context) {
 
 func getLogHander(c *gin.Context, appInstance app.Application) {
 	id := c.Query("id")
-	logger.Logger(c).Infof("user try to get stream log, id: [%s]", id)
+	pkgsQuery := c.Query("pkgs")
+	pkgs := strings.Split(pkgsQuery, ",")
+	logger.Logger(c).Infof("user try to get stream log, id: [%s], pkgs: [%s]", id, pkgsQuery)
 
 	if id == "" {
 		c.JSON(http.StatusBadRequest, common.Err("id is empty"))
 		return
+	}
+
+	if len(pkgs) != 0 {
+		if pkgs[0] == "all" {
+			pkgs = make([]string, 0)
+		}
 	}
 
 	appInstance.GetClientLogManager().GetClientLock(id).Lock()
@@ -38,7 +47,7 @@ func getLogHander(c *gin.Context, appInstance app.Application) {
 	}
 	appInstance.GetClientLogManager().Store(id, ch)
 
-	_, err := rpc.CallClient(app.NewContext(c, appInstance), id, pb.Event_EVENT_START_STREAM_LOG, &pb.CommonRequest{})
+	_, err := rpc.CallClient(app.NewContext(c, appInstance), id, pb.Event_EVENT_START_STREAM_LOG, &pb.StartSteamLogRequest{Pkgs: pkgs})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, common.Err(err.Error()))
 		return
