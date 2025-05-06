@@ -548,3 +548,21 @@ func (q *queryImpl) CountProxyConfigsWithFiltersAndKeyword(userInfo models.UserI
 	}
 	return count, nil
 }
+
+func (q *queryImpl) GetProxyConfigsByWorkerId(userInfo models.UserInfo, workerID string) ([]*models.ProxyConfig, error) {
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	items := []*models.ProxyConfig{}
+
+	err := db.
+		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
+			UserID:   userInfo.GetUserID(),
+			TenantID: userInfo.GetTenantID(),
+		},
+			WorkerID: workerID,
+		}).
+		Find(&items).Error
+	if err != nil {
+		return nil, err
+	}
+	return items, nil
+}

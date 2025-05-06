@@ -97,3 +97,25 @@ message ProxyWorkingStatus {
   optional string err = 4;
   optional string remote_addr = 5;
 }
+
+message Worker {
+	optional string worker_id = 1;
+	optional string name = 2; // worker's name, also use at worker routing, must be unique, default is UID
+	optional uint32 user_id = 3; // worker's user id
+  optional uint32 tenant_id = 4;
+	optional Socket socket = 5; // worker's socket, platfrom will obtain free port while init worker
+	optional string code_entry = 6; // worker's entry file, default is 'entry.js'
+	optional string code = 7; // worker's code
+	optional string config_template = 8; // worker's capnp file template
+}
+
+// one WorkerList for one workerd instance
+message WorkerList {
+	repeated Worker workers = 1;
+	optional string nodename = 2; // workerd runner host name, for HA
+}
+
+message Socket {
+  optional string name = 1;
+  optional string address = 2;
+}

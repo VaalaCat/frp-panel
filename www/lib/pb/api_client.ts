@@ -10,6 +10,7 @@ import { UnknownFieldHandler } from "@protobuf-ts/runtime";
 import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
+import { Worker } from "./common";
 import { ProxyWorkingStatus } from "./common";
 import { ProxyConfig } from "./common";
 import { ProxyInfo } from "./common";
@@ -438,6 +439,284 @@ export interface StartProxyRequest {
  * @generated from protobuf message api_client.StartProxyResponse
  */
 export interface StartProxyResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.CreateWorkerRequest
+ */
+export interface CreateWorkerRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional common.Worker worker = 2;
+     */
+    worker?: Worker;
+}
+/**
+ * @generated from protobuf message api_client.CreateWorkerResponse
+ */
+export interface CreateWorkerResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+    /**
+     * @generated from protobuf field: optional string worker_id = 2;
+     */
+    workerId?: string;
+}
+/**
+ * @generated from protobuf message api_client.RemoveWorkerRequest
+ */
+export interface RemoveWorkerRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string worker_id = 2;
+     */
+    workerId?: string;
+}
+/**
+ * @generated from protobuf message api_client.RemoveWorkerResponse
+ */
+export interface RemoveWorkerResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.UpdateWorkerRequest
+ */
+export interface UpdateWorkerRequest {
+    /**
+     * @generated from protobuf field: repeated string client_ids = 1;
+     */
+    clientIds: string[];
+    /**
+     * @generated from protobuf field: optional common.Worker worker = 2;
+     */
+    worker?: Worker;
+}
+/**
+ * @generated from protobuf message api_client.UpdateWorkerResponse
+ */
+export interface UpdateWorkerResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.RunWorkerRequest
+ */
+export interface RunWorkerRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string worker_id = 2;
+     */
+    workerId?: string;
+}
+/**
+ * @generated from protobuf message api_client.RunWorkerResponse
+ */
+export interface RunWorkerResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.StopWorkerRequest
+ */
+export interface StopWorkerRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string worker_id = 2;
+     */
+    workerId?: string;
+}
+/**
+ * @generated from protobuf message api_client.StopWorkerResponse
+ */
+export interface StopWorkerResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.ListWorkersRequest
+ */
+export interface ListWorkersRequest {
+    /**
+     * @generated from protobuf field: optional int32 page = 1;
+     */
+    page?: number;
+    /**
+     * @generated from protobuf field: optional int32 page_size = 2;
+     */
+    pageSize?: number;
+    /**
+     * @generated from protobuf field: optional string keyword = 3;
+     */
+    keyword?: string;
+    /**
+     * @generated from protobuf field: optional string client_id = 4;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 5;
+     */
+    serverId?: string;
+}
+/**
+ * @generated from protobuf message api_client.ListWorkersResponse
+ */
+export interface ListWorkersResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+    /**
+     * @generated from protobuf field: optional int32 total = 2;
+     */
+    total?: number;
+    /**
+     * @generated from protobuf field: repeated common.Worker workers = 3;
+     */
+    workers: Worker[];
+}
+/**
+ * 为 client 在一个 server 创建ingress
+ *
+ * @generated from protobuf message api_client.CreateWorkerIngressRequest
+ */
+export interface CreateWorkerIngressRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string server_id = 2;
+     */
+    serverId?: string;
+    /**
+     * @generated from protobuf field: optional string worker_id = 3;
+     */
+    workerId?: string;
+}
+/**
+ * @generated from protobuf message api_client.CreateWorkerIngressResponse
+ */
+export interface CreateWorkerIngressResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
+/**
+ * @generated from protobuf message api_client.GetWorkerIngressRequest
+ */
+export interface GetWorkerIngressRequest {
+    /**
+     * @generated from protobuf field: optional string worker_id = 1;
+     */
+    workerId?: string;
+}
+/**
+ * @generated from protobuf message api_client.GetWorkerIngressResponse
+ */
+export interface GetWorkerIngressResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+    /**
+     * @generated from protobuf field: repeated common.ProxyConfig proxy_configs = 2;
+     */
+    proxyConfigs: ProxyConfig[];
+}
+/**
+ * @generated from protobuf message api_client.GetWorkerRequest
+ */
+export interface GetWorkerRequest {
+    /**
+     * @generated from protobuf field: optional string worker_id = 1;
+     */
+    workerId?: string;
+}
+/**
+ * @generated from protobuf message api_client.GetWorkerResponse
+ */
+export interface GetWorkerResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+    /**
+     * @generated from protobuf field: optional common.Worker worker = 2;
+     */
+    worker?: Worker;
+    /**
+     * @generated from protobuf field: repeated common.Client clients = 3;
+     */
+    clients: Client[]; // worker 已经部署到的 client
+}
+/**
+ * @generated from protobuf message api_client.GetWorkerStatusRequest
+ */
+export interface GetWorkerStatusRequest {
+    /**
+     * @generated from protobuf field: optional string worker_id = 1;
+     */
+    workerId?: string;
+}
+/**
+ * @generated from protobuf message api_client.GetWorkerStatusResponse
+ */
+export interface GetWorkerStatusResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+    /**
+     * @generated from protobuf field: map<string, string> worker_status = 2;
+     */
+    workerStatus: {
+        [key: string]: string;
+    }; // client_id -> status
+}
+/**
+ * @generated from protobuf message api_client.InstallWorkerdRequest
+ */
+export interface InstallWorkerdRequest {
+    /**
+     * @generated from protobuf field: optional string client_id = 1;
+     */
+    clientId?: string;
+    /**
+     * @generated from protobuf field: optional string download_url = 2;
+     */
+    downloadUrl?: string;
+}
+/**
+ * @generated from protobuf message api_client.InstallWorkerdResponse
+ */
+export interface InstallWorkerdResponse {
     /**
      * @generated from protobuf field: optional common.Status status = 1;
      */
@@ -2163,3 +2442,1169 @@ class StartProxyResponse$Type extends MessageType<StartProxyResponse> {
  * @generated MessageType for protobuf message api_client.StartProxyResponse
  */
 export const StartProxyResponse = new StartProxyResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CreateWorkerRequest$Type extends MessageType<CreateWorkerRequest> {
+    constructor() {
+        super("api_client.CreateWorkerRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "worker", kind: "message", T: () => Worker }
+        ]);
+    }
+    create(value?: PartialMessage<CreateWorkerRequest>): CreateWorkerRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<CreateWorkerRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CreateWorkerRequest): CreateWorkerRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional common.Worker worker */ 2:
+                    message.worker = Worker.internalBinaryRead(reader, reader.uint32(), options, message.worker);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CreateWorkerRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional common.Worker worker = 2; */
+        if (message.worker)
+            Worker.internalBinaryWrite(message.worker, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.CreateWorkerRequest
+ */
+export const CreateWorkerRequest = new CreateWorkerRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CreateWorkerResponse$Type extends MessageType<CreateWorkerResponse> {
+    constructor() {
+        super("api_client.CreateWorkerResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status },
+            { no: 2, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<CreateWorkerResponse>): CreateWorkerResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<CreateWorkerResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CreateWorkerResponse): CreateWorkerResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                case /* optional string worker_id */ 2:
+                    message.workerId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CreateWorkerResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* optional string worker_id = 2; */
+        if (message.workerId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.workerId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.CreateWorkerResponse
+ */
+export const CreateWorkerResponse = new CreateWorkerResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class RemoveWorkerRequest$Type extends MessageType<RemoveWorkerRequest> {
+    constructor() {
+        super("api_client.RemoveWorkerRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<RemoveWorkerRequest>): RemoveWorkerRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<RemoveWorkerRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: RemoveWorkerRequest): RemoveWorkerRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string worker_id */ 2:
+                    message.workerId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: RemoveWorkerRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string worker_id = 2; */
+        if (message.workerId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.workerId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.RemoveWorkerRequest
+ */
+export const RemoveWorkerRequest = new RemoveWorkerRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class RemoveWorkerResponse$Type extends MessageType<RemoveWorkerResponse> {
+    constructor() {
+        super("api_client.RemoveWorkerResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<RemoveWorkerResponse>): RemoveWorkerResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<RemoveWorkerResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: RemoveWorkerResponse): RemoveWorkerResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: RemoveWorkerResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.RemoveWorkerResponse
+ */
+export const RemoveWorkerResponse = new RemoveWorkerResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class UpdateWorkerRequest$Type extends MessageType<UpdateWorkerRequest> {
+    constructor() {
+        super("api_client.UpdateWorkerRequest", [
+            { no: 1, name: "client_ids", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "worker", kind: "message", T: () => Worker }
+        ]);
+    }
+    create(value?: PartialMessage<UpdateWorkerRequest>): UpdateWorkerRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.clientIds = [];
+        if (value !== undefined)
+            reflectionMergePartial<UpdateWorkerRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: UpdateWorkerRequest): UpdateWorkerRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated string client_ids */ 1:
+                    message.clientIds.push(reader.string());
+                    break;
+                case /* optional common.Worker worker */ 2:
+                    message.worker = Worker.internalBinaryRead(reader, reader.uint32(), options, message.worker);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: UpdateWorkerRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated string client_ids = 1; */
+        for (let i = 0; i < message.clientIds.length; i++)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientIds[i]);
+        /* optional common.Worker worker = 2; */
+        if (message.worker)
+            Worker.internalBinaryWrite(message.worker, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.UpdateWorkerRequest
+ */
+export const UpdateWorkerRequest = new UpdateWorkerRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class UpdateWorkerResponse$Type extends MessageType<UpdateWorkerResponse> {
+    constructor() {
+        super("api_client.UpdateWorkerResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<UpdateWorkerResponse>): UpdateWorkerResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<UpdateWorkerResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: UpdateWorkerResponse): UpdateWorkerResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: UpdateWorkerResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.UpdateWorkerResponse
+ */
+export const UpdateWorkerResponse = new UpdateWorkerResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class RunWorkerRequest$Type extends MessageType<RunWorkerRequest> {
+    constructor() {
+        super("api_client.RunWorkerRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<RunWorkerRequest>): RunWorkerRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<RunWorkerRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: RunWorkerRequest): RunWorkerRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string worker_id */ 2:
+                    message.workerId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: RunWorkerRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string worker_id = 2; */
+        if (message.workerId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.workerId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.RunWorkerRequest
+ */
+export const RunWorkerRequest = new RunWorkerRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class RunWorkerResponse$Type extends MessageType<RunWorkerResponse> {
+    constructor() {
+        super("api_client.RunWorkerResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<RunWorkerResponse>): RunWorkerResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<RunWorkerResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: RunWorkerResponse): RunWorkerResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: RunWorkerResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.RunWorkerResponse
+ */
+export const RunWorkerResponse = new RunWorkerResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StopWorkerRequest$Type extends MessageType<StopWorkerRequest> {
+    constructor() {
+        super("api_client.StopWorkerRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<StopWorkerRequest>): StopWorkerRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StopWorkerRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StopWorkerRequest): StopWorkerRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string worker_id */ 2:
+                    message.workerId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StopWorkerRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string worker_id = 2; */
+        if (message.workerId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.workerId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StopWorkerRequest
+ */
+export const StopWorkerRequest = new StopWorkerRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class StopWorkerResponse$Type extends MessageType<StopWorkerResponse> {
+    constructor() {
+        super("api_client.StopWorkerResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<StopWorkerResponse>): StopWorkerResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<StopWorkerResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: StopWorkerResponse): StopWorkerResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: StopWorkerResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.StopWorkerResponse
+ */
+export const StopWorkerResponse = new StopWorkerResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ListWorkersRequest$Type extends MessageType<ListWorkersRequest> {
+    constructor() {
+        super("api_client.ListWorkersRequest", [
+            { no: 1, name: "page", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
+            { no: 2, name: "page_size", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "keyword", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ListWorkersRequest>): ListWorkersRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<ListWorkersRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ListWorkersRequest): ListWorkersRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional int32 page */ 1:
+                    message.page = reader.int32();
+                    break;
+                case /* optional int32 page_size */ 2:
+                    message.pageSize = reader.int32();
+                    break;
+                case /* optional string keyword */ 3:
+                    message.keyword = reader.string();
+                    break;
+                case /* optional string client_id */ 4:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string server_id */ 5:
+                    message.serverId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ListWorkersRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional int32 page = 1; */
+        if (message.page !== undefined)
+            writer.tag(1, WireType.Varint).int32(message.page);
+        /* optional int32 page_size = 2; */
+        if (message.pageSize !== undefined)
+            writer.tag(2, WireType.Varint).int32(message.pageSize);
+        /* optional string keyword = 3; */
+        if (message.keyword !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.keyword);
+        /* optional string client_id = 4; */
+        if (message.clientId !== undefined)
+            writer.tag(4, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 5; */
+        if (message.serverId !== undefined)
+            writer.tag(5, WireType.LengthDelimited).string(message.serverId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.ListWorkersRequest
+ */
+export const ListWorkersRequest = new ListWorkersRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ListWorkersResponse$Type extends MessageType<ListWorkersResponse> {
+    constructor() {
+        super("api_client.ListWorkersResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status },
+            { no: 2, name: "total", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "workers", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => Worker }
+        ]);
+    }
+    create(value?: PartialMessage<ListWorkersResponse>): ListWorkersResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.workers = [];
+        if (value !== undefined)
+            reflectionMergePartial<ListWorkersResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ListWorkersResponse): ListWorkersResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                case /* optional int32 total */ 2:
+                    message.total = reader.int32();
+                    break;
+                case /* repeated common.Worker workers */ 3:
+                    message.workers.push(Worker.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ListWorkersResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* optional int32 total = 2; */
+        if (message.total !== undefined)
+            writer.tag(2, WireType.Varint).int32(message.total);
+        /* repeated common.Worker workers = 3; */
+        for (let i = 0; i < message.workers.length; i++)
+            Worker.internalBinaryWrite(message.workers[i], writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.ListWorkersResponse
+ */
+export const ListWorkersResponse = new ListWorkersResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CreateWorkerIngressRequest$Type extends MessageType<CreateWorkerIngressRequest> {
+    constructor() {
+        super("api_client.CreateWorkerIngressRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "server_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<CreateWorkerIngressRequest>): CreateWorkerIngressRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<CreateWorkerIngressRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CreateWorkerIngressRequest): CreateWorkerIngressRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string server_id */ 2:
+                    message.serverId = reader.string();
+                    break;
+                case /* optional string worker_id */ 3:
+                    message.workerId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CreateWorkerIngressRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string server_id = 2; */
+        if (message.serverId !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.serverId);
+        /* optional string worker_id = 3; */
+        if (message.workerId !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.workerId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.CreateWorkerIngressRequest
+ */
+export const CreateWorkerIngressRequest = new CreateWorkerIngressRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CreateWorkerIngressResponse$Type extends MessageType<CreateWorkerIngressResponse> {
+    constructor() {
+        super("api_client.CreateWorkerIngressResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<CreateWorkerIngressResponse>): CreateWorkerIngressResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<CreateWorkerIngressResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CreateWorkerIngressResponse): CreateWorkerIngressResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CreateWorkerIngressResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.CreateWorkerIngressResponse
+ */
+export const CreateWorkerIngressResponse = new CreateWorkerIngressResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetWorkerIngressRequest$Type extends MessageType<GetWorkerIngressRequest> {
+    constructor() {
+        super("api_client.GetWorkerIngressRequest", [
+            { no: 1, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GetWorkerIngressRequest>): GetWorkerIngressRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<GetWorkerIngressRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetWorkerIngressRequest): GetWorkerIngressRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string worker_id */ 1:
+                    message.workerId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetWorkerIngressRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string worker_id = 1; */
+        if (message.workerId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.workerId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.GetWorkerIngressRequest
+ */
+export const GetWorkerIngressRequest = new GetWorkerIngressRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetWorkerIngressResponse$Type extends MessageType<GetWorkerIngressResponse> {
+    constructor() {
+        super("api_client.GetWorkerIngressResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status },
+            { no: 2, name: "proxy_configs", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => ProxyConfig }
+        ]);
+    }
+    create(value?: PartialMessage<GetWorkerIngressResponse>): GetWorkerIngressResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.proxyConfigs = [];
+        if (value !== undefined)
+            reflectionMergePartial<GetWorkerIngressResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetWorkerIngressResponse): GetWorkerIngressResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                case /* repeated common.ProxyConfig proxy_configs */ 2:
+                    message.proxyConfigs.push(ProxyConfig.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetWorkerIngressResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* repeated common.ProxyConfig proxy_configs = 2; */
+        for (let i = 0; i < message.proxyConfigs.length; i++)
+            ProxyConfig.internalBinaryWrite(message.proxyConfigs[i], writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.GetWorkerIngressResponse
+ */
+export const GetWorkerIngressResponse = new GetWorkerIngressResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetWorkerRequest$Type extends MessageType<GetWorkerRequest> {
+    constructor() {
+        super("api_client.GetWorkerRequest", [
+            { no: 1, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GetWorkerRequest>): GetWorkerRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<GetWorkerRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetWorkerRequest): GetWorkerRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string worker_id */ 1:
+                    message.workerId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetWorkerRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string worker_id = 1; */
+        if (message.workerId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.workerId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.GetWorkerRequest
+ */
+export const GetWorkerRequest = new GetWorkerRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetWorkerResponse$Type extends MessageType<GetWorkerResponse> {
+    constructor() {
+        super("api_client.GetWorkerResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status },
+            { no: 2, name: "worker", kind: "message", T: () => Worker },
+            { no: 3, name: "clients", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => Client }
+        ]);
+    }
+    create(value?: PartialMessage<GetWorkerResponse>): GetWorkerResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.clients = [];
+        if (value !== undefined)
+            reflectionMergePartial<GetWorkerResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetWorkerResponse): GetWorkerResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                case /* optional common.Worker worker */ 2:
+                    message.worker = Worker.internalBinaryRead(reader, reader.uint32(), options, message.worker);
+                    break;
+                case /* repeated common.Client clients */ 3:
+                    message.clients.push(Client.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetWorkerResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* optional common.Worker worker = 2; */
+        if (message.worker)
+            Worker.internalBinaryWrite(message.worker, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        /* repeated common.Client clients = 3; */
+        for (let i = 0; i < message.clients.length; i++)
+            Client.internalBinaryWrite(message.clients[i], writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.GetWorkerResponse
+ */
+export const GetWorkerResponse = new GetWorkerResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetWorkerStatusRequest$Type extends MessageType<GetWorkerStatusRequest> {
+    constructor() {
+        super("api_client.GetWorkerStatusRequest", [
+            { no: 1, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GetWorkerStatusRequest>): GetWorkerStatusRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<GetWorkerStatusRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetWorkerStatusRequest): GetWorkerStatusRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string worker_id */ 1:
+                    message.workerId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetWorkerStatusRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string worker_id = 1; */
+        if (message.workerId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.workerId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.GetWorkerStatusRequest
+ */
+export const GetWorkerStatusRequest = new GetWorkerStatusRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GetWorkerStatusResponse$Type extends MessageType<GetWorkerStatusResponse> {
+    constructor() {
+        super("api_client.GetWorkerStatusResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status },
+            { no: 2, name: "worker_status", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } }
+        ]);
+    }
+    create(value?: PartialMessage<GetWorkerStatusResponse>): GetWorkerStatusResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.workerStatus = {};
+        if (value !== undefined)
+            reflectionMergePartial<GetWorkerStatusResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetWorkerStatusResponse): GetWorkerStatusResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                case /* map<string, string> worker_status */ 2:
+                    this.binaryReadMap2(message.workerStatus, reader, options);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    private binaryReadMap2(map: GetWorkerStatusResponse["workerStatus"], reader: IBinaryReader, options: BinaryReadOptions): void {
+        let len = reader.uint32(), end = reader.pos + len, key: keyof GetWorkerStatusResponse["workerStatus"] | undefined, val: GetWorkerStatusResponse["workerStatus"][any] | undefined;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case 1:
+                    key = reader.string();
+                    break;
+                case 2:
+                    val = reader.string();
+                    break;
+                default: throw new globalThis.Error("unknown map entry field for field api_client.GetWorkerStatusResponse.worker_status");
+            }
+        }
+        map[key ?? ""] = val ?? "";
+    }
+    internalBinaryWrite(message: GetWorkerStatusResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* map<string, string> worker_status = 2; */
+        for (let k of globalThis.Object.keys(message.workerStatus))
+            writer.tag(2, WireType.LengthDelimited).fork().tag(1, WireType.LengthDelimited).string(k).tag(2, WireType.LengthDelimited).string(message.workerStatus[k]).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.GetWorkerStatusResponse
+ */
+export const GetWorkerStatusResponse = new GetWorkerStatusResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class InstallWorkerdRequest$Type extends MessageType<InstallWorkerdRequest> {
+    constructor() {
+        super("api_client.InstallWorkerdRequest", [
+            { no: 1, name: "client_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "download_url", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<InstallWorkerdRequest>): InstallWorkerdRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<InstallWorkerdRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: InstallWorkerdRequest): InstallWorkerdRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string client_id */ 1:
+                    message.clientId = reader.string();
+                    break;
+                case /* optional string download_url */ 2:
+                    message.downloadUrl = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: InstallWorkerdRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string client_id = 1; */
+        if (message.clientId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientId);
+        /* optional string download_url = 2; */
+        if (message.downloadUrl !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.downloadUrl);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.InstallWorkerdRequest
+ */
+export const InstallWorkerdRequest = new InstallWorkerdRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class InstallWorkerdResponse$Type extends MessageType<InstallWorkerdResponse> {
+    constructor() {
+        super("api_client.InstallWorkerdResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<InstallWorkerdResponse>): InstallWorkerdResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<InstallWorkerdResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: InstallWorkerdResponse): InstallWorkerdResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: InstallWorkerdResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.InstallWorkerdResponse
+ */
+export const InstallWorkerdResponse = new InstallWorkerdResponse$Type();

@@ -19,7 +19,7 @@ func HandleServerMessage(appInstance app.Application, req *pb.ServerMessage) *pb
 		}
 	}()
 	c := context.Background()
-	logger.Logger(c).Infof("client get a server message, origin is: [%+v]", req)
+	logger.Logger(c).Infof("client get a server message, clientId: [%s], event: [%s], sessionId: [%s]", req.GetClientId(), req.GetEvent().String(), req.GetSessionId())
 	switch req.Event {
 	case pb.Event_EVENT_UPDATE_FRPC:
 		return app.WrapperServerMsg(appInstance, req, UpdateFrpcHander)
@@ -37,6 +37,14 @@ func HandleServerMessage(appInstance app.Application, req *pb.ServerMessage) *pb
 		return app.WrapperServerMsg(appInstance, req, StartPTYConnect)
 	case pb.Event_EVENT_GET_PROXY_INFO:
 		return app.WrapperServerMsg(appInstance, req, GetProxyConfig)
+	case pb.Event_EVENT_CREATE_WORKER:
+		return app.WrapperServerMsg(appInstance, req, CreateWorker)
+	case pb.Event_EVENT_REMOVE_WORKER:
+		return app.WrapperServerMsg(appInstance, req, RemoveWorker)
+	case pb.Event_EVENT_GET_WORKER_STATUS:
+		return app.WrapperServerMsg(appInstance, req, GetWorkerStatus)
+	case pb.Event_EVENT_INSTALL_WORKERD:
+		return app.WrapperServerMsg(appInstance, req, InstallWorkerd)
 	case pb.Event_EVENT_PING:
 		rawData, _ := proto.Marshal(conf.GetVersion().ToProto())
 		return &pb.ClientMessage{

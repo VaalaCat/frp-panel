@@ -134,7 +134,7 @@ export function ProxyConfigActions({ serverID, clientID, name, row }: ProxyConfi
   return (
     <>
       <Dialog open={proxyMutateFormOpen} onOpenChange={setProxyMutateFormOpen}>
-        <DialogContent className="max-h-screen overflow-auto">
+        <DialogContent className="max-h-[90vh] overflow-auto">
           <ProxyConfigMutateForm
             disableChangeProxyName
             defaultProxyConfig={JSON.parse(row.original.config || '{}') as TypedProxyConfig}

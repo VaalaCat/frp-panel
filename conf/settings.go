@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/VaalaCat/frp-panel/defs"
+	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/ilyakaznacheev/cleanenv"
@@ -52,12 +54,25 @@ type Config struct {
 		RPCUrl                string `env:"RPC_URL" env-description:"rpc url, support ws or wss or grpc scheme, eg: ws://127.0.0.1:9000"`
 		APIUrl                string `env:"API_URL" env-description:"api url, support http or https scheme, eg: http://127.0.0.1:9000"`
 		TLSInsecureSkipVerify bool   `env:"TLS_INSECURE_SKIP_VERIFY" env-default:"true" env-description:"skip tls verify"`
+		Worker                struct {
+			WorkerdBinaryPath  string `env:"WORKERD_BINARY_PATH" env-description:"workerd binary path"`
+			WorkerdWorkDir     string `env:"WORKERD_WORK_DIR" env-default:"/tmp/frpp/workerd" env-description:"workerd work dir"`
+			WorkerdDownloadURL struct {
+				UseProxy   bool   `env:"USE_PROXY" env-default:"true" env-description:"use proxy"`
+				LinuxArm64 string `env:"LINUX_ARM64" env-default:"https://github.com/cloudflare/workerd/releases/download/v1.20250505.0/workerd-linux-arm64.gz"`
+				LinuxX8664 string `env:"LINUX_X86_64" env-default:"https://github.com/cloudflare/workerd/releases/download/v1.20250505.0/workerd-linux-64.gz"`
+			} `env-prefix:"WORKERD_DOWNLOAD_URL_" env-description:"workerd download url"`
+		} `env-prefix:"WORKER_" env-description:"worker's config"`
+		Features struct {
+			EnableFunctions bool `env:"ENABLE_FUNCTIONS" env-default:"true" env-description:"enable functions"`
+		} `env-prefix:"FEATURES_" env-description:"features config"`
 	} `env-prefix:"CLIENT_"`
 	IsDebug bool `env:"IS_DEBUG" env-default:"false" env-description:"is debug mode"`
 	Logger  struct {
 		DefaultLoggerLevel string `env:"DEFAULT_LOGGER_LEVEL" env-default:"info" env-description:"frp-panel internal default logger level"`
 		FRPLoggerLevel     string `env:"FRP_LOGGER_LEVEL" env-default:"info" env-description:"frp logger level"`
 	} `env-prefix:"LOGGER_"`
+	HTTP_PROXY string `env:"HTTP_PROXY" env-description:"http proxy"`
 }
 
 func NewConfig() Config {
@@ -114,6 +129,21 @@ func (cfg *Config) Complete() {
 
 	if len(cfg.Client.ID) == 0 {
 		cfg.Client.ID = hostname
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println("failed to get current working directory:", err)
+		os.Exit(1)
+	}
+
+	if len(cfg.Client.Worker.WorkerdBinaryPath) == 0 {
+		w, _ := utils.FindExecutableNames(func(name string) bool {
+			return strings.HasPrefix(name, "workerd")
+		}, cwd, "/")
+		if len(w) > 0 {
+			cfg.Client.Worker.WorkerdBinaryPath = w[0]
+		}
 	}
 }
 

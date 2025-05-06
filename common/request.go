@@ -25,7 +25,10 @@ type ReqType interface {
 		pb.GetProxyStatsByClientIDRequest | pb.GetProxyStatsByServerIDRequest |
 		pb.CreateProxyConfigRequest | pb.ListProxyConfigsRequest | pb.UpdateProxyConfigRequest |
 		pb.DeleteProxyConfigRequest | pb.GetProxyConfigRequest | pb.SignTokenRequest |
-		pb.StartProxyRequest | pb.StopProxyRequest
+		pb.StartProxyRequest | pb.StopProxyRequest |
+		pb.CreateWorkerRequest | pb.RemoveWorkerRequest | pb.RunWorkerRequest | pb.StopWorkerRequest | pb.UpdateWorkerRequest | pb.GetWorkerRequest |
+		pb.ListWorkersRequest | pb.CreateWorkerIngressRequest | pb.GetWorkerIngressRequest |
+		pb.GetWorkerStatusRequest | pb.InstallWorkerdRequest
 }
 
 func GetProtoRequest[T ReqType](c *gin.Context) (r *T, err error) {

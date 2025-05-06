@@ -871,6 +871,211 @@ func (x *ProxyWorkingStatus) GetRemoteAddr() string {
 	return ""
 }
 
+type Worker struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	WorkerId       *string                `protobuf:"bytes,1,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	Name           *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`                    // worker's name, also use at worker routing, must be unique, default is UID
+	UserId         *uint32                `protobuf:"varint,3,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"` // worker's user id
+	TenantId       *uint32                `protobuf:"varint,4,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	Socket         *Socket                `protobuf:"bytes,5,opt,name=socket,proto3,oneof" json:"socket,omitempty"`                                       // worker's socket, platfrom will obtain free port while init worker
+	CodeEntry      *string                `protobuf:"bytes,6,opt,name=code_entry,json=codeEntry,proto3,oneof" json:"code_entry,omitempty"`                // worker's entry file, default is 'entry.js'
+	Code           *string                `protobuf:"bytes,7,opt,name=code,proto3,oneof" json:"code,omitempty"`                                           // worker's code
+	ConfigTemplate *string                `protobuf:"bytes,8,opt,name=config_template,json=configTemplate,proto3,oneof" json:"config_template,omitempty"` // worker's capnp file template
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *Worker) Reset() {
+	*x = Worker{}
+	mi := &file_common_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Worker) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Worker) ProtoMessage() {}
+
+func (x *Worker) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Worker.ProtoReflect.Descriptor instead.
+func (*Worker) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *Worker) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+func (x *Worker) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *Worker) GetUserId() uint32 {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
+	}
+	return 0
+}
+
+func (x *Worker) GetTenantId() uint32 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *Worker) GetSocket() *Socket {
+	if x != nil {
+		return x.Socket
+	}
+	return nil
+}
+
+func (x *Worker) GetCodeEntry() string {
+	if x != nil && x.CodeEntry != nil {
+		return *x.CodeEntry
+	}
+	return ""
+}
+
+func (x *Worker) GetCode() string {
+	if x != nil && x.Code != nil {
+		return *x.Code
+	}
+	return ""
+}
+
+func (x *Worker) GetConfigTemplate() string {
+	if x != nil && x.ConfigTemplate != nil {
+		return *x.ConfigTemplate
+	}
+	return ""
+}
+
+// one WorkerList for one workerd instance
+type WorkerList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Workers       []*Worker              `protobuf:"bytes,1,rep,name=workers,proto3" json:"workers,omitempty"`
+	Nodename      *string                `protobuf:"bytes,2,opt,name=nodename,proto3,oneof" json:"nodename,omitempty"` // workerd runner host name, for HA
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WorkerList) Reset() {
+	*x = WorkerList{}
+	mi := &file_common_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WorkerList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WorkerList) ProtoMessage() {}
+
+func (x *WorkerList) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WorkerList.ProtoReflect.Descriptor instead.
+func (*WorkerList) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *WorkerList) GetWorkers() []*Worker {
+	if x != nil {
+		return x.Workers
+	}
+	return nil
+}
+
+func (x *WorkerList) GetNodename() string {
+	if x != nil && x.Nodename != nil {
+		return *x.Nodename
+	}
+	return ""
+}
+
+type Socket struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Address       *string                `protobuf:"bytes,2,opt,name=address,proto3,oneof" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Socket) Reset() {
+	*x = Socket{}
+	mi := &file_common_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Socket) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Socket) ProtoMessage() {}
+
+func (x *Socket) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Socket.ProtoReflect.Descriptor instead.
+func (*Socket) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *Socket) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *Socket) GetAddress() string {
+	if x != nil && x.Address != nil {
+		return *x.Address
+	}
+	return ""
+}
+
 var File_common_proto protoreflect.FileDescriptor
 
 const file_common_proto_rawDesc = "" +
@@ -999,7 +1204,39 @@ const file_common_proto_rawDesc = "" +
 	"\x05_typeB\t\n" +
 	"\a_statusB\x06\n" +
 	"\x04_errB\x0e\n" +
-	"\f_remote_addr*\xbc\x01\n" +
+	"\f_remote_addr\"\x83\x03\n" +
+	"\x06Worker\x12 \n" +
+	"\tworker_id\x18\x01 \x01(\tH\x00R\bworkerId\x88\x01\x01\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x1c\n" +
+	"\auser_id\x18\x03 \x01(\rH\x02R\x06userId\x88\x01\x01\x12 \n" +
+	"\ttenant_id\x18\x04 \x01(\rH\x03R\btenantId\x88\x01\x01\x12+\n" +
+	"\x06socket\x18\x05 \x01(\v2\x0e.common.SocketH\x04R\x06socket\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"code_entry\x18\x06 \x01(\tH\x05R\tcodeEntry\x88\x01\x01\x12\x17\n" +
+	"\x04code\x18\a \x01(\tH\x06R\x04code\x88\x01\x01\x12,\n" +
+	"\x0fconfig_template\x18\b \x01(\tH\aR\x0econfigTemplate\x88\x01\x01B\f\n" +
+	"\n" +
+	"_worker_idB\a\n" +
+	"\x05_nameB\n" +
+	"\n" +
+	"\b_user_idB\f\n" +
+	"\n" +
+	"_tenant_idB\t\n" +
+	"\a_socketB\r\n" +
+	"\v_code_entryB\a\n" +
+	"\x05_codeB\x12\n" +
+	"\x10_config_template\"d\n" +
+	"\n" +
+	"WorkerList\x12(\n" +
+	"\aworkers\x18\x01 \x03(\v2\x0e.common.WorkerR\aworkers\x12\x1f\n" +
+	"\bnodename\x18\x02 \x01(\tH\x00R\bnodename\x88\x01\x01B\v\n" +
+	"\t_nodename\"U\n" +
+	"\x06Socket\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1d\n" +
+	"\aaddress\x18\x02 \x01(\tH\x01R\aaddress\x88\x01\x01B\a\n" +
+	"\x05_nameB\n" +
+	"\n" +
+	"\b_address*\xbc\x01\n" +
 	"\bRespCode\x12\x19\n" +
 	"\x15RESP_CODE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11RESP_CODE_SUCCESS\x10\x01\x12\x17\n" +
@@ -1027,7 +1264,7 @@ func file_common_proto_rawDescGZIP() []byte {
 }
 
 var file_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_common_proto_goTypes = []any{
 	(RespCode)(0),              // 0: common.RespCode
 	(ClientType)(0),            // 1: common.ClientType
@@ -1040,15 +1277,20 @@ var file_common_proto_goTypes = []any{
 	(*ProxyInfo)(nil),          // 8: common.ProxyInfo
 	(*ProxyConfig)(nil),        // 9: common.ProxyConfig
 	(*ProxyWorkingStatus)(nil), // 10: common.ProxyWorkingStatus
+	(*Worker)(nil),             // 11: common.Worker
+	(*WorkerList)(nil),         // 12: common.WorkerList
+	(*Socket)(nil),             // 13: common.Socket
 }
 var file_common_proto_depIdxs = []int32{
-	0, // 0: common.Status.code:type_name -> common.RespCode
-	2, // 1: common.CommonResponse.status:type_name -> common.Status
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0,  // 0: common.Status.code:type_name -> common.RespCode
+	2,  // 1: common.CommonResponse.status:type_name -> common.Status
+	13, // 2: common.Worker.socket:type_name -> common.Socket
+	11, // 3: common.WorkerList.workers:type_name -> common.Worker
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_common_proto_init() }
@@ -1064,13 +1306,16 @@ func file_common_proto_init() {
 	file_common_proto_msgTypes[6].OneofWrappers = []any{}
 	file_common_proto_msgTypes[7].OneofWrappers = []any{}
 	file_common_proto_msgTypes[8].OneofWrappers = []any{}
+	file_common_proto_msgTypes[9].OneofWrappers = []any{}
+	file_common_proto_msgTypes[10].OneofWrappers = []any{}
+	file_common_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   9,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

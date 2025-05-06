@@ -1709,6 +1709,1127 @@ func (x *StartProxyResponse) GetStatus() *Status {
 	return nil
 }
 
+type CreateWorkerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	Worker        *Worker                `protobuf:"bytes,2,opt,name=worker,proto3,oneof" json:"worker,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateWorkerRequest) Reset() {
+	*x = CreateWorkerRequest{}
+	mi := &file_api_client_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateWorkerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateWorkerRequest) ProtoMessage() {}
+
+func (x *CreateWorkerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateWorkerRequest.ProtoReflect.Descriptor instead.
+func (*CreateWorkerRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *CreateWorkerRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *CreateWorkerRequest) GetWorker() *Worker {
+	if x != nil {
+		return x.Worker
+	}
+	return nil
+}
+
+type CreateWorkerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	WorkerId      *string                `protobuf:"bytes,2,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateWorkerResponse) Reset() {
+	*x = CreateWorkerResponse{}
+	mi := &file_api_client_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateWorkerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateWorkerResponse) ProtoMessage() {}
+
+func (x *CreateWorkerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateWorkerResponse.ProtoReflect.Descriptor instead.
+func (*CreateWorkerResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *CreateWorkerResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *CreateWorkerResponse) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+type RemoveWorkerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	WorkerId      *string                `protobuf:"bytes,2,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveWorkerRequest) Reset() {
+	*x = RemoveWorkerRequest{}
+	mi := &file_api_client_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveWorkerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveWorkerRequest) ProtoMessage() {}
+
+func (x *RemoveWorkerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveWorkerRequest.ProtoReflect.Descriptor instead.
+func (*RemoveWorkerRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *RemoveWorkerRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *RemoveWorkerRequest) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+type RemoveWorkerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveWorkerResponse) Reset() {
+	*x = RemoveWorkerResponse{}
+	mi := &file_api_client_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveWorkerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveWorkerResponse) ProtoMessage() {}
+
+func (x *RemoveWorkerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveWorkerResponse.ProtoReflect.Descriptor instead.
+func (*RemoveWorkerResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *RemoveWorkerResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+type UpdateWorkerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientIds     []string               `protobuf:"bytes,1,rep,name=client_ids,json=clientIds,proto3" json:"client_ids,omitempty"`
+	Worker        *Worker                `protobuf:"bytes,2,opt,name=worker,proto3,oneof" json:"worker,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateWorkerRequest) Reset() {
+	*x = UpdateWorkerRequest{}
+	mi := &file_api_client_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateWorkerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateWorkerRequest) ProtoMessage() {}
+
+func (x *UpdateWorkerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateWorkerRequest.ProtoReflect.Descriptor instead.
+func (*UpdateWorkerRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *UpdateWorkerRequest) GetClientIds() []string {
+	if x != nil {
+		return x.ClientIds
+	}
+	return nil
+}
+
+func (x *UpdateWorkerRequest) GetWorker() *Worker {
+	if x != nil {
+		return x.Worker
+	}
+	return nil
+}
+
+type UpdateWorkerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateWorkerResponse) Reset() {
+	*x = UpdateWorkerResponse{}
+	mi := &file_api_client_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateWorkerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateWorkerResponse) ProtoMessage() {}
+
+func (x *UpdateWorkerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateWorkerResponse.ProtoReflect.Descriptor instead.
+func (*UpdateWorkerResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *UpdateWorkerResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+type RunWorkerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	WorkerId      *string                `protobuf:"bytes,2,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunWorkerRequest) Reset() {
+	*x = RunWorkerRequest{}
+	mi := &file_api_client_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunWorkerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunWorkerRequest) ProtoMessage() {}
+
+func (x *RunWorkerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunWorkerRequest.ProtoReflect.Descriptor instead.
+func (*RunWorkerRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *RunWorkerRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *RunWorkerRequest) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+type RunWorkerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunWorkerResponse) Reset() {
+	*x = RunWorkerResponse{}
+	mi := &file_api_client_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunWorkerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunWorkerResponse) ProtoMessage() {}
+
+func (x *RunWorkerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunWorkerResponse.ProtoReflect.Descriptor instead.
+func (*RunWorkerResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *RunWorkerResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+type StopWorkerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	WorkerId      *string                `protobuf:"bytes,2,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopWorkerRequest) Reset() {
+	*x = StopWorkerRequest{}
+	mi := &file_api_client_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopWorkerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopWorkerRequest) ProtoMessage() {}
+
+func (x *StopWorkerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopWorkerRequest.ProtoReflect.Descriptor instead.
+func (*StopWorkerRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *StopWorkerRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *StopWorkerRequest) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+type StopWorkerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopWorkerResponse) Reset() {
+	*x = StopWorkerResponse{}
+	mi := &file_api_client_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopWorkerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopWorkerResponse) ProtoMessage() {}
+
+func (x *StopWorkerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopWorkerResponse.ProtoReflect.Descriptor instead.
+func (*StopWorkerResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *StopWorkerResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+type ListWorkersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          *int32                 `protobuf:"varint,1,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	PageSize      *int32                 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	Keyword       *string                `protobuf:"bytes,3,opt,name=keyword,proto3,oneof" json:"keyword,omitempty"`
+	ClientId      *string                `protobuf:"bytes,4,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	ServerId      *string                `protobuf:"bytes,5,opt,name=server_id,json=serverId,proto3,oneof" json:"server_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorkersRequest) Reset() {
+	*x = ListWorkersRequest{}
+	mi := &file_api_client_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkersRequest) ProtoMessage() {}
+
+func (x *ListWorkersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkersRequest.ProtoReflect.Descriptor instead.
+func (*ListWorkersRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *ListWorkersRequest) GetPage() int32 {
+	if x != nil && x.Page != nil {
+		return *x.Page
+	}
+	return 0
+}
+
+func (x *ListWorkersRequest) GetPageSize() int32 {
+	if x != nil && x.PageSize != nil {
+		return *x.PageSize
+	}
+	return 0
+}
+
+func (x *ListWorkersRequest) GetKeyword() string {
+	if x != nil && x.Keyword != nil {
+		return *x.Keyword
+	}
+	return ""
+}
+
+func (x *ListWorkersRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *ListWorkersRequest) GetServerId() string {
+	if x != nil && x.ServerId != nil {
+		return *x.ServerId
+	}
+	return ""
+}
+
+type ListWorkersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	Total         *int32                 `protobuf:"varint,2,opt,name=total,proto3,oneof" json:"total,omitempty"`
+	Workers       []*Worker              `protobuf:"bytes,3,rep,name=workers,proto3" json:"workers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorkersResponse) Reset() {
+	*x = ListWorkersResponse{}
+	mi := &file_api_client_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkersResponse) ProtoMessage() {}
+
+func (x *ListWorkersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkersResponse.ProtoReflect.Descriptor instead.
+func (*ListWorkersResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *ListWorkersResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *ListWorkersResponse) GetTotal() int32 {
+	if x != nil && x.Total != nil {
+		return *x.Total
+	}
+	return 0
+}
+
+func (x *ListWorkersResponse) GetWorkers() []*Worker {
+	if x != nil {
+		return x.Workers
+	}
+	return nil
+}
+
+// 为 client 在一个 server 创建ingress
+type CreateWorkerIngressRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	ServerId      *string                `protobuf:"bytes,2,opt,name=server_id,json=serverId,proto3,oneof" json:"server_id,omitempty"`
+	WorkerId      *string                `protobuf:"bytes,3,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateWorkerIngressRequest) Reset() {
+	*x = CreateWorkerIngressRequest{}
+	mi := &file_api_client_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateWorkerIngressRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateWorkerIngressRequest) ProtoMessage() {}
+
+func (x *CreateWorkerIngressRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateWorkerIngressRequest.ProtoReflect.Descriptor instead.
+func (*CreateWorkerIngressRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *CreateWorkerIngressRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *CreateWorkerIngressRequest) GetServerId() string {
+	if x != nil && x.ServerId != nil {
+		return *x.ServerId
+	}
+	return ""
+}
+
+func (x *CreateWorkerIngressRequest) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+type CreateWorkerIngressResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateWorkerIngressResponse) Reset() {
+	*x = CreateWorkerIngressResponse{}
+	mi := &file_api_client_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateWorkerIngressResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateWorkerIngressResponse) ProtoMessage() {}
+
+func (x *CreateWorkerIngressResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateWorkerIngressResponse.ProtoReflect.Descriptor instead.
+func (*CreateWorkerIngressResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *CreateWorkerIngressResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+type GetWorkerIngressRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WorkerId      *string                `protobuf:"bytes,1,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorkerIngressRequest) Reset() {
+	*x = GetWorkerIngressRequest{}
+	mi := &file_api_client_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkerIngressRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkerIngressRequest) ProtoMessage() {}
+
+func (x *GetWorkerIngressRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkerIngressRequest.ProtoReflect.Descriptor instead.
+func (*GetWorkerIngressRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *GetWorkerIngressRequest) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+type GetWorkerIngressResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	ProxyConfigs  []*ProxyConfig         `protobuf:"bytes,2,rep,name=proxy_configs,json=proxyConfigs,proto3" json:"proxy_configs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorkerIngressResponse) Reset() {
+	*x = GetWorkerIngressResponse{}
+	mi := &file_api_client_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkerIngressResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkerIngressResponse) ProtoMessage() {}
+
+func (x *GetWorkerIngressResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkerIngressResponse.ProtoReflect.Descriptor instead.
+func (*GetWorkerIngressResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *GetWorkerIngressResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *GetWorkerIngressResponse) GetProxyConfigs() []*ProxyConfig {
+	if x != nil {
+		return x.ProxyConfigs
+	}
+	return nil
+}
+
+type GetWorkerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WorkerId      *string                `protobuf:"bytes,1,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorkerRequest) Reset() {
+	*x = GetWorkerRequest{}
+	mi := &file_api_client_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkerRequest) ProtoMessage() {}
+
+func (x *GetWorkerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkerRequest.ProtoReflect.Descriptor instead.
+func (*GetWorkerRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *GetWorkerRequest) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+type GetWorkerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	Worker        *Worker                `protobuf:"bytes,2,opt,name=worker,proto3,oneof" json:"worker,omitempty"`
+	Clients       []*Client              `protobuf:"bytes,3,rep,name=clients,proto3" json:"clients,omitempty"` // worker 已经部署到的 client
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorkerResponse) Reset() {
+	*x = GetWorkerResponse{}
+	mi := &file_api_client_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkerResponse) ProtoMessage() {}
+
+func (x *GetWorkerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkerResponse.ProtoReflect.Descriptor instead.
+func (*GetWorkerResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *GetWorkerResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *GetWorkerResponse) GetWorker() *Worker {
+	if x != nil {
+		return x.Worker
+	}
+	return nil
+}
+
+func (x *GetWorkerResponse) GetClients() []*Client {
+	if x != nil {
+		return x.Clients
+	}
+	return nil
+}
+
+type GetWorkerStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WorkerId      *string                `protobuf:"bytes,1,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorkerStatusRequest) Reset() {
+	*x = GetWorkerStatusRequest{}
+	mi := &file_api_client_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkerStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkerStatusRequest) ProtoMessage() {}
+
+func (x *GetWorkerStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkerStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetWorkerStatusRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *GetWorkerStatusRequest) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+type GetWorkerStatusResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	WorkerStatus  map[string]string      `protobuf:"bytes,2,rep,name=worker_status,json=workerStatus,proto3" json:"worker_status,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // client_id -> status
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorkerStatusResponse) Reset() {
+	*x = GetWorkerStatusResponse{}
+	mi := &file_api_client_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkerStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkerStatusResponse) ProtoMessage() {}
+
+func (x *GetWorkerStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkerStatusResponse.ProtoReflect.Descriptor instead.
+func (*GetWorkerStatusResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *GetWorkerStatusResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *GetWorkerStatusResponse) GetWorkerStatus() map[string]string {
+	if x != nil {
+		return x.WorkerStatus
+	}
+	return nil
+}
+
+type InstallWorkerdRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      *string                `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	DownloadUrl   *string                `protobuf:"bytes,2,opt,name=download_url,json=downloadUrl,proto3,oneof" json:"download_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InstallWorkerdRequest) Reset() {
+	*x = InstallWorkerdRequest{}
+	mi := &file_api_client_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstallWorkerdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstallWorkerdRequest) ProtoMessage() {}
+
+func (x *InstallWorkerdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstallWorkerdRequest.ProtoReflect.Descriptor instead.
+func (*InstallWorkerdRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *InstallWorkerdRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *InstallWorkerdRequest) GetDownloadUrl() string {
+	if x != nil && x.DownloadUrl != nil {
+		return *x.DownloadUrl
+	}
+	return ""
+}
+
+type InstallWorkerdResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InstallWorkerdResponse) Reset() {
+	*x = InstallWorkerdResponse{}
+	mi := &file_api_client_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InstallWorkerdResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InstallWorkerdResponse) ProtoMessage() {}
+
+func (x *InstallWorkerdResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InstallWorkerdResponse.ProtoReflect.Descriptor instead.
+func (*InstallWorkerdResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{53}
+}
+
+func (x *InstallWorkerdResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
 var File_api_client_proto protoreflect.FileDescriptor
 
 const file_api_client_proto_rawDesc = "" +
@@ -1910,6 +3031,128 @@ const file_api_client_proto_rawDesc = "" +
 	"\x05_name\"L\n" +
 	"\x12StartProxyResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"}\n" +
+	"\x13CreateWorkerRequest\x12 \n" +
+	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01\x12+\n" +
+	"\x06worker\x18\x02 \x01(\v2\x0e.common.WorkerH\x01R\x06worker\x88\x01\x01B\f\n" +
+	"\n" +
+	"_client_idB\t\n" +
+	"\a_worker\"~\n" +
+	"\x14CreateWorkerResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12 \n" +
+	"\tworker_id\x18\x02 \x01(\tH\x01R\bworkerId\x88\x01\x01B\t\n" +
+	"\a_statusB\f\n" +
+	"\n" +
+	"_worker_id\"u\n" +
+	"\x13RemoveWorkerRequest\x12 \n" +
+	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01\x12 \n" +
+	"\tworker_id\x18\x02 \x01(\tH\x01R\bworkerId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_client_idB\f\n" +
+	"\n" +
+	"_worker_id\"N\n" +
+	"\x14RemoveWorkerResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"l\n" +
+	"\x13UpdateWorkerRequest\x12\x1d\n" +
+	"\n" +
+	"client_ids\x18\x01 \x03(\tR\tclientIds\x12+\n" +
+	"\x06worker\x18\x02 \x01(\v2\x0e.common.WorkerH\x00R\x06worker\x88\x01\x01B\t\n" +
+	"\a_worker\"N\n" +
+	"\x14UpdateWorkerResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"r\n" +
+	"\x10RunWorkerRequest\x12 \n" +
+	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01\x12 \n" +
+	"\tworker_id\x18\x02 \x01(\tH\x01R\bworkerId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_client_idB\f\n" +
+	"\n" +
+	"_worker_id\"K\n" +
+	"\x11RunWorkerResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"s\n" +
+	"\x11StopWorkerRequest\x12 \n" +
+	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01\x12 \n" +
+	"\tworker_id\x18\x02 \x01(\tH\x01R\bworkerId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_client_idB\f\n" +
+	"\n" +
+	"_worker_id\"L\n" +
+	"\x12StopWorkerResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"\xf1\x01\n" +
+	"\x12ListWorkersRequest\x12\x17\n" +
+	"\x04page\x18\x01 \x01(\x05H\x00R\x04page\x88\x01\x01\x12 \n" +
+	"\tpage_size\x18\x02 \x01(\x05H\x01R\bpageSize\x88\x01\x01\x12\x1d\n" +
+	"\akeyword\x18\x03 \x01(\tH\x02R\akeyword\x88\x01\x01\x12 \n" +
+	"\tclient_id\x18\x04 \x01(\tH\x03R\bclientId\x88\x01\x01\x12 \n" +
+	"\tserver_id\x18\x05 \x01(\tH\x04R\bserverId\x88\x01\x01B\a\n" +
+	"\x05_pageB\f\n" +
+	"\n" +
+	"_page_sizeB\n" +
+	"\n" +
+	"\b_keywordB\f\n" +
+	"\n" +
+	"_client_idB\f\n" +
+	"\n" +
+	"_server_id\"\x9c\x01\n" +
+	"\x13ListWorkersResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12\x19\n" +
+	"\x05total\x18\x02 \x01(\x05H\x01R\x05total\x88\x01\x01\x12(\n" +
+	"\aworkers\x18\x03 \x03(\v2\x0e.common.WorkerR\aworkersB\t\n" +
+	"\a_statusB\b\n" +
+	"\x06_total\"\xac\x01\n" +
+	"\x1aCreateWorkerIngressRequest\x12 \n" +
+	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01\x12 \n" +
+	"\tserver_id\x18\x02 \x01(\tH\x01R\bserverId\x88\x01\x01\x12 \n" +
+	"\tworker_id\x18\x03 \x01(\tH\x02R\bworkerId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_client_idB\f\n" +
+	"\n" +
+	"_server_idB\f\n" +
+	"\n" +
+	"_worker_id\"U\n" +
+	"\x1bCreateWorkerIngressResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"I\n" +
+	"\x17GetWorkerIngressRequest\x12 \n" +
+	"\tworker_id\x18\x01 \x01(\tH\x00R\bworkerId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_worker_id\"\x8c\x01\n" +
+	"\x18GetWorkerIngressResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x128\n" +
+	"\rproxy_configs\x18\x02 \x03(\v2\x13.common.ProxyConfigR\fproxyConfigsB\t\n" +
+	"\a_status\"B\n" +
+	"\x10GetWorkerRequest\x12 \n" +
+	"\tworker_id\x18\x01 \x01(\tH\x00R\bworkerId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_worker_id\"\xad\x01\n" +
+	"\x11GetWorkerResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12+\n" +
+	"\x06worker\x18\x02 \x01(\v2\x0e.common.WorkerH\x01R\x06worker\x88\x01\x01\x12(\n" +
+	"\aclients\x18\x03 \x03(\v2\x0e.common.ClientR\aclientsB\t\n" +
+	"\a_statusB\t\n" +
+	"\a_worker\"H\n" +
+	"\x16GetWorkerStatusRequest\x12 \n" +
+	"\tworker_id\x18\x01 \x01(\tH\x00R\bworkerId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_worker_id\"\xee\x01\n" +
+	"\x17GetWorkerStatusResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12Z\n" +
+	"\rworker_status\x18\x02 \x03(\v25.api_client.GetWorkerStatusResponse.WorkerStatusEntryR\fworkerStatus\x1a?\n" +
+	"\x11WorkerStatusEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\t\n" +
+	"\a_status\"\x80\x01\n" +
+	"\x15InstallWorkerdRequest\x12 \n" +
+	"\tclient_id\x18\x01 \x01(\tH\x00R\bclientId\x88\x01\x01\x12&\n" +
+	"\fdownload_url\x18\x02 \x01(\tH\x01R\vdownloadUrl\x88\x01\x01B\f\n" +
+	"\n" +
+	"_client_idB\x0f\n" +
+	"\r_download_url\"P\n" +
+	"\x16InstallWorkerdResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
 	"\a_statusB\aZ\x05../pbb\x06proto3"
 
 var (
@@ -1924,7 +3167,7 @@ func file_api_client_proto_rawDescGZIP() []byte {
 	return file_api_client_proto_rawDescData
 }
 
-var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
+var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 55)
 var file_api_client_proto_goTypes = []any{
 	(*InitClientRequest)(nil),               // 0: api_client.InitClientRequest
 	(*InitClientResponse)(nil),              // 1: api_client.InitClientResponse
@@ -1958,40 +3201,82 @@ var file_api_client_proto_goTypes = []any{
 	(*StopProxyResponse)(nil),               // 29: api_client.StopProxyResponse
 	(*StartProxyRequest)(nil),               // 30: api_client.StartProxyRequest
 	(*StartProxyResponse)(nil),              // 31: api_client.StartProxyResponse
-	(*Status)(nil),                          // 32: common.Status
-	(*Client)(nil),                          // 33: common.Client
-	(*ProxyInfo)(nil),                       // 34: common.ProxyInfo
-	(*ProxyConfig)(nil),                     // 35: common.ProxyConfig
-	(*ProxyWorkingStatus)(nil),              // 36: common.ProxyWorkingStatus
+	(*CreateWorkerRequest)(nil),             // 32: api_client.CreateWorkerRequest
+	(*CreateWorkerResponse)(nil),            // 33: api_client.CreateWorkerResponse
+	(*RemoveWorkerRequest)(nil),             // 34: api_client.RemoveWorkerRequest
+	(*RemoveWorkerResponse)(nil),            // 35: api_client.RemoveWorkerResponse
+	(*UpdateWorkerRequest)(nil),             // 36: api_client.UpdateWorkerRequest
+	(*UpdateWorkerResponse)(nil),            // 37: api_client.UpdateWorkerResponse
+	(*RunWorkerRequest)(nil),                // 38: api_client.RunWorkerRequest
+	(*RunWorkerResponse)(nil),               // 39: api_client.RunWorkerResponse
+	(*StopWorkerRequest)(nil),               // 40: api_client.StopWorkerRequest
+	(*StopWorkerResponse)(nil),              // 41: api_client.StopWorkerResponse
+	(*ListWorkersRequest)(nil),              // 42: api_client.ListWorkersRequest
+	(*ListWorkersResponse)(nil),             // 43: api_client.ListWorkersResponse
+	(*CreateWorkerIngressRequest)(nil),      // 44: api_client.CreateWorkerIngressRequest
+	(*CreateWorkerIngressResponse)(nil),     // 45: api_client.CreateWorkerIngressResponse
+	(*GetWorkerIngressRequest)(nil),         // 46: api_client.GetWorkerIngressRequest
+	(*GetWorkerIngressResponse)(nil),        // 47: api_client.GetWorkerIngressResponse
+	(*GetWorkerRequest)(nil),                // 48: api_client.GetWorkerRequest
+	(*GetWorkerResponse)(nil),               // 49: api_client.GetWorkerResponse
+	(*GetWorkerStatusRequest)(nil),          // 50: api_client.GetWorkerStatusRequest
+	(*GetWorkerStatusResponse)(nil),         // 51: api_client.GetWorkerStatusResponse
+	(*InstallWorkerdRequest)(nil),           // 52: api_client.InstallWorkerdRequest
+	(*InstallWorkerdResponse)(nil),          // 53: api_client.InstallWorkerdResponse
+	nil,                                     // 54: api_client.GetWorkerStatusResponse.WorkerStatusEntry
+	(*Status)(nil),                          // 55: common.Status
+	(*Client)(nil),                          // 56: common.Client
+	(*ProxyInfo)(nil),                       // 57: common.ProxyInfo
+	(*ProxyConfig)(nil),                     // 58: common.ProxyConfig
+	(*ProxyWorkingStatus)(nil),              // 59: common.ProxyWorkingStatus
+	(*Worker)(nil),                          // 60: common.Worker
 }
 var file_api_client_proto_depIdxs = []int32{
-	32, // 0: api_client.InitClientResponse.status:type_name -> common.Status
-	32, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
-	33, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
-	32, // 3: api_client.GetClientResponse.status:type_name -> common.Status
-	33, // 4: api_client.GetClientResponse.client:type_name -> common.Client
-	32, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
-	32, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
-	32, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
-	32, // 8: api_client.StopFRPCResponse.status:type_name -> common.Status
-	32, // 9: api_client.StartFRPCResponse.status:type_name -> common.Status
-	32, // 10: api_client.GetProxyStatsByClientIDResponse.status:type_name -> common.Status
-	34, // 11: api_client.GetProxyStatsByClientIDResponse.proxy_infos:type_name -> common.ProxyInfo
-	32, // 12: api_client.ListProxyConfigsResponse.status:type_name -> common.Status
-	35, // 13: api_client.ListProxyConfigsResponse.proxy_configs:type_name -> common.ProxyConfig
-	32, // 14: api_client.CreateProxyConfigResponse.status:type_name -> common.Status
-	32, // 15: api_client.DeleteProxyConfigResponse.status:type_name -> common.Status
-	32, // 16: api_client.UpdateProxyConfigResponse.status:type_name -> common.Status
-	32, // 17: api_client.GetProxyConfigResponse.status:type_name -> common.Status
-	35, // 18: api_client.GetProxyConfigResponse.proxy_config:type_name -> common.ProxyConfig
-	36, // 19: api_client.GetProxyConfigResponse.working_status:type_name -> common.ProxyWorkingStatus
-	32, // 20: api_client.StopProxyResponse.status:type_name -> common.Status
-	32, // 21: api_client.StartProxyResponse.status:type_name -> common.Status
-	22, // [22:22] is the sub-list for method output_type
-	22, // [22:22] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	55, // 0: api_client.InitClientResponse.status:type_name -> common.Status
+	55, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
+	56, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
+	55, // 3: api_client.GetClientResponse.status:type_name -> common.Status
+	56, // 4: api_client.GetClientResponse.client:type_name -> common.Client
+	55, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
+	55, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
+	55, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
+	55, // 8: api_client.StopFRPCResponse.status:type_name -> common.Status
+	55, // 9: api_client.StartFRPCResponse.status:type_name -> common.Status
+	55, // 10: api_client.GetProxyStatsByClientIDResponse.status:type_name -> common.Status
+	57, // 11: api_client.GetProxyStatsByClientIDResponse.proxy_infos:type_name -> common.ProxyInfo
+	55, // 12: api_client.ListProxyConfigsResponse.status:type_name -> common.Status
+	58, // 13: api_client.ListProxyConfigsResponse.proxy_configs:type_name -> common.ProxyConfig
+	55, // 14: api_client.CreateProxyConfigResponse.status:type_name -> common.Status
+	55, // 15: api_client.DeleteProxyConfigResponse.status:type_name -> common.Status
+	55, // 16: api_client.UpdateProxyConfigResponse.status:type_name -> common.Status
+	55, // 17: api_client.GetProxyConfigResponse.status:type_name -> common.Status
+	58, // 18: api_client.GetProxyConfigResponse.proxy_config:type_name -> common.ProxyConfig
+	59, // 19: api_client.GetProxyConfigResponse.working_status:type_name -> common.ProxyWorkingStatus
+	55, // 20: api_client.StopProxyResponse.status:type_name -> common.Status
+	55, // 21: api_client.StartProxyResponse.status:type_name -> common.Status
+	60, // 22: api_client.CreateWorkerRequest.worker:type_name -> common.Worker
+	55, // 23: api_client.CreateWorkerResponse.status:type_name -> common.Status
+	55, // 24: api_client.RemoveWorkerResponse.status:type_name -> common.Status
+	60, // 25: api_client.UpdateWorkerRequest.worker:type_name -> common.Worker
+	55, // 26: api_client.UpdateWorkerResponse.status:type_name -> common.Status
+	55, // 27: api_client.RunWorkerResponse.status:type_name -> common.Status
+	55, // 28: api_client.StopWorkerResponse.status:type_name -> common.Status
+	55, // 29: api_client.ListWorkersResponse.status:type_name -> common.Status
+	60, // 30: api_client.ListWorkersResponse.workers:type_name -> common.Worker
+	55, // 31: api_client.CreateWorkerIngressResponse.status:type_name -> common.Status
+	55, // 32: api_client.GetWorkerIngressResponse.status:type_name -> common.Status
+	58, // 33: api_client.GetWorkerIngressResponse.proxy_configs:type_name -> common.ProxyConfig
+	55, // 34: api_client.GetWorkerResponse.status:type_name -> common.Status
+	60, // 35: api_client.GetWorkerResponse.worker:type_name -> common.Worker
+	56, // 36: api_client.GetWorkerResponse.clients:type_name -> common.Client
+	55, // 37: api_client.GetWorkerStatusResponse.status:type_name -> common.Status
+	54, // 38: api_client.GetWorkerStatusResponse.worker_status:type_name -> api_client.GetWorkerStatusResponse.WorkerStatusEntry
+	55, // 39: api_client.InstallWorkerdResponse.status:type_name -> common.Status
+	40, // [40:40] is the sub-list for method output_type
+	40, // [40:40] is the sub-list for method input_type
+	40, // [40:40] is the sub-list for extension type_name
+	40, // [40:40] is the sub-list for extension extendee
+	0,  // [0:40] is the sub-list for field type_name
 }
 
 func init() { file_api_client_proto_init() }
@@ -2032,13 +3317,35 @@ func file_api_client_proto_init() {
 	file_api_client_proto_msgTypes[29].OneofWrappers = []any{}
 	file_api_client_proto_msgTypes[30].OneofWrappers = []any{}
 	file_api_client_proto_msgTypes[31].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[32].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[33].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[34].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[35].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[36].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[37].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[38].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[39].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[40].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[41].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[42].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[43].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[44].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[45].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[46].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[47].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[48].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[49].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[50].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[51].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[52].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[53].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_client_proto_rawDesc), len(file_api_client_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   32,
+			NumMessages:   55,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

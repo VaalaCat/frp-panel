@@ -12,20 +12,42 @@ type application struct {
 	streamLogHookMgr StreamLogHookMgr
 	masterCli        MasterClient
 
-	shellPTYMgr      ShellPTYMgr
-	clientLogManager ClientLogManager
-	clientRPCHandler ClientRPCHandler
-	dbManager        DBManager
-	clientController ClientController
-	clientRecvMap    *sync.Map
-	clientsManager   ClientsManager
-	serverHandler    ServerHandler
-	serverController ServerController
-	rpcCred          credentials.TransportCredentials
-	conf             conf.Config
-	currentRole      string
-	permManager      PermissionManager
-	enforcer         *casbin.Enforcer
+	shellPTYMgr       ShellPTYMgr
+	clientLogManager  ClientLogManager
+	clientRPCHandler  ClientRPCHandler
+	dbManager         DBManager
+	clientController  ClientController
+	clientRecvMap     *sync.Map
+	clientsManager    ClientsManager
+	serverHandler     ServerHandler
+	serverController  ServerController
+	rpcCred           credentials.TransportCredentials
+	conf              conf.Config
+	currentRole       string
+	permManager       PermissionManager
+	enforcer          *casbin.Enforcer
+	workerExecManager WorkerExecManager
+	workersManager    WorkersManager
+}
+
+// GetWorkersManager implements Application.
+func (a *application) GetWorkersManager() WorkersManager {
+	return a.workersManager
+}
+
+// SetWorkersManager implements Application.
+func (a *application) SetWorkersManager(w WorkersManager) {
+	a.workersManager = w
+}
+
+// GetWorkerExecManager implements Application.
+func (a *application) GetWorkerExecManager() WorkerExecManager {
+	return a.workerExecManager
+}
+
+// SetWorkerExecManager implements Application.
+func (a *application) SetWorkerExecManager(w WorkerExecManager) {
+	a.workerExecManager = w
 }
 
 // GetEnforcer implements Application.

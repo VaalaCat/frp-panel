@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import { Popover, PopoverTrigger } from "@radix-ui/react-popover"
-import { Badge } from "../ui/badge"
-import { ClientStatus } from "@/lib/pb/api_master"
-import { PopoverContent } from "../ui/popover"
-import { useTranslation } from "react-i18next"
-import { motion } from "framer-motion"
+import { Popover, PopoverTrigger } from '@radix-ui/react-popover'
+import { Badge } from '../ui/badge'
+import { ClientStatus } from '@/lib/pb/api_master'
+import { PopoverContent } from '../ui/popover'
+import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN, enUS } from 'date-fns/locale'
 
@@ -13,31 +13,26 @@ export const ClientDetail = ({ clientStatus }: { clientStatus: ClientStatus }) =
   const { t, i18n } = useTranslation()
 
   const locale = i18n.language === 'zh' ? zhCN : enUS
-  const connectTime = clientStatus.connectTime ? 
-    formatDistanceToNow(new Date(parseInt(clientStatus.connectTime.toString())), { 
-      addSuffix: true,
-      locale 
-    }) : '-'
+  const connectTime = clientStatus.connectTime
+    ? formatDistanceToNow(new Date(parseInt(clientStatus.connectTime.toString())), {
+        addSuffix: true,
+        locale,
+      })
+    : '-'
 
   return (
     <Popover>
-      <PopoverTrigger className='flex items-center'>
-        <Badge 
-          variant="secondary" 
-          className='text-nowrap rounded-full h-6 hover:bg-secondary/80 transition-colors text-sm'
+      <PopoverTrigger className="flex items-center">
+        <Badge
+          variant="secondary"
+          className="text-nowrap rounded-full h-6 hover:bg-secondary/80 transition-colors text-xs"
         >
           {clientStatus.version?.gitVersion || 'Unknown'}
         </Badge>
       </PopoverTrigger>
       <PopoverContent className="w-72 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-border">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <h3 className="text-base font-semibold mb-3 text-center text-foreground">
-            {t('client.detail.title')}
-          </h3>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+          <h3 className="text-base font-semibold mb-3 text-center text-foreground">{t('client.detail.title')}</h3>
           <div className="space-y-2">
             <div className="flex justify-between items-center py-1 border-b border-border">
               <span className="text-sm font-medium text-muted-foreground">{t('client.detail.version')}</span>

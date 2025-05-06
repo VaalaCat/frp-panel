@@ -38,6 +38,7 @@ export interface ProxyBaseConfig {
   type: string
   transport?: ProxyTransport
   metadatas?: { [key: string]: string }
+  annotations?: { [key: string]: string }
   loadBalancer?: LoadBalancerConfig
   healthCheck?: HealthCheckConfig
   localIP?: string

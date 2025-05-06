@@ -6,6 +6,7 @@ import (
 	"embed"
 	"net"
 	"net/http"
+	"os"
 	"path/filepath"
 	"sync"
 
@@ -26,6 +27,7 @@ import (
 	"github.com/VaalaCat/frp-panel/services/rbac"
 	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/services/watcher"
+	"github.com/VaalaCat/frp-panel/services/workerd"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/VaalaCat/frp-panel/utils/wsgrpc"
@@ -372,4 +374,40 @@ func NewEnforcer(param struct {
 	}
 	param.AppInstance.SetEnforcer(e)
 	return e
+}
+
+func NewWorkersManager(lx fx.Lifecycle, mgr app.WorkerExecManager, appInstance app.Application) app.WorkersManager {
+	if !appInstance.GetConfig().Client.Features.EnableFunctions {
+		return nil
+	}
+
+	workerMgr := workerd.NewWorkersManager()
+	appInstance.SetWorkersManager(workerMgr)
+
+	lx.Append(fx.Hook{
+		OnStop: func(ctx context.Context) error {
+			workerMgr.StopAll()
+			logger.Logger(ctx).Info("stop all workers")
+			return nil
+		},
+	})
+
+	return workerMgr
+}
+
+func NewWorkerExecManager(cfg conf.Config, appInstance app.Application) app.WorkerExecManager {
+	if !appInstance.GetConfig().Client.Features.EnableFunctions {
+		return nil
+	}
+
+	workerdBinPath := cfg.Client.Worker.WorkerdBinaryPath
+
+	if err := os.MkdirAll(cfg.Client.Worker.WorkerdWorkDir, os.ModePerm); err != nil {
+		logger.Logger(context.Background()).WithError(err).Fatalf("create work dir failed, path: [%s]", cfg.Client.Worker.WorkerdWorkDir)
+	}
+
+	mgr := workerd.NewExecManager(workerdBinPath,
+		[]string{"serve", "--watch", "--verbose"})
+	appInstance.SetWorkerExecManager(mgr)
+	return mgr
 }

@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
@@ -33,6 +33,7 @@ export type ProxyConfigMutateDialogProps = {
   defaultProxyConfig?: TypedProxyConfig
   defaultOriginalProxyConfig?: ProxyConfig
   disableChangeProxyName?: boolean
+  onSuccess?: () => void
 }
 
 export const ProxyConfigMutateDialog = ({ ...props }: ProxyConfigMutateDialogProps) => {
@@ -41,16 +42,14 @@ export const ProxyConfigMutateDialog = ({ ...props }: ProxyConfigMutateDialogPro
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className='w-fit'>
+        <Button variant="outline" className="w-fit">
           {t('proxy.config.create')}
         </Button>
       </DialogTrigger>
-      <DialogContent className='max-h-screen overflow-auto'>
+      <DialogContent className="max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>{t('proxy.config.create_proxy')}</DialogTitle>
-          <DialogDescription>
-            {t('proxy.config.create_proxy_description')}
-          </DialogDescription>
+          <DialogDescription>{t('proxy.config.create_proxy_description')}</DialogDescription>
         </DialogHeader>
         <ProxyConfigMutateForm {...props} />
       </DialogContent>
@@ -58,7 +57,13 @@ export const ProxyConfigMutateDialog = ({ ...props }: ProxyConfigMutateDialogPro
   )
 }
 
-export const ProxyConfigMutateForm = ({ overwrite, defaultProxyConfig, defaultOriginalProxyConfig, disableChangeProxyName }: ProxyConfigMutateDialogProps) => {
+export const ProxyConfigMutateForm = ({
+  overwrite,
+  defaultProxyConfig,
+  defaultOriginalProxyConfig,
+  disableChangeProxyName,
+  onSuccess,
+}: ProxyConfigMutateDialogProps) => {
   const { t } = useTranslation()
   const [newClientID, setNewClientID] = useState<string | undefined>()
   const [newServerID, setNewServerID] = useState<string | undefined>()
@@ -66,28 +71,30 @@ export const ProxyConfigMutateForm = ({ overwrite, defaultProxyConfig, defaultOr
   const [proxyName, setProxyName] = useState<string | undefined>('')
   const [proxyType, setProxyType] = useState<ProxyType>('http')
   const [selectedServer, setSelectedServer] = useState<Server | undefined>()
-  const supportedProxyTypes: ProxyType[] = ["http", "tcp", "udp"]
+  const supportedProxyTypes: ProxyType[] = ['http', 'tcp', 'udp']
 
   const createProxyConfigMutation = useMutation({
     mutationKey: ['createProxyConfig', newClientID, newServerID],
-    mutationFn: () => createProxyConfig({
-      clientId: newClientID!,
-      serverId: newServerID!,
-      config: ObjToUint8Array({
-        proxies: proxyConfigs
-      } as ClientConfig),
-      overwrite,
-    }),
+    mutationFn: () =>
+      createProxyConfig({
+        clientId: newClientID!,
+        serverId: newServerID!,
+        config: ObjToUint8Array({
+          proxies: proxyConfigs,
+        } as ClientConfig),
+        overwrite,
+      }),
     onSuccess: () => {
       toast(t('proxy.config.create_success'))
       $proxyTableRefetchTrigger.set(Math.random())
+      onSuccess?.()
     },
     onError: (e) => {
       toast(t('proxy.config.create_failed'), {
         description: JSON.stringify(e),
       })
       $proxyTableRefetchTrigger.set(Math.random())
-    }
+    },
   })
 
   useEffect(() => {
@@ -116,27 +123,39 @@ export const ProxyConfigMutateForm = ({ overwrite, defaultProxyConfig, defaultOr
       <BaseSelector
         dataList={supportedProxyTypes.map((type) => ({ value: type, label: type }))}
         value={proxyType}
-        setValue={(value) => { setProxyType(value as ProxyType) }}
+        setValue={(value) => {
+          setProxyType(value as ProxyType)
+        }}
       />
-      {proxyConfigs && selectedServer && proxyConfigs.length > 0 &&
-        proxyConfigs[0] && TypedProxyConfigValid(proxyConfigs[0]) &&
-        <div className='flex flex-row w-full overflow-auto'>
-          <div className='flex flex-col'>
-            <VisitPreview server={selectedServer} typedProxyConfig={proxyConfigs[0]} />
+      {proxyConfigs &&
+        selectedServer &&
+        proxyConfigs.length > 0 &&
+        proxyConfigs[0] &&
+        TypedProxyConfigValid(proxyConfigs[0]) && (
+          <div className="flex flex-row w-full overflow-auto">
+            <div className="flex flex-col">
+              <VisitPreview server={selectedServer} typedProxyConfig={proxyConfigs[0]} />
+            </div>
           </div>
-        </div>
-      }
+        )}
       <Label>{t('proxy.config.proxy_name')} </Label>
-      <Input className='text-sm' defaultValue={proxyName} onChange={(e) => setProxyName(e.target.value)} disabled={disableChangeProxyName} />
-      {proxyName && newClientID && newServerID && <TypedProxyForm
-        serverID={newServerID}
-        clientID={newClientID}
-        proxyName={proxyName}
-        defaultProxyConfig={proxyConfigs && proxyConfigs.length > 0 ? proxyConfigs[0] : undefined}
-        clientProxyConfigs={proxyConfigs}
-        setClientProxyConfigs={setProxyConfigs}
-        enablePreview={false}
-      />}
+      <Input
+        className="text-sm"
+        defaultValue={proxyName}
+        onChange={(e) => setProxyName(e.target.value)}
+        disabled={disableChangeProxyName}
+      />
+      {proxyName && newClientID && newServerID && (
+        <TypedProxyForm
+          serverID={newServerID}
+          clientID={newClientID}
+          proxyName={proxyName}
+          defaultProxyConfig={proxyConfigs && proxyConfigs.length > 0 ? proxyConfigs[0] : undefined}
+          clientProxyConfigs={proxyConfigs}
+          setClientProxyConfigs={setProxyConfigs}
+          enablePreview={false}
+        />
+      )}
       <Button
         disabled={!TypedProxyConfigValid(proxyConfigs[0])}
         onClick={() => {
@@ -145,7 +164,10 @@ export const ProxyConfigMutateForm = ({ overwrite, defaultProxyConfig, defaultOr
             return
           }
           createProxyConfigMutation.mutate()
-        }} >{t('proxy.config.submit')}</Button>
+        }}
+      >
+        {t('proxy.config.submit')}
+      </Button>
     </>
   )
 }

@@ -7,7 +7,7 @@ toolchain go1.24.1
 require (
 	github.com/UserExistsError/conpty v0.1.4
 	github.com/casbin/casbin/v2 v2.105.0
-	github.com/casbin/gorm-adapter/v3 v3.32.0
+	github.com/casbin/gorm-adapter/v3 v3.29.0
 	github.com/coocood/freecache v1.2.4
 	github.com/creack/pty v1.1.24
 	github.com/fatedier/frp v0.62.0
@@ -25,23 +25,26 @@ require (
 	github.com/jackpal/gateway v1.0.16
 	github.com/joho/godotenv v1.5.1
 	github.com/kardianos/service v1.2.2
+	github.com/lucasepe/codename v0.2.0
 	github.com/samber/lo v1.47.0
-	github.com/shirou/gopsutil/v4 v4.24.11
+	github.com/shirou/gopsutil/v4 v4.25.4
 	github.com/sirupsen/logrus v1.9.3
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cast v1.7.1
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
+	github.com/stretchr/testify v1.10.0
 	github.com/tidwall/pretty v1.2.1
 	github.com/tiendc/go-deepcopy v1.2.0
 	go.uber.org/fx v1.23.0
+	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.37.0
 	golang.org/x/net v0.39.0
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.36.5
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.9
-	gorm.io/gorm v1.25.12
+	gorm.io/gorm v1.25.11
 	k8s.io/apimachinery v0.28.8
 )
 
@@ -60,7 +63,7 @@ require (
 	github.com/coreos/go-oidc/v3 v3.14.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/ebitengine/purego v0.8.1 // indirect
+	github.com/ebitengine/purego v0.8.2 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
@@ -121,7 +124,6 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/templexxx/cpu v0.1.1 // indirect
 	github.com/templexxx/xorsimd v0.4.3 // indirect
 	github.com/tjfoc/gmsm v1.4.1 // indirect
@@ -136,7 +138,6 @@ require (
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/dig v1.18.1 // indirect
 	go.uber.org/mock v0.5.1 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/exp v0.0.0-20241204233417-43b7b7cde48d // indirect
@@ -154,7 +155,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/sqlserver v1.5.3 // indirect
-	gorm.io/plugin/dbresolver v1.5.3 // indirect
+	gorm.io/plugin/dbresolver v1.5.2 // indirect
 	gvisor.dev/gvisor v0.0.0-20250425231648-60ec4e7a009d // indirect
 	k8s.io/utils v0.0.0-20230406110748-d93618cff8a2 // indirect
 	modernc.org/libc v1.22.5 // indirect

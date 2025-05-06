@@ -1,0 +1,16 @@
+defaultBaseImage: jacoblincool/workerd
+
+builds:
+  - id: frpp
+    dir: .
+    main: ./cmd/frpp
+    ldflags:
+      - -s -w
+      - -X github.com/VaalaCat/frp-panel/conf.buildDate={{.Date}}
+      - -X github.com/VaalaCat/frp-panel/conf.gitCommit={{.Git.FullCommit}}
+      - -X github.com/VaalaCat/frp-panel/conf.gitVersion={{.Git.Tag}}
+      - -X github.com/VaalaCat/frp-panel/conf.gitBranch={{.Git.Branch}}
+
+defaultPlatforms:
+  - linux/arm64
+  - linux/amd64

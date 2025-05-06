@@ -177,6 +177,13 @@
     "register": "注册",
     "userInfo": "用户信息",
     "logout": "退出登录",
+    "add": "添加",
+    "back": "返回",
+    "saving": "保存中",
+    "save": "保存",
+    "success": "成功",
+    "failed": "失败",
+    "cancel": "取消",
     "clientType": "客户端类型",
     "disconnect": "断开连接",
     "connect": "连接"
@@ -298,9 +305,9 @@
       "title": "隧道操作"
     },
     "item": {
-      "client_id": "客户端ID",
       "proxy_name": "隧道名称",
       "proxy_type": "隧道类型",
+      "client_id": "客户端ID",
       "server_id": "服务端ID",
       "status": "状态",
       "visit_preview": "访问预览"
@@ -468,6 +475,113 @@
     "cancel": "取消",
     "confirm": "确认"
   },
+  "worker": {
+    "client_install_workerd": {
+      "success": "Workerd安装成功",
+      "error": "Workerd安装失败",
+      "title": "安装Workerd",
+      "description": "从URL安装Workerd二进制文件到客户端",
+      "download_url": "Workerd二进制文件下载URL",
+      "placeholder": "请输入下载URL",
+      "button": "安装"
+    },
+    "status_running": "运行中",
+    "status_stopped": "已停止",
+    "status_error": "错误",
+    "status_unknown": "未知",
+    "deploy": {
+      "title": "部署",
+      "add_client": "添加部署",
+      "select_client": "选择客户端",
+      "client_description": "请选择Worker需要部署到的客户端",
+      "no_clients": "没有可用的客户端"
+    },
+    "edit": {
+      "save_success": "保存成功",
+      "save_error": "保存失败",
+      "title": "编辑",
+      "info_tab": "信息",
+      "code_tab": "代码",
+      "template_tab": "模板"
+    },
+    "info": {
+      "basic_info": "基本信息",
+      "info_description": "这里是基本信息，你可以修改Worker的相关描述",
+      "worker_id": "WorkerID",
+      "worker_name": "Worker名称",
+      "name_placeholder": "请输入Worker名称",
+      "resources": "相关资源",
+      "clients": "部署",
+      "ingresses": "入口"
+    },
+    "ingress": {
+      "create_success": "创建成功",
+      "create_failed": "创建失败",
+      "client_required": "客户端是必需的",
+      "server_required": "服务器是必需的",
+      "select_client": "选择客户端",
+      "select_server": "选择服务器",
+      "creating": "正在创建",
+      "create_submit": "创建",
+      "title": "入口",
+      "create": "创建",
+      "create_title": "创建入口",
+      "create_description": "创建一个新的入口",
+      "no_ingress": "没有入口",
+      "edit": "编辑",
+      "delete": {
+        "title": "删除入口",
+        "description": "您确定要删除此入口吗？",
+        "button": "删除"
+      },
+      "delete_success": "入口已成功删除",
+      "delete_description": "入口已成功删除"
+    },
+    "create": {
+      "button": "创建",
+      "title": "创建Worker",
+      "description": "创建一个新的Worker",
+      "clientIdLabel": "客户端ID",
+      "nameLabel": "Worker名称",
+      "namePlaceholder": "请输入Worker名称",
+      "creating": "正在创建",
+      "submit": "提交"
+    },
+    "columns": {
+      "name": "Worker名称",
+      "status": "状态",
+      "id": "WorkerID"
+    },
+    "actions_menu": {
+      "delete": "删除",
+      "title": "操作",
+      "edit": "编辑"
+    },
+    "delete": {
+      "title": "删除Worker",
+      "description": "确定要删除这个Worker吗？",
+      "confirm": "确认删除"
+    },
+    "status": {
+      "no_resources": "无资源",
+      "unusable": "不可用",
+      "unhealthy": "不健康",
+      "healthy": "健康",
+      "degraded": "降级",
+      "clients": "部署",
+      "running": "运行中",
+      "ingresses": "入口"
+    }
+  },
+  "status": {
+    "new": "新建",
+    "wait_start": "等待启动",
+    "start_error": "启动错误",
+    "running": "运行中",
+    "check_failed": "检查失败",
+    "error": "错误",
+    "unknown": "未知"
+  },
   "nav": {
     "clients": "客户端",
     "servers": "服务端",
@@ -476,7 +590,8 @@
     "editServer": "编辑服务端",
     "trafficStats": "流量统计",
     "realTimeLog": "实时日志",
-    "console": "控制台"
+    "console": "控制台",
+    "workers": "函数"
   },
   "frpc_form": {
     "add": "新增隧道",

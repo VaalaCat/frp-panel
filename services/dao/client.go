@@ -29,7 +29,7 @@ func (q *queryImpl) ValidateClientSecret(clientID, clientSecret string) (*models
 	return c.ClientEntity, nil
 }
 
-func (q *queryImpl) AdminGetClientByClientID(clientID string) (*models.ClientEntity, error) {
+func (q *queryImpl) AdminGetClientByClientID(clientID string) (*models.Client, error) {
 	if clientID == "" {
 		return nil, fmt.Errorf("invalid client id")
 	}
@@ -43,10 +43,10 @@ func (q *queryImpl) AdminGetClientByClientID(clientID string) (*models.ClientEnt
 	if err != nil {
 		return nil, err
 	}
-	return c.ClientEntity, nil
+	return c, nil
 }
 
-func (q *queryImpl) GetClientByClientID(userInfo models.UserInfo, clientID string) (*models.ClientEntity, error) {
+func (q *queryImpl) GetClientByClientID(userInfo models.UserInfo, clientID string) (*models.Client, error) {
 	if clientID == "" {
 		return nil, fmt.Errorf("invalid client id")
 	}
@@ -62,7 +62,22 @@ func (q *queryImpl) GetClientByClientID(userInfo models.UserInfo, clientID strin
 	if err != nil {
 		return nil, err
 	}
-	return c.ClientEntity, nil
+	return c, nil
+}
+
+func (q *queryImpl) GetClientsByClientIDs(userInfo models.UserInfo, clientIDs []string) ([]*models.Client, error) {
+	if len(clientIDs) == 0 {
+		return nil, fmt.Errorf("invalid client ids")
+	}
+
+	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	cs := []*models.Client{}
+	err := db.Where("client_id IN ?", clientIDs).Find(&cs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return cs, nil
 }
 
 func (q *queryImpl) GetClientByFilter(userInfo models.UserInfo, client *models.ClientEntity, shadow *bool) (*models.ClientEntity, error) {

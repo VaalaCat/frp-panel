@@ -15,6 +15,7 @@ import (
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/joho/godotenv"
+	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"go.uber.org/fx"
@@ -383,13 +384,13 @@ func patchConfig(appInstance app.Application, commonArgs CommonArgs) conf.Config
 		tmpCfg.Client.RPCUrl = *commonArgs.RpcUrl
 	}
 
-	if commonArgs.RpcPort != nil || commonArgs.ApiPort != nil ||
-		commonArgs.ApiScheme != nil ||
-		commonArgs.RpcHost != nil || commonArgs.ApiHost != nil {
-		logger.Logger(c).Warnf("deprecatedenv configs !!! pls use api url and rpc url \n\n rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s",
+	if lo.FromPtrOr(commonArgs.RpcPort, 0) != 0 || lo.FromPtrOr(commonArgs.ApiPort, 0) != 0 ||
+		lo.FromPtrOr(commonArgs.ApiScheme, "") != "" ||
+		lo.FromPtrOr(commonArgs.RpcHost, "") != "" || lo.FromPtrOr(commonArgs.ApiHost, "") != "" {
+		logger.Logger(c).Warnf("deprecatedenv configs !!! pls use api url and rpc url \n\n rpc host: %s, rpc port: %d, api host: %s, api port: %d, api scheme: %s, \n\n args: %s",
 			tmpCfg.Master.RPCHost, tmpCfg.Master.RPCPort,
 			tmpCfg.Master.APIHost, tmpCfg.Master.APIPort,
-			tmpCfg.Master.APIScheme)
+			tmpCfg.Master.APIScheme, utils.MarshalForJson(tmpCfg))
 	} else if len(tmpCfg.Client.APIUrl) > 0 || len(tmpCfg.Client.RPCUrl) > 0 {
 		logger.Logger(c).Infof("env config, api url: %s, rpc url: %s", tmpCfg.Client.APIUrl, tmpCfg.Client.RPCUrl)
 	}

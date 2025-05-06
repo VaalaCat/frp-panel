@@ -27,16 +27,6 @@ export type ProxyConfigTableSchema = {
 
 export const columns: ColumnDef<ProxyConfigTableSchema>[] = [
   {
-    accessorKey: 'clientID',
-    header: function Header() {
-      const { t } = useTranslation()
-      return t('proxy.item.client_id')
-    },
-    cell: ({ row }) => {
-      return <div className="font-mono text-nowrap">{row.original.originalProxyConfig.originClientId}</div>
-    },
-  },
-  {
     accessorKey: 'name',
     header: function Header() {
       const { t } = useTranslation()
@@ -54,6 +44,16 @@ export const columns: ColumnDef<ProxyConfigTableSchema>[] = [
     },
     cell: ({ row }) => {
       return <div className="font-mono text-nowrap">{row.original.type}</div>
+    },
+  },
+  {
+    accessorKey: 'clientID',
+    header: function Header() {
+      const { t } = useTranslation()
+      return t('proxy.item.client_id')
+    },
+    cell: ({ row }) => {
+      return <div className="font-mono text-nowrap">{row.original.originalProxyConfig.originClientId}</div>
     },
   },
   {

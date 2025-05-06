@@ -22,6 +22,7 @@ const (
 	Master_ServerSend_FullMethodName          = "/master.Master/ServerSend"
 	Master_PullClientConfig_FullMethodName    = "/master.Master/PullClientConfig"
 	Master_PullServerConfig_FullMethodName    = "/master.Master/PullServerConfig"
+	Master_ListClientWorkers_FullMethodName   = "/master.Master/ListClientWorkers"
 	Master_FRPCAuth_FullMethodName            = "/master.Master/FRPCAuth"
 	Master_PushProxyInfo_FullMethodName       = "/master.Master/PushProxyInfo"
 	Master_PushClientStreamLog_FullMethodName = "/master.Master/PushClientStreamLog"
@@ -36,6 +37,7 @@ type MasterClient interface {
 	ServerSend(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ClientMessage, ServerMessage], error)
 	PullClientConfig(ctx context.Context, in *PullClientConfigReq, opts ...grpc.CallOption) (*PullClientConfigResp, error)
 	PullServerConfig(ctx context.Context, in *PullServerConfigReq, opts ...grpc.CallOption) (*PullServerConfigResp, error)
+	ListClientWorkers(ctx context.Context, in *ListClientWorkersRequest, opts ...grpc.CallOption) (*ListClientWorkersResponse, error)
 	FRPCAuth(ctx context.Context, in *FRPAuthRequest, opts ...grpc.CallOption) (*FRPAuthResponse, error)
 	PushProxyInfo(ctx context.Context, in *PushProxyInfoReq, opts ...grpc.CallOption) (*PushProxyInfoResp, error)
 	PushClientStreamLog(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[PushClientStreamLogReq, PushStreamLogResp], error)
@@ -78,6 +80,16 @@ func (c *masterClient) PullServerConfig(ctx context.Context, in *PullServerConfi
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PullServerConfigResp)
 	err := c.cc.Invoke(ctx, Master_PullServerConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterClient) ListClientWorkers(ctx context.Context, in *ListClientWorkersRequest, opts ...grpc.CallOption) (*ListClientWorkersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListClientWorkersResponse)
+	err := c.cc.Invoke(ctx, Master_ListClientWorkers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -150,6 +162,7 @@ type MasterServer interface {
 	ServerSend(grpc.BidiStreamingServer[ClientMessage, ServerMessage]) error
 	PullClientConfig(context.Context, *PullClientConfigReq) (*PullClientConfigResp, error)
 	PullServerConfig(context.Context, *PullServerConfigReq) (*PullServerConfigResp, error)
+	ListClientWorkers(context.Context, *ListClientWorkersRequest) (*ListClientWorkersResponse, error)
 	FRPCAuth(context.Context, *FRPAuthRequest) (*FRPAuthResponse, error)
 	PushProxyInfo(context.Context, *PushProxyInfoReq) (*PushProxyInfoResp, error)
 	PushClientStreamLog(grpc.ClientStreamingServer[PushClientStreamLogReq, PushStreamLogResp]) error
@@ -173,6 +186,9 @@ func (UnimplementedMasterServer) PullClientConfig(context.Context, *PullClientCo
 }
 func (UnimplementedMasterServer) PullServerConfig(context.Context, *PullServerConfigReq) (*PullServerConfigResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PullServerConfig not implemented")
+}
+func (UnimplementedMasterServer) ListClientWorkers(context.Context, *ListClientWorkersRequest) (*ListClientWorkersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListClientWorkers not implemented")
 }
 func (UnimplementedMasterServer) FRPCAuth(context.Context, *FRPAuthRequest) (*FRPAuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FRPCAuth not implemented")
@@ -253,6 +269,24 @@ func _Master_PullServerConfig_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Master_ListClientWorkers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListClientWorkersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServer).ListClientWorkers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Master_ListClientWorkers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServer).ListClientWorkers(ctx, req.(*ListClientWorkersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Master_FRPCAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FRPAuthRequest)
 	if err := dec(in); err != nil {
@@ -324,6 +358,10 @@ var Master_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PullServerConfig",
 			Handler:    _Master_PullServerConfig_Handler,
+		},
+		{
+			MethodName: "ListClientWorkers",
+			Handler:    _Master_ListClientWorkers_Handler,
 		},
 		{
 			MethodName: "FRPCAuth",

@@ -146,7 +146,7 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({
   const [pluginConfig, setPluginConfig] = useState<TypedClientPluginOptions | undefined>(defaultConfig.plugin)
 
   const onSubmit = async (values: z.infer<typeof TCPConfigSchema>) => {
-    const cfgToSubmit = { ...values, plugin: pluginConfig, type: 'tcp', name: proxyName } as TCPProxyConfig
+    const cfgToSubmit = { ...defaultConfig, ...values, plugin: pluginConfig, type: 'tcp', name: proxyName } as TCPProxyConfig
     if (!TypedProxyConfigValid(cfgToSubmit)) {
       toast.error('Invalid configuration')
       return
@@ -252,7 +252,7 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({
   const [pluginConfig, setPluginConfig] = useState<TypedClientPluginOptions | undefined>(defaultConfig.plugin)
 
   const onSubmit = async (values: z.infer<typeof STCPConfigSchema>) => {
-    const cfgToSubmit = { ...values, plugin: pluginConfig, type: 'stcp', name: proxyName } as STCPProxyConfig
+    const cfgToSubmit = { ...defaultConfig, ...values, plugin: pluginConfig, type: 'stcp', name: proxyName } as STCPProxyConfig
     if (!TypedProxyConfigValid(cfgToSubmit)) {
       toast.error('Invalid configuration')
       return
@@ -334,7 +334,7 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({
   const [pluginConfig, setPluginConfig] = useState<TypedClientPluginOptions | undefined>(defaultConfig.plugin)
 
   const onSubmit = async (values: z.infer<typeof UDPConfigSchema>) => {
-    const cfgToSubmit = { ...values, plugin: pluginConfig, type: 'udp', name: proxyName } as UDPProxyConfig
+    const cfgToSubmit = { ...defaultConfig, ...values, plugin: pluginConfig, type: 'udp', name: proxyName } as UDPProxyConfig
     if (!TypedProxyConfigValid(cfgToSubmit)) {
       toast.error('Invalid configuration')
       return
@@ -442,7 +442,7 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({
   const [pluginConfig, setPluginConfig] = useState<TypedClientPluginOptions | undefined>(defaultConfig.plugin)
 
   const onSubmit = async (values: z.infer<typeof HTTPConfigSchema>) => {
-    const cfgToSubmit = { ...values, plugin: pluginConfig, type: 'http', name: proxyName } as HTTPProxyConfig
+    const cfgToSubmit = { ...defaultConfig, ...values, plugin: pluginConfig, type: 'http', name: proxyName } as HTTPProxyConfig
     if (!TypedProxyConfigValid(cfgToSubmit)) {
       toast.error('Invalid configuration')
       return

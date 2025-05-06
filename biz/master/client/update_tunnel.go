@@ -36,13 +36,15 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 		}, err
 	}
 
-	cli, err := dao.NewQuery(c).GetClientByClientID(userInfo, reqClientID)
+	cliRecord, err := dao.NewQuery(c).GetClientByClientID(userInfo, reqClientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", reqClientID)
 		return &pb.UpdateFRPCResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "cannot get client"},
 		}, fmt.Errorf("cannot get client")
 	}
+
+	cli := cliRecord.ClientEntity
 
 	if cli.IsShadow {
 		cli, err = ChildClientForServer(c, serverID, cli)

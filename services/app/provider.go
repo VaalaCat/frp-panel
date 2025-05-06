@@ -171,3 +171,30 @@ type PermissionManager interface {
 	RevokeGroupPermission(groupID string, objType defs.RBACObj, objID string, action defs.RBACAction, tenantID int) (bool, error)
 	RevokeUserPermission(userID int, objType defs.RBACObj, objID string, action defs.RBACAction, tenantID int) (bool, error)
 }
+
+// services/workerd/exec_manager.go
+type WorkerExecManager interface {
+	RunCmd(workerId string, cwd string, argv []string)
+	ExitCmd(workerId string)
+	ExitAllCmd()
+	UpdateBinaryPath(path string)
+}
+
+// services/workerd/workerd.go
+type WorkerController interface {
+	RunWorker(c *Context)
+	StopWorker(c *Context)
+	// GetWorkerStatus(c *Context) defs.WorkerStatus
+	GarbageCollect()
+	Init(c *Context) error
+}
+
+// services/workerd/workers_manager.go
+type WorkersManager interface {
+	GetWorker(ctx *Context, id string) (WorkerController, bool)
+	RunWorker(ctx *Context, id string, worker WorkerController) error
+	StopWorker(ctx *Context, id string) error
+	GetWorkerStatus(ctx *Context, id string) (defs.WorkerStatus, error)
+	// install workerd bin to workerd bin path, if not specified, use default path /usr/local/bin/workerd
+	InstallWorkerd(ctx *Context, url string, path string) (string, error)
+}

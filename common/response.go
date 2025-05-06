@@ -26,7 +26,10 @@ type RespType interface {
 		pb.GetProxyStatsByClientIDResponse | pb.GetProxyStatsByServerIDResponse |
 		pb.CreateProxyConfigResponse | pb.ListProxyConfigsResponse | pb.UpdateProxyConfigResponse |
 		pb.DeleteProxyConfigResponse | pb.GetProxyConfigResponse | pb.SignTokenResponse |
-		pb.StartProxyResponse | pb.StopProxyResponse
+		pb.StartProxyResponse | pb.StopProxyResponse |
+		pb.CreateWorkerResponse | pb.RemoveWorkerResponse | pb.RunWorkerResponse | pb.StopWorkerResponse | pb.UpdateWorkerResponse | pb.GetWorkerResponse |
+		pb.ListWorkersResponse | pb.CreateWorkerIngressResponse | pb.GetWorkerIngressResponse |
+		pb.GetWorkerStatusResponse | pb.InstallWorkerdResponse
 }
 
 func OKResp[T RespType](c *gin.Context, origin *T) {
@@ -96,6 +99,14 @@ func getEvent(origin interface{}) (pb.Event, protoreflect.ProtoMessage, error) {
 		return pb.Event_EVENT_STOP_FRPS, ptr, nil
 	case *pb.GetProxyConfigResponse:
 		return pb.Event_EVENT_GET_PROXY_INFO, ptr, nil
+	case *pb.CreateWorkerResponse:
+		return pb.Event_EVENT_CREATE_WORKER, ptr, nil
+	case *pb.RemoveWorkerResponse:
+		return pb.Event_EVENT_REMOVE_WORKER, ptr, nil
+	case *pb.GetWorkerStatusResponse:
+		return pb.Event_EVENT_GET_WORKER_STATUS, ptr, nil
+	case *pb.InstallWorkerdResponse:
+		return pb.Event_EVENT_INSTALL_WORKERD, ptr, nil
 	default:
 		return 0, nil, fmt.Errorf("cannot unmarshal unknown type: %T", origin)
 	}
