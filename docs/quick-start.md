@@ -16,4 +16,4 @@
 
 ## 架构图
 
-![](../public/images/arch.svg)
+![](./public/images/arch.svg)

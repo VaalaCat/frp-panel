@@ -1,6 +1,8 @@
 # Client 部署
 
-Client 推荐使用 docker 部署，直接部署在客户机中，可以通过远程终端直接在客户机以 root 权限执行命令，方便升级和管理。
+Client 推荐使用 docker 部署
+
+但直接部署在客户机中，可以通过远程终端直接在客户机以 root 权限执行命令，方便升级和管理。
 
 ## 准备
 
@@ -8,7 +10,7 @@ Client 推荐使用 docker 部署，直接部署在客户机中，可以通过�
 
 在侧边栏跳转到 `服务端`，点击上方的 `新建` 并输入 客户端 的唯一识别ID然后点击保存
 
-![](../public/images/cn_client_list.png)
+![](./public/images/cn_client_list.png)
 
 刷新后，新的客户端会出现在列表中。
 

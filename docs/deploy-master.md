@@ -23,6 +23,14 @@ RPC 端口也可以处理自签名 HTTPS 的 API 连接
 
 二者都可使用反向代理服务器连接并提供TLS
 
+如果你想要使用安全的方式，请参考下图设置环境变量「`CLIENT_RPC_URL`和`CLIENT_API_URL`」。
+
+注意⚠️：请首先使用普通部署的方式部署成功！然后再来调整这两个变量！！！！
+
+橙色是不安全，绿色是安全。你需要保证两个环境变量都有设置，才能正常工作
+
+![](./public/images/frp-panel-platform-connection-env.svg)
+
 > 测试端口是否开放的方法（以8080为例），在服务器上运行：
 > ```shell
 > python3 -m http.server 8080
@@ -52,8 +60,9 @@ version: "3"
 services:
   frpp-master:
     image: vaalacat/frp-panel:latest
+    network_mode: host
     environment:
-      APP_GLOBAL_SECRET: your_secret 
+      APP_GLOBAL_SECRET: your_secret
       MASTER_RPC_HOST: 1.2.3.4 #服务器的外部IP或域名
       MASTER_RPC_PORT: 9001
       MASTER_API_HOST: 1.2.3.4 #服务器的外部IP或域名

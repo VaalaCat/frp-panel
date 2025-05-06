@@ -23,6 +23,14 @@ The RPC port can also handle self-signed HTTPS API connections.
 
 Both can use a reverse proxy server for connection and TLS provision.
 
+If you want to use a safe method, please refer to the figure below to set the environment variables "`CLIENT_RPC_URL` and `CLIENT_API_URL`".
+
+Note⚠️: Please deploy successfully using the normal deployment method first! Then adjust these two variables! ! ! !
+
+Orange is unsafe, green is safe. You need to ensure that both environment variables are set to work properly
+
+![](../public/images/frp-panel-platform-connection-env.svg)
+
 > Method to test if a port is open (using 8080 as an example), run on the server:
 > ```shell
 > python3 -m http.server 8080
@@ -52,8 +60,9 @@ version: "3"
 services:
   frpp-master:
     image: vaalacat/frp-panel:latest
+    network_mode: host
     environment:
-      APP_GLOBAL_SECRET: your_secret 
+      APP_GLOBAL_SECRET: your_secret
       MASTER_RPC_HOST: 1.2.3.4 #Server's external IP or domain name
       MASTER_RPC_PORT: 9001
       MASTER_API_HOST: 1.2.3.4 #Server's external IP or domain name

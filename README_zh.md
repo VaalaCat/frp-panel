@@ -1,4 +1,5 @@
 > 详细使用文档：[FRP-Panel WiKi](https://vaala.cat/frp-panel)
+>
 > 博客开发记录: [https://vaala.cat/posts/frp-panel-doc/](https://vaala.cat/posts/frp-panel-doc/)
 
 QQ交流群: 830620423
@@ -7,18 +8,21 @@ QQ交流群: 830620423
 
 [English Version](README.md) | [中文文档](README_zh.md)
 
+<a href="https://trendshift.io/repositories/7147" target="_blank"><img src="https://trendshift.io/api/badge/repositories/7147" alt="VaalaCat%2Ffrp-panel | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+
 我们的目标就是做一个：
 
 - 客户端配置可中心化管理
 - 多服务端配置管理
 - 可视化配置界面
 - 简化运行所需要的配置
+- 支持Cloudflare边缘计算Worker
 
 的更强更完善的 frp！
 
-<!-- - demo Video: [demo Video](docs/public/images/frp-panel-demo.mp4)
+- demo Video: [demo Video](./docs/public/images/frp-panel-demo.mp4)
 
-![](./docs/public/images/frp-panel-demo.gif) -->
+![](./docs/public/images/frp-panel-demo.gif)
 
 ## 项目使用说明
 
@@ -43,6 +47,10 @@ python3 -m http.server 8080
 然后在浏览器中访问：`http://IP:8080` (端口可以换成任意你想测试的端口)，访问成功则为端口开放
 
 程序的默认存储数据路径和程序文件同目录，如需修改请参考下方的配置表格
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=vaalacat/frp-panel&type=Date)](https://www.star-history.com/#vaalacat/frp-panel&Date)
 
 ### docker
 
@@ -198,7 +206,7 @@ C:/frpp/frpp.exe uninstall
 
 然后是 frpc 和 frps。原版是需要在两边分别写配置文件的。那么既然原版已经支持了，就不用在走原版的路子，我们直接不支持配置文件，所有的配置都必须从 master 获取。
 
-其次还要考虑到与原版的兼容问题，frp-panel 的客户端/服务端都必须要能连上官方 frpc/frps 服务。这样的话就可以做到配置文件/不要配置文件都能完美工作了。  
+其次还要考虑到与原版的兼容问题，frp-panel 的客户端/服务端都必须要能连上官方 frpc/frps 服务。这样的话就可以做到配置文件/不要配置文件都能完美工作了。
 总的说来架构还是很简单的。
 
 ![arch](docs/public/images/arch.png)

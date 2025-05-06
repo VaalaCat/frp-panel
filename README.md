@@ -1,10 +1,14 @@
 > FRP-Panel WIKI：[FRP-Panel WiKi](https://vaala.cat/frp-panel)
+>
 > Development blog: [https://vaala.cat/posts/frp-panel-doc/](https://vaala.cat/posts/frp-panel-doc/)
+>
 > You can refer to the wiki for instructions, or scroll down read simple doc.
 
 # FRP-Panel
 
 [English Version](README.md) | [中文文档](README_zh.md)
+
+<a href="https://trendshift.io/repositories/7147" target="_blank"><img src="https://trendshift.io/api/badge/repositories/7147" alt="VaalaCat%2Ffrp-panel | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
 Our goal is to create a more powerful and comprehensive frp that provides:
 
@@ -12,10 +16,15 @@ Our goal is to create a more powerful and comprehensive frp that provides:
 - Management of multiple server configurations
 - Visual configuration interface
 - Simplified configuration required for running
+- Support Cloudflare edge computing Worker
 
-<!-- - demo Video: [demo Video](docs/public/images/frp-panel-demo.mp4)
+- demo Video: [demo Video](./docs/public/images/frp-panel-demo.mp4)
 
-![](./docs/public/images/frp-panel-demo.gif) -->
+![](./docs/public/images/frp-panel-demo.gif)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=vaalacat/frp-panel&type=Date)](https://www.star-history.com/#vaalacat/frp-panel&Date)
 
 ## Project Usage Instructions
 
