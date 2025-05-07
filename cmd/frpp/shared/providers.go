@@ -386,7 +386,7 @@ func NewWorkersManager(lx fx.Lifecycle, mgr app.WorkerExecManager, appInstance a
 
 	lx.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
-			workerMgr.StopAll()
+			workerMgr.StopAllWorkers(app.NewContext(ctx, appInstance))
 			logger.Logger(ctx).Info("stop all workers")
 			return nil
 		},

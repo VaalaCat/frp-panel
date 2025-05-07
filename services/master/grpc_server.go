@@ -29,15 +29,23 @@ type server struct {
 
 // ListClientWorkers implements pb.MasterServer.
 func (s *server) ListClientWorkers(ctx context.Context, req *pb.ListClientWorkersRequest) (*pb.ListClientWorkersResponse, error) {
-	logger.Logger(ctx).Infof("list client workers, clientID: [%+v]", req.GetBase().GetClientId())
+	logger.Logger(ctx).Infof("list client workers, clientID: [%s]", req.GetBase().GetClientId())
 	appCtx := app.NewContext(ctx, s.appInstance)
 
-	if _, err := client.ValidateClientRequest(appCtx, req.GetBase()); err != nil {
+	if client, err := client.ValidateClientRequest(appCtx, req.GetBase()); err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot validate client request")
 		return nil, err
+	} else if client.Stopped {
+		logger.Logger(appCtx).Infof("list client workers, client [%s] is stopped", req.GetBase().GetClientId())
+		return &pb.ListClientWorkersResponse{
+			Status: &pb.Status{
+				Code:    pb.RespCode_RESP_CODE_NOT_FOUND,
+				Message: "client stopped",
+			},
+		}, nil
 	}
 
-	logger.Logger(appCtx).Infof("validate client success, clientID: [%+v]", req.GetBase().GetClientId())
+	logger.Logger(appCtx).Infof("validate client success, clientID: [%s]", req.GetBase().GetClientId())
 
 	return worker.ListClientWorkers(appCtx, req)
 }

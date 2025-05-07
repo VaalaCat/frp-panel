@@ -192,6 +192,7 @@ type WorkerController interface {
 
 // services/workerd/workers_manager.go
 type WorkersManager interface {
+	StopAllWorkers(ctx *Context)
 	GetWorker(ctx *Context, id string) (WorkerController, bool)
 	RunWorker(ctx *Context, id string, worker WorkerController) error
 	StopWorker(ctx *Context, id string) error

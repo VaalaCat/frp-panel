@@ -722,6 +722,28 @@ export interface InstallWorkerdResponse {
      */
     status?: Status;
 }
+/**
+ * @generated from protobuf message api_client.RedeployWorkerRequest
+ */
+export interface RedeployWorkerRequest {
+    /**
+     * @generated from protobuf field: optional string worker_id = 1;
+     */
+    workerId?: string;
+    /**
+     * @generated from protobuf field: repeated string client_ids = 2;
+     */
+    clientIds: string[];
+}
+/**
+ * @generated from protobuf message api_client.RedeployWorkerResponse
+ */
+export interface RedeployWorkerResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class InitClientRequest$Type extends MessageType<InitClientRequest> {
     constructor() {
@@ -3608,3 +3630,103 @@ class InstallWorkerdResponse$Type extends MessageType<InstallWorkerdResponse> {
  * @generated MessageType for protobuf message api_client.InstallWorkerdResponse
  */
 export const InstallWorkerdResponse = new InstallWorkerdResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class RedeployWorkerRequest$Type extends MessageType<RedeployWorkerRequest> {
+    constructor() {
+        super("api_client.RedeployWorkerRequest", [
+            { no: 1, name: "worker_id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "client_ids", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<RedeployWorkerRequest>): RedeployWorkerRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.clientIds = [];
+        if (value !== undefined)
+            reflectionMergePartial<RedeployWorkerRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: RedeployWorkerRequest): RedeployWorkerRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional string worker_id */ 1:
+                    message.workerId = reader.string();
+                    break;
+                case /* repeated string client_ids */ 2:
+                    message.clientIds.push(reader.string());
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: RedeployWorkerRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional string worker_id = 1; */
+        if (message.workerId !== undefined)
+            writer.tag(1, WireType.LengthDelimited).string(message.workerId);
+        /* repeated string client_ids = 2; */
+        for (let i = 0; i < message.clientIds.length; i++)
+            writer.tag(2, WireType.LengthDelimited).string(message.clientIds[i]);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.RedeployWorkerRequest
+ */
+export const RedeployWorkerRequest = new RedeployWorkerRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class RedeployWorkerResponse$Type extends MessageType<RedeployWorkerResponse> {
+    constructor() {
+        super("api_client.RedeployWorkerResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<RedeployWorkerResponse>): RedeployWorkerResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<RedeployWorkerResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: RedeployWorkerResponse): RedeployWorkerResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: RedeployWorkerResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.RedeployWorkerResponse
+ */
+export const RedeployWorkerResponse = new RedeployWorkerResponse$Type();

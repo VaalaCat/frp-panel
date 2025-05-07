@@ -19,3 +19,12 @@ export const $useServerGithubProxyUrl = persistentAtom<boolean>('use_server_gith
   encode: JSON.stringify,
   decode: JSON.parse,
 })
+
+export type FrontendPreference  = {
+  githubProxyUrl?: string
+}
+
+export const $frontendPreference = persistentAtom<FrontendPreference>('frontend_preference', {}, {
+  encode: JSON.stringify,
+  decode: JSON.parse,
+})

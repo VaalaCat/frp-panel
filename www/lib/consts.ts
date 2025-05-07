@@ -113,7 +113,10 @@ export const LinuxInstallCommand = <T extends Client | Server>(
   info: GetPlatformInfoResponse,
   github_proxy?: boolean,
 ) => {
-  return `curl -fSL ${github_proxy ? info.githubProxyUrl : ''}https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s --${ExecCommandStr(type, item, info, ' ')}`
+  return `curl -fSL ${github_proxy ? info.githubProxyUrl : ''
+  }https://raw.githubusercontent.com/VaalaCat/frp-panel/main/install.sh | bash -s -- ${
+    github_proxy ? `--github-proxy ${info.githubProxyUrl}` : ''
+  }${ExecCommandStr(type, item, info, ' ')}`
 }
 
 export const ClientEnvFile = <T extends Client | Server>(item: T, info: GetPlatformInfoResponse) => {

@@ -38,6 +38,7 @@
       "title": "安装命令",
       "description": "请选择您的操作系统并复制相应的安装命令",
       "use_github_proxy_url": "使用 GitHub 代理",
+      "github_proxy_url": "GitHub 代理 URL",
       "windows": "Windows",
       "linux": "Linux"
     },
@@ -555,6 +556,7 @@
     },
     "actions_menu": {
       "delete": "删除",
+      "redeploy_worker": "重启",
       "title": "操作",
       "edit": "编辑"
     },

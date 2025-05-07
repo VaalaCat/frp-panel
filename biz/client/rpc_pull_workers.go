@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/workerd"
@@ -28,7 +29,7 @@ func PullWorkers(appInstance app.Application, clientID, clientSecret string) err
 		},
 	})
 	if err != nil {
-		logger.Logger(ctx).WithError(err).Error("cannot list client workers")
+		logger.Logger(ctx).WithError(err).Error("cannot list client workers, do not change anything")
 		return err
 	}
 
@@ -37,12 +38,15 @@ func PullWorkers(appInstance app.Application, clientID, clientSecret string) err
 		return nil
 	}
 
+	logger.Logger(ctx).Infof("client [%s] has [%d] workers, check their status", clientID, len(resp.GetWorkers()))
 	ctrl := ctx.GetApp().GetWorkersManager()
 	for _, worker := range resp.GetWorkers() {
-		_, err := ctrl.GetWorkerStatus(ctx, worker.GetWorkerId())
-		if err == nil {
+		status, err := ctrl.GetWorkerStatus(ctx, worker.GetWorkerId())
+		if err == nil && status == defs.WorkerStatus_Running {
 			logger.Logger(ctx).Infof("worker [%s] already running", worker.GetWorkerId())
 			continue
+		} else {
+			logger.Logger(ctx).Infof("worker [%s] status is [%s] or maybe has error: [%+v], will restart", worker.GetWorkerId(), status, err)
 		}
 		ctrl.RunWorker(ctx, worker.GetWorkerId(), workerd.NewWorkerdController(worker, ctx.GetApp().GetConfig().Client.Worker.WorkerdWorkDir))
 	}

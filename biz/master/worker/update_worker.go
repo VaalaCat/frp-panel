@@ -28,17 +28,22 @@ func UpdateWorker(ctx *app.Context, req *pb.UpdateWorkerRequest) (*pb.UpdateWork
 		return nil, fmt.Errorf("cannot get worker, id: [%s]", wrokerReq.GetWorkerId())
 	}
 
-	clis, err := dao.NewQuery(ctx).GetClientsByClientIDs(userInfo, clientIds)
-	if err != nil {
-		logger.Logger(ctx).WithError(err).Errorf("cannot get client, id: [%s]", utils.MarshalForJson(clientIds))
-		return nil, fmt.Errorf("cannot get client, id: [%s]", utils.MarshalForJson(clientIds))
+	clis := []*models.Client{}
+	if len(clientIds) != 0 {
+		clis, err = dao.NewQuery(ctx).GetClientsByClientIDs(userInfo, clientIds)
+		if err != nil {
+			logger.Logger(ctx).WithError(err).Errorf("cannot get client, id: [%s]", utils.MarshalForJson(clientIds))
+			return nil, fmt.Errorf("cannot get client, id: [%s]", utils.MarshalForJson(clientIds))
+		}
 	}
 
 	updatedFields := []string{}
 
 	if len(clientIds) != 0 {
 		oldClientIds = lo.Map(workerToUpdate.Clients, func(c models.Client, _ int) string { return c.ClientID })
-		workerToUpdate.Clients = lo.Map(clis, func(c *models.Client, _ int) models.Client { return *c })
+		if len(clis) > 0 {
+			workerToUpdate.Clients = lo.Map(clis, func(c *models.Client, _ int) models.Client { return *c })
+		}
 		updatedFields = append(updatedFields, "client_id")
 	} else {
 		oldClientIds = lo.Map(workerToUpdate.Clients, func(c models.Client, _ int) string { return c.ClientID })

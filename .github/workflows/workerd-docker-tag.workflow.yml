@@ -44,5 +44,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
+          mv .ko.workerd.yaml .ko.yaml
           echo "${password}" | ko login docker.io --username ${username} --password-stdin
           ko build ./cmd/frpp --sbom=none --bare -t ${{ steps.get_version.outputs.VERSION }}-workerd

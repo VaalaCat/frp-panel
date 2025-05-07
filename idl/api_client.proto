@@ -275,3 +275,12 @@ message InstallWorkerdRequest {
 message InstallWorkerdResponse {
   optional common.Status status = 1;
 }
+
+message RedeployWorkerRequest {
+  optional string worker_id = 1;
+  repeated string client_ids = 2;
+}
+
+message RedeployWorkerResponse {
+  optional common.Status status = 1;
+}

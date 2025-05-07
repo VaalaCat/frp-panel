@@ -2830,6 +2830,102 @@ func (x *InstallWorkerdResponse) GetStatus() *Status {
 	return nil
 }
 
+type RedeployWorkerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WorkerId      *string                `protobuf:"bytes,1,opt,name=worker_id,json=workerId,proto3,oneof" json:"worker_id,omitempty"`
+	ClientIds     []string               `protobuf:"bytes,2,rep,name=client_ids,json=clientIds,proto3" json:"client_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RedeployWorkerRequest) Reset() {
+	*x = RedeployWorkerRequest{}
+	mi := &file_api_client_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RedeployWorkerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RedeployWorkerRequest) ProtoMessage() {}
+
+func (x *RedeployWorkerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RedeployWorkerRequest.ProtoReflect.Descriptor instead.
+func (*RedeployWorkerRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *RedeployWorkerRequest) GetWorkerId() string {
+	if x != nil && x.WorkerId != nil {
+		return *x.WorkerId
+	}
+	return ""
+}
+
+func (x *RedeployWorkerRequest) GetClientIds() []string {
+	if x != nil {
+		return x.ClientIds
+	}
+	return nil
+}
+
+type RedeployWorkerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RedeployWorkerResponse) Reset() {
+	*x = RedeployWorkerResponse{}
+	mi := &file_api_client_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RedeployWorkerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RedeployWorkerResponse) ProtoMessage() {}
+
+func (x *RedeployWorkerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RedeployWorkerResponse.ProtoReflect.Descriptor instead.
+func (*RedeployWorkerResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *RedeployWorkerResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
 var File_api_client_proto protoreflect.FileDescriptor
 
 const file_api_client_proto_rawDesc = "" +
@@ -3153,6 +3249,15 @@ const file_api_client_proto_rawDesc = "" +
 	"\r_download_url\"P\n" +
 	"\x16InstallWorkerdResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"f\n" +
+	"\x15RedeployWorkerRequest\x12 \n" +
+	"\tworker_id\x18\x01 \x01(\tH\x00R\bworkerId\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"client_ids\x18\x02 \x03(\tR\tclientIdsB\f\n" +
+	"\n" +
+	"_worker_id\"P\n" +
+	"\x16RedeployWorkerResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
 	"\a_statusB\aZ\x05../pbb\x06proto3"
 
 var (
@@ -3167,7 +3272,7 @@ func file_api_client_proto_rawDescGZIP() []byte {
 	return file_api_client_proto_rawDescData
 }
 
-var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 55)
+var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
 var file_api_client_proto_goTypes = []any{
 	(*InitClientRequest)(nil),               // 0: api_client.InitClientRequest
 	(*InitClientResponse)(nil),              // 1: api_client.InitClientResponse
@@ -3223,60 +3328,63 @@ var file_api_client_proto_goTypes = []any{
 	(*GetWorkerStatusResponse)(nil),         // 51: api_client.GetWorkerStatusResponse
 	(*InstallWorkerdRequest)(nil),           // 52: api_client.InstallWorkerdRequest
 	(*InstallWorkerdResponse)(nil),          // 53: api_client.InstallWorkerdResponse
-	nil,                                     // 54: api_client.GetWorkerStatusResponse.WorkerStatusEntry
-	(*Status)(nil),                          // 55: common.Status
-	(*Client)(nil),                          // 56: common.Client
-	(*ProxyInfo)(nil),                       // 57: common.ProxyInfo
-	(*ProxyConfig)(nil),                     // 58: common.ProxyConfig
-	(*ProxyWorkingStatus)(nil),              // 59: common.ProxyWorkingStatus
-	(*Worker)(nil),                          // 60: common.Worker
+	(*RedeployWorkerRequest)(nil),           // 54: api_client.RedeployWorkerRequest
+	(*RedeployWorkerResponse)(nil),          // 55: api_client.RedeployWorkerResponse
+	nil,                                     // 56: api_client.GetWorkerStatusResponse.WorkerStatusEntry
+	(*Status)(nil),                          // 57: common.Status
+	(*Client)(nil),                          // 58: common.Client
+	(*ProxyInfo)(nil),                       // 59: common.ProxyInfo
+	(*ProxyConfig)(nil),                     // 60: common.ProxyConfig
+	(*ProxyWorkingStatus)(nil),              // 61: common.ProxyWorkingStatus
+	(*Worker)(nil),                          // 62: common.Worker
 }
 var file_api_client_proto_depIdxs = []int32{
-	55, // 0: api_client.InitClientResponse.status:type_name -> common.Status
-	55, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
-	56, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
-	55, // 3: api_client.GetClientResponse.status:type_name -> common.Status
-	56, // 4: api_client.GetClientResponse.client:type_name -> common.Client
-	55, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
-	55, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
-	55, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
-	55, // 8: api_client.StopFRPCResponse.status:type_name -> common.Status
-	55, // 9: api_client.StartFRPCResponse.status:type_name -> common.Status
-	55, // 10: api_client.GetProxyStatsByClientIDResponse.status:type_name -> common.Status
-	57, // 11: api_client.GetProxyStatsByClientIDResponse.proxy_infos:type_name -> common.ProxyInfo
-	55, // 12: api_client.ListProxyConfigsResponse.status:type_name -> common.Status
-	58, // 13: api_client.ListProxyConfigsResponse.proxy_configs:type_name -> common.ProxyConfig
-	55, // 14: api_client.CreateProxyConfigResponse.status:type_name -> common.Status
-	55, // 15: api_client.DeleteProxyConfigResponse.status:type_name -> common.Status
-	55, // 16: api_client.UpdateProxyConfigResponse.status:type_name -> common.Status
-	55, // 17: api_client.GetProxyConfigResponse.status:type_name -> common.Status
-	58, // 18: api_client.GetProxyConfigResponse.proxy_config:type_name -> common.ProxyConfig
-	59, // 19: api_client.GetProxyConfigResponse.working_status:type_name -> common.ProxyWorkingStatus
-	55, // 20: api_client.StopProxyResponse.status:type_name -> common.Status
-	55, // 21: api_client.StartProxyResponse.status:type_name -> common.Status
-	60, // 22: api_client.CreateWorkerRequest.worker:type_name -> common.Worker
-	55, // 23: api_client.CreateWorkerResponse.status:type_name -> common.Status
-	55, // 24: api_client.RemoveWorkerResponse.status:type_name -> common.Status
-	60, // 25: api_client.UpdateWorkerRequest.worker:type_name -> common.Worker
-	55, // 26: api_client.UpdateWorkerResponse.status:type_name -> common.Status
-	55, // 27: api_client.RunWorkerResponse.status:type_name -> common.Status
-	55, // 28: api_client.StopWorkerResponse.status:type_name -> common.Status
-	55, // 29: api_client.ListWorkersResponse.status:type_name -> common.Status
-	60, // 30: api_client.ListWorkersResponse.workers:type_name -> common.Worker
-	55, // 31: api_client.CreateWorkerIngressResponse.status:type_name -> common.Status
-	55, // 32: api_client.GetWorkerIngressResponse.status:type_name -> common.Status
-	58, // 33: api_client.GetWorkerIngressResponse.proxy_configs:type_name -> common.ProxyConfig
-	55, // 34: api_client.GetWorkerResponse.status:type_name -> common.Status
-	60, // 35: api_client.GetWorkerResponse.worker:type_name -> common.Worker
-	56, // 36: api_client.GetWorkerResponse.clients:type_name -> common.Client
-	55, // 37: api_client.GetWorkerStatusResponse.status:type_name -> common.Status
-	54, // 38: api_client.GetWorkerStatusResponse.worker_status:type_name -> api_client.GetWorkerStatusResponse.WorkerStatusEntry
-	55, // 39: api_client.InstallWorkerdResponse.status:type_name -> common.Status
-	40, // [40:40] is the sub-list for method output_type
-	40, // [40:40] is the sub-list for method input_type
-	40, // [40:40] is the sub-list for extension type_name
-	40, // [40:40] is the sub-list for extension extendee
-	0,  // [0:40] is the sub-list for field type_name
+	57, // 0: api_client.InitClientResponse.status:type_name -> common.Status
+	57, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
+	58, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
+	57, // 3: api_client.GetClientResponse.status:type_name -> common.Status
+	58, // 4: api_client.GetClientResponse.client:type_name -> common.Client
+	57, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
+	57, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
+	57, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
+	57, // 8: api_client.StopFRPCResponse.status:type_name -> common.Status
+	57, // 9: api_client.StartFRPCResponse.status:type_name -> common.Status
+	57, // 10: api_client.GetProxyStatsByClientIDResponse.status:type_name -> common.Status
+	59, // 11: api_client.GetProxyStatsByClientIDResponse.proxy_infos:type_name -> common.ProxyInfo
+	57, // 12: api_client.ListProxyConfigsResponse.status:type_name -> common.Status
+	60, // 13: api_client.ListProxyConfigsResponse.proxy_configs:type_name -> common.ProxyConfig
+	57, // 14: api_client.CreateProxyConfigResponse.status:type_name -> common.Status
+	57, // 15: api_client.DeleteProxyConfigResponse.status:type_name -> common.Status
+	57, // 16: api_client.UpdateProxyConfigResponse.status:type_name -> common.Status
+	57, // 17: api_client.GetProxyConfigResponse.status:type_name -> common.Status
+	60, // 18: api_client.GetProxyConfigResponse.proxy_config:type_name -> common.ProxyConfig
+	61, // 19: api_client.GetProxyConfigResponse.working_status:type_name -> common.ProxyWorkingStatus
+	57, // 20: api_client.StopProxyResponse.status:type_name -> common.Status
+	57, // 21: api_client.StartProxyResponse.status:type_name -> common.Status
+	62, // 22: api_client.CreateWorkerRequest.worker:type_name -> common.Worker
+	57, // 23: api_client.CreateWorkerResponse.status:type_name -> common.Status
+	57, // 24: api_client.RemoveWorkerResponse.status:type_name -> common.Status
+	62, // 25: api_client.UpdateWorkerRequest.worker:type_name -> common.Worker
+	57, // 26: api_client.UpdateWorkerResponse.status:type_name -> common.Status
+	57, // 27: api_client.RunWorkerResponse.status:type_name -> common.Status
+	57, // 28: api_client.StopWorkerResponse.status:type_name -> common.Status
+	57, // 29: api_client.ListWorkersResponse.status:type_name -> common.Status
+	62, // 30: api_client.ListWorkersResponse.workers:type_name -> common.Worker
+	57, // 31: api_client.CreateWorkerIngressResponse.status:type_name -> common.Status
+	57, // 32: api_client.GetWorkerIngressResponse.status:type_name -> common.Status
+	60, // 33: api_client.GetWorkerIngressResponse.proxy_configs:type_name -> common.ProxyConfig
+	57, // 34: api_client.GetWorkerResponse.status:type_name -> common.Status
+	62, // 35: api_client.GetWorkerResponse.worker:type_name -> common.Worker
+	58, // 36: api_client.GetWorkerResponse.clients:type_name -> common.Client
+	57, // 37: api_client.GetWorkerStatusResponse.status:type_name -> common.Status
+	56, // 38: api_client.GetWorkerStatusResponse.worker_status:type_name -> api_client.GetWorkerStatusResponse.WorkerStatusEntry
+	57, // 39: api_client.InstallWorkerdResponse.status:type_name -> common.Status
+	57, // 40: api_client.RedeployWorkerResponse.status:type_name -> common.Status
+	41, // [41:41] is the sub-list for method output_type
+	41, // [41:41] is the sub-list for method input_type
+	41, // [41:41] is the sub-list for extension type_name
+	41, // [41:41] is the sub-list for extension extendee
+	0,  // [0:41] is the sub-list for field type_name
 }
 
 func init() { file_api_client_proto_init() }
@@ -3339,13 +3447,15 @@ func file_api_client_proto_init() {
 	file_api_client_proto_msgTypes[51].OneofWrappers = []any{}
 	file_api_client_proto_msgTypes[52].OneofWrappers = []any{}
 	file_api_client_proto_msgTypes[53].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[54].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[55].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_client_proto_rawDesc), len(file_api_client_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   55,
+			NumMessages:   57,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

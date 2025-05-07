@@ -26,7 +26,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { deleteServer } from '@/api/server'
 import { useRouter } from 'next/router'
 import { useStore } from '@nanostores/react'
-import { $platformInfo } from '@/store/user'
+import { $frontendPreference, $platformInfo, $useServerGithubProxyUrl } from '@/store/user'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getClientsStatus } from '@/api/platform'
 import { ClientType } from '@/lib/pb/common'
@@ -37,6 +37,8 @@ import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { $serverTableRefetchTrigger } from '@/store/refetch-trigger'
+import { Checkbox } from '../ui/checkbox'
+import { Label } from '../ui/label'
 
 export type ServerTableSchema = {
   id: string
@@ -122,6 +124,8 @@ export const columns: ColumnDef<ServerTableSchema>[] = [
 export const ServerID = ({ server }: { server: ServerTableSchema }) => {
   const { t } = useTranslation()
   const platformInfo = useStore($platformInfo)
+  const useGithubProxyUrl = useStore($useServerGithubProxyUrl)
+  const frontendPreference = useStore($frontendPreference)
 
   if (!platformInfo) {
     return (
@@ -145,35 +149,56 @@ export const ServerID = ({ server }: { server: ServerTableSchema }) => {
             <p className="text-sm text-muted-foreground">{t('server.install.description')}</p>
           </div>
           <div className="grid gap-2">
+            <div className="grid grid-cols-2 items-center gap-4 justify-items-center">
+              <Label>{t('client.install.use_github_proxy_url')}</Label>
+              <Checkbox onCheckedChange={$useServerGithubProxyUrl.set} defaultChecked={useGithubProxyUrl} />
+            </div>
+            <div className="grid grid-cols-2 items-center gap-4 justify-items-center">
+              <Label>{t('client.install.github_proxy_url')}</Label>
+              <Input value={frontendPreference.githubProxyUrl} onChange={(e) =>
+                $frontendPreference.set({ ...frontendPreference, githubProxyUrl: e.target.value })} />
+            </div>
             <div className="grid grid-cols-2 items-center gap-4">
-              <Input
-                readOnly
-                value={WindowsInstallCommand('server', server, platformInfo)}
-                className="flex-1"
-              />
               <Button
-                onClick={() => navigator.clipboard.writeText(WindowsInstallCommand('server', server, platformInfo))}
+                onClick={() => navigator.clipboard.writeText(WindowsInstallCommand('server', server, {
+                  ...platformInfo,
+                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, useGithubProxyUrl))}
                 disabled={!platformInfo}
                 size="sm"
                 variant="outline"
               >
                 {t('server.install.windows')}
               </Button>
-            </div>
-            <div className="grid grid-cols-2 items-center gap-4">
               <Input
                 readOnly
-                value={LinuxInstallCommand('server', server, platformInfo)}
+                value={WindowsInstallCommand('server', server, {
+                  ...platformInfo,
+                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, useGithubProxyUrl)}
                 className="flex-1"
               />
+            </div>
+            <div className="grid grid-cols-2 items-center gap-4">
               <Button
-                onClick={() => navigator.clipboard.writeText(LinuxInstallCommand('server', server, platformInfo))}
+                onClick={() => navigator.clipboard.writeText(LinuxInstallCommand('server', server, {
+                  ...platformInfo,
+                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, useGithubProxyUrl))}
                 disabled={!platformInfo}
                 size="sm"
                 variant="outline"
               >
                 {t('server.install.linux')}
               </Button>
+              <Input
+                readOnly
+                value={LinuxInstallCommand('server', server, {
+                  ...platformInfo,
+                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, useGithubProxyUrl)}
+                className="flex-1"
+              />
             </div>
           </div>
         </div>

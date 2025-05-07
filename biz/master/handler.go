@@ -93,6 +93,7 @@ func ConfigureRouter(appInstance app.Application, router *gin.Engine) {
 			workerHandler.POST("/list", app.Wrapper(appInstance, worker.ListWorkers))
 			workerHandler.POST("/remove", app.Wrapper(appInstance, worker.RemoveWorker))
 			workerHandler.POST("/update", app.Wrapper(appInstance, worker.UpdateWorker))
+			workerHandler.POST("/redeploy", app.Wrapper(appInstance, worker.RedeployWorker))
 			workerHandler.POST("/create_ingress", app.Wrapper(appInstance, worker.CreateWorkerIngress))
 			workerHandler.POST("/get_ingress", app.Wrapper(appInstance, worker.GetWorkerIngress))
 		}

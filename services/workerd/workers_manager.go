@@ -46,9 +46,9 @@ func (m *workersManager) StopWorker(ctx *app.Context, id string) error {
 	return nil
 }
 
-func (m *workersManager) StopAll() {
+func (m *workersManager) StopAllWorkers(ctx *app.Context) {
 	m.workers.Range(func(k string, v app.WorkerController) bool {
-		v.StopWorker(nil)
+		v.StopWorker(ctx)
 		return true
 	})
 

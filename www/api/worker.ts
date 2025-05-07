@@ -15,6 +15,8 @@ import {
   InstallWorkerdResponse,
   ListWorkersRequest,
   ListWorkersResponse,
+  RedeployWorkerRequest,
+  RedeployWorkerResponse,
   RemoveWorkerRequest,
   RemoveWorkerResponse,
   UpdateWorkerRequest,
@@ -66,4 +68,9 @@ export const getWorkerStatus = async (req: GetWorkerStatusRequest) => {
 export const installWorkerd = async (req: InstallWorkerdRequest) => {
   const res = await http.post(API_PATH + '/client/install_workerd', InstallWorkerdRequest.toJson(req))
   return InstallWorkerdResponse.fromJson((res.data as BaseResponse).body)
+}
+
+export const redeployWorker = async (req: RedeployWorkerRequest) => {
+  const res = await http.post(API_PATH + '/worker/redeploy', RedeployWorkerRequest.toJson(req))
+  return RedeployWorkerResponse.fromJson((res.data as BaseResponse).body)
 }

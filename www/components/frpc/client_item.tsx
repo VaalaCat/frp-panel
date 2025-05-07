@@ -26,7 +26,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { deleteClient, listClient } from '@/api/client'
 import { useRouter } from 'next/router'
 import { useStore } from '@nanostores/react'
-import { $platformInfo, $useServerGithubProxyUrl } from '@/store/user'
+import { $frontendPreference, $platformInfo, $useServerGithubProxyUrl } from '@/store/user'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getClientsStatus } from '@/api/platform'
 import { Client, ClientType } from '@/lib/pb/common'
@@ -126,6 +126,7 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
   const { t } = useTranslation()
   const platformInfo = useStore($platformInfo)
   const useGithubProxyUrl = useStore($useServerGithubProxyUrl)
+  const frontendPreference = useStore($frontendPreference)
 
   if (!platformInfo) {
     return (
@@ -149,20 +150,23 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
             <p className="text-sm text-muted-foreground">{t('client.install.description')}</p>
           </div>
           <div className="grid gap-2">
-            <div className="flex flex-row justify-start items-center gap-4 mb-2">
-              <Checkbox onCheckedChange={$useServerGithubProxyUrl.set} defaultChecked={useGithubProxyUrl} />
+            <div className="grid grid-cols-2 items-center gap-4 justify-items-center">
               <Label>{t('client.install.use_github_proxy_url')}</Label>
+              <Checkbox onCheckedChange={$useServerGithubProxyUrl.set} defaultChecked={useGithubProxyUrl} />
+            </div>
+            <div className="grid grid-cols-2 items-center gap-4 justify-items-center">
+              <Label>{t('client.install.github_proxy_url')}</Label>
+              <Input value={frontendPreference.githubProxyUrl} onChange={(e) =>
+                $frontendPreference.set({ ...frontendPreference, githubProxyUrl: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 items-center gap-4">
-              <Input
-                readOnly
-                value={WindowsInstallCommand('client', client, platformInfo, useGithubProxyUrl)}
-                className="flex-1"
-              />
               <Button
                 onClick={() =>
                   navigator.clipboard.writeText(
-                    WindowsInstallCommand('client', client, platformInfo, useGithubProxyUrl),
+                    WindowsInstallCommand('client', client, {
+                      ...platformInfo,
+                      githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                    }, useGithubProxyUrl),
                   )
                 }
                 disabled={!platformInfo}
@@ -171,16 +175,22 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
               >
                 {t('client.install.windows')}
               </Button>
-            </div>
-            <div className="grid grid-cols-2 items-center gap-4">
               <Input
                 readOnly
-                value={LinuxInstallCommand('client', client, platformInfo, useGithubProxyUrl)}
+                value={WindowsInstallCommand('client', client, {
+                  ...platformInfo,
+                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, useGithubProxyUrl)}
                 className="flex-1"
               />
+            </div>
+            <div className="grid grid-cols-2 items-center gap-4">
               <Button
                 onClick={() =>
-                  navigator.clipboard.writeText(LinuxInstallCommand('client', client, platformInfo, useGithubProxyUrl))
+                  navigator.clipboard.writeText(LinuxInstallCommand('client', client, {
+                    ...platformInfo,
+                    githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                  }, useGithubProxyUrl))
                 }
                 disabled={!platformInfo}
                 size="sm"
@@ -188,6 +198,14 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
               >
                 {t('client.install.linux')}
               </Button>
+              <Input
+                readOnly
+                value={LinuxInstallCommand('client', client, {
+                  ...platformInfo,
+                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, useGithubProxyUrl)}
+                className="flex-1"
+              />
             </div>
           </div>
         </div>
@@ -327,6 +345,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
   const useGithubProxyUrl = useStore($useServerGithubProxyUrl)
+  const frontendPreference = useStore($frontendPreference)
 
   const removeClient = useMutation({
     mutationFn: deleteClient,
@@ -412,7 +431,10 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
             onClick={() => {
               try {
                 if (platformInfo) {
-                  navigator.clipboard.writeText(LinuxInstallCommand('client', client, platformInfo, useGithubProxyUrl))
+                  navigator.clipboard.writeText(LinuxInstallCommand('client', client, {
+                    ...platformInfo,
+                    githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                  }, useGithubProxyUrl))
                   toast(t('client.actions_menu.copy_success'))
                 } else {
                   toast(t('client.actions_menu.copy_failed'))

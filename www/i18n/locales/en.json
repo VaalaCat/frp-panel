@@ -38,6 +38,7 @@
       "title": "Installation Command",
       "description": "Select your operating system and copy the installation command",
       "use_github_proxy_url": "Use GitHub Proxy URL",
+      "github_proxy_url": "GitHub Proxy URL",
       "windows": "Windows",
       "linux": "Linux"
     },
@@ -557,6 +558,7 @@
     },
     "actions_menu": {
       "delete": "Delete Worker",
+      "redeploy_worker": "Re-deploy Worker",
       "title": "Worker Actions",
       "edit": "Edit Worker"
     },

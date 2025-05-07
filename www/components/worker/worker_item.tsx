@@ -18,7 +18,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { removeWorker, getWorker, getWorkerIngress, getWorkerStatus } from '@/api/worker'
+import { removeWorker, getWorker, getWorkerIngress, getWorkerStatus, redeployWorker } from '@/api/worker'
 import { $workerTableRefetchTrigger } from '@/store/refetch-trigger'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/router'
@@ -133,6 +133,18 @@ export const WorkerActions: React.FC<WorkerActionsProps> = ({ worker }) => {
     },
   })
 
+  const redeploy = useMutation({
+    mutationFn: () => redeployWorker({ workerId: worker.workerId, clientIds: [] }),
+    onSuccess: () => {
+      toast.success(t('worker.actions_menu.redeploy_worker') + t('common.success'))
+      $workerTableRefetchTrigger.set(Math.random())
+    },
+    onError: (err: any) => {
+      toast(t('common.failed'), { description: err.message })
+      $workerTableRefetchTrigger.set(Math.random())
+    },
+  })
+
   return (
     <Dialog>
       <DropdownMenu>
@@ -152,6 +164,11 @@ export const WorkerActions: React.FC<WorkerActionsProps> = ({ worker }) => {
             }
           >
             {t('worker.actions_menu.edit')}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => { redeploy.mutate() }}
+          >
+            {t('worker.actions_menu.redeploy_worker')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DialogTrigger asChild>

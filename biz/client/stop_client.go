@@ -12,6 +12,10 @@ func StopFRPCHandler(ctx *app.Context, req *pb.StopFRPCRequest) (*pb.StopFRPCRes
 	ctx.GetApp().GetClientController().StopAll()
 	ctx.GetApp().GetClientController().DeleteAll()
 
+	if ctx.GetApp().GetConfig().Client.Features.EnableFunctions {
+		ctx.GetApp().GetWorkersManager().StopAllWorkers(ctx)
+	}
+
 	return &pb.StopFRPCResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
 	}, nil
