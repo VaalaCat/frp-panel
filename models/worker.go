@@ -1,9 +1,12 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/utils"
+	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
@@ -83,4 +86,8 @@ func (w *Worker) ToPB() *pb.Worker {
 
 	ret := w.WorkerEntity.ToPB()
 	return ret
+}
+
+func HttpIngressLBGroup(workerId string, cfg *v1.HTTPProxyConfig) string {
+	return fmt.Sprintf("lb-group-%s-%s", workerId, utils.MD5(fmt.Sprint(cfg.DomainConfig.CustomDomains, cfg.SubDomain)))
 }

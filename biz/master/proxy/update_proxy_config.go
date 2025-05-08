@@ -5,6 +5,7 @@ import (
 
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
@@ -12,6 +13,7 @@ import (
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
+	"github.com/fatedier/frp/pkg/msg"
 	"github.com/samber/lo"
 )
 
@@ -71,7 +73,13 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 		return nil, fmt.Errorf("invalid config")
 	}
 
-	if err := proxyCfg.FillTypedProxyConfig(typedProxyCfgs[0]); err != nil {
+	typedProxyCfg := typedProxyCfgs[0]
+
+	if typedProxyCfg.GetBaseConfig().Type == string(v1.ProxyTypeHTTP) {
+		typedProxyCfg = UpdateWorkerLoadBalancerGroup(typedProxyCfg)
+	}
+
+	if err := proxyCfg.FillTypedProxyConfig(typedProxyCfg); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot fill typed proxy config")
 		return nil, err
 	}
@@ -96,9 +104,9 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 		return nil, err
 	} else {
 		oldCfg.Proxies = lo.Filter(oldCfg.Proxies, func(proxy v1.TypedProxyConfig, _ int) bool {
-			return proxy.GetBaseConfig().Name != typedProxyCfgs[0].GetBaseConfig().Name
+			return proxy.GetBaseConfig().Name != typedProxyCfg.GetBaseConfig().Name
 		})
-		oldCfg.Proxies = append(oldCfg.Proxies, typedProxyCfgs...)
+		oldCfg.Proxies = append(oldCfg.Proxies, typedProxyCfg)
 
 		if err := clientEntity.SetConfigContent(*oldCfg); err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot set client config, id: [%s]", clientID)
@@ -127,4 +135,29 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 	return &pb.UpdateProxyConfigResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
 	}, nil
+}
+
+func UpdateWorkerLoadBalancerGroup(typedProxyCfg v1.TypedProxyConfig) v1.TypedProxyConfig {
+	annotations := typedProxyCfg.GetBaseConfig().Annotations
+	workerId := ""
+	if len(annotations) > 0 {
+		if annotations[defs.FrpProxyAnnotationsKey_Ingress] != "" && len(annotations[defs.FrpProxyAnnotationsKey_WorkerId]) > 0 {
+			workerId = annotations[defs.FrpProxyAnnotationsKey_WorkerId]
+		}
+	}
+	httpProxyCfg := &v1.HTTPProxyConfig{}
+	msg := &msg.NewProxy{}
+	typedProxyCfg.ProxyConfigurer.MarshalToMsg(msg)
+	httpProxyCfg.UnmarshalFromMsg(msg)
+
+	if len(workerId) > 0 {
+		httpProxyCfg.LoadBalancer = v1.LoadBalancerConfig{
+			Group:    models.HttpIngressLBGroup(workerId, httpProxyCfg),
+			GroupKey: workerId,
+		}
+	}
+
+	typedProxyCfg.ProxyConfigurer = httpProxyCfg
+
+	return typedProxyCfg
 }

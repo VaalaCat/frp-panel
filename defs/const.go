@@ -171,6 +171,7 @@ const (
 )
 
 const (
-	FrpProxyAnnotationsKey_Ingress  = "ingress"
-	FrpProxyAnnotationsKey_WorkerId = "worker_id"
+	FrpProxyAnnotationsKey_Ingress           = "ingress"
+	FrpProxyAnnotationsKey_WorkerId          = "worker_id"
+	FrpProxyAnnotationsKey_LoadBalancerGroup = "load_balancer_group"
 )

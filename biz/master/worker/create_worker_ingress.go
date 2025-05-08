@@ -74,6 +74,11 @@ func CreateWorkerIngress(ctx *app.Context, req *pb.CreateWorkerIngressRequest) (
 		},
 	}
 
+	httpProxyCfg.LoadBalancer = v1.LoadBalancerConfig{
+		Group:    models.HttpIngressLBGroup(workerId, &httpProxyCfg),
+		GroupKey: workerId,
+	}
+
 	if err := proxy.CreateProxyConfigWithTypedConfig(ctx, proxy.CreateProxyConfigWithTypedConfigParam{
 		ClientID: clientId,
 		ServerID: serverId,

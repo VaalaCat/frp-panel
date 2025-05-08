@@ -37,134 +37,137 @@ export function WorkerStatus({ workerId, clients = [], compact = false }: Worker
     enabled: !!workerId,
   })
 
-  // 统计部署状态
+  // 状态统计
   const clientStatuses = statusResp?.workerStatus || {}
-  const deployedClients = clients || []
+  const deployedClients = clients
   const totalClients = deployedClients.length
+  const runningClients = Object.values(clientStatuses).filter((s) => s === 'running').length
+  const Clients = Object.values(clientStatuses).filter((s) => s === '').length
+  const stoppedClients = Object.values(clientStatuses).filter((s) => s === 'stopped').length
 
-  const runningClients = Object.entries(clientStatuses).filter(([_, status]) => status === 'running').length
-  const errorClients = Object.entries(clientStatuses).filter(([_, status]) => status === 'error').length
-  const stoppedClients = Object.entries(clientStatuses).filter(([_, status]) => status === 'stopped').length
-
-  // 统计入口状态
   const ingresses = ingressResp?.proxyConfigs || []
   const totalIngresses = ingresses.length
 
-  // 查询所有入口的状态
+  // 针对每个 ingress 再次拉取状态
   const ingressStatuses = useQuery({
-    queryKey: ['getIngressStatuses', workerId, ingresses.map((i: ProxyConfig) => i.id).join(','), refetchTrigger],
+    queryKey: ['getIngressStatuses', workerId, ingresses.map((i) => i.id).join(','), refetchTrigger],
     queryFn: async () => {
       const statuses: Record<string, string> = {}
-
       await Promise.all(
-        ingresses.map(async (ingress: ProxyConfig) => {
+        ingresses.map(async (i) => {
           try {
-            const proxyStatus = await getProxyConfig({
-              clientId: ingress.clientId,
-              serverId: ingress.serverId,
-              name: ingress.name,
+            const ps = await getProxyConfig({
+              clientId: i.clientId,
+              serverId: i.serverId,
+              name: i.name,
             })
-            statuses[ingress.id || ''] = proxyStatus?.workingStatus?.status || 'unknown'
-          } catch (e) {
-            statuses[ingress.id || ''] = 'error'
+            statuses[i.id || ''] = ps?.workingStatus?.status || 'unknown'
+          } catch {
+            statuses[i.id || ''] = ''
           }
         }),
       )
-
       return statuses
     },
     enabled: ingresses.length > 0,
     refetchInterval: 10000,
   })
 
-  const runningIngresses = Object.values(ingressStatuses.data || {}).filter((status) => status === 'running').length
-  const errorIngresses = Object.values(ingressStatuses.data || {}).filter((status) =>
-    ['error', 'start error', 'check failed'].includes(status),
+  const runningIngresses = Object.values(ingressStatuses.data || {}).filter((s) => s === 'running').length
+  const Ingresses = Object.values(ingressStatuses.data || {}).filter((s) =>
+    ['', 'start', 'check failed'].includes(s),
   ).length
 
-  // 计算总体状态
+  // Overall 状态
   const getOverallStatus = () => {
     if (totalClients === 0 && totalIngresses === 0) {
       return { variant: 'outline' as const, text: t('worker.status.no_resources'), color: 'bg-gray-100 text-gray-700' }
     }
-
-    // 资源完全不可用
     if ((totalClients > 0 && runningClients === 0) || (totalIngresses > 0 && runningIngresses === 0)) {
       return { variant: 'destructive' as const, text: t('worker.status.unusable'), color: 'bg-red-500 text-white' }
     }
-
-    // 资源不健康但部分可用
-    if (errorClients > 0 || errorIngresses > 0) {
+    if (Clients > 0 || Ingresses > 0) {
       return { variant: 'warning' as const, text: t('worker.status.unhealthy'), color: 'bg-amber-500 text-white' }
     }
-
-    // 所有资源健康
     if (runningClients === totalClients && runningIngresses === totalIngresses) {
       return { variant: 'default' as const, text: t('worker.status.healthy'), color: 'bg-green-500 text-white' }
     }
-
-    // 部分资源降级但无错误
     return { variant: 'secondary' as const, text: t('worker.status.degraded'), color: 'bg-orange-500 text-white' }
   }
+  const { text: overallText, color: overallColor } = getOverallStatus()
 
-  const { variant, text, color } = getOverallStatus()
-
-  // 生成客户端资源状态指示器
+  // per-client indicators
   const renderClientIndicators = () => {
     if (totalClients === 0) return null
-
+    const showList = deployedClients.slice(0, 3)
     return (
-      <div className="flex items-center group relative">
-        <div className="flex items-center space-x-1 rounded-md bg-muted/30 px-1 py-0.5 border border-muted">
-          <div className="flex space-x-0.5">
-            {Array.from({ length: Math.min(totalClients, 3) }).map((_, i) => (
-              <div
-                key={`client-${i}`}
-                className={`h-2.5 w-2.5 rounded-sm ${
-                  i < runningClients ? 'bg-green-500' : i < runningClients + errorClients ? 'bg-red-500' : 'bg-gray-300'
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-xs text-muted-foreground">
-            <Cpu className="w-3 h-3 min-w-3 min-h-3 max-w-3 max-h-3" />
-          </span>
-          {totalClients > 3 && <span className="text-xs text-muted-foreground">+{totalClients - 3}</span>}
+      <div className="flex items-center space-x-1 rounded-md bg-muted/30 px-1 py-0.5 border border-muted">
+        <div className="flex space-x-0.5">
+          {showList.map((client) => {
+            const status = clientStatuses[client.id || ''] || 'unknown'
+            const bg = status === 'running' ? 'bg-green-500' : status === '' ? 'bg-red-500' : 'bg-gray-300'
+            return (
+              <Tooltip key={client.id} delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <div className={`h-2.5 w-2.5 rounded-sm ${bg} cursor-pointer transition-transform hover:scale-125`} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm font-medium">{client.id}</p>
+                  <div className="text-xs font-mono">
+                    {t('worker.status.clients')}: {status}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )
+          })}
         </div>
+        <span className="text-xs text-muted-foreground">
+          <Cpu className="w-3 h-3" />
+        </span>
+        {totalClients > 3 && <span className="text-xs text-muted-foreground">+{totalClients - 3}</span>}
       </div>
     )
   }
 
-  // 生成入口资源状态指示器
+  // per-ingress indicators
   const renderIngressIndicators = () => {
     if (totalIngresses === 0) return null
-
+    const showList = ingresses.slice(0, 3)
     return (
-      <div className="flex items-center group relative">
-        <div className="flex items-center space-x-1 rounded-md bg-muted/30 px-1 py-0.5 border border-muted">
-          <div className="flex space-x-0.5">
-            {Array.from({ length: Math.min(totalIngresses, 3) }).map((_, i) => (
-              <div
-                key={`ingress-${i}`}
-                className={`h-2.5 w-2.5 rounded-sm ${
-                  i < runningIngresses
-                    ? 'bg-green-500'
-                    : i < runningIngresses + errorIngresses
-                      ? 'bg-red-500'
-                      : 'bg-gray-300'
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-xs text-muted-foreground">
-            <Network className="w-3 h-3 min-w-3 min-h-3 max-w-3 max-h-3" />
-          </span>
-          {totalIngresses > 3 && <span className="text-xs text-muted-foreground">+{totalIngresses - 3}</span>}
+      <div className="flex items-center space-x-1 rounded-md bg-muted/30 px-1 py-0.5 border border-muted">
+        <div className="flex space-x-0.5">
+          {showList.map((ing) => {
+            const status = ingressStatuses.data?.[ing.id || ''] || 'unknown'
+            const bg =
+              status === 'running'
+                ? 'bg-green-500'
+                : ['', 'start', 'check failed'].includes(status)
+                  ? 'bg-red-500'
+                  : 'bg-gray-300'
+            return (
+              <Tooltip key={ing.id} delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <div className={`h-2.5 w-2.5 rounded-sm ${bg} cursor-pointer transition-transform hover:scale-125`} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm font-medium">{ing.name}</p>
+                  <div className="text-xs font-mono">
+                    {t('worker.status.ingresses')}: {status}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )
+          })}
         </div>
+        <span className="text-xs text-muted-foreground">
+          <Network className="w-3 h-3" />
+        </span>
+        {totalIngresses > 3 && <span className="text-xs text-muted-foreground">+{totalIngresses - 3}</span>}
       </div>
     )
   }
 
+  // Compact 模式仍旧整体 hover
   if (compact) {
     return (
       <TooltipProvider>
@@ -172,13 +175,13 @@ export function WorkerStatus({ workerId, clients = [], compact = false }: Worker
           <TooltipTrigger className="flex items-center space-x-1">
             <div
               className={`h-2 w-2 rounded-sm ${
-                variant === 'default'
+                overallColor.includes('green')
                   ? 'bg-green-500'
-                  : variant === 'destructive'
+                  : overallColor.includes('red')
                     ? 'bg-red-500'
-                    : variant === 'warning'
+                    : overallColor.includes('amber')
                       ? 'bg-amber-500'
-                      : variant === 'secondary'
+                      : overallColor.includes('orange')
                         ? 'bg-blue-500'
                         : 'bg-gray-300'
               }`}
@@ -186,13 +189,13 @@ export function WorkerStatus({ workerId, clients = [], compact = false }: Worker
           </TooltipTrigger>
           <TooltipContent>
             <div className="space-y-1">
-              <p className="text-sm font-medium">{text}</p>
-              <div className="text-xs">
-                <div className="flex items-center space-x-1 font-mono">
-                  {t('worker.status.clients')}: {runningClients}/{totalClients} {t('worker.status.running')}
+              <p className="text-sm font-medium">{overallText}</p>
+              <div className="text-xs space-y-0.5">
+                <div className="font-mono">
+                  {t('worker.status.clients')}: {runningClients}/{totalClients}
                 </div>
-                <div className="flex items-center space-x-1 font-mono">
-                  {t('worker.status.ingresses')}: {runningIngresses}/{totalIngresses} {t('worker.status.running')}
+                <div className="font-mono">
+                  {t('worker.status.ingresses')}: {runningIngresses}/{totalIngresses}
                 </div>
               </div>
             </div>
@@ -202,32 +205,51 @@ export function WorkerStatus({ workerId, clients = [], compact = false }: Worker
     )
   }
 
+  // 默认模式：拆分整体与细节 hover
   return (
     <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center space-x-2">
-            <div className="flex space-x-1">
-              {renderIngressIndicators()}
-              {renderClientIndicators()}
-            </div>
-            <Badge className={`px-2 py-0.5 ${color} whitespace-nowrap`}>{text}</Badge>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <div className="space-y-2">
-            <p className="text-sm font-medium">{text}</p>
-            <div className="space-y-1 text-xs">
-              <div className="flex items-center space-x-1 font-mono">
-                {t('worker.status.clients')}: {runningClients}/{totalClients} {t('worker.status.running')}
+      <div className="flex items-center space-x-2">
+        {renderIngressIndicators()}
+        {renderClientIndicators()}
+
+        {/* 只在 Badge 上展示总体状态 */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge className={`px-2 py-0.5 ${overallColor} whitespace-nowrap`}>{overallText}</Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">{overallText}</p>
+              <div className="grid grid-cols-2 gap-4 text-xs font-mono">
+                <div className="flex items-center space-x-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500" />
+                  <span>
+                    {t('worker.status.running')}: {runningClients}/{totalClients}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="w-2 h-2 rounded-full bg-red-500" />
+                  <span>
+                    {t('worker.status')}: {Clients}/{totalClients}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500" />
+                  <span>
+                    {t('worker.status.running')}: {runningIngresses}/{totalIngresses}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="w-2 h-2 rounded-full bg-red-500" />
+                  <span>
+                    {t('worker.status')}: {Ingresses}/{totalIngresses}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center space-x-1 font-mono">
-                {t('worker.status.ingresses')}: {runningIngresses}/{totalIngresses} {t('worker.status.running')}
-              </div>
             </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
+          </TooltipContent>
+        </Tooltip>
+      </div>
     </TooltipProvider>
   )
 }
