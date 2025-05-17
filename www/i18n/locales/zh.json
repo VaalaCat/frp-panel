@@ -286,8 +286,12 @@
       "create_failed": "创建失败",
       "select_server": "选择服务器",
       "select_client": "选择客户端",
+      "advanced_mode": "高级模式",
       "select_proxy_type": "选择隧道类型",
       "proxy_name": "隧道名称",
+      "raw_json": "原始配置文件",
+      "invalid_json": "JSON非法",
+      "draft": "暂存",
       "invalid_config": "配置不正确",
       "submit": "提交"
     },
@@ -540,6 +544,8 @@
       "delete_description": "入口已成功删除"
     },
     "create": {
+      "success": "创建成功",
+      "error": "创建失败",
       "button": "创建",
       "title": "创建Worker",
       "description": "创建一个新的Worker",
@@ -572,9 +578,10 @@
       "healthy": "健康",
       "degraded": "降级",
       "clients": "部署",
-      "running": "运行中",
-      "ingresses": "入口"
-    }
+      "ingresses": "入口",
+      "running": "运行中"
+    },
+    "status_text": "状态"
   },
   "status": {
     "new": "新建",

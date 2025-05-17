@@ -352,35 +352,35 @@ func patchConfig(appInstance app.Application, commonArgs CommonArgs) conf.Config
 	c := context.Background()
 	tmpCfg := appInstance.GetConfig()
 
-	if commonArgs.RpcHost != nil {
+	if commonArgs.RpcHost != nil && len(*commonArgs.RpcHost) > 0 {
 		tmpCfg.Master.RPCHost = *commonArgs.RpcHost
 		tmpCfg.Master.APIHost = *commonArgs.RpcHost
 	}
 
-	if commonArgs.ApiHost != nil {
+	if commonArgs.ApiHost != nil && len(*commonArgs.RpcHost) > 0 {
 		tmpCfg.Master.APIHost = *commonArgs.ApiHost
 	}
 
-	if commonArgs.RpcPort != nil {
+	if commonArgs.RpcPort != nil && *commonArgs.RpcPort > 0 {
 		tmpCfg.Master.RPCPort = *commonArgs.RpcPort
 	}
-	if commonArgs.ApiPort != nil {
+	if commonArgs.ApiPort != nil && *commonArgs.ApiPort > 0 {
 		tmpCfg.Master.APIPort = *commonArgs.ApiPort
 	}
-	if commonArgs.ApiScheme != nil {
+	if commonArgs.ApiScheme != nil && len(*commonArgs.ApiScheme) > 0 {
 		tmpCfg.Master.APIScheme = *commonArgs.ApiScheme
 	}
-	if commonArgs.ClientID != nil {
+	if commonArgs.ClientID != nil && len(*commonArgs.ClientID) > 0 {
 		tmpCfg.Client.ID = *commonArgs.ClientID
 	}
-	if commonArgs.ClientSecret != nil {
+	if commonArgs.ClientSecret != nil && len(*commonArgs.ClientSecret) > 0 {
 		tmpCfg.Client.Secret = *commonArgs.ClientSecret
 	}
 
-	if commonArgs.ApiUrl != nil {
+	if commonArgs.ApiUrl != nil && len(*commonArgs.ApiUrl) > 0 {
 		tmpCfg.Client.APIUrl = *commonArgs.ApiUrl
 	}
-	if commonArgs.RpcUrl != nil {
+	if commonArgs.RpcUrl != nil && len(*commonArgs.RpcUrl) > 0 {
 		tmpCfg.Client.RPCUrl = *commonArgs.RpcUrl
 	}
 

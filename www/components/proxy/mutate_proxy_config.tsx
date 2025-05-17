@@ -27,6 +27,8 @@ import { ProxyConfig, Server } from '@/lib/pb/common'
 import { TypedProxyConfigValid } from '@/lib/consts'
 import { toast } from 'sonner'
 import { $proxyTableRefetchTrigger } from '@/store/refetch-trigger'
+import { Switch } from '../ui/switch'
+import { Textarea } from '../ui/textarea'
 
 export type ProxyConfigMutateDialogProps = {
   overwrite?: boolean
@@ -72,6 +74,9 @@ export const ProxyConfigMutateForm = ({
   const [proxyType, setProxyType] = useState<ProxyType>('http')
   const [selectedServer, setSelectedServer] = useState<Server | undefined>()
   const supportedProxyTypes: ProxyType[] = ['http', 'tcp', 'udp']
+  // advanced mode toggle
+  const [advancedMode, setAdvancedMode] = useState<boolean>(false)
+  const [rawConfig, setRawConfig] = useState<string>('{}')
 
   const createProxyConfigMutation = useMutation({
     mutationKey: ['createProxyConfig', newClientID, newServerID],
@@ -99,9 +104,15 @@ export const ProxyConfigMutateForm = ({
 
   useEffect(() => {
     if (proxyName && proxyType) {
-      setProxyConfigs([{...defaultProxyConfig, name: proxyName, type: proxyType }])
+      setProxyConfigs([{ ...defaultProxyConfig, name: proxyName, type: proxyType }])
     }
   }, [proxyName, proxyType])
+
+  useEffect(() => {
+    if (proxyConfigs) {
+      setRawConfig(JSON.stringify(proxyConfigs, null, 2))
+    }
+  }, [proxyConfigs, setRawConfig])
 
   useEffect(() => {
     if (defaultProxyConfig && defaultOriginalProxyConfig) {
@@ -110,6 +121,7 @@ export const ProxyConfigMutateForm = ({
       setProxyName(defaultProxyConfig.name)
       setNewClientID(defaultOriginalProxyConfig.originClientId)
       setNewServerID(defaultOriginalProxyConfig.serverId)
+      setRawConfig(JSON.stringify([defaultProxyConfig], null, 2))
     }
   }, [defaultProxyConfig, defaultOriginalProxyConfig])
 
@@ -119,45 +131,76 @@ export const ProxyConfigMutateForm = ({
       <ServerSelector setServerID={setNewServerID} serverID={newServerID} setServer={setSelectedServer} />
       <Label>{t('proxy.config.select_client')} </Label>
       <ClientSelector setClientID={setNewClientID} clientID={newClientID} />
-      <Label>{t('proxy.config.select_proxy_type')} </Label>
-      <BaseSelector
-        dataList={supportedProxyTypes.map((type) => ({ value: type, label: type }))}
-        value={proxyType}
-        setValue={(value) => {
-          setProxyType(value as ProxyType)
-        }}
-      />
-      {proxyConfigs &&
-        selectedServer &&
-        proxyConfigs.length > 0 &&
-        proxyConfigs[0] &&
-        TypedProxyConfigValid(proxyConfigs[0]) && (
-          <div className="flex flex-row w-full overflow-auto">
-            <div className="flex flex-col">
-              <VisitPreview server={selectedServer} typedProxyConfig={proxyConfigs[0]} />
-            </div>
-          </div>
-        )}
-      <Label>{t('proxy.config.proxy_name')} </Label>
-      <Input
-        className="text-sm"
-        defaultValue={proxyName}
-        onChange={(e) => setProxyName(e.target.value)}
-        disabled={disableChangeProxyName}
-      />
-      {proxyName && newClientID && newServerID && (
-        <TypedProxyForm
-          serverID={newServerID}
-          clientID={newClientID}
-          proxyName={proxyName}
-          defaultProxyConfig={proxyConfigs && proxyConfigs.length > 0 ? proxyConfigs[0] : undefined}
-          clientProxyConfigs={proxyConfigs}
-          setClientProxyConfigs={setProxyConfigs}
-          enablePreview={false}
-        />
+      <div className="flex items-center space-x-2 my-2">
+        <Label>{t('proxy.config.advanced_mode')}</Label>
+        <Switch onCheckedChange={setAdvancedMode} />
+      </div>
+      {!advancedMode && (
+        <>
+          <Label>{t('proxy.config.select_proxy_type')} </Label>
+          <BaseSelector
+            dataList={supportedProxyTypes.map((type) => ({ value: type, label: type }))}
+            value={proxyType}
+            setValue={(value) => {
+              setProxyType(value as ProxyType)
+            }}
+          />
+          {proxyConfigs &&
+            selectedServer &&
+            proxyConfigs.length > 0 &&
+            proxyConfigs[0] &&
+            TypedProxyConfigValid(proxyConfigs[0]) && (
+              <div className="flex flex-row w-full overflow-auto">
+                <div className="flex flex-col">
+                  <VisitPreview server={selectedServer} typedProxyConfig={proxyConfigs[0]} />
+                </div>
+              </div>
+            )}
+          <Label>{t('proxy.config.proxy_name')} </Label>
+          <Input
+            className="text-sm"
+            defaultValue={proxyName}
+            onChange={(e) => setProxyName(e.target.value)}
+            disabled={disableChangeProxyName}
+          />
+          {proxyName && newClientID && newServerID && (
+            <TypedProxyForm
+              serverID={newServerID}
+              clientID={newClientID}
+              proxyName={proxyName}
+              defaultProxyConfig={proxyConfigs && proxyConfigs.length > 0 ? proxyConfigs[0] : undefined}
+              clientProxyConfigs={proxyConfigs}
+              setClientProxyConfigs={setProxyConfigs}
+              enablePreview={false}
+            />
+          )}
+        </>
+      )}
+      {advancedMode && (
+        <>
+          <Label>{t('proxy.config.raw_json')}</Label>
+          <Textarea
+            className="w-full h-64 font-mono text-sm p-2 border"
+            value={rawConfig}
+            onChange={(e) => setRawConfig(e.target.value)}
+          />
+          <Button
+            onClick={() => {
+              try {
+                const parsed = JSON.parse(rawConfig) as TypedProxyConfig[]
+                setProxyConfigs(parsed)
+              } catch {
+                toast(t('proxy.config.invalid_json'))
+                return
+              }
+            }}
+          >
+            {t('proxy.config.draft')}
+          </Button>
+        </>
       )}
       <Button
-        disabled={!TypedProxyConfigValid(proxyConfigs[0])}
+        disabled={advancedMode ? proxyConfigs.length === 0 : !TypedProxyConfigValid(proxyConfigs[0])}
         onClick={() => {
           if (!TypedProxyConfigValid(proxyConfigs[0])) {
             toast(t('proxy.config.invalid_config'))

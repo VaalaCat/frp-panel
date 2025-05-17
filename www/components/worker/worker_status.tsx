@@ -230,7 +230,7 @@ export function WorkerStatus({ workerId, clients = [], compact = false }: Worker
                 <div className="flex items-center space-x-1">
                   <span className="w-2 h-2 rounded-full bg-red-500" />
                   <span>
-                    {t('worker.status')}: {Clients}/{totalClients}
+                    {t('worker.status_text')}: {Clients}/{totalClients}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">
@@ -242,7 +242,7 @@ export function WorkerStatus({ workerId, clients = [], compact = false }: Worker
                 <div className="flex items-center space-x-1">
                   <span className="w-2 h-2 rounded-full bg-red-500" />
                   <span>
-                    {t('worker.status')}: {Ingresses}/{totalIngresses}
+                    {t('worker.status_text')}: {Ingresses}/{totalIngresses}
                   </span>
                 </div>
               </div>

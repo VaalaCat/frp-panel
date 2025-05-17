@@ -287,8 +287,12 @@
       "create_failed": "Create failed",
       "select_server": "Select Server",
       "select_client": "Select Client",
+      "advanced_mode": "Advanced Mode",
       "select_proxy_type": "Select Tunnel Type",
       "proxy_name": "Tunnel Name",
+      "raw_json": "Original Config",
+      "invalid_json": "Json Invalid",
+      "draft": "Draft",
       "invalid_config": "Invalid configuration",
       "submit": "Submit"
     },
@@ -542,6 +546,8 @@
       "delete_description": "Ingress deleted successfully"
     },
     "create": {
+      "success": "Create Success",
+      "error": "Create Error",
       "button": "Create Worker",
       "title": "Create Worker",
       "description": "Create a new Worker",
@@ -574,9 +580,10 @@
       "healthy": "Healthy",
       "degraded": "Degraded",
       "clients": "Deployments",
-      "running": "Running",
-      "ingresses": "Ingresses"
-    }
+      "ingresses": "Ingresses",
+      "running": "Running"
+    },
+    "status_text": "Status"
   },
   "status": {
     "new": "New",

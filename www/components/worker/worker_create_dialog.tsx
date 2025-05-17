@@ -59,7 +59,7 @@ export const CreateWorkerDialog: React.FC<CreateWorkerDialogProps> = ({ refetchT
       refetchTrigger(new Date().toISOString())
     },
     onError: (err: any) => {
-      toast(err?.message || t('worker.create'))
+      toast(err?.message || t('worker.create.error'))
     },
   })
 
