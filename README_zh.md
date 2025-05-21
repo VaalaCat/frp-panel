@@ -20,9 +20,21 @@ QQ交流群: 830620423
 
 的更强更完善的 frp！
 
-- demo Video: [demo Video](./docs/public/images/frp-panel-demo.mp4)
+> Demo Video: [demo Video](./docs/public/images/frp-panel-demo.mp4)
 
 ![](./docs/public/images/frp-panel-demo.gif)
+
+## 赞助者们
+
+frp-panel 是一个完全自由开源的项目，依赖作者用爱发电写代码。如果你愿意支持作者开发，请考虑赞助 VaalaCat (Email：`me#vaala.cat`, replace # with @)
+
+[NodeSupport](https://github.com/NodeSeekDev/NodeSupport) 赞助了该项目
+
+<div align="left">
+  <a href="https://yxvm.com/">
+    <img src="https://github.com/user-attachments/assets/0bd7087a-7994-4caf-a465-a428af19c5aa" width="300" />
+  </a>
+</div>
 
 ## 项目使用说明
 

@@ -18,13 +18,25 @@ Our goal is to create a more powerful and comprehensive frp that provides:
 - Simplified configuration required for running
 - Support Cloudflare edge computing Worker
 
-- demo Video: [demo Video](./docs/public/images/frp-panel-demo.mp4)
+> Demo Video: [demo Video](./docs/public/images/frp-panel-demo.mp4)
 
 ![](./docs/public/images/frp-panel-demo.gif)
 
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=vaalacat/frp-panel&type=Date)](https://www.star-history.com/#vaalacat/frp-panel&Date)
+
+## Sponsors
+
+frp-panel is a completely free and open source project, relying on the author's love to write code. If you are willing to support the development, please consider sponsoring VaalaCat (Email: `me#vaala.cat`, replace # with @)
+
+[NodeSupport](https://github.com/NodeSeekDev/NodeSupport) has sponsored this project.
+
+<div align="left">
+  <a href="https://yxvm.com/">
+    <img src="https://github.com/user-attachments/assets/0bd7087a-7994-4caf-a465-a428af19c5aa" width="300" />
+  </a>
+</div>
 
 ## Project Usage Instructions
 
