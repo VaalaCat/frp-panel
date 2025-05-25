@@ -2,7 +2,7 @@
 
 FRP-Panel 是一款基于 FRP 的可视化管理面板，提供中心化配置、统一凭证、动态调度和边缘 Worker 支持，让内网穿透和服务暴露更简单、更安全、更高效。
 
-[详细使用文档 (Wiki)](https://vaala.cat/frp-panel) | [Blog 开发记录](https://vaala.cat/posts/frp-panel-doc/) | [截图/视频展示](https://vaala.cat/posts/frp-panel-doc/screenshots) | QQ 群：830620423
+[详细使用文档 (Wiki)](https://vaala.cat/frp-panel) | [Blog 开发记录](https://vaala.cat/posts/frp-panel-doc/) | [截图/视频展示](https://vaala.cat/frp-panel/screenshots) | QQ 群：830620423
 
 中文文档 | [English](./README.md)
 
