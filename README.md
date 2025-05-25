@@ -2,7 +2,7 @@
 
 FRP-Panel is a visualization management dashboard for FRP, offering centralized configuration, unified credentials, dynamic scheduling, and edge Worker support—making NAT traversal and service exposure simpler, safer, and more efficient.
 
-[Detailed Documentation (Wiki)](https://vaala.cat/frp-panel/en/) · [Development Blog](https://vaala.cat/posts/frp-panel-doc/) · [Screenshots & Videos](https://vaala.cat/posts/frp-panel-doc/en/screenshots) · QQ Group: 830620423
+[Detailed Documentation (Wiki)](https://vaala.cat/frp-panel/en/) · [Development Blog](https://vaala.cat/posts/frp-panel-doc/) · [Screenshots & Videos](https://vaala.cat/frp-panel/en/screenshots) · QQ Group: 830620423
 
 English | [中文](./README_zh.md)
 
