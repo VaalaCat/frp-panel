@@ -35,11 +35,20 @@ jobs:
         uses: arduino/setup-protoc@v3
       - name: Compile server
         run: bash ./build.sh
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Tag Release
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           automatic_release_tag: ${{ steps.get_version.outputs.VERSION }}
+          files: |
+            dist/*
+      - name: Latest Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: true
+          automatic_release_tag: latest
           files: |
             dist/*
       - name: Setup ko
@@ -53,3 +62,4 @@ jobs:
         run: |
           echo "${password}" | ko login docker.io --username ${username} --password-stdin
           ko build ./cmd/frpp --sbom=none --bare -t ${{ steps.get_version.outputs.VERSION }}
+          ko build ./cmd/frpp --sbom=none --bare -t latest

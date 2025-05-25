@@ -6,6 +6,10 @@ Master 推荐使用 docker 部署！不推荐直接安装到服务器中
 
 部署后没有默认用户，注册的第一个用户即为管理员，为了安全，默认不开启多用户注册
 
+程序的默认存储数据路径和程序文件同目录，如需修改请参考配置表格
+
+重要！：如果你想只部署 master，同时作为 server 运行，请不要忘记启动 master 后，在 webui 的配置服务端中修改 default 的配置
+
 ## 前期准备
 
 ### 服务器开放公网端口：
@@ -48,7 +52,9 @@ RPC 端口也可以处理自签名 HTTPS 的 API 连接
 > Content-Length: 8225
 > ```
 
-## 方式一：Docker Compose 部署
+## 在 Linux 上部署
+
+### 方式一：Docker Compose 部署
 
 服务器需要安装docker和docker compose
 
@@ -69,12 +75,12 @@ services:
       MASTER_API_PORT: 9000
       MASTER_API_SCHEME: http
     volumes:
-      - ./data:/data
+      - ./data:/data # 数据存储位置
     restart: unless-stopped
     command: master
 ```
 
-## 方式二：Docker 命令部署
+### 方式二：Docker 命令部署
 
 服务器需要安装 docker，我们推荐使用 host 网络模式部署 `Master`
 
@@ -107,7 +113,7 @@ docker run -d -p 9000:9000 \ # API控制台端口
 	vaalacat/frp-panel
 ```
 
-## 方式三：使用 docker 反向代理 TLS 加密部署
+### 方式三：使用 docker 反向代理 TLS 加密部署
 
 这里我们以 [Traefik](https://traefik.io/traefik/) 为例
 
@@ -225,3 +231,17 @@ networks:
 |	代理监听地址	|	0.0.0.0	|
 | 	HTTP 监听端口	|	26999	|
 |	域名后缀		|	frpp.example.com	|
+
+## 在 Windows 上部署
+
+### 直接运行
+
+在下载的可执行文件同名文件夹下创建一个 `.env` 文件(注意不要有后缀名)，然后输入以下内容保存后运行对应命令
+
+```
+APP_GLOBAL_SECRET=your_secret
+MASTER_RPC_HOST=IP
+DB_DSN=data.db
+```
+
+- master: `frp-panel-amd64.exe master`
