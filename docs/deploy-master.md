@@ -61,8 +61,6 @@ RPC 端口也可以处理自签名 HTTPS 的 API 连接
 首先创建一个`docker-compose.yaml`文件，写入以下内容
 
 ```yaml
-version: "3"
-
 services:
   frpp-master:
     image: vaalacat/frp-panel:latest

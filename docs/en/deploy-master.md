@@ -54,8 +54,6 @@ To secure communication, set the environment variables `CLIENT_RPC_URL` and `CLI
 Install Docker and Docker Compose, then create `docker-compose.yaml`:
 
 ```yaml
-version: "3"
-
 services:
   frpp-master:
     image: vaalacat/frp-panel:latest
