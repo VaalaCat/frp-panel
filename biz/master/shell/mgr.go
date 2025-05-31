@@ -2,6 +2,7 @@ package shell
 
 import (
 	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/utils"
 )
 
@@ -31,10 +32,9 @@ func (m *PTYMgr) Add(sessionID string, conn pb.Master_PTYConnectServer) {
 	m.doneMap.Store(sessionID, make(chan bool))
 }
 
-func NewPTYMgr() *PTYMgr {
+func NewPTYMgr() app.ShellPTYMgr {
 	return &PTYMgr{
 		SyncMap: &utils.SyncMap[string, pb.Master_PTYConnectServer]{},
 		doneMap: &utils.SyncMap[string, chan bool]{},
 	}
 }
-

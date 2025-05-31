@@ -1,10 +1,14 @@
 package app
 
 import (
+	"context"
 	"sync"
 
 	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/casbin/casbin/v2"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -28,6 +32,33 @@ type application struct {
 	enforcer          *casbin.Enforcer
 	workerExecManager WorkerExecManager
 	workersManager    WorkersManager
+
+	loggerInstance *logrus.Logger
+}
+
+func (a *application) GetClientBase() *pb.ClientBase {
+	return &pb.ClientBase{
+		ClientId:     a.GetConfig().Client.ID,
+		ClientSecret: a.GetConfig().Client.Secret,
+	}
+}
+
+func (a *application) GetServerBase() *pb.ServerBase {
+	return &pb.ServerBase{
+		ServerId:     a.GetConfig().Client.ID,
+		ServerSecret: a.GetConfig().Client.Secret,
+	}
+}
+
+func (a *application) SetLogger(l *logrus.Logger) {
+	a.loggerInstance = l
+}
+
+func (a *application) Logger(ctx context.Context) *logrus.Entry {
+	if a.loggerInstance == nil {
+		return logger.Logger(ctx)
+	}
+	return a.loggerInstance.WithContext(ctx)
 }
 
 // GetWorkersManager implements Application.

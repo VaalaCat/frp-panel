@@ -8,6 +8,7 @@ import (
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/services/tunnel"
 	"github.com/VaalaCat/frp-panel/services/watcher"
@@ -25,7 +26,8 @@ type runClientParam struct {
 	AppInstance    app.Application
 	TaskManager    watcher.Client `name:"clientTaskManager"`
 	WorkersManager app.WorkersManager
-	Cfg            conf.Config
+
+	Cfg conf.Config
 }
 
 func runClient(param runClientParam) {
@@ -53,7 +55,7 @@ func runClient(param runClientParam) {
 	param.Lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			appInstance.SetRPCCred(NewClientCred(appInstance))
-			appInstance.SetMasterCli(NewClientMasterCli(appInstance))
+			appInstance.SetMasterCli(rpc.NewMasterCli(appInstance))
 			appInstance.SetClientController(tunnel.NewClientController())
 
 			cliRpcHandler := rpcclient.NewClientRPCHandler(

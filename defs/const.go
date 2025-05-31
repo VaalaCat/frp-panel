@@ -175,3 +175,12 @@ const (
 	FrpProxyAnnotationsKey_WorkerId          = "worker_id"
 	FrpProxyAnnotationsKey_LoadBalancerGroup = "load_balancer_group"
 )
+
+const (
+	PlaceholderPrivateKey         = "<REPLACE_WITH_YOUR_PRIVATE_KEY>"
+	PlaceholderPeerVPNAddressCIDR = "<PEER_VPN_IP_ADDRESS/PREFIX>"
+)
+
+var VaalaMagicBytes = []byte("vaala-ping")
+
+const VaalaMagicBytesCookie = uint32(1630367849)

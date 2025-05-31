@@ -78,17 +78,11 @@ type DBManager interface {
 }
 
 type ClientsManager interface {
-	Get(cliID string) *Connector
+	Get(cliID string) *defs.Connector
 	Set(cliID, clientType string, sender pb.Master_ServerSendServer)
 	Remove(cliID string)
 	ClientAddr(cliID string) string
 	ConnectTime(cliID string) (time.Time, bool)
-}
-
-type Connector struct {
-	CliID   string
-	Conn    pb.Master_ServerSendServer
-	CliType string
 }
 
 type Service interface {

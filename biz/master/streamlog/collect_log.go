@@ -28,7 +28,7 @@ func (c *ClientLogManager) GetClientLock(clientId string) *sync.Mutex {
 	return lock
 }
 
-func NewClientLogManager() *ClientLogManager {
+func NewClientLogManager() app.ClientLogManager {
 	return &ClientLogManager{
 		SyncMap:        &utils.SyncMap[string, chan string]{},
 		clientLocksMap: &utils.SyncMap[string, *sync.Mutex]{},

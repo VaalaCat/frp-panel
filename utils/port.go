@@ -3,50 +3,58 @@ package utils
 import (
 	"fmt"
 	"net"
-	"time"
-
-	"github.com/sirupsen/logrus"
+	"strconv"
+	"strings"
 )
 
-func GetAvailablePort(addr string) (int, error) {
-	address, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%s:0", addr))
-	if err != nil {
-		return 0, err
-	}
+// GetFreePort asks the kernel for a free port for the given network.
+// Valid networks: "tcp4", "tcp6", "udp4", "udp6".
+func GetFreePort(network string) (uint32, error) {
+	network = strings.ToLower(network)
+	var (
+		port int
+		err  error
+	)
 
-	listener, err := net.ListenTCP("tcp", address)
-	if err != nil {
-		return 0, err
-	}
-
-	defer listener.Close()
-	return listener.Addr().(*net.TCPAddr).Port, nil
-}
-
-func IsPortAvailable(port int, addr string) bool {
-
-	address := fmt.Sprintf("%s:%d", addr, port)
-	listener, err := net.Listen("tcp", address)
-	if err != nil {
-		logrus.Infof("port %s is taken: %s", address, err)
-		return false
-	}
-
-	defer listener.Close()
-	return true
-}
-
-func WaitForPort(host string, port int) {
-	for {
-		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
-		if err == nil {
-			conn.Close()
-			break
+	addr := ":0" // let OS choose
+	switch network {
+	case "tcp4", "tcp6":
+		var ln net.Listener
+		ln, err = net.Listen(network, addr)
+		if err != nil {
+			return 0, fmt.Errorf("listen %s failed: %w", network, err)
 		}
+		defer ln.Close()
+		port, err = extractPort(ln.Addr().String())
 
-		logrus.Warnf("Target port %s:%d is not open yet, waiting...\n", host, port)
-		time.Sleep(time.Second * 5)
+	case "udp4", "udp6":
+		var pc net.PacketConn
+		pc, err = net.ListenPacket(network, addr)
+		if err != nil {
+			return 0, fmt.Errorf("listenpacket %s failed: %w", network, err)
+		}
+		defer pc.Close()
+		port, err = extractPort(pc.LocalAddr().String())
+
+	default:
+		return 0, fmt.Errorf("unsupported network %q", network)
 	}
-	logrus.Infof("Target port %s:%d is open", host, port)
-	time.Sleep(time.Second * 1)
+
+	if err != nil {
+		return 0, err
+	}
+	return uint32(port), nil
+}
+
+// extractPort splits "host:port" and returns port as int.
+func extractPort(hostport string) (int, error) {
+	_, portStr, err := net.SplitHostPort(hostport)
+	if err != nil {
+		return 0, fmt.Errorf("split hostport %q: %w", hostport, err)
+	}
+	p, err := strconv.Atoi(portStr)
+	if err != nil {
+		return 0, fmt.Errorf("invalid port %q: %w", portStr, err)
+	}
+	return p, nil
 }

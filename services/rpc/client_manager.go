@@ -3,6 +3,7 @@ package rpc
 import (
 	"time"
 
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/utils"
@@ -10,7 +11,7 @@ import (
 )
 
 type ClientsManager interface {
-	Get(cliID string) *app.Connector
+	Get(cliID string) *defs.Connector
 	Set(cliID, clientType string, sender pb.Master_ServerSendServer)
 	Remove(cliID string)
 	ClientAddr(cliID string) string
@@ -18,12 +19,12 @@ type ClientsManager interface {
 }
 
 type ClientsManagerImpl struct {
-	senders     *utils.SyncMap[string, *app.Connector]
+	senders     *utils.SyncMap[string, *defs.Connector]
 	connectTime *utils.SyncMap[string, time.Time]
 }
 
 // Get implements ClientsManager.
-func (c *ClientsManagerImpl) Get(cliID string) *app.Connector {
+func (c *ClientsManagerImpl) Get(cliID string) *defs.Connector {
 	cliAny, ok := c.senders.Load(cliID)
 	if !ok {
 		return nil
@@ -33,7 +34,7 @@ func (c *ClientsManagerImpl) Get(cliID string) *app.Connector {
 
 // Set implements ClientsManager.
 func (c *ClientsManagerImpl) Set(cliID, clientType string, sender pb.Master_ServerSendServer) {
-	c.senders.Store(cliID, &app.Connector{
+	c.senders.Store(cliID, &defs.Connector{
 		CliID:   cliID,
 		Conn:    sender,
 		CliType: clientType,
@@ -66,9 +67,9 @@ func (c *ClientsManagerImpl) ConnectTime(cliID string) (time.Time, bool) {
 	return t, true
 }
 
-func NewClientsManager() *ClientsManagerImpl {
+func NewClientsManager() app.ClientsManager {
 	return &ClientsManagerImpl{
-		senders:     &utils.SyncMap[string, *app.Connector]{},
+		senders:     &utils.SyncMap[string, *defs.Connector]{},
 		connectTime: &utils.SyncMap[string, time.Time]{},
 	}
 }

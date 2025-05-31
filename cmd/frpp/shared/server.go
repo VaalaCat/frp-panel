@@ -8,6 +8,7 @@ import (
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/services/tunnel"
 	"github.com/VaalaCat/frp-panel/services/watcher"
@@ -52,7 +53,7 @@ func runServer(param runServerParam) {
 		OnStart: func(ctx context.Context) error {
 			logger.Logger(ctx).Infof("start to run server, serverID: [%s]", clientID)
 			appInstance.SetRPCCred(NewServerCred(appInstance))
-			appInstance.SetMasterCli(NewServerMasterCli(appInstance))
+			appInstance.SetMasterCli(rpc.NewMasterCli(appInstance))
 
 			cliHandler := rpcclient.NewClientRPCHandler(
 				appInstance,

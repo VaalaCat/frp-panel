@@ -3,7 +3,6 @@ package shared
 import (
 	"context"
 	"crypto/tls"
-	"embed"
 	"net"
 	"net/http"
 	"os"
@@ -11,10 +10,6 @@ import (
 	"sync"
 
 	bizcommon "github.com/VaalaCat/frp-panel/biz/common"
-	bizmaster "github.com/VaalaCat/frp-panel/biz/master"
-	"github.com/VaalaCat/frp-panel/biz/master/shell"
-	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
-	bizserver "github.com/VaalaCat/frp-panel/biz/server"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/models"
@@ -43,12 +38,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewLogHookManager() app.StreamLogHookMgr {
-	return &bizcommon.HookMgr{}
+type Finish struct {
+	fx.Out
+
+	Context context.Context
 }
 
-func NewPTYManager() app.ShellPTYMgr {
-	return shell.NewPTYMgr()
+func NewLogHookManager() app.StreamLogHookMgr {
+	return &bizcommon.HookMgr{}
 }
 
 func NewBaseApp(param struct {
@@ -68,10 +65,6 @@ func NewBaseApp(param struct {
 	return appInstance
 }
 
-func NewClientsManager() app.ClientsManager {
-	return rpc.NewClientsManager()
-}
-
 func NewPatchedConfig(param struct {
 	fx.In
 
@@ -88,8 +81,16 @@ func NewContext(appInstance app.Application) *app.Context {
 	return app.NewContext(context.Background(), appInstance)
 }
 
-func NewClientLogManager() app.ClientLogManager {
-	return streamlog.NewClientLogManager()
+func NewAndFinishNormalContext(param struct {
+	fx.In
+
+	Ctx *app.Context
+	Cfg conf.Config
+}) Finish {
+
+	return Finish{
+		Context: param.Ctx,
+	}
 }
 
 func NewDBManager(ctx *app.Context, appInstance app.Application) app.DBManager {
@@ -151,28 +152,12 @@ func NewMasterTLSConfig(ctx *app.Context) *tls.Config {
 	return dao.NewQuery(ctx).InitCert(conf.GetCertTemplate(ctx.GetApp().GetConfig()))
 }
 
-func NewMasterRouter(fs embed.FS, appInstance app.Application) *gin.Engine {
-	return bizmaster.NewRouter(fs, appInstance)
-}
-
-func NewListenerOptions(ctx *app.Context, cfg conf.Config) conf.LisOpt {
-	return conf.GetListener(ctx, cfg)
-}
-
 func NewTLSMasterService(appInstance app.Application, masterTLSConfig *tls.Config) master.MasterService {
 	return master.NewMasterService(appInstance, credentials.NewTLS(masterTLSConfig))
 }
 
 func NewHTTPMasterService(appInstance app.Application) master.MasterService {
 	return master.NewMasterService(appInstance, insecure.NewCredentials())
-}
-
-func NewServerMasterCli(appInstance app.Application) app.MasterClient {
-	return rpc.NewMasterCli(appInstance)
-}
-
-func NewClientMasterCli(appInstance app.Application) app.MasterClient {
-	return rpc.NewMasterCli(appInstance)
 }
 
 func NewMux(param struct {
@@ -212,10 +197,6 @@ func NewWSUpgrader(ctx *app.Context, cfg conf.Config) *websocket.Upgrader {
 	return &websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { return true },
 	}
-}
-
-func NewServerRouter(appInstance app.Application) *gin.Engine {
-	return bizserver.NewRouter(appInstance)
 }
 
 func NewServerAPI(param struct {
@@ -305,7 +286,7 @@ func NewAutoJoin(param struct {
 	Ctx        *app.Context
 	Cfg        conf.Config `name:"argsPatchedConfig"`
 	CommonArgs CommonArgs
-}) conf.Config {
+}) conf.Config { // provide final config
 	var (
 		ctx          = param.Ctx
 		clientID     = param.Cfg.Client.ID
