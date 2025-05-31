@@ -46,6 +46,12 @@ export function LanguageSwitcher() {
         >
           English
         </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => toggleLanguage('fr')}
+          className={currentLanguage === 'fr' ? 'bg-accent' : ''}
+        >
+          Français
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

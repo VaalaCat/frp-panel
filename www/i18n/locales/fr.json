@@ -1,0 +1,629 @@
+{
+  "app": {
+    "title": "FRP-Panel",
+    "subtitle": "FRP-Panel",
+    "description": "Une interface web frp multi-nœuds pour la gestion des serveurs et clients [FRP], ce qui fait de ce projet une alternative open source à [Cloudflare Tunnel] ou [Tailscale Funnel]",
+    "github": {
+      "navigate": "naviguer vers :",
+      "repo": "VaalaCat/frp-panel"
+    }
+  },
+  "client": {
+    "detail": {
+      "title": "Informations du Client",
+      "version": "Version",
+      "buildDate": "Date de Compilation",
+      "goVersion": "Version de Go",
+      "platform": "Plateforme",
+      "address": "Adresse du Client",
+      "connectTime": "Connecté Depuis"
+    },
+    "create": {
+      "submitting": "Création du client en cours...",
+      "error": "Échec de la création du client",
+      "success": "Client créé avec succès",
+      "button": "Créer",
+      "title": "Créer un Nouveau Client",
+      "description": "Créer un nouveau client pour la connexion. L'ID du client doit être unique",
+      "id": "ID du Client",
+      "submit": "Créer"
+    },
+    "id": "ID (Cliquez pour la Commande d'Installation)",
+    "status": "État de la Configuration",
+    "status_configured": "Configuré",
+    "status_unconfigured": "Non Configuré",
+    "info": "Infos d'Exécution/Version",
+    "secret": "Clé Secrète (Cliquez pour la Commande de Démarrage)",
+    "install": {
+      "title": "Commande d'Installation",
+      "description": "Sélectionnez votre système d'exploitation et copiez la commande d'installation",
+      "use_github_proxy_url": "Utiliser l'URL Proxy GitHub",
+      "github_proxy_url": "URL Proxy GitHub",
+      "windows": "Windows",
+      "linux": "Linux"
+    },
+    "need_upgrade": "Mise à Niveau Requise",
+    "temp_node": "Temporaire",
+    "start": {
+      "title": "Commande de Démarrage",
+      "description": "Copiez et exécutez la commande suivante pour démarrer le client frp-panel"
+    },
+    "delete": {
+      "success": "Suppression réussie",
+      "failed": "Échec de la suppression",
+      "title": "Supprimer le Client",
+      "description": "Cette action est irréversible. Êtes-vous sûr de vouloir supprimer définitivement ce client de nos serveurs ?",
+      "warning": "Après la suppression, les clients en cours d'exécution ne pourront plus se reconnecter avec les paramètres existants. Si vous devez supprimer les connexions externes du client, vous pouvez choisir de mettre le client en pause à la place.",
+      "confirm": "Confirmer"
+    },
+    "operation": {
+      "stop_success": "Arrêt réussi",
+      "stop_failed": "Échec de l'arrêt",
+      "start_success": "Démarrage réussi",
+      "start_failed": "Échec du démarrage",
+      "update_failed": "Échec de la mise à jour",
+      "update_success": "Mise à jour réussie"
+    },
+    "actions_menu": {
+      "open_menu": "Ouvrir le Menu",
+      "title": "Actions sur le Client",
+      "copy_success": "Commande copiée avec succès. Si la copie échoue, veuillez cliquer sur le champ ID ou Clé Secrète pour copier manuellement",
+      "copy_failed": "Échec de l'obtention des informations de la plateforme. Si la copie échoue, veuillez cliquer sur le champ ID ou Clé Secrète pour copier manuellement",
+      "copy_start_command": "Copier la Commande de Démarrage",
+      "copy_install_command": "Copier la Commande d'Installation du Service",
+      "edit_config": "Modifier la Configuration",
+      "download_failed": "Échec de l'obtention des informations de la plateforme",
+      "download_config": "Télécharger la Configuration",
+      "realtime_log": "Journal en Temps Réel",
+      "remote_terminal": "Terminal à Distance",
+      "pause": "Pause",
+      "resume": "Reprendre",
+      "delete": "Supprimer"
+    },
+    "join": {
+      "button": "Configuration par Lots",
+      "title": "Configuration par Lots",
+      "description": "Téléchargez les fichiers binaires à l'avance, exécutez la commande suivante, et le client générera et enregistrera automatiquement le fichier de configuration.",
+      "sign_token": "Générer un Jeton"
+    },
+    "editor": {
+      "comment_title": "Commentaire du Nœud {{id}}",
+      "comment_placeholder": "Commentaire",
+      "config_title": "Contenu du Fichier de Configuration `frpc.json` du Client {{id}}",
+      "config_description": "Configurez uniquement les champs proxies et visitors, les informations d'authentification et de connexion au serveur seront complétées par le système",
+      "config_placeholder": "Contenu du Fichier de Configuration"
+    },
+    "stats": {
+      "title": "Statistiques du Client",
+      "description": "Afficher les statistiques de trafic du client",
+      "label": "Client"
+    },
+    "status_online": "En Ligne",
+    "status_offline": "Hors Ligne",
+    "status_error": "Erreur",
+    "status_pause": "En Pause",
+    "status_unknown": "Inconnu"
+  },
+  "selector": {
+    "client": {
+      "placeholder": "Nom du Client"
+    },
+    "common": {
+      "placeholder": "Veuillez sélectionner...",
+      "notFound": "Aucun résultat trouvé",
+      "loading": "Chargement..."
+    },
+    "proxy": {
+      "notFound": "Aucun tunnel trouvé",
+      "placeholder": "Nom du tunnel"
+    },
+    "server": {
+      "placeholder": "Nom du Serveur"
+    }
+  },
+  "table": {
+    "pagination": {
+      "rowsPerPage": "lignes par page",
+      "page": "Page {{current}} sur {{total}}",
+      "navigation": {
+        "first": "Aller à la première page",
+        "previous": "Aller à la page précédente",
+        "next": "Aller à la page suivante",
+        "last": "Aller à la dernière page"
+      }
+    },
+    "filter": {
+      "placeholder": "Filtrer par {{column}}"
+    },
+    "noData": "Aucune donnée"
+  },
+  "input": {
+    "keyword": {
+      "placeholder": "Entrez un mot-clé"
+    },
+    "search": "Rechercher",
+    "list": {
+      "placeholder": "Veuillez entrer ...",
+      "add": "Ajouter"
+    }
+  },
+  "traffic": {
+    "chart": {
+      "inbound": "Entrant",
+      "today": "Aujourd'hui",
+      "history": "Historique",
+      "outbound": "Sortant",
+      "title": "Détails du Trafic",
+      "pie": {
+        "inbound": "Entrant",
+        "outbound": "Sortant"
+      }
+    },
+    "today": {
+      "inbound": "Entrant Aujourd'hui",
+      "outbound": "Sortant Aujourd'hui",
+      "total": "Total Aujourd'hui"
+    },
+    "history": {
+      "inbound": "Entrant Depuis Toujours",
+      "outbound": "Sortant Depuis Toujours",
+      "total": "Total Depuis Toujours"
+    }
+  },
+  "common": {
+    "download": "Cliquez ici pour télécharger",
+    "copy": "Copier",
+    "submit": "Soumettre",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "userInfo": "Informations Utilisateur",
+    "logout": "Déconnexion",
+    "add": "Ajouter",
+    "back": "Retour",
+    "saving": "Enregistrement en cours...",
+    "save": "Enregistrer",
+    "success": "Succès",
+    "failed": "Échec",
+    "cancel": "Annuler",
+    "clientType": "Type de Client",
+    "disconnect": "Déconnecter",
+    "connect": "Connecter",
+    "stream_log_pkgs_select": "Journal de Flux Depuis"
+  },
+  "frpc": {
+    "client_plugins": {
+      "plugin_type": "Type de Plugin",
+      "select_plugin_type": "Veuillez Sélectionner un Plugin",
+      "http_local_addr": "Adresse Locale HTTP",
+      "http_host_header_rewrite": "Réécriture de l'En-tête d'Hôte HTTP",
+      "http_user": "Utilisateur HTTP",
+      "http_password": "Mot de Passe HTTP"
+    },
+    "form": {
+      "title": "Modifier le Client",
+      "description": {
+        "warning": "Avertissement ⚠️ : Le 'Serveur' sélectionné doit être configuré au préalable !",
+        "instruction": "Sélectionnez le client et le serveur pour modifier la configuration"
+      },
+      "advanced": {
+        "title": "Mode Avancé",
+        "description": "Modifier le fichier de configuration brut du client"
+      },
+      "server": "Serveur",
+      "client": "Client",
+      "frps_url": {
+        "title": "Adresse de remplacement du serveur FRP - Optionnel",
+        "hint": "Vous pouvez remplacer l'adresse du serveur stockée dans le maître pour gérer l'incohérence entre le nom de domaine/IP/port et le port réel lors de la redirection de port ou du proxy inverse/CDN. Format : [tcp/kcp/websocket]://127.0.0.1:7000"
+      },
+      "comment": {
+        "title": "Commentaire du Nœud {{id}}",
+        "hint": "Vous pouvez modifier le commentaire en mode avancé !",
+        "empty": "C'est vide..."
+      }
+    },
+    "plugins": {
+      "local_addr": "Adresse Locale",
+      "host_header_rewrite": "Réécriture de l'En-tête d'Hôte",
+      "crt_path": "Chemin du Certificat",
+      "key_path": "Chemin de la Clé",
+      "username": "Nom d'utilisateur",
+      "password": "Mot de passe",
+      "local_path": "Chemin Local",
+      "strip_prefix": "Supprimer le Préfixe",
+      "http_user": "Utilisateur HTTP",
+      "http_password": "Mot de Passe HTTP",
+      "unix_domain_socket_path": "Chemin du Socket de Domaine Unix"
+    }
+  },
+  "proxy": {
+    "status": {
+      "create": "État de Création du Tunnel",
+      "name_exists": "Le nom existe déjà",
+      "update": "État de Mise à Jour du Tunnel",
+      "success": "Mise à jour réussie",
+      "error": "Échec de la mise à jour"
+    },
+    "form": {
+      "add": "Ajouter un Tunnel",
+      "name": "Nom",
+      "protocol": "Protocole",
+      "type": "Type",
+      "confirm": "Confirmer",
+      "config": "Configuration du Tunnel",
+      "expand_one": "Développer",
+      "expand_other": "Développer",
+      "delete": "Supprimer",
+      "tunnel_name": "Nom du Tunnel",
+      "type_label": "Type : [{{type}}]",
+      "submit": "Soumettre les Modifications",
+      "access_method": "Méthode d'Accès",
+      "local_port": "Port Local",
+      "local_ip": "IP Locale",
+      "remote_port": "Port Distant",
+      "use_plugin": "Utiliser un Plugin",
+      "save_changes": "Enregistrer les Modifications",
+      "secret_key": "Clé Secrète",
+      "subdomain": "Sous-domaine",
+      "custom_domains": "Domaines Personnalisés",
+      "domain_description": "Le sous-domaine et le domaine personnalisé peuvent être configurés en même temps, mais au moins l'un d'eux ne doit pas être vide. Si frps est configuré avec un suffixe de domaine, le domaine personnalisé ne peut pas être un sous-domaine ou un domaine joker du suffixe de domaine.",
+      "more_settings": "Plus de Paramètres",
+      "route": "Route",
+      "enable_http_auth": "Activer l'Authentification HTTP",
+      "username": "Nom d'utilisateur",
+      "password": "Mot de passe",
+      "subdomain_placeholder": "Entrez le Sous-domaine"
+    },
+    "type": {
+      "http": "HTTP",
+      "tcp": "TCP",
+      "udp": "UDP",
+      "stcp": "STCP"
+    },
+    "config": {
+      "create": "Créer",
+      "create_proxy": "Créer un Tunnel",
+      "create_proxy_description": "Exposer les services du client au serveur. Le nom du tunnel client doit être unique",
+      "create_success": "Création réussie",
+      "create_failed": "Échec de la création",
+      "select_server": "Sélectionner un Serveur",
+      "select_client": "Sélectionner un Client",
+      "advanced_mode": "Mode Avancé",
+      "select_proxy_type": "Sélectionner le Type de Tunnel",
+      "proxy_name": "Nom du Tunnel",
+      "raw_json": "Configuration Originale",
+      "invalid_json": "JSON Invalide",
+      "draft": "Brouillon",
+      "invalid_config": "Configuration invalide",
+      "submit": "Soumettre"
+    },
+    "action": {
+      "delete_success": "Suppression Réussie",
+      "delete_failed": "Échec de la Suppression",
+      "stop_success": "Arrêt Réussi",
+      "stop_failed": "Échec de l'Arrêt",
+      "start_success": "Démarrage Réussi",
+      "start_failed": "Échec du Démarrage",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "delete_tunnel": "Supprimer le Tunnel",
+      "delete_attention_title": "Le tunnel sera supprimé définitivement, veuillez confirmer",
+      "delete_attention_description": "Après la suppression, le Tunnel ne pourra pas être récupéré, faites attention",
+      "delete_attention_confirm": "Confirmer",
+      "title": "Opération du Tunnel"
+    },
+    "item": {
+      "proxy_name": "Nom du Tunnel",
+      "proxy_type": "Type de Tunnel",
+      "client_id": "ID du Client",
+      "server_id": "ID du Serveur",
+      "status": "Statut",
+      "visit_preview": "Visiter l'aperçu"
+    },
+    "stats": {
+      "label": "Nom du Tunnel",
+      "tunnel_traffic": "Tunnel : {{name}}"
+    }
+  },
+  "server": {
+    "configuration": "Configuration du Serveur",
+    "warning": {
+      "title": "Avertissement⚠️ : Le serveur quittera après la modification du fichier de configuration",
+      "dockerHint": "Si vous utilisez un conteneur docker avec --restart=unless-stopped ou --restart=always dans la commande de démarrage, il n'y a pas lieu de s'inquiéter.",
+      "systemdHint": "Si vous utilisez une installation systemd, il n'y a pas lieu de s'inquiéter non plus."
+    },
+    "selectHint": "Sélectionnez un serveur pour gérer le service Frps",
+    "advancedMode": {
+      "title": "Mode Avancé",
+      "description": "Modifier le fichier de configuration brut du serveur"
+    },
+    "serverLabel": "Serveur",
+    "frpsUrl": {
+      "title": "Adresse de remplacement du serveur FRP - Optionnel",
+      "description": "Les clients peuvent utiliser cette adresse pour se connecter au lieu de l'IP par défaut. Ceci est utile pour la redirection de port/CDN/proxy inverse. Format : [tcp/kcp/websocket]://127.0.0.1:7000"
+    },
+    "operation": {
+      "update_failed": "Échec de la mise à jour",
+      "update_success": "Mise à jour réussie",
+      "update_title": "Mettre à Jour l'État du Serveur"
+    },
+    "editor": {
+      "comment": "Commentaire du Nœud {{id}}",
+      "comment_placeholder": "Commentaire",
+      "config_title": "Contenu du Fichier de Configuration `frps.json` du Nœud {{id}}",
+      "config_description": "Configurez uniquement les champs de port et d'IP, les informations d'authentification seront complétées par le système",
+      "config_placeholder": "Contenu du Fichier de Configuration"
+    },
+    "form": {
+      "comment_title": "Commentaire du Nœud {{id}}",
+      "comment_hint": "Vous pouvez modifier le commentaire en mode avancé !",
+      "comment_empty": "Vide",
+      "public_host": "Hôte Public",
+      "bind_port": "Port d'Écoute FRPs",
+      "bind_addr": "Adresse d'Écoute FRPs",
+      "proxy_bind_addr": "Adresse d'Écoute du Proxy",
+      "vhost_http_port": "Port d'Écoute HTTP",
+      "subdomain_host": "Hôte de Sous-domaine",
+      "quic_bind_port": "Port de Liaison Quic",
+      "kcp_bind_port": "Port de Liaison KCP"
+    },
+    "create": {
+      "submitting": "Création du serveur en cours...",
+      "error": "Échec de la création du serveur",
+      "success": "Serveur créé avec succès",
+      "button": "Créer",
+      "title": "Créer un Nouveau Serveur",
+      "description": "Créez un nouveau serveur pour fournir un service. L'ID du serveur doit être unique",
+      "id": "ID du Serveur",
+      "ip": "Adresse IP/Domaine",
+      "submit": "Créer"
+    },
+    "id": "ID (Cliquez pour la commande d'installation)",
+    "status": "État de la Configuration",
+    "status_configured": "Configuré",
+    "status_unconfigured": "Non Configuré",
+    "info": "Infos d'Exécution/Version",
+    "ip": "Adresse IP",
+    "secret": "Secret (Cliquez pour la commande de démarrage)",
+    "install": {
+      "title": "Commande d'Installation",
+      "description": "Veuillez sélectionner votre système d'exploitation et copier la commande d'installation correspondante",
+      "windows": "Windows",
+      "linux": "Linux"
+    },
+    "start": {
+      "title": "Commande de Démarrage",
+      "description": "Copiez et exécutez la commande suivante pour démarrer le serveur frp-panel"
+    },
+    "delete": {
+      "success": "Suppression réussie",
+      "failed": "Échec de la suppression",
+      "title": "Supprimer le Serveur ?",
+      "description": "Cette action est irréversible. Êtes-vous sûr de vouloir supprimer définitivement ce serveur de nos serveurs ?",
+      "warning": "Après la suppression, les serveurs en cours d'exécution ne pourront plus se reconnecter avec les paramètres existants. Si vous devez supprimer les connexions du serveur, vous pouvez choisir de mettre le serveur en pause",
+      "confirm": "Confirmer"
+    },
+    "actions_menu": {
+      "open_menu": "Ouvrir le Menu",
+      "title": "Actions du Serveur",
+      "copy_success": "Copie réussie, si la copie a échoué, veuillez cliquer sur le champ ID pour copier manuellement",
+      "copy_failed": "Échec de l'obtention des informations de la plateforme, si la copie a échoué, veuillez cliquer sur le champ ID pour copier manuellement",
+      "copy_command": "Copier la Commande de Démarrage",
+      "edit_config": "Modifier la Configuration",
+      "download_failed": "Échec de l'obtention des informations de la plateforme",
+      "download_config": "Télécharger la Configuration",
+      "realtime_log": "Journal en Temps Réel",
+      "remote_terminal": "Terminal à Distance",
+      "delete": "Supprimer"
+    },
+    "status_online": "En Ligne",
+    "status_offline": "Hors Ligne",
+    "status_error": "Erreur",
+    "status_unknown": "Inconnu",
+    "status_pause": "En Pause"
+  },
+  "auth": {
+    "loggingIn": "Connexion en cours, veuillez patienter",
+    "loginSuccess": "Connexion réussie, redirection vers la page d'accueil",
+    "loginFailed": "Échec de la connexion, veuillez réessayer",
+    "usernamePlaceholder": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "••••••••",
+    "error": "Erreur",
+    "registering": "Inscription en cours, veuillez patienter",
+    "registerSuccess": "Inscription réussie, redirection vers la connexion",
+    "registerFailed": "Échec de l'inscription, veuillez réessayer",
+    "emailPlaceholder": "Adresse e-mail",
+    "loginTitle": "Connexion",
+    "inputCredentials": "Entrez vos identifiants",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "register": "S'inscrire",
+    "registerTitle": "S'inscrire",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "login": "Connexion"
+  },
+  "platform": {
+    "configuredServers": "Serveurs Configurés",
+    "unit": " ",
+    "menuHint": "Veuillez modifier dans le menu de gauche",
+    "configuredClients": "Clients Configurés",
+    "unconfiguredServers": "Serveurs Non Configurés",
+    "unconfiguredClients": "Clients Non Configurés",
+    "totalServers": "Total Serveurs",
+    "totalClients": "Total Clients"
+  },
+  "refresh": {
+    "data": "Actualiser les Données",
+    "data_zh": "Actualiser les Données"
+  },
+  "team": {
+    "title": "Équipes"
+  },
+  "userInfo": {
+    "profileUpdated": "Profil Mis à Jour",
+    "updateFailed": "Échec de la Mise à Jour",
+    "loading": "Chargement",
+    "yourProfile": "Votre Profil",
+    "manageAccountDetails": "Gérer les Détails du Compte",
+    "userID": "ID Utilisateur",
+    "tenantID": "ID Locataire",
+    "name": "Nom",
+    "placeholderName": "Entrez votre nom",
+    "email": "E-mail",
+    "placeholderEmail": "Entrez votre e-mail",
+    "role": "Rôle",
+    "roleDescription": "Administrateur(admin) ou Utilisateur Normal(normal)",
+    "changePassword": "Changer le Mot de Passe",
+    "newPassword": "Nouveau Mot de Passe",
+    "placeholderNewPassword": "Entrez votre nouveau mot de passe",
+    "confirmPassword": "Confirmer le Mot de Passe",
+    "placeholderConfirmNewPassword": "Confirmez votre nouveau mot de passe",
+    "saveChanges": "Enregistrer les Modifications",
+    "confirmSaveTitle": "Confirmer l'Enregistrement",
+    "confirmSaveDescription": "Êtes-vous sûr de vouloir enregistrer vos modifications ?",
+    "cancel": "Annuler",
+    "confirm": "Confirmer"
+  },
+  "worker": {
+    "client_install_workerd": {
+      "success": "Workerd installé avec succès",
+      "error": "Échec de l'installation de Workerd",
+      "title": "Installer Workerd",
+      "description": "Installer le binaire Workerd depuis l'URL vers le Client",
+      "download_url": "URL de Téléchargement du Binaire Workerd",
+      "placeholder": "Entrez l'URL de téléchargement",
+      "button": "Installer"
+    },
+    "status_running": "En cours d'exécution",
+    "status_stopped": "Arrêté",
+    "status_error": "Erreur",
+    "status_unknown": "Inconnu",
+    "deploy": {
+      "title": "Déployer",
+      "add_client": "Ajouter un Déploiement",
+      "select_client": "Sélectionner un Client",
+      "client_description": "Sélectionnez un client à déployer",
+      "no_clients": "Aucun client disponible"
+    },
+    "edit": {
+      "save_success": "Modifications enregistrées avec succès",
+      "save_error": "Échec de l'enregistrement des modifications",
+      "title": "Modifier la Fonction",
+      "info_tab": "Infos de la Fonction",
+      "code_tab": "Code",
+      "template_tab": "Modèle"
+    },
+    "info": {
+      "basic_info": "Informations de Base",
+      "info_description": "Vous pouvez modifier les informations de base",
+      "worker_id": "ID de la Fonction",
+      "worker_name": "Nom de la Fonction",
+      "name_placeholder": "Entrez le nom de la fonction",
+      "resources": "Ressources",
+      "clients": "Déploiements",
+      "ingresses": "Entrées"
+    },
+    "ingress": {
+      "create_success": "Entrée créée avec succès",
+      "create_failed": "Échec de la création de l'entrée",
+      "client_required": "Client requis",
+      "server_required": "Serveur requis",
+      "select_client": "Sélectionner un Client",
+      "select_server": "Sélectionner un Serveur",
+      "creating": "Création de l'Entrée en cours...",
+      "create_submit": "Créer une Entrée",
+      "title": "Entrée",
+      "create": "Créer une Entrée",
+      "create_title": "Créer une Entrée",
+      "create_description": "Créer une nouvelle Entrée",
+      "no_ingress": "Aucune Entrée",
+      "edit": "Modifier l'Entrée",
+      "delete": {
+        "title": "Supprimer l'Entrée",
+        "description": "Êtes-vous sûr de vouloir supprimer cette entrée ?",
+        "button": "Supprimer"
+      },
+      "delete_success": "Entrée supprimée avec succès",
+      "delete_description": "Entrée supprimée avec succès"
+    },
+    "create": {
+      "success": "Création Réussie",
+      "error": "Erreur de Création",
+      "button": "Créer une Fonction",
+      "title": "Créer une Fonction",
+      "description": "Créer une nouvelle Fonction",
+      "clientIdLabel": "ID Client",
+      "nameLabel": "Nom de la Fonction",
+      "namePlaceholder": "Entrez le Nom de la Fonction",
+      "creating": "Création de la Fonction en cours...",
+      "submit": "Créer une Fonction"
+    },
+    "columns": {
+      "name": "Nom",
+      "status": "Statut",
+      "id": "ID"
+    },
+    "actions_menu": {
+      "delete": "Supprimer la Fonction",
+      "redeploy_worker": "Redéployer la Fonction",
+      "title": "Actions de la Fonction",
+      "edit": "Modifier la Fonction"
+    },
+    "delete": {
+      "title": "Supprimer la Fonction",
+      "description": "Êtes-vous sûr de vouloir supprimer cette fonction ?",
+      "confirm": "Supprimer la Fonction"
+    },
+    "status": {
+      "no_resources": "Aucune Ressource",
+      "unusable": "Inutilisable",
+      "unhealthy": "Défaillant",
+      "healthy": "Sain",
+      "degraded": "Dégradé",
+      "clients": "Déploiements",
+      "ingresses": "Entrées",
+      "running": "En cours d'exécution"
+    },
+    "status_text": "Statut"
+  },
+  "status": {
+    "new": "Nouveau",
+    "wait_start": "En Attente de Démarrage",
+    "start_error": "Erreur de Démarrage",
+    "running": "En cours d'exécution",
+    "check_failed": "Vérification Échouée",
+    "error": "Erreur",
+    "unknown": "Inconnu"
+  },
+  "nav": {
+    "clients": "Clients",
+    "servers": "Serveurs",
+    "editTunnel": "Modifier le Tunnel",
+    "editClient": "Modifier le Client",
+    "editServer": "Modifier le Serveur",
+    "trafficStats": "Statistiques de Trafic",
+    "realTimeLog": "Journal en Temps Réel",
+    "console": "Console",
+    "workers": "Fonctions"
+  },
+  "frpc_form": {
+    "add": "Ajouter un Client",
+    "name": "Nom",
+    "protocol": "Protocole",
+    "type": "Type",
+    "confirm": "Confirmer",
+    "config": "Configuration du Client",
+    "expand": "Cliquez pour développer {{count}} clients",
+    "client_name": "Nom du Client",
+    "delete": "Supprimer",
+    "type_label": "Type : [{{type}}]",
+    "access_method": "Méthode d'Accès",
+    "local_port": "Port Local",
+    "remote_port": "Port Distant",
+    "local_ip": "IP Locale",
+    "subdomain": "Sous-domaine",
+    "secret_key": "Clé Secrète",
+    "save": "Enregistrer",
+    "save_success": "Enregistrement réussi",
+    "save_error": "Échec de l'enregistrement"
+  }
+}
