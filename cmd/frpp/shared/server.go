@@ -8,8 +8,8 @@ import (
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/clientrpc"
 	"github.com/VaalaCat/frp-panel/services/rpc"
-	"github.com/VaalaCat/frp-panel/services/rpcclient"
 	"github.com/VaalaCat/frp-panel/services/tunnel"
 	"github.com/VaalaCat/frp-panel/services/watcher"
 	"github.com/VaalaCat/frp-panel/utils/logger"
@@ -55,7 +55,7 @@ func runServer(param runServerParam) {
 			appInstance.SetRPCCred(NewServerCred(appInstance))
 			appInstance.SetMasterCli(rpc.NewMasterCli(appInstance))
 
-			cliHandler := rpcclient.NewClientRPCHandler(
+			cliHandler := clientrpc.NewClientRPCHandler(
 				appInstance,
 				clientID,
 				clientSecret,

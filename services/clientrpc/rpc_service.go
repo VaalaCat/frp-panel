@@ -1,4 +1,4 @@
-package rpcclient
+package clientrpc
 
 import (
 	"github.com/VaalaCat/frp-panel/pb"
@@ -11,7 +11,7 @@ type ClientRPCHandler interface {
 	GetCli() pb.MasterClient
 }
 
-type clientRPC struct {
+type clientRPCHandler struct {
 	appInstance  app.Application
 	rpcClient    app.MasterClient
 	done         chan bool
@@ -30,7 +30,7 @@ func NewClientRPCHandler(
 ) app.ClientRPCHandler {
 	rpcCli := appInstance.GetMasterCli()
 	done := make(chan bool)
-	return &clientRPC{
+	return &clientRPCHandler{
 		appInstance:  appInstance,
 		rpcClient:    rpcCli,
 		done:         done,
@@ -41,14 +41,14 @@ func NewClientRPCHandler(
 	}
 }
 
-func (s *clientRPC) Run() {
-	StartRPCClient(s.appInstance, s.rpcClient, s.done, s.clientID, s.clientSecret, s.event, s.handerFunc)
+func (s *clientRPCHandler) Run() {
+	startClientRpcHandler(s.appInstance, s.rpcClient, s.done, s.clientID, s.clientSecret, s.event, s.handerFunc)
 }
 
-func (s *clientRPC) Stop() {
+func (s *clientRPCHandler) Stop() {
 	close(s.done)
 }
 
-func (s *clientRPC) GetCli() app.MasterClient {
+func (s *clientRPCHandler) GetCli() app.MasterClient {
 	return s.rpcClient
 }

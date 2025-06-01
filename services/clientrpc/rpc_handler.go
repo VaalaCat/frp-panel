@@ -1,4 +1,4 @@
-package rpcclient
+package clientrpc
 
 import (
 	"context"
@@ -21,7 +21,7 @@ import (
 // 	}
 // }
 
-func RegistClientToMaster(appInstance app.Application, recvStream pb.Master_ServerSendClient, event pb.Event, clientID, clientSecret string) {
+func registClientToMaster(appInstance app.Application, recvStream pb.Master_ServerSendClient, event pb.Event, clientID, clientSecret string) {
 	ctx := context.Background()
 	logger.Logger(ctx).Infof("start to regist client to master")
 	for {
@@ -52,7 +52,7 @@ func RegistClientToMaster(appInstance app.Application, recvStream pb.Master_Serv
 	}
 }
 
-func RunRPCClient(appInstance app.Application, recvStream pb.Master_ServerSendClient, done chan bool, clientID string,
+func runCLientRpcHandler(appInstance app.Application, recvStream pb.Master_ServerSendClient, done chan bool, clientID string,
 	clientHandleServerSend func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage) {
 	c := context.Background()
 	for {
@@ -93,7 +93,7 @@ func RunRPCClient(appInstance app.Application, recvStream pb.Master_ServerSendCl
 	}
 }
 
-func StartRPCClient(appInstance app.Application, client app.MasterClient, done chan bool, clientID, clientSecret string, event pb.Event,
+func startClientRpcHandler(appInstance app.Application, client app.MasterClient, done chan bool, clientID, clientSecret string, event pb.Event,
 	clientHandleServerSend func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage) {
 	c := context.Background()
 	logger.Logger(c).Infof("start to run rpc client")
@@ -110,8 +110,8 @@ func StartRPCClient(appInstance app.Application, client app.MasterClient, done c
 				continue
 			}
 
-			RegistClientToMaster(appInstance, recvStream, event, clientID, clientSecret)
-			RunRPCClient(appInstance, recvStream, done, clientID, clientHandleServerSend)
+			registClientToMaster(appInstance, recvStream, event, clientID, clientSecret)
+			runCLientRpcHandler(appInstance, recvStream, done, clientID, clientHandleServerSend)
 		}
 	}
 }

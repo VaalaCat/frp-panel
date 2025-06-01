@@ -1,0 +1,72 @@
+name: Merge Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  merge-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.x'
+
+      - name: Install npm dependencies
+        run: |
+          cd www
+          npm install && npm install -g pnpm
+
+      - name: Lint frontend
+        run: |
+          cd www
+          pnpm run lint
+
+      - name: Tidy Go modules
+        run: |
+          go mod tidy
+
+      - name: Install Protoc and plugins
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      - name: Setup Protoc
+        uses: arduino/setup-protoc@v3
+
+      - name: Compile server binaries
+        run: bash ./build.sh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: |
+            dist
+            www/out
+
+      # - name: Run Go tests
+      #   run: |
+      #     go test ./... -v
+
+      - name: Build Docker image (check only)
+        uses: ko-build/setup-ko@v0.9
+        env:
+          KO_DOCKER_REPO: docker.io/vaalacat/frp-panel
+      - name: Ko dry-run build
+        run: |
+          ko build ./cmd/frpp --bare --push=false
+          mv .ko.workerd.yaml .ko.yaml
+          ko build ./cmd/frpp --bare --push=false
