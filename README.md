@@ -37,12 +37,17 @@ If FRP-Panel brings you value, consider sponsoring the author:
 
 - Email: me@vaala.cat
 
-Sponsored by [NodeSupport](https://github.com/NodeSeekDev/NodeSupport)
+Sponsored by [NodeSupport](https://github.com/NodeSeekDev/NodeSupport) / [DartNode](https://dartnode.com)
 
 <div align="left">
   <a href="https://yxvm.com/">
     <img src="https://github.com/user-attachments/assets/0bd7087a-7994-4caf-a465-a428af19c5aa" width="300"/>
   </a>
+  <div align="left">
+  <a href="https://dartnode.com">
+    <img src="https://dartnode.com/branding/DN-Open-Source-sm.png" width="300"/>
+  </a>
+</div>
 </div>
 
 ## Project Status
