@@ -2,7 +2,9 @@ import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { atom } from 'nanostores'
 import enTranslations from '../i18n/locales/en.json'
+import frTranslations from '../i18n/locales/fr.json'
 import zhTranslations from '../i18n/locales/zh.json'
+import zhtwTranslations from '../i18n/locales/zhtw.json'
 
 const LANGUAGE_KEY = 'LANGUAGE'
 
@@ -23,9 +25,15 @@ i18n
       en: {
         translation: enTranslations,
       },
+      fr: {
+        translation: frTranslations,
+      },
       zh: {
         translation: zhTranslations,
       },
+      zhtw:{
+        translation: zhtwTranslations,
+      }
     },
     lng: getInitialLanguage(),
     fallbackLng: 'zh',
