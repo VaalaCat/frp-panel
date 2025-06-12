@@ -2,7 +2,9 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { $language } from '@/store/user';
 import enTranslation from './locales/en.json';
+import frTranslation from './locales/fr.json';
 import zhTranslation from './locales/zh.json';
+import zhtwTranslation from './locales/zhtw.json';
 
 const savedLanguage = $language.get();
 
@@ -13,8 +15,14 @@ i18n
       en: {
         translation: enTranslation,
       },
+      fr: {
+        translation: frTranslation,
+      },
       zh: {
         translation: zhTranslation,
+      },
+      zhtw: {
+        translation: zhtwTranslation,
       },
     },
     lng: savedLanguage || 'zh',
