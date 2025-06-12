@@ -6,5 +6,5 @@ module.exports = {
     'pages/**/*.{js,jsx,ts,tsx}',
   ],
   output: 'i18n/locales/$LOCALE.json',
-  locales: ['en', 'zh'],
+  locales: ['en', 'zh', 'zh-tw', 'fr'],
 }
