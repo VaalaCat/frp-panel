@@ -625,5 +625,23 @@
     "save": "Save",
     "save_success": "Save successful",
     "save_error": "Save failed"
-  }
+  },
+  "平台设置": "Platform Settings",
+  "修改前端平台设置": "Modify frontend preferences",
+  "已更新平台设置": "Platform settings updated",
+  "使用服务器 Github 代理": "Use server GitHub proxy",
+  "若开启，则使用后台配置的代理地址下载": "If enabled, backend proxy URL will be used for downloads",
+  "自定义 Github 代理地址": "Custom GitHub proxy URL",
+  "例如 https://ghproxy.com/": "e.g. https://ghproxy.com/",
+  "保存更改": "Save changes",
+  "确认保存": "Confirm save",
+  "确定保存修改？": "Are you sure to save changes?",
+  "确认": "Confirm",
+  "正在加载平台设置": "Loading platform settings...",
+  "取消": "Cancel",
+  "自定义 API URL": "Custom API URL",
+  "自定义 RPC URL": "Custom RPC URL",
+  "例如 https://api.example.com/": "e.g. https://api.example.com/",
+  "例如 https://rpc.example.com/": "e.g. https://rpc.example.com/",
+  "此配置仅保存在本地": "These settings are stored only in this browser and will not sync across devices."
 }

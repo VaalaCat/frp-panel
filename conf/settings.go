@@ -29,19 +29,19 @@ type Config struct {
 		GithubProxyUrl string `env:"GITHUB_PROXY_URL" env-default:"https://ghfast.top/" env-description:"github proxy url"`
 	} `env-prefix:"APP_"`
 	Master struct {
-		APIPort                   int    `env:"API_PORT" env-default:"9000" env-description:"master api port"`
-		APIHost                   string `env:"API_HOST" env-description:"master host, can behind proxy like cdn"`
-		APIScheme                 string `env:"API_SCHEME" env-default:"http" env-description:"master api scheme"`
-		CacheSize                 int    `env:"CACHE_SIZE" env-default:"10" env-description:"cache size in MB"`
-		RPCHost                   string `env:"RPC_HOST" env-default:"127.0.0.1" env-description:"master host, is a public ip or domain"`
-		RPCPort                   int    `env:"RPC_PORT" env-default:"9001" env-description:"master rpc port"`
-		InternalFRPServerHost     string `env:"INTERNAL_FRP_SERVER_HOST" env-description:"internal frp server host, used for client connection"`
+		APIPort               int    `env:"API_PORT" env-default:"9000" env-description:"master api port"`
+		APIHost               string `env:"API_HOST" env-description:"master host, can behind proxy like cdn"`
+		APIScheme             string `env:"API_SCHEME" env-default:"http" env-description:"master api scheme"`
+		CacheSize             int    `env:"CACHE_SIZE" env-default:"10" env-description:"cache size in MB"`
+		RPCHost               string `env:"RPC_HOST" env-default:"127.0.0.1" env-description:"master host, is a public ip or domain"`
+		RPCPort               int    `env:"RPC_PORT" env-default:"9001" env-description:"master rpc port"`
+		InternalFRPServerHost string `env:"INTERNAL_FRP_SERVER_HOST" env-description:"internal frp server host, used for client connection"`
+	} `env-prefix:"MASTER_"`
+	Server struct {
+		APIPort                   int    `env:"API_PORT" env-default:"8999" env-description:"server api port"`
 		InternalFRPAuthServerHost string `env:"INTERNAL_FRP_AUTH_SERVER_HOST" env-default:"127.0.0.1" env-description:"internal frp auth server host"`
 		InternalFRPAuthServerPort int    `env:"INTERNAL_FRP_AUTH_SERVER_PORT" env-default:"8999" env-description:"internal frp auth server port"`
 		InternalFRPAuthServerPath string `env:"INTERNAL_FRP_AUTH_SERVER_PATH" env-default:"/auth" env-description:"internal frp auth server path"`
-	} `env-prefix:"MASTER_"`
-	Server struct {
-		APIPort int `env:"API_PORT" env-default:"8999" env-description:"server api port"`
 	} `env-prefix:"SERVER_"`
 	DB struct {
 		Type string `env:"TYPE" env-default:"sqlite3" env-description:"db type, mysql or sqlite3 and so on"`

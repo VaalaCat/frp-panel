@@ -26,7 +26,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { deleteClient, listClient } from '@/api/client'
 import { useRouter } from 'next/router'
 import { useStore } from '@nanostores/react'
-import { $frontendPreference, $platformInfo, $useServerGithubProxyUrl } from '@/store/user'
+import { $frontendPreference, $platformInfo } from '@/store/user'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getClientsStatus } from '@/api/platform'
 import { Client, ClientType } from '@/lib/pb/common'
@@ -125,7 +125,6 @@ export const columns: ColumnDef<ClientTableSchema>[] = [
 export const ClientID = ({ client }: { client: ClientTableSchema }) => {
   const { t } = useTranslation()
   const platformInfo = useStore($platformInfo)
-  const useGithubProxyUrl = useStore($useServerGithubProxyUrl)
   const frontendPreference = useStore($frontendPreference)
 
   if (!platformInfo) {
@@ -152,7 +151,9 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
           <div className="grid gap-2">
             <div className="grid grid-cols-2 items-center gap-4 justify-items-center">
               <Label>{t('client.install.use_github_proxy_url')}</Label>
-              <Checkbox onCheckedChange={$useServerGithubProxyUrl.set} defaultChecked={useGithubProxyUrl} />
+              <Checkbox onCheckedChange={(checked) => {
+                $frontendPreference.set({ ...frontendPreference, useServerGithubProxyUrl: checked === 'indeterminate' ? false : checked })
+              }} defaultChecked={frontendPreference.useServerGithubProxyUrl} />
             </div>
             <div className="grid grid-cols-2 items-center gap-4 justify-items-center">
               <Label>{t('client.install.github_proxy_url')}</Label>
@@ -165,8 +166,8 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
                   navigator.clipboard.writeText(
                     WindowsInstallCommand('client', client, {
                       ...platformInfo,
-                      githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
-                    }, useGithubProxyUrl),
+                      githubProxyUrl: frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                    }, frontendPreference.useServerGithubProxyUrl),
                   )
                 }
                 disabled={!platformInfo}
@@ -179,8 +180,8 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
                 readOnly
                 value={WindowsInstallCommand('client', client, {
                   ...platformInfo,
-                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
-                }, useGithubProxyUrl)}
+                  githubProxyUrl: frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, frontendPreference.useServerGithubProxyUrl)}
                 className="flex-1"
               />
             </div>
@@ -189,8 +190,8 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
                 onClick={() =>
                   navigator.clipboard.writeText(LinuxInstallCommand('client', client, {
                     ...platformInfo,
-                    githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
-                  }, useGithubProxyUrl))
+                    githubProxyUrl: frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                  }, frontendPreference.useServerGithubProxyUrl))
                 }
                 disabled={!platformInfo}
                 size="sm"
@@ -202,8 +203,8 @@ export const ClientID = ({ client }: { client: ClientTableSchema }) => {
                 readOnly
                 value={LinuxInstallCommand('client', client, {
                   ...platformInfo,
-                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
-                }, useGithubProxyUrl)}
+                  githubProxyUrl: frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, frontendPreference.useServerGithubProxyUrl)}
                 className="flex-1"
               />
             </div>
@@ -344,7 +345,6 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
   const { t } = useTranslation()
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
-  const useGithubProxyUrl = useStore($useServerGithubProxyUrl)
   const frontendPreference = useStore($frontendPreference)
 
   const removeClient = useMutation({
@@ -433,8 +433,8 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
                 if (platformInfo) {
                   navigator.clipboard.writeText(LinuxInstallCommand('client', client, {
                     ...platformInfo,
-                    githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
-                  }, useGithubProxyUrl))
+                    githubProxyUrl: frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                  }, frontendPreference.useServerGithubProxyUrl))
                   toast(t('client.actions_menu.copy_success'))
                 } else {
                   toast(t('client.actions_menu.copy_failed'))

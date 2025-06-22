@@ -37,16 +37,16 @@ export const getNavItems = (t: any) => [
     url: "/proxies",
     icon: Cable,
   },
-  {
-    title: t('nav.editClient'),
-    url: "/clientedit",
-    icon: MonitorCogIcon,
-  },
-  {
-    title: t('nav.editServer'),
-    url: "/serveredit",
-    icon: ServerCogIcon,
-  },
+  // {
+  //   title: t('nav.editClient'),
+  //   url: "/clientedit",
+  //   icon: MonitorCogIcon,
+  // },
+  // {
+  //   title: t('nav.editServer'),
+  //   url: "/serveredit",
+  //   icon: ServerCogIcon,
+  // },
   {
     title: t('nav.trafficStats'),
     url: "/clientstats",

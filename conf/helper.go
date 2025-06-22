@@ -41,12 +41,12 @@ func FRPsAuthOption(cfg Config, isDefault bool) v1.HTTPPluginOptions {
 	if isDefault {
 		port = cfg.Master.APIPort
 	} else {
-		port = cfg.Master.InternalFRPAuthServerPort
+		port = cfg.Server.InternalFRPAuthServerPort
 	}
 	authUrl, err := url.Parse(fmt.Sprintf("http://%s:%d%s",
-		cfg.Master.InternalFRPAuthServerHost,
+		cfg.Server.InternalFRPAuthServerHost,
 		port,
-		cfg.Master.InternalFRPAuthServerPath))
+		cfg.Server.InternalFRPAuthServerPath))
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Fatalf("parse auth url error")
 	}

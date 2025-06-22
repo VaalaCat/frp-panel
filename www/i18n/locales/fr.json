@@ -625,5 +625,23 @@
     "save": "Enregistrer",
     "save_success": "Enregistrement réussi",
     "save_error": "Échec de l'enregistrement"
-  }
+  },
+  "平台设置": "Paramètres de la plateforme",
+  "修改前端平台设置": "Modifier les préférences du frontal",
+  "已更新平台设置": "Paramètres de la plateforme mis à jour",
+  "使用服务器 Github 代理": "Utiliser le proxy GitHub du serveur",
+  "若开启，则使用后台配置的代理地址下载": "Si activé, l'URL proxy définie côté serveur sera utilisée pour le téléchargement",
+  "自定义 Github 代理地址": "URL proxy GitHub personnalisée",
+  "例如 https://ghproxy.com/": "ex. https://ghproxy.com/",
+  "保存更改": "Enregistrer les modifications",
+  "确认保存": "Confirmer l'enregistrement",
+  "确定保存修改？": "Êtes-vous sûr de vouloir enregistrer les modifications ?",
+  "确认": "Confirmer",
+  "正在加载平台设置": "Chargement des paramètres de la plateforme...",
+  "取消": "Annuler",
+  "自定义 API URL": "URL API personnalisée",
+  "自定义 RPC URL": "URL RPC personnalisée",
+  "例如 https://api.example.com/": "ex. https://api.example.com/",
+  "例如 https://rpc.example.com/": "ex. https://rpc.example.com/",
+  "此配置仅保存在本地": "Ces paramètres sont enregistrés uniquement dans ce navigateur et ne seront pas synchronisés entre les appareils."
 }

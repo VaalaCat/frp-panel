@@ -3,6 +3,7 @@
 import {
   ChevronsUpDown,
   LogOut,
+  SettingsIcon,
   User as UserIcon, // 别名避免和 User 类型冲突
 } from 'lucide-react'
 import Link from 'next/link'
@@ -67,11 +68,16 @@ export function NavUser({ user }: NavUserProps) {
               </div>
             </DropdownMenuLabel>
 
-            {/* 使用 next/link 创建 “User Info” 菜单项 */}
             <DropdownMenuItem asChild>
               <Link href="/user-info" className="w-full flex items-center space-x-2">
                 <UserIcon className="h-4 w-4" />
                 <span>{t('common.userInfo')}</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/platform-settings" className="w-full flex items-center space-x-2">
+                <SettingsIcon className="h-4 w-4" />
+                <span>{t('平台设置')}</span>
               </Link>
             </DropdownMenuItem>
 

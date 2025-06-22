@@ -15,13 +15,11 @@ export const $language = persistentAtom<string>('user-language', 'zh', {
   decode: JSON.parse,
 })
 
-export const $useServerGithubProxyUrl = persistentAtom<boolean>('use_server_github_proxy_url', false, {
-  encode: JSON.stringify,
-  decode: JSON.parse,
-})
-
-export type FrontendPreference  = {
+export type FrontendPreference = {
   githubProxyUrl?: string
+  useServerGithubProxyUrl?: boolean
+  clientApiUrl?: string
+  clientRpcUrl?: string
 }
 
 export const $frontendPreference = persistentAtom<FrontendPreference>('frontend_preference', {}, {

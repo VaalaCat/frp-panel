@@ -3,7 +3,7 @@ import { RootLayout } from '@/components/layout'
 import { Header } from '@/components/header'
 import { UserProfileForm } from '@/components/user/user-info'
 
-export default function ClientListPage() {
+export default function UserInfoPage() {
   return (
     <Providers>
       <RootLayout mainHeader={<Header />}>

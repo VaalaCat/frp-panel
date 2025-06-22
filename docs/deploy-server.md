@@ -4,6 +4,10 @@ Server 推荐使用 docker 部署！不推荐直接安装到服务器中
 
 注意 ⚠️：client 和 server 的启动指令可能会随着项目更新而改变，虽然在项目迭代时会注意前后兼容，但仍难以完全适配，因此 client 和 server 的启动指令以 master 生成为准
 
+> `default` 服务端禁止单独部署，直接在 webui 中配置即可。重复部署会造成 `default` 服务端无法正常工作。
+
+> `server` 会占用 8999 端口，请确保该端口未被占用。如果冲突，请修改 `server` 的 `SERVER_API_PORT` 和 `INTERNAL_FRP_AUTH_SERVER_PORT` 环境变量，要确保两个端口一致。`default` 服务端也会占用这个端口，因此不能在同一台机器以**默认配置**部署 `server` 和 `default` 服务端，需要修改 `server` 的环境变量来避免冲突。 
+
 > 如果只有一台公网服务器需要管理，那么使用 `master` 自带的 `default` 服务端即可，无需单独部署 `server`，但要注意在 `master` 启动后要配置 `default` 服务端
 
 ## 在 Linux 上部署

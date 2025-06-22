@@ -20,13 +20,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import React, { useState } from 'react'
+import React from 'react'
 import { ClientEnvFile, ExecCommandStr, LinuxInstallCommand, WindowsInstallCommand } from '@/lib/consts'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { deleteServer } from '@/api/server'
 import { useRouter } from 'next/router'
 import { useStore } from '@nanostores/react'
-import { $frontendPreference, $platformInfo, $useServerGithubProxyUrl } from '@/store/user'
+import { $frontendPreference, $platformInfo } from '@/store/user'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getClientsStatus } from '@/api/platform'
 import { ClientType } from '@/lib/pb/common'
@@ -124,7 +124,6 @@ export const columns: ColumnDef<ServerTableSchema>[] = [
 export const ServerID = ({ server }: { server: ServerTableSchema }) => {
   const { t } = useTranslation()
   const platformInfo = useStore($platformInfo)
-  const useGithubProxyUrl = useStore($useServerGithubProxyUrl)
   const frontendPreference = useStore($frontendPreference)
 
   if (!platformInfo) {
@@ -151,7 +150,9 @@ export const ServerID = ({ server }: { server: ServerTableSchema }) => {
           <div className="grid gap-2">
             <div className="grid grid-cols-2 items-center gap-4 justify-items-center">
               <Label>{t('client.install.use_github_proxy_url')}</Label>
-              <Checkbox onCheckedChange={$useServerGithubProxyUrl.set} defaultChecked={useGithubProxyUrl} />
+              <Checkbox onCheckedChange={(checked) => {
+                $frontendPreference.set({ ...frontendPreference, useServerGithubProxyUrl: checked === 'indeterminate' ? false : checked })
+              }} defaultChecked={frontendPreference.useServerGithubProxyUrl} />
             </div>
             <div className="grid grid-cols-2 items-center gap-4 justify-items-center">
               <Label>{t('client.install.github_proxy_url')}</Label>
@@ -162,8 +163,8 @@ export const ServerID = ({ server }: { server: ServerTableSchema }) => {
               <Button
                 onClick={() => navigator.clipboard.writeText(WindowsInstallCommand('server', server, {
                   ...platformInfo,
-                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
-                }, useGithubProxyUrl))}
+                  githubProxyUrl: frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, frontendPreference.useServerGithubProxyUrl))}
                 disabled={!platformInfo}
                 size="sm"
                 variant="outline"
@@ -174,8 +175,8 @@ export const ServerID = ({ server }: { server: ServerTableSchema }) => {
                 readOnly
                 value={WindowsInstallCommand('server', server, {
                   ...platformInfo,
-                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
-                }, useGithubProxyUrl)}
+                  githubProxyUrl: frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, frontendPreference.useServerGithubProxyUrl)}
                 className="flex-1"
               />
             </div>
@@ -183,8 +184,8 @@ export const ServerID = ({ server }: { server: ServerTableSchema }) => {
               <Button
                 onClick={() => navigator.clipboard.writeText(LinuxInstallCommand('server', server, {
                   ...platformInfo,
-                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
-                }, useGithubProxyUrl))}
+                  githubProxyUrl: frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, frontendPreference.useServerGithubProxyUrl))}
                 disabled={!platformInfo}
                 size="sm"
                 variant="outline"
@@ -195,8 +196,8 @@ export const ServerID = ({ server }: { server: ServerTableSchema }) => {
                 readOnly
                 value={LinuxInstallCommand('server', server, {
                   ...platformInfo,
-                  githubProxyUrl: useGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
-                }, useGithubProxyUrl)}
+                  githubProxyUrl: frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl ? frontendPreference.githubProxyUrl : platformInfo.githubProxyUrl,
+                }, frontendPreference.useServerGithubProxyUrl)}
                 className="flex-1"
               />
             </div>
