@@ -28,6 +28,11 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
         link: "/en/contribute",
       },
       {
+        text: "FAQ",
+        collapsed: false,
+        link: "/en/faq",
+      },
+      {
         text: "Screenshots",
         collapsed: false,
         link: "/en/screenshots",

@@ -47,7 +47,7 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 	cli := cliRecord.ClientEntity
 
 	if cli.IsShadow {
-		cli, err = ChildClientForServer(c, serverID, cli)
+		cli, _, err = ChildClientForServer(c, serverID, cli)
 		if err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot get child client, id: [%s]", reqClientID)
 			return &pb.UpdateFRPCResponse{

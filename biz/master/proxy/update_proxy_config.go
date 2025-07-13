@@ -44,7 +44,7 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 			return nil, err
 		}
 
-		clientEntity, err = client.ChildClientForServer(c, serverID, originClient.ClientEntity)
+		clientEntity, _, err = client.ChildClientForServer(c, serverID, originClient.ClientEntity)
 		if err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot create child client, id: [%s]", clientID)
 			return nil, err

@@ -47,7 +47,7 @@ func MakeClientShadowed(c *app.Context, serverID string, clientEntity *models.Cl
 	var childClient *models.ClientEntity
 	var err error
 	if len(clientEntity.ConfigContent) != 0 {
-		childClient, err = ChildClientForServer(c, serverID, clientEntity)
+		childClient, _, err = ChildClientForServer(c, serverID, clientEntity)
 		if err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot create child client, id: [%s]", clientID)
 			return nil, err
@@ -76,7 +76,8 @@ func MakeClientShadowed(c *app.Context, serverID string, clientEntity *models.Cl
 }
 
 // ChildClientForServer 支持传入serverID和任意类型client，返回serverID对应的client in shadow，如果不存在则新建
-func ChildClientForServer(c *app.Context, serverID string, clientEntity *models.ClientEntity) (*models.ClientEntity, error) {
+// bool 表示是否新建
+func ChildClientForServer(c *app.Context, serverID string, clientEntity *models.ClientEntity) (*models.ClientEntity, bool, error) {
 	userInfo := common.GetUserInfo(c)
 
 	originClientID := clientEntity.ClientID
@@ -89,19 +90,19 @@ func ChildClientForServer(c *app.Context, serverID string, clientEntity *models.
 		OriginClientID: originClientID,
 	}, lo.ToPtr(false))
 	if err == nil {
-		return existClient, nil
+		return existClient, false, nil
 	}
 
 	shadowCount, err := dao.NewQuery(c).CountClientsInShadow(userInfo, originClientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot count shadow clients, id: [%s]", originClientID)
-		return nil, err
+		return nil, false, err
 	}
 
 	copiedClient := &models.ClientEntity{}
 	if err := deepcopy.Copy(copiedClient, clientEntity); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot copy client, id: [%s]", originClientID)
-		return nil, err
+		return nil, false, err
 	}
 	copiedClient.ServerID = serverID
 	copiedClient.ClientID = app.ShadowedClientID(originClientID, shadowCount+1)
@@ -110,10 +111,10 @@ func ChildClientForServer(c *app.Context, serverID string, clientEntity *models.
 	copiedClient.Stopped = false
 	if err := dao.NewQuery(c).CreateClient(userInfo, copiedClient); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot create child client, id: [%s]", copiedClient.ClientID)
-		return nil, err
+		return nil, false, err
 	}
 
-	return copiedClient, nil
+	return copiedClient, true, nil
 }
 
 func ValidFrpsScheme(scheme string) bool {

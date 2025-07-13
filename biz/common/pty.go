@@ -13,6 +13,13 @@ import (
 )
 
 func StartPTYConnect(c *app.Context, req *pb.CommonRequest, initMsg *pb.PTYClientMessage) (*pb.CommonResponse, error) {
+	cfg := c.GetApp().GetConfig()
+
+	if !cfg.Client.Features.EnableRemoteShell {
+		logger.Logger(c).Warn("remote shell is disabled, please set `CLIENT_FEATURES_ENABLE_REMOTE_SHELL=true` to enable remote shell")
+		return nil, fmt.Errorf("remote shell is disabled, please set `CLIENT_FEATURES_ENABLE_REMOTE_SHELL=true` to enable remote shell")
+	}
+
 	conn, err := c.GetApp().GetClientRPCHandler().GetCli().Call().PTYConnect(c)
 	if err != nil {
 		logger.Logger(c).WithError(err).Infof("rpc connect master error")

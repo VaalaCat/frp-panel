@@ -45,7 +45,7 @@ type Config struct {
 	} `env-prefix:"SERVER_"`
 	DB struct {
 		Type string `env:"TYPE" env-default:"sqlite3" env-description:"db type, mysql or sqlite3 and so on"`
-		DSN  string `env:"DSN" env-default:"/data/data.db" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
+		DSN  string `env:"DSN" env-default:"/data/data.db?_pragma=journal_mode(WAL)" env-description:"db dsn, for sqlite is path, other is dsn, look at https://github.com/go-sql-driver/mysql#dsn-data-source-name"`
 	} `env-prefix:"DB_"`
 	Client struct {
 		ID                    string `env:"ID" env-description:"client id"`
@@ -64,7 +64,8 @@ type Config struct {
 			} `env-prefix:"WORKERD_DOWNLOAD_URL_" env-description:"workerd download url"`
 		} `env-prefix:"WORKER_" env-description:"worker's config"`
 		Features struct {
-			EnableFunctions bool `env:"ENABLE_FUNCTIONS" env-default:"true" env-description:"enable functions"`
+			EnableFunctions   bool `env:"ENABLE_FUNCTIONS" env-default:"true" env-description:"enable functions"`
+			EnableRemoteShell bool `env:"ENABLE_REMOTE_SHELL" env-default:"true" env-description:"enable remote shell"`
 		} `env-prefix:"FEATURES_" env-description:"features config"`
 	} `env-prefix:"CLIENT_"`
 	IsDebug bool `env:"IS_DEBUG" env-default:"false" env-description:"is debug mode"`

@@ -19,7 +19,7 @@ EXPOSE 9000
 # rpc port
 EXPOSE 9001
 
-ENV DB_DSN /data/data.db
+ENV DB_DSN /data/data.db?_pragma=journal_mode(WAL)
 
 ENTRYPOINT [ "/app/frp-panel" ]
 

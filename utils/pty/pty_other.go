@@ -13,7 +13,7 @@ import (
 
 var _ PTYInterface = (*Pty)(nil)
 
-var defaultShells = []string{"fish", "zsh", "bash", "sh"}
+var defaultShells = []string{"fish", "zsh", "bash", "sh", "mksh"}
 
 type Pty struct {
 	tty    *os.File

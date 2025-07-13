@@ -29,6 +29,11 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
         link: "/contribute",
       },
       {
+        text: "常见问题",
+        collapsed: false,
+        link: "/faq",
+      },
+      {
         text: "截图展示",
         collapsed: false,
         link: "/screenshots",

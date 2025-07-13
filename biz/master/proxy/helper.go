@@ -51,7 +51,7 @@ func GetClientWithMakeShadow(c *app.Context, clientID, serverID string) (*models
 			}
 		}
 		// shadow过，但没找到子客户端，需要新建
-		clientEntity, err = client.ChildClientForServer(c, serverID, clientEntity)
+		clientEntity, _, err = client.ChildClientForServer(c, serverID, clientEntity)
 		if err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot create child client, id: [%s]", clientID)
 			return nil, err

@@ -116,7 +116,7 @@ build_binary() {
 # Platforms array
 PLATFORMS=()
 if [[ "$PLATFORM" == "all" ]]; then
-    PLATFORMS=("windows" "linux" "darwin")
+    PLATFORMS=("windows" "linux" "darwin" "android")
 else
     PLATFORMS=("$PLATFORM")
 fi
@@ -124,7 +124,7 @@ fi
 # Architectures array
 ARCHS=()
 if [[ "$ARCH" == "all" ]]; then
-    ARCHS=("amd64" "arm64" "arm")
+    ARCHS=("amd64" "arm64" "arm" "riscv64")
 else
     ARCHS=("$ARCH")
 fi
@@ -141,9 +141,11 @@ fi
 for platform in "${PLATFORMS[@]}"; do
     for arch in "${ARCHS[@]}"; do
         for bintype in "${BINTYPES[@]}"; do
+            # 设置darwin和windows的白名单arch，只能是 arm64 amd64
+            if [[ "$platform" == "darwin" && "$arch" != "arm64" && "$arch" != "amd64" ]]; then continue; fi
+            if [[ "$platform" == "windows" && "$arch" != "arm64" && "$arch" != "amd64" ]]; then continue; fi
+            if [[ "$platform" == "android" && "$arch" != "arm64" ]]; then continue; fi
             echo "Building $bintype binary for $platform-$arch"
-            if [[ "$platform" == "darwin" && "$arch" == "arm" ]]; then continue; fi
-            if [[ "$platform" == "windows" && "$arch" == "arm" ]]; then continue; fi
             build_binary "$platform" "$arch" "$bintype"
         done
     done
