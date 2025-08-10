@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -12,6 +13,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+)
+
+var (
+	WSGrpcError = errors.New("wsgrpc error")
 )
 
 // ---------------------------------------
@@ -35,16 +40,20 @@ func (c *websocketConn) Read(p []byte) (int, error) {
 	if c.readBuffer.Len() == 0 {
 		messageType, data, err := c.ws.ReadMessage()
 		if err != nil {
-			return 0, err
+			return 0, errors.Join(err, errors.New("wsgrpc read message error"), WSGrpcError)
 		}
 		// 只接受二进制数据
 		if messageType != websocket.BinaryMessage {
-			return 0, fmt.Errorf("unexpected message type: %d", messageType)
+			return 0, errors.Join(fmt.Errorf("unexpected message type: %d", messageType), WSGrpcError)
 		}
 		c.readBuffer.Write(data)
 	}
 
-	return c.readBuffer.Read(p)
+	if n, err := c.readBuffer.Read(p); err != nil {
+		return n, errors.Join(err, WSGrpcError)
+	} else {
+		return n, nil
+	}
 }
 
 // Write 将数据作为单条二进制消息发送
@@ -54,14 +63,18 @@ func (c *websocketConn) Write(p []byte) (int, error) {
 
 	err := c.ws.WriteMessage(websocket.BinaryMessage, p)
 	if err != nil {
-		return 0, err
+		return 0, errors.Join(err, errors.New("wsgrpc write message error"), WSGrpcError)
 	}
 	return len(p), nil
 }
 
 // Close 关闭 websocket 连接
 func (c *websocketConn) Close() error {
-	return c.ws.Close()
+	err := c.ws.Close()
+	if err != nil {
+		return errors.Join(err, errors.New("wsgrpc close error"), WSGrpcError)
+	}
+	return nil
 }
 
 // LocalAddr 返回本地地址，通过 websocket 底层连接获取
@@ -83,9 +96,12 @@ func (c *websocketConn) RemoteAddr() net.Addr {
 // SetDeadline 同时设置读写超时
 func (c *websocketConn) SetDeadline(t time.Time) error {
 	if err := c.ws.SetReadDeadline(t); err != nil {
-		return err
+		return errors.Join(err, errors.New("wsgrpc set read deadline error"), WSGrpcError)
 	}
-	return c.ws.SetWriteDeadline(t)
+	if err := c.ws.SetWriteDeadline(t); err != nil {
+		return errors.Join(err, errors.New("wsgrpc set write deadline error"), WSGrpcError)
+	}
+	return nil
 }
 
 // SetReadDeadline 设置读超时
@@ -101,18 +117,26 @@ func (c *websocketConn) SetWriteDeadline(t time.Time) error {
 // ---------------------------------------
 // 客户端 WebSocket Dialer
 // ---------------------------------------
+type LogInterface interface {
+	Infof(format string, args ...interface{})
+	Errorf(format string, args ...interface{})
+	Tracef(format string, args ...interface{})
+}
 
 // WebsocketDialer 返回一个可以用于 grpc.WithContextDialer 的拨号函数；该函数通过 websocket 建立连接。
 // 参数 url 表示 websocket 服务器地址；header 可用于传递额外的 header 参数。
-func WebsocketDialer(url string, header http.Header, insecure bool) func(ctx context.Context, addr string) (net.Conn, error) {
+func WebsocketDialer(url string, header http.Header, insecure bool, log LogInterface) func(ctx context.Context, addr string) (net.Conn, error) {
 	return func(ctx context.Context, addr string) (net.Conn, error) {
 		dialer := websocket.Dialer{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure},
 		}
+		log.Tracef("dialing websocket server [%s]", url)
 		ws, _, err := dialer.DialContext(ctx, url, header)
 		if err != nil {
-			return nil, err
+			log.Errorf("wsgrpc dialer error: %v", err)
+			return nil, errors.Join(err, errors.New("wsgrpc dialer error"), WSGrpcError)
 		}
+		log.Tracef("websocket connection connect done")
 		return &websocketConn{ws: ws}, nil
 	}
 }
@@ -160,11 +184,11 @@ func (l *WSListener) Accept() (net.Conn, error) {
 	select {
 	case conn, ok := <-l.connCh:
 		if !ok {
-			return nil, fmt.Errorf("listener closed")
+			return nil, errors.Join(fmt.Errorf("listener closed"), WSGrpcError)
 		}
 		return conn, nil
 	case <-l.done:
-		return nil, fmt.Errorf("listener closed")
+		return nil, errors.Join(fmt.Errorf("listener closed"), WSGrpcError)
 	}
 }
 

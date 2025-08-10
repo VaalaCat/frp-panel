@@ -1,8 +1,11 @@
 package clientrpc
 
 import (
+	"context"
+
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/utils/logger"
 )
 
 type ClientRPCHandler interface {
@@ -42,6 +45,12 @@ func NewClientRPCHandler(
 }
 
 func (s *clientRPCHandler) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Logger(context.Background()).Fatalf("client rpc handler panic: %v", err)
+		}
+	}()
+
 	startClientRpcHandler(s.appInstance, s.rpcClient, s.done, s.clientID, s.clientSecret, s.event, s.handerFunc)
 }
 

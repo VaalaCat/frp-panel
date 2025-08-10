@@ -11,6 +11,7 @@ import (
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/VaalaCat/frp-panel/utils/wsgrpc"
 	"github.com/imroc/req/v3"
@@ -34,6 +35,7 @@ func (m *masterClient) Call() pb.MasterClient {
 }
 
 func NewMasterCli(appInstance app.Application) *masterClient {
+	logger.Logger(context.Background()).Debugf("creating new master client")
 	return &masterClient{
 		inited:      false,
 		appInstance: appInstance,
@@ -60,15 +62,22 @@ func newMasterCli(appInstance app.Application) pb.MasterClient {
 
 		wsURL := fmt.Sprintf("%s://%s/wsgrpc", connInfo.Scheme, connInfo.Host)
 		header := http.Header{}
-		wsDialer := wsgrpc.WebsocketDialer(wsURL, header, appInstance.GetConfig().Client.TLSInsecureSkipVerify)
+		wsDialer := wsgrpc.WebsocketDialer(wsURL,
+			header,
+			appInstance.GetConfig().Client.TLSInsecureSkipVerify,
+			logger.Logger(ctx),
+		)
 		opt = append(opt, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(wsDialer))
 	}
 
+	logger.Logger(ctx).Debugf("creating new grpc client to [%s]", utils.MarshalForJson(connInfo))
 	conn, err := grpc.NewClient(connInfo.Host, opt...)
 
 	if err != nil {
 		logger.Logger(ctx).Fatalf("did not connect: %v", err)
 	}
+
+	logger.Logger(ctx).Debugf("grpc client created")
 
 	return pb.NewMasterClient(conn)
 }

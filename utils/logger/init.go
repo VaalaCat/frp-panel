@@ -34,17 +34,25 @@ func InitLogger() {
 	logrus.SetFormatter(NewCustomFormatter(false, true))
 }
 
-func UpdateLoggerOpt(frpLogLevel string, logrusLevel string) {
+func UpdateLoggerOpt(frpLogLevel string, logrusLevel string, isDebug bool) {
 	ctx := context.Background()
 
 	frpLogLevel = strings.ToLower(frpLogLevel)
 	logrusLevel = strings.ToLower(logrusLevel)
 
 	if frpLogLevel == "" {
-		frpLogLevel = "info"
+		if isDebug {
+			frpLogLevel = "trace"
+		} else {
+			frpLogLevel = "info"
+		}
 	}
 	if logrusLevel == "" {
-		logrusLevel = "info"
+		if isDebug {
+			logrusLevel = "trace"
+		} else {
+			logrusLevel = "info"
+		}
 	}
 
 	frpLv, err := log.ParseLevel(frpLogLevel)

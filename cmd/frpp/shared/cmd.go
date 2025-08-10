@@ -41,6 +41,7 @@ func BuildCommand(fs embed.FS) *cobra.Command {
 	logger.UpdateLoggerOpt(
 		cfg.Logger.FRPLoggerLevel,
 		cfg.Logger.DefaultLoggerLevel,
+		cfg.IsDebug,
 	)
 
 	return NewRootCmd(
@@ -152,6 +153,7 @@ func NewMasterCmd(cfg conf.Config, fs embed.FS) *cobra.Command {
 			warnDepParam(cmd)
 
 			opts := []fx.Option{
+				fx.StartTimeout(defs.AppStartTimeout),
 				commonMod,
 				masterMod,
 				serverMod,
@@ -198,6 +200,7 @@ func NewClientCmd(cfg conf.Config) *cobra.Command {
 			warnDepParam(cmd)
 
 			opts := []fx.Option{
+				fx.StartTimeout(defs.AppStartTimeout),
 				clientMod,
 				commonMod,
 				fx.Supply(
@@ -243,6 +246,7 @@ func NewServerCmd(cfg conf.Config) *cobra.Command {
 			warnDepParam(cmd)
 
 			opts := []fx.Option{
+				fx.StartTimeout(defs.AppStartTimeout),
 				serverMod,
 				commonMod,
 				fx.Supply(

@@ -71,6 +71,7 @@ const (
 	PullConfigDuration        = 30 * time.Second
 	PushProxyInfoDuration     = 30 * time.Second
 	PullClientWorkersDuration = 30 * time.Second
+	AppStartTimeout           = 5 * time.Minute
 )
 
 const (
