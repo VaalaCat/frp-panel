@@ -1,0 +1,333 @@
+package wg
+
+import (
+	"errors"
+	"math"
+	"sort"
+
+	"github.com/samber/lo"
+
+	"github.com/VaalaCat/frp-panel/models"
+	"github.com/VaalaCat/frp-panel/pb"
+	"github.com/VaalaCat/frp-panel/services/app"
+)
+
+// RoutingPolicy 决定边权重的计算方式。
+// cost = LatencyWeight*latency_ms + InverseBandwidthWeight*(1/max(up_mbps,1e-6)) + HopWeight
+type RoutingPolicy struct {
+	LatencyWeight            float64
+	InverseBandwidthWeight   float64
+	HopWeight                float64
+	MinUpMbps                uint32
+	DefaultEndpointUpMbps    uint32
+	DefaultEndpointLatencyMs uint32
+
+	ACL                  *ACL
+	NetworkTopologyCache app.NetworkTopologyCache
+}
+
+func (p *RoutingPolicy) LoadACL(acl *ACL) *RoutingPolicy {
+	p.ACL = acl
+	return p
+}
+
+func DefaultRoutingPolicy(acl *ACL, networkTopologyCache app.NetworkTopologyCache) RoutingPolicy {
+	return RoutingPolicy{
+		LatencyWeight:            1.0,
+		InverseBandwidthWeight:   50.0, // 对低带宽路径给予更高惩罚
+		HopWeight:                1.0,
+		DefaultEndpointUpMbps:    50,
+		DefaultEndpointLatencyMs: 30,
+		ACL:                      acl,
+		NetworkTopologyCache:     networkTopologyCache,
+	}
+}
+
+type AllowedIPsPlanner interface {
+	// Compute 基于拓扑与链路指标，计算每个节点应配置到直连邻居的 AllowedIPs，并返回节点ID->PeerConfig 列表。
+	// 输入的 peers 应包含同一 Network 下的所有 WireGuard 节点，links 为其有向链路。
+	Compute(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]*pb.WireGuardPeerConfig, error)
+	BuildGraph(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]Edge, error)
+}
+
+type dijkstraAllowedIPsPlanner struct {
+	policy RoutingPolicy
+}
+
+func NewDijkstraAllowedIPsPlanner(policy RoutingPolicy) AllowedIPsPlanner {
+	return &dijkstraAllowedIPsPlanner{policy: policy}
+}
+
+func PlanAllowedIPs(peers []*models.WireGuard, links []*models.WireGuardLink, policy RoutingPolicy) (map[uint][]*pb.WireGuardPeerConfig, error) {
+	return NewDijkstraAllowedIPsPlanner(policy).Compute(peers, links)
+}
+
+func (p *dijkstraAllowedIPsPlanner) Compute(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]*pb.WireGuardPeerConfig, error) {
+	if len(peers) == 0 {
+		return map[uint][]*pb.WireGuardPeerConfig{}, nil
+	}
+
+	idToPeer, order := buildNodeIndex(peers)
+	adj := buildAdjacency(order, idToPeer, links, p.policy)
+	aggByNode := runAllPairsDijkstra(order, adj, idToPeer, p.policy)
+	result, err := assemblePeerConfigs(order, aggByNode, idToPeer)
+	if err != nil {
+		return nil, err
+	}
+	fillIsolates(order, result)
+	return result, nil
+}
+
+func (p *dijkstraAllowedIPsPlanner) BuildGraph(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]Edge, error) {
+	idToPeer, order := buildNodeIndex(peers)
+	adj := buildAdjacency(order, idToPeer, links, p.policy)
+	// 填充没有链路的节点
+	for _, id := range order {
+		if _, ok := adj[id]; !ok {
+			adj[id] = []Edge{}
+		}
+	}
+	return adj, nil
+}
+
+type Edge struct {
+	to      uint
+	latency uint32
+	upMbps  uint32
+}
+
+func (e *Edge) ToPB() *pb.WireGuardLink {
+	return &pb.WireGuardLink{
+		ToWireguardId:   uint32(e.to),
+		LatencyMs:       e.latency,
+		UpBandwidthMbps: e.upMbps,
+		Active:          true,
+	}
+}
+
+func buildNodeIndex(peers []*models.WireGuard) (map[uint]*models.WireGuard, []uint) {
+	idToPeer := make(map[uint]*models.WireGuard, len(peers))
+	order := make([]uint, 0, len(peers))
+	for _, p := range peers {
+		idToPeer[uint(p.ID)] = p
+		order = append(order, uint(p.ID))
+	}
+	return idToPeer, order
+}
+
+func buildAdjacency(order []uint, idToPeer map[uint]*models.WireGuard, links []*models.WireGuardLink, policy RoutingPolicy) map[uint][]Edge {
+	adj := make(map[uint][]Edge, len(order))
+	// 1) 显式链路
+	for _, l := range links {
+		if !l.Active {
+			continue
+		}
+		from := l.FromWireGuardID
+		to := l.ToWireGuardID
+
+		if _, ok := idToPeer[from]; !ok {
+			continue
+		}
+
+		if _, ok := idToPeer[to]; !ok {
+			continue
+		}
+
+		// 如果两个peer都没有endpoint，则不建立链路
+		if len(idToPeer[from].AdvertisedEndpoints) == 0 && len(idToPeer[to].AdvertisedEndpoints) == 0 {
+			continue
+		}
+
+		latency := l.LatencyMs
+		if latency == 0 { // 如果指定latency为0，则使用真实值
+			if latencyMs, ok := policy.NetworkTopologyCache.GetLatencyMs(from, to); ok {
+				latency = latencyMs
+			} else {
+				latency = policy.DefaultEndpointLatencyMs
+			}
+		}
+
+		adj[from] = append(adj[from], Edge{to: to, latency: latency, upMbps: l.UpBandwidthMbps})
+	}
+
+	// 2) 若某节点具备 endpoint，则所有其他节点可直连它
+	edgeSet := make(map[[2]uint]struct{}, 16)
+	for from, edges := range adj {
+		for _, e := range edges { // 先拿到所有直连的节点
+			edgeSet[[2]uint{from, e.to}] = struct{}{}
+			edgeSet[[2]uint{e.to, from}] = struct{}{}
+		}
+	}
+
+	for _, to := range order {
+		peer := idToPeer[to]
+		if peer == nil || len(peer.AdvertisedEndpoints) == 0 {
+			continue
+		}
+		for _, from := range order {
+			if from == to {
+				continue
+			}
+			if _, ok := idToPeer[from]; !ok {
+				continue
+			}
+
+			latency := policy.DefaultEndpointLatencyMs
+			if latencyMs, ok := policy.NetworkTopologyCache.GetLatencyMs(from, to); ok {
+				latency = latencyMs
+			}
+			if latencyMs, ok := policy.NetworkTopologyCache.GetLatencyMs(to, from); ok {
+				latency = latencyMs
+			}
+
+			// 有 acl 限制
+			if policy.ACL.CanConnect(idToPeer[from], idToPeer[to]) {
+				key1 := [2]uint{from, to}
+				if _, exists := edgeSet[key1]; exists {
+					continue
+				}
+
+				adj[from] = append(adj[from], Edge{to: to, latency: latency, upMbps: policy.DefaultEndpointUpMbps})
+				edgeSet[key1] = struct{}{}
+			}
+
+			if policy.ACL.CanConnect(idToPeer[to], idToPeer[from]) {
+				key2 := [2]uint{to, from}
+				if _, exists := edgeSet[key2]; exists {
+					continue
+				}
+				adj[to] = append(adj[to], Edge{to: from, latency: latency, upMbps: policy.DefaultEndpointUpMbps})
+				edgeSet[key2] = struct{}{}
+			}
+		}
+	}
+	return adj
+}
+
+func runAllPairsDijkstra(order []uint, adj map[uint][]Edge, idToPeer map[uint]*models.WireGuard, policy RoutingPolicy) map[uint]map[uint]map[string]struct{} {
+	aggByNode := make(map[uint]map[uint]map[string]struct{}, len(order))
+	for _, src := range order {
+		dist, prev, visited := initSSSP(order)
+		dist[src] = 0
+
+		for {
+			u, ok := pickNext(order, dist, visited)
+			if !ok {
+				break
+			}
+			visited[u] = true
+			for _, e := range adj[u] {
+				invBw := 1.0 / math.Max(float64(e.upMbps), 1e-6)
+				w := policy.LatencyWeight*float64(e.latency) + policy.InverseBandwidthWeight*invBw + policy.HopWeight
+				alt := dist[u] + w
+				if alt < dist[e.to] {
+					dist[e.to] = alt
+					prev[e.to] = u
+				}
+			}
+		}
+
+		// 累计 nextHop -> CIDR
+		for _, dst := range order {
+			if dst == src {
+				continue
+			}
+			if _, ok := prev[dst]; !ok {
+				continue
+			}
+			next := findNextHop(src, dst, prev)
+			if next == 0 {
+				continue
+			}
+			dstPeer := idToPeer[dst]
+			allowed, err := dstPeer.AsBasePeerConfig()
+			if err != nil || len(allowed.GetAllowedIps()) == 0 {
+				continue
+			}
+			cidr := allowed.GetAllowedIps()[0]
+			if _, ok := aggByNode[src]; !ok {
+				aggByNode[src] = make(map[uint]map[string]struct{})
+			}
+			if _, ok := aggByNode[src][next]; !ok {
+				aggByNode[src][next] = map[string]struct{}{}
+			}
+			aggByNode[src][next][cidr] = struct{}{}
+		}
+	}
+	return aggByNode
+}
+
+func initSSSP(order []uint) (map[uint]float64, map[uint]uint, map[uint]bool) {
+	dist := make(map[uint]float64, len(order))
+	prev := make(map[uint]uint, len(order))
+	visited := make(map[uint]bool, len(order))
+	for _, vid := range order {
+		dist[vid] = math.Inf(1)
+	}
+	return dist, prev, visited
+}
+
+func pickNext(order []uint, dist map[uint]float64, visited map[uint]bool) (uint, bool) {
+	best := uint(0)
+	bestVal := math.Inf(1)
+	found := false
+	for _, vid := range order {
+		if visited[vid] {
+			continue
+		}
+		if dist[vid] < bestVal {
+			bestVal = dist[vid]
+			best = vid
+			found = true
+		}
+	}
+	return best, found
+}
+
+func findNextHop(src, dst uint, prev map[uint]uint) uint {
+	next := dst
+	for {
+		p, ok := prev[next]
+		if !ok {
+			return 0
+		}
+		if p == src {
+			return next
+		}
+		next = p
+	}
+}
+
+func assemblePeerConfigs(order []uint, aggByNode map[uint]map[uint]map[string]struct{}, idToPeer map[uint]*models.WireGuard) (map[uint][]*pb.WireGuardPeerConfig, error) {
+	result := make(map[uint][]*pb.WireGuardPeerConfig, len(order))
+	for src, nextMap := range aggByNode {
+		peersForSrc := make([]*pb.WireGuardPeerConfig, 0, len(nextMap))
+		for nextHop, cidrSet := range nextMap {
+			remote := idToPeer[nextHop]
+			base, err := remote.AsBasePeerConfig()
+			if err != nil {
+				return nil, errors.Join(errors.New("build peer base config failed"), err)
+			}
+			cidrs := make([]string, 0, len(cidrSet))
+			for c := range cidrSet {
+				cidrs = append(cidrs, c)
+			}
+			sort.Strings(cidrs)
+			base.AllowedIps = lo.Uniq(cidrs)
+			peersForSrc = append(peersForSrc, base)
+		}
+		sort.SliceStable(peersForSrc, func(i, j int) bool {
+			return peersForSrc[i].GetClientId() < peersForSrc[j].GetClientId()
+		})
+		result[src] = peersForSrc
+	}
+	return result, nil
+}
+
+func fillIsolates(order []uint, result map[uint][]*pb.WireGuardPeerConfig) {
+	for _, id := range order {
+		if _, ok := result[id]; !ok {
+			result[id] = []*pb.WireGuardPeerConfig{}
+		}
+	}
+}

@@ -194,3 +194,66 @@ type WorkersManager interface {
 	// install workerd bin to workerd bin path, if not specified, use default path /usr/local/bin/workerd
 	InstallWorkerd(ctx *Context, url string, path string) (string, error)
 }
+
+// services/wg/wireguard_manager.go
+type WireGuardManager interface {
+	// CreateService 使用给定的配置初始化一个新的 WireGuard 并记录
+	// 服务创建后不会自动启动
+	CreateService(cfg *defs.WireGuardConfig) (WireGuard, error)
+
+	// StartService 启动之前添加的 WireGuard
+	StartService(interfaceName string) error
+
+	GetService(interfaceName string) (WireGuard, bool)
+
+	StopService(interfaceName string) error
+
+	GetAllServices() []WireGuard
+
+	// RemoveService 停止并移除一个 WireGuard
+	RemoveService(interfaceName string) error
+
+	// StopAllServices 停止所有 WireGuard
+	// 返回一个 interfaceName 到 error 的映射，记录停止失败的服务
+	StopAllServices() map[string]error
+
+	RestartService(interfaceName string) error
+
+	// Start 启动 WireGuardManager 本身
+	Start()
+	Stop()
+}
+
+type WireGuardDiffPeersResponse struct {
+	AddPeers    []*defs.WireGuardPeerConfig
+	RemovePeers []*defs.WireGuardPeerConfig
+}
+
+// services/wg/wireguard.go
+type WireGuard interface {
+	Start() error
+	Stop() error
+
+	// Peer相关
+	AddPeer(peer *defs.WireGuardPeerConfig) error
+	RemovePeer(peerNameOrPk string) error
+	GetPeer(peerNameOrPk string) (*defs.WireGuardPeerConfig, error)
+	UpdatePeer(peer *defs.WireGuardPeerConfig) error
+	ListPeers() ([]*defs.WireGuardPeerConfig, error)
+	PatchPeers(newPeers []*defs.WireGuardPeerConfig) (*WireGuardDiffPeersResponse, error)
+
+	// Interface相关
+	GetIfceConfig() (*defs.WireGuardConfig, error)
+	GetBaseIfceConfig() *defs.WireGuardConfig
+
+	// Config相关
+	GenWGConfig() (string, error) // unimplemented
+	GetWGRuntimeInfo() (*pb.WGDeviceRuntimeInfo, error)
+}
+
+type NetworkTopologyCache interface {
+	GetRuntimeInfo(wireguardId uint) (*pb.WGDeviceRuntimeInfo, bool)
+	SetRuntimeInfo(wireguardId uint, runtimeInfo *pb.WGDeviceRuntimeInfo)
+	DeleteRuntimeInfo(wireguardId uint)
+	GetLatencyMs(fromWGID, toWGID uint) (uint32, bool)
+}

@@ -1,0 +1,26 @@
+.customNodeBody {
+	position: relative;
+	justify-content: center;
+	align-items: center;
+}
+
+div.customHandle {
+	width: 90px;
+	height: 40px;
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	border-radius: 0;
+	transform: none;
+	border: none;
+	opacity: 0;
+}
+
+.drag-handle__custom {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	background-color: teal;
+	margin-left: 20px;
+	border-radius: 50%;
+}

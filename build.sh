@@ -2,7 +2,7 @@
 
 # Function to print usage
 usage() {
-    echo "Usage: $0 [--platform <platform>] [--bintype <bintype>] [--arch <arch>]"
+    echo "Usage: $0 [--platform <platform>] [--bintype <bintype>] [--arch <arch>] [--skip-frontend] [--current]"
     echo "Platforms: windows, linux, darwin, all"
     echo "Binary Types: full, client, all"
     echo "Architectures: amd64, arm64, arm, all"

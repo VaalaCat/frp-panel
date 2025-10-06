@@ -10,6 +10,7 @@ import (
 	masterserver "github.com/VaalaCat/frp-panel/biz/master/server"
 	"github.com/VaalaCat/frp-panel/biz/master/shell"
 	"github.com/VaalaCat/frp-panel/biz/master/streamlog"
+	"github.com/VaalaCat/frp-panel/biz/master/wg"
 	"github.com/VaalaCat/frp-panel/biz/master/worker"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
@@ -25,6 +26,54 @@ import (
 type server struct {
 	pb.UnimplementedMasterServer
 	appInstance app.Application
+}
+
+func (s *server) ReportWireGuardRuntimeInfo(ctx context.Context, req *pb.ReportWireGuardRuntimeInfoReq) (*pb.ReportWireGuardRuntimeInfoResp, error) {
+	logger.Logger(ctx).Infof("report wireguard runtime info, clientID: [%s], interfaceName: [%s]", req.GetBase().GetClientId(), req.GetInterfaceName())
+	appCtx := app.NewContext(ctx, s.appInstance)
+
+	if client, err := client.ValidateClientRequest(appCtx, req.GetBase()); err != nil {
+		logger.Logger(ctx).WithError(err).Errorf("cannot validate client request")
+		return nil, err
+	} else if client.Stopped {
+		logger.Logger(appCtx).Infof("report wireguard runtime info, client [%s] is stopped", req.GetBase().GetClientId())
+		return &pb.ReportWireGuardRuntimeInfoResp{
+			Status: &pb.Status{
+				Code:    pb.RespCode_RESP_CODE_NOT_FOUND,
+				Message: "client stopped",
+			},
+		}, nil
+	}
+	logger.Logger(appCtx).Infof("validate client success, clientID: [%s], interfaceName: [%s]", req.GetBase().GetClientId(), req.GetInterfaceName())
+
+	return wg.ReportWireGuardRuntimeInfo(appCtx, req)
+}
+
+// ListClientWireGuards implements pb.MasterServer.
+func (s *server) ListClientWireGuards(ctx context.Context, req *pb.ListClientWireGuardsRequest) (*pb.ListClientWireGuardsResponse, error) {
+	logger.Logger(ctx).Infof("list client wire guards, clientID: [%s]", req.GetBase().GetClientId())
+	appCtx := app.NewContext(ctx, s.appInstance)
+
+	if client, err := client.ValidateClientRequest(appCtx, req.GetBase()); err != nil {
+		logger.Logger(ctx).WithError(err).Errorf("cannot validate client request")
+		return nil, err
+	} else if client.Stopped {
+		logger.Logger(appCtx).Infof("list client wire guards, client [%s] is stopped", req.GetBase().GetClientId())
+		return &pb.ListClientWireGuardsResponse{
+			Status: &pb.Status{
+				Code:    pb.RespCode_RESP_CODE_NOT_FOUND,
+				Message: "client stopped",
+			},
+		}, nil
+	}
+
+	resp, err := wg.ListClientWireGuards(appCtx, req)
+	if err != nil {
+		logger.Logger(ctx).WithError(err).Errorf("cannot list client wire guards")
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 // ListClientWorkers implements pb.MasterServer.

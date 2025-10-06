@@ -31,7 +31,7 @@ export default function StreamLogPage() {
   const [clear, setClear] = useState<number>(0)
   const [enabled, setEnabled] = useState<boolean>(false)
   const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | null>(null)
-  const [clientType, setClientType] = useState<ClientType>(ClientType.FRPS)
+  const [clientType, setClientType] = useState<ClientType>(ClientType.FRPC)
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | undefined>()
   const [pkgs, setPkgs] = useState<string[]>([])
 
@@ -158,7 +158,7 @@ export default function StreamLogPage() {
                     { value: ClientType.FRPS.toString(), label: 'frps' },
                   ]}
                   setValue={(value) => {
-                    setClientType(value === ClientType.FRPC.toString() ? ClientType.FRPC : ClientType.FRPS)
+                    setClientType(value === ClientType.FRPS.toString() ? ClientType.FRPS : ClientType.FRPC)
                   }}
                   value={clientType.toString()}
                   label={t('common.clientType')}

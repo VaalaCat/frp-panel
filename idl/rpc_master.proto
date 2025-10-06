@@ -2,6 +2,7 @@ syntax = "proto3";
 package master;
 
 import "common.proto";
+import "types_wg.proto";
 option go_package="../pb";
 
 enum Event {
@@ -28,6 +29,10 @@ enum Event {
   EVENT_REMOVE_WORKER = 20;
   EVENT_GET_WORKER_STATUS = 21;
   EVENT_INSTALL_WORKERD = 22;
+  EVENT_CREATE_WIREGUARD = 23;
+  EVENT_DELETE_WIREGUARD = 24;
+  EVENT_UPDATE_WIREGUARD = 25;
+  EVENT_GET_WIREGUARD_RUNTIME_INFO = 26;
 }
 
 message ServerBase {
@@ -135,14 +140,35 @@ message ListClientWorkersResponse {
   repeated common.Worker workers = 2;
 }
 
+message ListClientWireGuardsRequest {
+  ClientBase base = 255;
+}
+
+message ListClientWireGuardsResponse {
+  common.Status status = 1;
+  repeated wireguard.WireGuardConfig wireguard_configs = 2;
+}
+
+message ReportWireGuardRuntimeInfoReq {
+  optional string interface_name = 1;
+  optional wireguard.WGDeviceRuntimeInfo runtime_info = 2;
+  ClientBase base = 255;
+}
+
+message ReportWireGuardRuntimeInfoResp {
+  common.Status status = 1;
+}
+
 service Master {
   rpc ServerSend(stream ClientMessage) returns(stream ServerMessage);
   rpc PullClientConfig(PullClientConfigReq) returns(PullClientConfigResp);
   rpc PullServerConfig(PullServerConfigReq) returns(PullServerConfigResp);
   rpc ListClientWorkers(ListClientWorkersRequest) returns(ListClientWorkersResponse);
+  rpc ListClientWireGuards(ListClientWireGuardsRequest) returns(ListClientWireGuardsResponse);
   rpc FRPCAuth(FRPAuthRequest) returns(FRPAuthResponse);
   rpc PushProxyInfo(PushProxyInfoReq) returns(PushProxyInfoResp);
   rpc PushClientStreamLog(stream PushClientStreamLogReq) returns(PushStreamLogResp);
   rpc PushServerStreamLog(stream PushServerStreamLogReq) returns(PushStreamLogResp);
   rpc PTYConnect(stream PTYClientMessage) returns(stream PTYServerMessage);
+  rpc ReportWireGuardRuntimeInfo(ReportWireGuardRuntimeInfoReq) returns(ReportWireGuardRuntimeInfoResp);
 }

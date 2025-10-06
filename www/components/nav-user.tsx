@@ -77,7 +77,7 @@ export function NavUser({ user }: NavUserProps) {
             <DropdownMenuItem asChild>
               <Link href="/platform-settings" className="w-full flex items-center space-x-2">
                 <SettingsIcon className="h-4 w-4" />
-                <span>{t('平台设置')}</span>
+                <span>{t('settings.header.title')}</span>
               </Link>
             </DropdownMenuItem>
 

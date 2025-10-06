@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import "xterm.css";
+@import "xyflow.css";
 
 @layer base {
   :root {
@@ -100,6 +101,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -115,6 +117,7 @@
 .hide-scroll-bar {
   overflow: auto;
 }
+
 .hide-scroll-bar::-webkit-scrollbar {
   width: 0;
   height: 0;

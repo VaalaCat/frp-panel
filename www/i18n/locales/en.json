@@ -8,6 +8,69 @@
       "repo": "VaalaCat/frp-panel"
     }
   },
+  "selector": {
+    "common": {
+      "placeholder": "Please select...",
+      "notFound": "No results found",
+      "loading": "Loading..."
+    },
+    "client": {
+      "placeholder": "Client Name"
+    },
+    "proxy": {
+      "notFound": "No tunnel found",
+      "placeholder": "Tunnel name"
+    },
+    "server": {
+      "placeholder": "Server Name"
+    }
+  },
+  "canvas": {
+    "panel": {
+      "clients": "Clients",
+      "servers": "Servers",
+      "confirmClear": "Are you sure you want to clear all interactive nodes? Client and server nodes will not be deleted.",
+      "title": "Visual Canvas",
+      "clear": "Clear Canvas",
+      "exitFullscreen": "Exit Fullscreen",
+      "fullscreen": "Fullscreen",
+      "selectAgent": "Select client or server",
+      "addNode": "Add Node",
+      "nodeCount": "Nodes"
+    },
+    "client": {
+      "unknown": "Unknown Client",
+      "stopped": "Stopped"
+    },
+    "contextMenu": {
+      "openTerminal": "Open Terminal",
+      "openLog": "Open Log"
+    },
+    "log": {
+      "noClient": "No Client Selected",
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "error": "Connection Failed",
+      "stop": "Stop",
+      "start": "Start",
+      "clear": "Clear Log",
+      "selectClient": "Please select a client to view logs"
+    },
+    "server": {
+      "unknown": "Unknown Server",
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "terminal": {
+      "noClient": "No Client Selected",
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "error": "Connection Failed",
+      "refresh": "Refresh Terminal",
+      "clear": "Clear Terminal",
+      "selectClient": "Please select a client to connect"
+    }
+  },
   "client": {
     "detail": {
       "title": "Client Information",
@@ -18,6 +81,8 @@
       "address": "Client Address",
       "connectTime": "Connected Since"
     },
+    "status_online": "Online",
+    "status_offline": "Offline",
     "create": {
       "submitting": "Creating client...",
       "error": "Failed to create client",
@@ -98,28 +163,9 @@
       "description": "View client traffic statistics",
       "label": "Client"
     },
-    "status_online": "Online",
-    "status_offline": "Offline",
     "status_error": "Error",
     "status_pause": "Paused",
     "status_unknown": "Unknown"
-  },
-  "selector": {
-    "client": {
-      "placeholder": "Client Name"
-    },
-    "common": {
-      "placeholder": "Please select...",
-      "notFound": "No results found",
-      "loading": "Loading..."
-    },
-    "proxy": {
-      "notFound": "No tunnel found",
-      "placeholder": "Tunnel name"
-    },
-    "server": {
-      "placeholder": "Server Name"
-    }
   },
   "table": {
     "pagination": {
@@ -135,7 +181,296 @@
     "filter": {
       "placeholder": "Filter by {{column}}"
     },
-    "noData": "No data"
+    "noData": "No data",
+    "columns": "Columns"
+  },
+  "wg": {
+    "selector": {
+      "endpoint": "Endpoint",
+      "network": "Network",
+      "clientWireguards": "Client WireGuards",
+      "client": "Client"
+    },
+    "endpointDetail": {
+      "invalid": "Endpoint not found",
+      "invalidDesc": "The requested endpoint does not exist or has been deleted",
+      "titleFallback": "Unnamed Endpoint",
+      "subtitle": "Endpoint #{{id}}",
+      "back": "Back to endpoints",
+      "deleteConfirm": "Are you sure you want to delete this endpoint?",
+      "tabsOverview": "Overview",
+      "tabsRelations": "Relations",
+      "summaryTitle": "Endpoint Summary",
+      "summaryDesc": "Core information and metadata",
+      "noHost": "No host information",
+      "clientId": "Client ID",
+      "wireguardId": "WireGuard ID",
+      "relatedWireguardsTitle": "Related WireGuards",
+      "relatedWireguardsDesc": "WireGuards that use this endpoint",
+      "relatedWireguardsEmpty": "No related WireGuards"
+    },
+    "endpointActions": {
+      "edit": "Edit endpoint",
+      "view": "View details",
+      "title": "Endpoint actions"
+    },
+    "endpoint": {
+      "delete": "Delete endpoint"
+    },
+    "endpointForm": {
+      "host": "Host",
+      "port": "Port",
+      "submit": "Save endpoint"
+    },
+    "interface": {
+      "network_unassigned": "Unassigned",
+      "id": "Interface ID",
+      "name": "Interface Name",
+      "port": "Port",
+      "client": "Client",
+      "tags": "Tags",
+      "network": "Network"
+    },
+    "endpointEdit": {
+      "title": "Edit endpoint",
+      "submit": "Save endpoint"
+    },
+    "endpointCreate": {
+      "title": "Create endpoint",
+      "submit": "Create endpoint",
+      "button": "New endpoint"
+    },
+    "endpointTable": {
+      "host": "Host",
+      "wireguardId": "WireGuard",
+      "clientId": "Client"
+    },
+    "endpointDelete": {
+      "confirm": "This action cannot be undone. Delete this endpoint?"
+    },
+    "joinNetwork": {
+      "label": "Join network"
+    },
+    "interfaceField": {
+      "name": "Interface name",
+      "localAddress": "Local address",
+      "port": "Port",
+      "mtu": "MTU"
+    },
+    "common": {
+      "tags": "Tags",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "networkForm": {
+      "invalidAcl": "Invalid ACL format",
+      "name": "Network name",
+      "cidr": "CIDR",
+      "acl": "Access control list",
+      "aclPlaceholder": "Enter JSON ACL definition",
+      "submit": "Save network",
+      "aclHelper": "Define allow/deny rules in JSON format",
+      "basicHelper": "Basic network information"
+    },
+    "networkCreate": {
+      "title": "Create network",
+      "tabsBasic": "Basic",
+      "tabsAcl": "ACL",
+      "submit": "Create network",
+      "trigger": "New network"
+    },
+    "networkDetail": {
+      "invalid": "Network not found",
+      "invalidDesc": "The requested network does not exist or has been deleted",
+      "titleFallback": "Unnamed network",
+      "subtitle": "Network #{{id}}",
+      "back": "Back to networks",
+      "edit": "Edit network",
+      "delete": "Delete network",
+      "deleteConfirm": "Are you sure you want to delete this network?",
+      "tabsOverview": "Overview",
+      "tabsWireguards": "WireGuards",
+      "tabsLinks": "Links",
+      "tabsTopology": "Topology",
+      "summaryTitle": "Network summary",
+      "summaryDesc": "Core network configuration",
+      "unnamed": "Unnamed",
+      "noCidr": "CIDR not configured",
+      "id": "Network ID",
+      "aclTitle": "Access control list",
+      "aclEmpty": "No ACL configured",
+      "wireguardsTitle": "Associated WireGuards",
+      "wireguardsDesc": "WireGuards registered to this network",
+      "linksTitle": "Network links",
+      "linksDesc": "Connections between WireGuard devices",
+      "topologyDesc": "Visual network topology"
+    },
+    "topologySidebar": {
+      "title": "Link Details",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "from": "From",
+      "to": "To",
+      "latency": "Latency",
+      "bandwidthUp": "Upload",
+      "bandwidthDown": "Download",
+      "empty": "Click a link to view details"
+    },
+    "topologyActions": {
+      "loading": "Refreshing...",
+      "refresh": "Refresh Topology",
+      "exitFullscreen": "Exit Fullscreen",
+      "fullscreen": "Fullscreen"
+    },
+    "networkEdit": {
+      "title": "Edit network",
+      "submit": "Save changes"
+    },
+    "networkList": {
+      "headerTitle": "Network overview",
+      "headerDesc": "Manage WireGuard networks",
+      "headerTotal_one": "{{count}} network total",
+      "headerTotal_other": "{{count}} networks total",
+      "title": "Networks",
+      "subtitle": "WireGuard networks",
+      "metricsTitle": "Metrics",
+      "metricsTotal": "Total networks"
+    },
+    "networkField": {
+      "name": "Name",
+      "cidr": "CIDR",
+      "acl": "ACL"
+    },
+    "networkActions": {
+      "view": "View",
+      "title": "Network actions",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "networkDelete": {
+      "confirm": "Confirm delete network?"
+    },
+    "topologyNode": {
+      "id": "Node #{{id}}",
+      "unknown": "Unknown Node",
+      "peers": "Peers"
+    },
+    "contextMenu": {
+      "openTerminal": "Open Terminal"
+    },
+    "wireguardDetail": {
+      "invalid": "WireGuard not found",
+      "invalidDesc": "The requested WireGuard configuration is unavailable",
+      "titleFallback": "Unnamed interface",
+      "subtitle": "WireGuard #{{id}}",
+      "back": "Back to WireGuards",
+      "edit": "Edit WireGuard",
+      "delete": "Delete WireGuard",
+      "deleteConfirm": "Are you sure you want to delete this WireGuard configuration?",
+      "tabsOverview": "Overview",
+      "tabsEndpoints": "Endpoints",
+      "summaryTitle": "WireGuard summary",
+      "summaryDesc": "Core interface information",
+      "noName": "No interface name",
+      "noAddress": "No address configured",
+      "networkId": "Network ID",
+      "tagsTitle": "Tags",
+      "tagsEmpty": "No tags assigned",
+      "endpointsTitle": "Linked endpoints",
+      "endpointsDesc": "Endpoints associated with this WireGuard interface"
+    },
+    "wireguardForm": {
+      "interfaceName": "Interface name",
+      "localAddress": "Local address",
+      "port": "Listening port",
+      "mtu": "MTU",
+      "privateKey": "Private key",
+      "tags": "Tags",
+      "selectEndpoint": "Select endpoint",
+      "submit": "Save WireGuard"
+    },
+    "wireguardEdit": {
+      "title": "Edit WireGuard",
+      "submit": "Save changes"
+    },
+    "linkEdit": {
+      "title": "Edit link",
+      "submit": "Save link"
+    },
+    "linkCreate": {
+      "title": "Create link",
+      "submit": "Create link",
+      "button": "New link"
+    },
+    "linkForm": {
+      "invalid": "Invalid link configuration",
+      "submit": "Save link"
+    },
+    "link": {
+      "from": "From",
+      "to": "To",
+      "up_bw": "Upstream bandwidth",
+      "down_bw": "Downstream bandwidth",
+      "latency": "Latency",
+      "active": "Active"
+    },
+    "linkState": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "linkActions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "linkDelete": {
+      "confirm": "Delete this link?"
+    },
+    "wireguardList": {
+      "headerTitle": "WireGuard interfaces",
+      "headerDesc": "Manage WireGuard devices",
+      "headerTotal_one": "{{count}} device total",
+      "headerTotal_other": "{{count}} devices total",
+      "title": "WireGuards"
+    },
+    "wireguardActions": {
+      "view": "View",
+      "title": "WireGuard actions",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "wireguardDelete": {
+      "confirm": "Confirm delete WireGuard?"
+    },
+    "runtime": {
+      "title": "Runtime status",
+      "subtitle": "WireGuard device metrics",
+      "refresh": "Refresh",
+      "listen_port": "Listen port",
+      "protocol": "Protocol",
+      "peer_count": "Peer count",
+      "status": "Status",
+      "status_ok": "Online",
+      "status_unknown": "Unknown",
+      "peer_list": "Peer list",
+      "peer_empty": "No peers connected",
+      "peer_unknown": "Unknown client",
+      "peer_endpoint": "Endpoint",
+      "peer_last_handshake": "Last handshake",
+      "peer_no_handshake": "Never connected"
+    },
+    "nav": {
+      "section": "Virtual Network",
+      "networks": "Networks",
+      "wireguards": "WireGuards",
+      "endpoints": "Endpoints",
+      "links": "Links"
+    },
+    "endpointList": {
+      "title": "Endpoints"
+    },
+    "linkList": {
+      "title": "Links"
+    }
   },
   "input": {
     "keyword": {
@@ -146,6 +481,27 @@
       "placeholder": "Please enter ...",
       "add": "Add"
     }
+  },
+  "common": {
+    "stream_log_pkgs_select": "Stream Log From",
+    "download": "Click here to download",
+    "copy": "Copy",
+    "submit": "Submit",
+    "login": "Login",
+    "register": "Register",
+    "userInfo": "User Information",
+    "logout": "Logout",
+    "success": "Success",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "add": "Add",
+    "back": "Back",
+    "saving": "Saving...",
+    "save": "Save",
+    "failed": "Failed",
+    "clientType": "Client Type",
+    "disconnect": "Disconnect",
+    "connect": "Connect"
   },
   "traffic": {
     "chart": {
@@ -169,26 +525,6 @@
       "outbound": "Historical Outbound",
       "total": "Historical Total"
     }
-  },
-  "common": {
-    "download": "Click here to download",
-    "copy": "Copy",
-    "submit": "Submit",
-    "login": "Login",
-    "register": "Register",
-    "userInfo": "User Information",
-    "logout": "Logout",
-    "add": "Add",
-    "back": "Back",
-    "saving": "Saving...",
-    "save": "Save",
-    "success": "Success",
-    "failed": "Failed",
-    "cancel": "Cancel",
-    "clientType": "Client Type",
-    "disconnect": "Disconnect",
-    "connect": "Connect",
-    "stream_log_pkgs_select": "Stream Log From"
   },
   "frpc": {
     "client_plugins": {
@@ -250,7 +586,6 @@
       "type": "Type",
       "confirm": "Confirm",
       "config": "Tunnel Configuration",
-      "expand_one": "Expand",
       "expand_other": "Expand",
       "delete": "Delete",
       "tunnel_name": "Tunnel Name",
@@ -441,6 +776,38 @@
     "haveAccount": "Already have an account?",
     "login": "Login"
   },
+  "settings": {
+    "header": {
+      "title": "Platform Settings",
+      "description": "Modify frontend platform settings",
+      "note": "This configuration is stored locally only"
+    },
+    "toast": {
+      "updateSuccess": "Platform settings updated"
+    },
+    "loading": {
+      "platform": "Loading platform settings"
+    },
+    "form": {
+      "useServerGithubLabel": "Use server GitHub proxy",
+      "useServerGithubDescription": "If enabled, download using the backend configured proxy",
+      "githubProxyLabel": "Custom GitHub proxy URL",
+      "githubProxyPlaceholder": "e.g. https://ghproxy.com/",
+      "clientApiLabel": "Custom API URL",
+      "clientApiPlaceholder": "e.g. https://api.example.com/",
+      "clientRpcLabel": "Custom RPC URL",
+      "clientRpcPlaceholder": "e.g. https://rpc.example.com/"
+    },
+    "actions": {
+      "saveChanges": "Save changes"
+    },
+    "dialog": {
+      "confirmSaveTitle": "Confirm Save",
+      "confirmSaveDescription": "Are you sure you want to save the changes?",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
+  },
   "platform": {
     "configuredServers": "Configured Servers",
     "unit": " ",
@@ -452,8 +819,7 @@
     "totalClients": "Total Clients"
   },
   "refresh": {
-    "data": "Refresh Data",
-    "data_zh": "刷新数据"
+    "data": "Refresh Data"
   },
   "team": {
     "title": "Teams"
@@ -625,23 +991,5 @@
     "save": "Save",
     "save_success": "Save successful",
     "save_error": "Save failed"
-  },
-  "平台设置": "Platform Settings",
-  "修改前端平台设置": "Modify frontend preferences",
-  "已更新平台设置": "Platform settings updated",
-  "使用服务器 Github 代理": "Use server GitHub proxy",
-  "若开启，则使用后台配置的代理地址下载": "If enabled, backend proxy URL will be used for downloads",
-  "自定义 Github 代理地址": "Custom GitHub proxy URL",
-  "例如 https://ghproxy.com/": "e.g. https://ghproxy.com/",
-  "保存更改": "Save changes",
-  "确认保存": "Confirm save",
-  "确定保存修改？": "Are you sure to save changes?",
-  "确认": "Confirm",
-  "正在加载平台设置": "Loading platform settings...",
-  "取消": "Cancel",
-  "自定义 API URL": "Custom API URL",
-  "自定义 RPC URL": "Custom RPC URL",
-  "例如 https://api.example.com/": "e.g. https://api.example.com/",
-  "例如 https://rpc.example.com/": "e.g. https://rpc.example.com/",
-  "此配置仅保存在本地": "These settings are stored only in this browser and will not sync across devices."
+  }
 }

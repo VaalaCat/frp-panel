@@ -74,7 +74,7 @@ export function PlatformSettingsForm() {
 			clientRpcUrl: values.clientRpcUrl?.trim() || undefined,
 		}
 		$frontendPreference.set(pref)
-		toast.success(t('已更新平台设置'))
+		toast.success(t('settings.toast.updateSuccess'))
 		// 重置 initial 状态 & 清空 dirty
 		form.reset(values)
 		setInitial(values)
@@ -83,7 +83,7 @@ export function PlatformSettingsForm() {
 	if (loading) {
 		return (
 			<div className="flex items-center justify-center h-64">
-				<p className="text-gray-500">{t('正在加载平台设置')}</p>
+				<p className="text-gray-500">{t('settings.loading.platform')}</p>
 			</div>
 		)
 	}
@@ -91,9 +91,9 @@ export function PlatformSettingsForm() {
 	return (
 		<Card className="max-w-lg mx-auto">
 			<CardHeader className="border-b">
-				<CardTitle>{t('平台设置')}</CardTitle>
-				<CardDescription>{t('修改前端平台设置')}</CardDescription>
-				<p className="text-xs text-muted-foreground mt-1 italic">{t('此配置仅保存在本地')}</p>
+				<CardTitle>{t('settings.header.title')}</CardTitle>
+				<CardDescription>{t('settings.header.description')}</CardDescription>
+				<p className="text-xs text-muted-foreground mt-1 italic">{t('settings.header.note')}</p>
 			</CardHeader>
 			<CardContent>
 				<Form {...form}>
@@ -105,8 +105,8 @@ export function PlatformSettingsForm() {
 							render={({ field }) => (
 								<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
 									<div className="space-y-0.5">
-										<FormLabel>{t('使用服务器 Github 代理')}</FormLabel>
-										<FormDescription>{t('若开启，则使用后台配置的代理地址下载')}</FormDescription>
+										<FormLabel>{t('settings.form.useServerGithubLabel')}</FormLabel>
+										<FormDescription>{t('settings.form.useServerGithubDescription')}</FormDescription>
 									</div>
 									<FormControl>
 										<Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -121,9 +121,9 @@ export function PlatformSettingsForm() {
 							name="githubProxyUrl"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t('自定义 Github 代理地址')}</FormLabel>
+									<FormLabel>{t('settings.form.githubProxyLabel')}</FormLabel>
 									<FormControl>
-										<Input placeholder={platformInfo?.githubProxyUrl || t('例如 https://ghproxy.com/')} {...field} />
+										<Input placeholder={platformInfo?.githubProxyUrl || t('settings.form.githubProxyPlaceholder')} {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -136,9 +136,9 @@ export function PlatformSettingsForm() {
 							name="clientApiUrl"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t('自定义 API URL')}</FormLabel>
+									<FormLabel>{t('settings.form.clientApiLabel')}</FormLabel>
 									<FormControl>
-										<Input placeholder={platformInfo?.clientApiUrl || t('例如 https://api.example.com/')} {...field} />
+										<Input placeholder={platformInfo?.clientApiUrl || t('settings.form.clientApiPlaceholder')} {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -151,9 +151,9 @@ export function PlatformSettingsForm() {
 							name="clientRpcUrl"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t('自定义 RPC URL')}</FormLabel>
+									<FormLabel>{t('settings.form.clientRpcLabel')}</FormLabel>
 									<FormControl>
-										<Input placeholder={platformInfo?.clientRpcUrl || t('例如 https://rpc.example.com/')} {...field} />
+										<Input placeholder={platformInfo?.clientRpcUrl || t('settings.form.clientRpcPlaceholder')} {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -172,17 +172,17 @@ export function PlatformSettingsForm() {
 							}
 							onClick={() => setOpen(true)}
 						>
-							{t('保存更改')}
+							{t('settings.actions.saveChanges')}
 						</Button>
 					</DialogTrigger>
 					<DialogContent>
 						<DialogHeader>
-							<DialogTitle>{t('确认保存')}</DialogTitle>
-							<DialogDescription>{t('确定保存修改？')}</DialogDescription>
+							<DialogTitle>{t('settings.dialog.confirmSaveTitle')}</DialogTitle>
+							<DialogDescription>{t('settings.dialog.confirmSaveDescription')}</DialogDescription>
 						</DialogHeader>
 						<DialogFooterUI>
 							<Button variant={'destructive'} onClick={() => setOpen(false)}>
-								{t('取消')}
+								{t('settings.dialog.cancel')}
 							</Button>
 							<Button
 								variant={'secondary'}
@@ -191,7 +191,7 @@ export function PlatformSettingsForm() {
 									setOpen(false)
 								}}
 							>
-								{t('确认')}
+								{t('settings.dialog.confirm')}
 							</Button>
 						</DialogFooterUI>
 					</DialogContent>

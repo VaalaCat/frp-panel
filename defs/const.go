@@ -68,10 +68,14 @@ const (
 )
 
 const (
-	PullConfigDuration        = 30 * time.Second
-	PushProxyInfoDuration     = 30 * time.Second
-	PullClientWorkersDuration = 30 * time.Second
-	AppStartTimeout           = 5 * time.Minute
+	PullConfigDuration           = 30 * time.Second
+	PushProxyInfoDuration        = 30 * time.Second
+	PullClientWorkersDuration    = 30 * time.Second
+	PullClientWireGuardsDuration = 30 * time.Second
+
+	ReportWireGuardRuntimeInfoDuration = 60 * time.Second
+
+	AppStartTimeout = 5 * time.Minute
 )
 
 const (
@@ -180,6 +184,11 @@ const (
 const (
 	PlaceholderPrivateKey         = "<REPLACE_WITH_YOUR_PRIVATE_KEY>"
 	PlaceholderPeerVPNAddressCIDR = "<PEER_VPN_IP_ADDRESS/PREFIX>"
+)
+
+const (
+	DefaultDeviceMTU           uint32 = 1400
+	DefaultPersistentKeepalive        = 25
 )
 
 var VaalaMagicBytes = []byte("vaala-ping")

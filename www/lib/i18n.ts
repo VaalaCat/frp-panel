@@ -4,7 +4,7 @@ import { atom } from 'nanostores'
 import enTranslations from '../i18n/locales/en.json'
 import frTranslations from '../i18n/locales/fr.json'
 import zhTranslations from '../i18n/locales/zh.json'
-import zhtwTranslations from '../i18n/locales/zhtw.json'
+import zhtwTranslations from '../i18n/locales/zh-tw.json'
 
 const LANGUAGE_KEY = 'LANGUAGE'
 
@@ -31,7 +31,7 @@ i18n
       zh: {
         translation: zhTranslations,
       },
-      zhtw:{
+      zhtw: {
         translation: zhtwTranslations,
       }
     },

@@ -1,15 +1,15 @@
 import {
   SquareTerminal,
-  ServerCogIcon,
   ServerIcon,
   MonitorSmartphoneIcon,
-  MonitorCogIcon,
   ChartNetworkIcon,
   Scroll,
   Cable,
   SquareFunction,
+  Network,
 } from "lucide-react"
 import { TbBuildingTunnel } from "react-icons/tb"
+import { ROUTES } from "@/lib/routes"
 
 export const teams = [
   {
@@ -64,7 +64,30 @@ export const getNavItems = (t: any) => [
   },
   {
     title: t('nav.workers'),
-    url: "/workers",
+    url: ROUTES.workers,
     icon: SquareFunction,
+  },
+  {
+    title: t('wg.nav.section'),
+    url: ROUTES.wg.networks,
+    icon: Network,
+    items: [
+      {
+        title: t('wg.nav.networks'),
+        url: ROUTES.wg.networks,
+      },
+      {
+        title: t('wg.nav.wireguards'),
+        url: ROUTES.wg.wireguards,
+      },
+      {
+        title: t('wg.nav.endpoints'),
+        url: ROUTES.wg.endpoints,
+      },
+      {
+        title: t('wg.nav.links'),
+        url: ROUTES.wg.links,
+      },
+    ],
   },
 ]

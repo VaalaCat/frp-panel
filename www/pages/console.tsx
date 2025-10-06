@@ -13,7 +13,7 @@ import { BaseSelector } from '@/components/base/selector'
 import { ServerSelector } from '@/components/base/server-selector'
 import LoadingCircle from '@/components/base/status'
 import { ClientStatus } from '@/lib/pb/api_master'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card'
 import { PlayCircle, StopCircle, RefreshCcw, Eraser, ExternalLink } from 'lucide-react'
@@ -25,17 +25,18 @@ const TerminalComponent = dynamic(() => import('@/components/base/read-write-xte
 
 export default function ConsolePage() {
   const { t } = useTranslation();
+  const router = useRouter()
   const [clientID, setClientID] = useState<string | undefined>(undefined)
   const [clear, setClear] = useState<number>(0)
   const [enabled, setEnabled] = useState<boolean>(false)
   const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | null>(null);
-  const [clientType, setClientType] = useState<ClientType>(ClientType.FRPS)
+  const [clientType, setClientType] = useState<ClientType>(ClientType.FRPC)
   const [status, setStatus] = useState<"loading" | "success" | "error" | undefined>()
 
   const searchParams = useSearchParams()
   const paramClientID = searchParams.get('clientID')
   const paramClientType = searchParams.get('clientType')
-  
+
   useEffect(() => {
     if (paramClientID) {
       setClientID(paramClientID)
@@ -102,7 +103,7 @@ export default function ConsolePage() {
       <RootLayout mainHeader={<Header />}>
         <Card className="w-full h-[calc(100dvh_-_80px)] flex flex-col">
           <CardContent className="p-3 flex-1 flex flex-col gap-2">
-            <div className="flex flex-wrap items-center gap-1.5 shrink-0"> 
+            <div className="flex flex-wrap items-center gap-1.5 shrink-0">
               <div className="flex items-center gap-1.5">
                 <LoadingCircle status={status} />
                 <Button
@@ -118,7 +119,7 @@ export default function ConsolePage() {
                     <PlayCircle className="h-3.5 w-3.5" />
                   )}
                 </Button>
-                
+
                 <Button
                   disabled={!clientID}
                   variant="outline"
@@ -147,6 +148,13 @@ export default function ConsolePage() {
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                 </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => router.push('/canvas')}
+                >
+                  Canvas
+                </Button>
               </div>
 
               <div className="flex items-center gap-1.5">
@@ -156,7 +164,7 @@ export default function ConsolePage() {
                     { value: ClientType.FRPS.toString(), label: "frps" }
                   ]}
                   setValue={(value) => {
-                    setClientType(value === ClientType.FRPC.toString() ? ClientType.FRPC : ClientType.FRPS)
+                    setClientType(value === ClientType.FRPS.toString() ? ClientType.FRPS : ClientType.FRPC)
                   }}
                   value={clientType.toString()}
                   label={t('common.clientType')}
@@ -165,14 +173,14 @@ export default function ConsolePage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5 min-h-0 flex-1"> 
+            <div className="flex flex-col gap-1.5 min-h-0 flex-1">
               {clientType === ClientType.FRPC && (
                 <ClientSelector clientID={clientID} setClientID={setClientID} />
               )}
               {clientType === ClientType.FRPS && (
                 <ServerSelector serverID={clientID} setServerID={setClientID} />
               )}
-              
+
               <div className={cn(
                 'flex-1 min-h-0 overflow-hidden',
                 'border rounded-lg overflow-hidden'

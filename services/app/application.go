@@ -53,6 +53,10 @@ type Application interface {
 	Logger(ctx context.Context) *logrus.Entry
 	GetClientBase() *pb.ClientBase
 	GetServerBase() *pb.ServerBase
+	GetWireGuardManager() WireGuardManager
+	SetWireGuardManager(WireGuardManager)
+	GetNetworkTopologyCache() NetworkTopologyCache
+	SetNetworkTopologyCache(NetworkTopologyCache)
 }
 
 type Context struct {

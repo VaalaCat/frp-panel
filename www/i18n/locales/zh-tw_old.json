@@ -1,0 +1,43 @@
+{
+  "平台设置": "平台設置",
+  "修改前端平台设置": "修改前端平台設定",
+  "已更新平台设置": "平台設定已更新",
+  "使用服务器 Github 代理": "使用伺服器 GitHub 代理",
+  "若开启，则使用后台配置的代理地址下载": "若開啟，將使用後端配置的代理位址下載",
+  "自定义 Github 代理地址": "自訂 GitHub 代理位址",
+  "例如 https://ghproxy.com/": "例如 https://ghproxy.com/",
+  "保存更改": "儲存變更",
+  "确认保存": "確認保存",
+  "确定保存修改？": "確定保存變更？",
+  "确认": "確認",
+  "正在加载平台设置": "正在載入平台設定...",
+  "取消": "取消",
+  "自定义 API URL": "自訂 API URL",
+  "自定义 RPC URL": "自訂 RPC URL",
+  "例如 https://api.example.com/": "例如 https://api.example.com/",
+  "例如 https://rpc.example.com/": "例如 https://rpc.example.com/",
+  "此配置仅保存在本地": "此設定僅儲存在此瀏覽器中，不會在裝置間同步。",
+  "wg": {
+    "topologySidebar": {
+      "id": "連線 #{{id}}",
+      "active": "狀態：{{status}}"
+    },
+    "terminalNode": {
+      "noClient": "",
+      "connected": "",
+      "connecting": "",
+      "error": "",
+      "refresh": "",
+      "clear": "",
+      "selectClient": ""
+    },
+    "dashboard": {
+      "quickEntry": "快速入口"
+    }
+  },
+  "canvas": {
+    "panel": {
+      "refresh": ""
+    }
+  }
+}

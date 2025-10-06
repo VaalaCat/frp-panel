@@ -8,6 +8,69 @@
       "repo": "VaalaCat/frp-panel"
     }
   },
+  "selector": {
+    "common": {
+      "placeholder": "Veuillez sélectionner...",
+      "notFound": "Aucun résultat trouvé",
+      "loading": "Chargement..."
+    },
+    "client": {
+      "placeholder": "Nom du Client"
+    },
+    "proxy": {
+      "notFound": "Aucun tunnel trouvé",
+      "placeholder": "Nom du tunnel"
+    },
+    "server": {
+      "placeholder": "Nom du Serveur"
+    }
+  },
+  "canvas": {
+    "panel": {
+      "clients": "Clients",
+      "servers": "Serveurs",
+      "confirmClear": "Êtes-vous sûr de vouloir effacer tous les nœuds interactifs ? Les nœuds clients et serveurs ne seront pas supprimés.",
+      "title": "Canvas visuel",
+      "clear": "Effacer le canvas",
+      "exitFullscreen": "Quitter le plein écran",
+      "fullscreen": "Plein écran",
+      "selectAgent": "Sélectionner un client ou un serveur",
+      "addNode": "Ajouter un nœud",
+      "nodeCount": "Nœuds"
+    },
+    "client": {
+      "unknown": "Client inconnu",
+      "stopped": "Arrêté"
+    },
+    "contextMenu": {
+      "openTerminal": "Ouvrir le terminal",
+      "openLog": "Ouvrir le journal"
+    },
+    "log": {
+      "noClient": "Aucun client sélectionné",
+      "connected": "Connecté",
+      "connecting": "Connexion en cours",
+      "error": "Échec de la connexion",
+      "stop": "Arrêter",
+      "start": "Démarrer",
+      "clear": "Effacer le journal",
+      "selectClient": "Veuillez sélectionner un client pour afficher les journaux"
+    },
+    "server": {
+      "unknown": "Serveur inconnu",
+      "online": "En ligne",
+      "offline": "Hors ligne"
+    },
+    "terminal": {
+      "noClient": "Aucun client sélectionné",
+      "connected": "Connecté",
+      "connecting": "Connexion en cours",
+      "error": "Échec de la connexion",
+      "refresh": "Actualiser le terminal",
+      "clear": "Effacer le terminal",
+      "selectClient": "Veuillez sélectionner un client pour vous connecter"
+    }
+  },
   "client": {
     "detail": {
       "title": "Informations du Client",
@@ -18,6 +81,8 @@
       "address": "Adresse du Client",
       "connectTime": "Connecté Depuis"
     },
+    "status_online": "En Ligne",
+    "status_offline": "Hors Ligne",
     "create": {
       "submitting": "Création du client en cours...",
       "error": "Échec de la création du client",
@@ -98,28 +163,9 @@
       "description": "Afficher les statistiques de trafic du client",
       "label": "Client"
     },
-    "status_online": "En Ligne",
-    "status_offline": "Hors Ligne",
     "status_error": "Erreur",
     "status_pause": "En Pause",
     "status_unknown": "Inconnu"
-  },
-  "selector": {
-    "client": {
-      "placeholder": "Nom du Client"
-    },
-    "common": {
-      "placeholder": "Veuillez sélectionner...",
-      "notFound": "Aucun résultat trouvé",
-      "loading": "Chargement..."
-    },
-    "proxy": {
-      "notFound": "Aucun tunnel trouvé",
-      "placeholder": "Nom du tunnel"
-    },
-    "server": {
-      "placeholder": "Nom du Serveur"
-    }
   },
   "table": {
     "pagination": {
@@ -135,7 +181,298 @@
     "filter": {
       "placeholder": "Filtrer par {{column}}"
     },
-    "noData": "Aucune donnée"
+    "noData": "Aucune donnée",
+    "columns": "Colonnes"
+  },
+  "wg": {
+    "selector": {
+      "endpoint": "Point de terminaison",
+      "network": "Réseau",
+      "clientWireguards": "WireGuard client",
+      "client": "Client"
+    },
+    "endpointDetail": {
+      "invalid": "Point de terminaison introuvable",
+      "invalidDesc": "Le point de terminaison demandé n'existe pas ou a été supprimé",
+      "titleFallback": "Point de terminaison sans nom",
+      "subtitle": "Point de terminaison #{{id}}",
+      "back": "Retour à la liste",
+      "deleteConfirm": "Voulez-vous vraiment supprimer ce point de terminaison ?",
+      "tabsOverview": "Vue d'ensemble",
+      "tabsRelations": "Relations",
+      "summaryTitle": "Résumé du point de terminaison",
+      "summaryDesc": "Informations principales et métadonnées",
+      "noHost": "Aucune information d'hôte",
+      "clientId": "ID client",
+      "wireguardId": "ID WireGuard",
+      "relatedWireguardsTitle": "WireGuard associés",
+      "relatedWireguardsDesc": "Interfaces qui utilisent ce point de terminaison",
+      "relatedWireguardsEmpty": "Aucun WireGuard associé"
+    },
+    "endpointActions": {
+      "edit": "Modifier le point de terminaison",
+      "view": "Voir les détails",
+      "title": "Actions"
+    },
+    "endpoint": {
+      "delete": "Supprimer le point de terminaison"
+    },
+    "endpointForm": {
+      "host": "Hôte",
+      "port": "Port",
+      "submit": "Enregistrer"
+    },
+    "interface": {
+      "network_unassigned": "Non affecté",
+      "id": "ID d'interface",
+      "name": "Nom de l'interface",
+      "port": "Port",
+      "client": "Client",
+      "tags": "Tags",
+      "network": "Réseau"
+    },
+    "endpointEdit": {
+      "title": "Modifier le point de terminaison",
+      "submit": "Enregistrer"
+    },
+    "endpointCreate": {
+      "title": "Créer un point de terminaison",
+      "submit": "Créer",
+      "button": "Nouveau point de terminaison"
+    },
+    "endpointTable": {
+      "host": "Hôte",
+      "wireguardId": "WireGuard",
+      "clientId": "Client"
+    },
+    "endpointDelete": {
+      "confirm": "Supprimer ce point de terminaison ?"
+    },
+    "joinNetwork": {
+      "label": "Rejoindre un réseau"
+    },
+    "interfaceField": {
+      "name": "Nom de l'interface",
+      "localAddress": "Adresse locale",
+      "port": "Port",
+      "mtu": "MTU"
+    },
+    "common": {
+      "tags": "Tags",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "networkForm": {
+      "invalidAcl": "Format d'ACL invalide",
+      "name": "Nom du réseau",
+      "cidr": "CIDR",
+      "acl": "Liste de contrôle d'accès",
+      "aclPlaceholder": "Saisissez une ACL JSON",
+      "submit": "Enregistrer le réseau",
+      "aclHelper": "Définissez les règles autoriser/refuser en JSON",
+      "basicHelper": "Informations réseau de base"
+    },
+    "networkCreate": {
+      "title": "Créer un réseau",
+      "tabsBasic": "Basique",
+      "tabsAcl": "ACL",
+      "submit": "Créer le réseau",
+      "trigger": "Nouveau réseau"
+    },
+    "networkDetail": {
+      "invalid": "Réseau introuvable",
+      "invalidDesc": "Le réseau demandé n'existe pas ou a été supprimé",
+      "titleFallback": "Réseau sans nom",
+      "subtitle": "Réseau #{{id}}",
+      "back": "Retour aux réseaux",
+      "edit": "Modifier le réseau",
+      "delete": "Supprimer le réseau",
+      "deleteConfirm": "Confirmer la suppression de ce réseau ?",
+      "tabsOverview": "Vue d'ensemble",
+      "tabsWireguards": "WireGuards",
+      "tabsLinks": "Liens",
+      "tabsTopology": "Topologie",
+      "summaryTitle": "Résumé du réseau",
+      "summaryDesc": "Configuration principale",
+      "unnamed": "Sans nom",
+      "noCidr": "CIDR non défini",
+      "id": "ID du réseau",
+      "aclTitle": "Liste de contrôle d'accès",
+      "aclEmpty": "Aucune ACL configurée",
+      "wireguardsTitle": "WireGuards associés",
+      "wireguardsDesc": "Interfaces WireGuard liées",
+      "linksTitle": "Liens réseau",
+      "linksDesc": "Connexions entre interfaces",
+      "topologyDesc": "Topologie réseau"
+    },
+    "topologySidebar": {
+      "title": "Détails du lien",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "from": "De",
+      "to": "À",
+      "latency": "Latence",
+      "bandwidthUp": "Bande passante montante",
+      "bandwidthDown": "Bande passante descendante",
+      "empty": "Cliquez sur un lien pour voir les détails"
+    },
+    "topologyActions": {
+      "loading": "Actualisation...",
+      "refresh": "Actualiser la topologie",
+      "exitFullscreen": "Quitter le plein écran",
+      "fullscreen": "Plein écran"
+    },
+    "networkEdit": {
+      "title": "Modifier le réseau",
+      "submit": "Enregistrer les changements"
+    },
+    "networkList": {
+      "headerTitle": "Vue d'ensemble des réseaux",
+      "headerDesc": "Gérer les réseaux WireGuard",
+      "headerTotal_one": "{{count}} réseau au total",
+      "headerTotal_many": "{{count}} réseaux au total",
+      "headerTotal_other": "{{count}} réseaux au total",
+      "title": "Réseaux",
+      "subtitle": "Réseaux WireGuard",
+      "metricsTitle": "Métriques",
+      "metricsTotal": "Nombre total de réseaux"
+    },
+    "networkField": {
+      "name": "Nom",
+      "cidr": "CIDR",
+      "acl": "ACL"
+    },
+    "networkActions": {
+      "view": "Voir",
+      "title": "Actions réseau",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "networkDelete": {
+      "confirm": "Confirmer la suppression de ce réseau ?"
+    },
+    "topologyNode": {
+      "id": "Nœud #{{id}}",
+      "unknown": "Nœud inconnu",
+      "peers": "Pairs"
+    },
+    "contextMenu": {
+      "openTerminal": "Ouvrir le terminal"
+    },
+    "wireguardDetail": {
+      "invalid": "WireGuard introuvable",
+      "invalidDesc": "La configuration WireGuard demandée est indisponible",
+      "titleFallback": "Interface sans nom",
+      "subtitle": "WireGuard #{{id}}",
+      "back": "Retour aux WireGuard",
+      "edit": "Modifier la configuration",
+      "delete": "Supprimer",
+      "deleteConfirm": "Supprimer cette configuration WireGuard ?",
+      "tabsOverview": "Aperçu",
+      "tabsEndpoints": "Points de terminaison",
+      "summaryTitle": "Résumé",
+      "summaryDesc": "Informations principales",
+      "noName": "Pas de nom défini",
+      "noAddress": "Pas d'adresse configurée",
+      "networkId": "ID réseau",
+      "tagsTitle": "Tags",
+      "tagsEmpty": "Aucun tag",
+      "endpointsTitle": "Points associés",
+      "endpointsDesc": "Points de terminaison liés"
+    },
+    "wireguardForm": {
+      "interfaceName": "Nom de l'interface",
+      "localAddress": "Adresse locale",
+      "port": "Port d'écoute",
+      "mtu": "MTU",
+      "privateKey": "Clé privée",
+      "tags": "Tags",
+      "selectEndpoint": "Sélectionner un point",
+      "submit": "Enregistrer WireGuard"
+    },
+    "wireguardEdit": {
+      "title": "Modifier WireGuard",
+      "submit": "Enregistrer"
+    },
+    "linkEdit": {
+      "title": "Modifier le lien",
+      "submit": "Enregistrer"
+    },
+    "linkCreate": {
+      "title": "Créer un lien",
+      "submit": "Créer",
+      "button": "Nouveau lien"
+    },
+    "linkForm": {
+      "invalid": "Configuration du lien invalide",
+      "submit": "Enregistrer"
+    },
+    "link": {
+      "from": "Depuis",
+      "to": "Vers",
+      "up_bw": "Débit montant",
+      "down_bw": "Débit descendant",
+      "latency": "Latence",
+      "active": "Actif"
+    },
+    "linkState": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "linkActions": {
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "linkDelete": {
+      "confirm": "Supprimer ce lien ?"
+    },
+    "wireguardList": {
+      "headerTitle": "Interfaces WireGuard",
+      "headerDesc": "Gestion des interfaces",
+      "headerTotal_one": "{{count}} interface",
+      "headerTotal_many": "{{count}} interfaces",
+      "headerTotal_other": "{{count}} interfaces",
+      "title": "WireGuard"
+    },
+    "wireguardActions": {
+      "view": "Voir",
+      "title": "Actions WireGuard",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "wireguardDelete": {
+      "confirm": "Confirmer la suppression ?"
+    },
+    "runtime": {
+      "title": "Statut en temps réel",
+      "subtitle": "Indicateurs WireGuard",
+      "refresh": "Actualiser",
+      "listen_port": "Port d'écoute",
+      "protocol": "Protocole",
+      "peer_count": "Nombre de pairs",
+      "status": "Statut",
+      "status_ok": "En ligne",
+      "status_unknown": "Inconnu",
+      "peer_list": "Liste des pairs",
+      "peer_empty": "Aucun pair connecté",
+      "peer_unknown": "Client inconnu",
+      "peer_endpoint": "Point",
+      "peer_last_handshake": "Dernier handshake",
+      "peer_no_handshake": "Jamais connecté"
+    },
+    "nav": {
+      "section": "Réseau",
+      "networks": "Réseaux",
+      "wireguards": "Dispositifs",
+      "endpoints": "Points de terminaison",
+      "links": "Liens"
+    },
+    "endpointList": {
+      "title": "Points de terminaison"
+    },
+    "linkList": {
+      "title": "Liens"
+    }
   },
   "input": {
     "keyword": {
@@ -146,6 +483,27 @@
       "placeholder": "Veuillez entrer ...",
       "add": "Ajouter"
     }
+  },
+  "common": {
+    "stream_log_pkgs_select": "Journal de Flux Depuis",
+    "download": "Cliquez ici pour télécharger",
+    "copy": "Copier",
+    "submit": "Soumettre",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "userInfo": "Informations Utilisateur",
+    "logout": "Déconnexion",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "add": "Ajouter",
+    "back": "Retour",
+    "saving": "Enregistrement en cours...",
+    "save": "Enregistrer",
+    "failed": "Échec",
+    "clientType": "Type de Client",
+    "disconnect": "Déconnecter",
+    "connect": "Connecter"
   },
   "traffic": {
     "chart": {
@@ -169,26 +527,6 @@
       "outbound": "Sortant Depuis Toujours",
       "total": "Total Depuis Toujours"
     }
-  },
-  "common": {
-    "download": "Cliquez ici pour télécharger",
-    "copy": "Copier",
-    "submit": "Soumettre",
-    "login": "Connexion",
-    "register": "S'inscrire",
-    "userInfo": "Informations Utilisateur",
-    "logout": "Déconnexion",
-    "add": "Ajouter",
-    "back": "Retour",
-    "saving": "Enregistrement en cours...",
-    "save": "Enregistrer",
-    "success": "Succès",
-    "failed": "Échec",
-    "cancel": "Annuler",
-    "clientType": "Type de Client",
-    "disconnect": "Déconnecter",
-    "connect": "Connecter",
-    "stream_log_pkgs_select": "Journal de Flux Depuis"
   },
   "frpc": {
     "client_plugins": {
@@ -250,7 +588,6 @@
       "type": "Type",
       "confirm": "Confirmer",
       "config": "Configuration du Tunnel",
-      "expand_one": "Développer",
       "expand_other": "Développer",
       "delete": "Supprimer",
       "tunnel_name": "Nom du Tunnel",
@@ -441,6 +778,38 @@
     "haveAccount": "Vous avez déjà un compte ?",
     "login": "Connexion"
   },
+  "settings": {
+    "header": {
+      "title": "Paramètres de plateforme",
+      "description": "Modifier les paramètres de la plateforme frontend",
+      "note": "Cette configuration est enregistrée uniquement en local"
+    },
+    "toast": {
+      "updateSuccess": "Paramètres de plateforme mis à jour"
+    },
+    "loading": {
+      "platform": "Chargement des paramètres de plateforme"
+    },
+    "form": {
+      "useServerGithubLabel": "Utiliser le proxy GitHub du serveur",
+      "useServerGithubDescription": "Si activé, télécharger via le proxy configuré par le backend",
+      "githubProxyLabel": "URL du proxy GitHub personnalisé",
+      "githubProxyPlaceholder": "ex. https://ghproxy.com/",
+      "clientApiLabel": "URL API personnalisée",
+      "clientApiPlaceholder": "ex. https://api.example.com/",
+      "clientRpcLabel": "URL RPC personnalisée",
+      "clientRpcPlaceholder": "ex. https://rpc.example.com/"
+    },
+    "actions": {
+      "saveChanges": "Enregistrer les modifications"
+    },
+    "dialog": {
+      "confirmSaveTitle": "Confirmer l'enregistrement",
+      "confirmSaveDescription": "Voulez-vous enregistrer les modifications ?",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    }
+  },
   "platform": {
     "configuredServers": "Serveurs Configurés",
     "unit": " ",
@@ -452,8 +821,7 @@
     "totalClients": "Total Clients"
   },
   "refresh": {
-    "data": "Actualiser les Données",
-    "data_zh": "Actualiser les Données"
+    "data": "Actualiser les Données"
   },
   "team": {
     "title": "Équipes"
@@ -625,23 +993,5 @@
     "save": "Enregistrer",
     "save_success": "Enregistrement réussi",
     "save_error": "Échec de l'enregistrement"
-  },
-  "平台设置": "Paramètres de la plateforme",
-  "修改前端平台设置": "Modifier les préférences du frontal",
-  "已更新平台设置": "Paramètres de la plateforme mis à jour",
-  "使用服务器 Github 代理": "Utiliser le proxy GitHub du serveur",
-  "若开启，则使用后台配置的代理地址下载": "Si activé, l'URL proxy définie côté serveur sera utilisée pour le téléchargement",
-  "自定义 Github 代理地址": "URL proxy GitHub personnalisée",
-  "例如 https://ghproxy.com/": "ex. https://ghproxy.com/",
-  "保存更改": "Enregistrer les modifications",
-  "确认保存": "Confirmer l'enregistrement",
-  "确定保存修改？": "Êtes-vous sûr de vouloir enregistrer les modifications ?",
-  "确认": "Confirmer",
-  "正在加载平台设置": "Chargement des paramètres de la plateforme...",
-  "取消": "Annuler",
-  "自定义 API URL": "URL API personnalisée",
-  "自定义 RPC URL": "URL RPC personnalisée",
-  "例如 https://api.example.com/": "ex. https://api.example.com/",
-  "例如 https://rpc.example.com/": "ex. https://rpc.example.com/",
-  "此配置仅保存在本地": "Ces paramètres sont enregistrés uniquement dans ce navigateur et ne seront pas synchronisés entre les appareils."
+  }
 }

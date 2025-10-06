@@ -144,6 +144,19 @@ func (s *SyncMap[K, V]) Range(f func(key K, value V) (shouldContinue bool)) {
 	s.mu.Unlock()
 }
 
+func (s *SyncMap[K, V]) Export() map[K]V {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	m := make(map[K]V, len(s.m))
+
+	for k, v := range s.m {
+		m[k] = v
+	}
+
+	return m
+}
+
 // Len returns the count of values in the map.
 func (s *SyncMap[K, V]) Len() (l int) {
 	s.mu.Lock()

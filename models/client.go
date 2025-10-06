@@ -14,6 +14,8 @@ import (
 type Client struct {
 	*ClientEntity
 	Workers []*Worker `json:"workers,omitempty" gorm:"many2many:worker_clients;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
+	WireGuard []*WireGuard `json:"wireguard,omitempty" gorm:"foreignKey:ClientID;references:ClientID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 type ClientEntity struct {

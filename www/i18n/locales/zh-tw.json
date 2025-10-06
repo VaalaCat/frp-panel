@@ -1,5 +1,4 @@
 {
-  "平台设置": "平台設置",
   "app": {
     "title": "FRP-Panel",
     "subtitle": "FRP 隧道面板",
@@ -7,6 +6,69 @@
     "github": {
       "navigate": "項目地址：",
       "repo": "VaalaCat/frp-panel"
+    }
+  },
+  "selector": {
+    "common": {
+      "placeholder": "請選擇...",
+      "notFound": "未找到結果",
+      "loading": "加載中..."
+    },
+    "client": {
+      "placeholder": "客戶端名稱"
+    },
+    "proxy": {
+      "notFound": "未找到隧道",
+      "placeholder": "隧道名稱"
+    },
+    "server": {
+      "placeholder": "服務端名稱"
+    }
+  },
+  "canvas": {
+    "panel": {
+      "clients": "客戶端",
+      "servers": "服務器",
+      "confirmClear": "確定要清空所有互動節點嗎？客戶端和服務器節點不會被刪除。",
+      "title": "Canvas",
+      "clear": "清空畫布",
+      "exitFullscreen": "退出全螢幕",
+      "fullscreen": "全螢幕顯示",
+      "selectAgent": "選擇客戶端或服務器",
+      "addNode": "新增節點",
+      "nodeCount": "節點數"
+    },
+    "client": {
+      "unknown": "未知客戶端",
+      "stopped": "已停止"
+    },
+    "contextMenu": {
+      "openTerminal": "開啟終端機",
+      "openLog": "開啟日誌"
+    },
+    "log": {
+      "noClient": "未選擇客戶端",
+      "connected": "已連線",
+      "connecting": "連線中",
+      "error": "連線失敗",
+      "stop": "停止",
+      "start": "開始",
+      "clear": "清空日誌",
+      "selectClient": "請選擇要檢視日誌的客戶端"
+    },
+    "server": {
+      "unknown": "未知服務器",
+      "online": "在線",
+      "offline": "離線"
+    },
+    "terminal": {
+      "noClient": "未選擇客戶端",
+      "connected": "已連線",
+      "connecting": "連線中",
+      "error": "連線失敗",
+      "refresh": "重新整理終端機",
+      "clear": "清空終端機",
+      "selectClient": "請選擇要連線的客戶端"
     }
   },
   "client": {
@@ -19,6 +81,8 @@
       "address": "客戶端地址",
       "connectTime": "連接時間"
     },
+    "status_online": "在線",
+    "status_offline": "離線",
     "create": {
       "submitting": "正在創建客戶端...",
       "error": "創建客戶端失敗",
@@ -99,28 +163,9 @@
       "description": "查看客戶端流量統計信息",
       "label": "客戶端"
     },
-    "status_online": "在線",
-    "status_offline": "離線",
     "status_error": "錯誤",
     "status_pause": "已暫停",
     "status_unknown": "未知"
-  },
-  "selector": {
-    "client": {
-      "placeholder": "客戶端名稱"
-    },
-    "common": {
-      "placeholder": "請選擇...",
-      "notFound": "未找到結果",
-      "loading": "加載中..."
-    },
-    "proxy": {
-      "notFound": "未找到隧道",
-      "placeholder": "隧道名稱"
-    },
-    "server": {
-      "placeholder": "服務端名稱"
-    }
   },
   "table": {
     "pagination": {
@@ -136,7 +181,294 @@
     "filter": {
       "placeholder": "根據 {{column}} 篩選"
     },
-    "noData": "沒有數據"
+    "noData": "沒有數據",
+    "columns": "欄位選擇"
+  },
+  "wg": {
+    "selector": {
+      "endpoint": "端點",
+      "network": "網路",
+      "clientWireguards": "客戶端 WireGuard",
+      "client": "客戶端"
+    },
+    "endpointDetail": {
+      "invalid": "端點不存在",
+      "invalidDesc": "請求的端點不存在或已被刪除",
+      "titleFallback": "未命名端點",
+      "subtitle": "端點 #{{id}}",
+      "back": "返回端點列表",
+      "deleteConfirm": "確定刪除該端點？",
+      "tabsOverview": "概覽",
+      "tabsRelations": "關聯",
+      "summaryTitle": "端點概要",
+      "summaryDesc": "核心資訊與中繼資料",
+      "noHost": "暫無主機資訊",
+      "clientId": "客戶端 ID",
+      "wireguardId": "WireGuard ID",
+      "relatedWireguardsTitle": "關聯 WireGuard",
+      "relatedWireguardsDesc": "使用該端點的 WireGuard",
+      "relatedWireguardsEmpty": "暫無關聯 WireGuard"
+    },
+    "endpointActions": {
+      "edit": "編輯端點",
+      "view": "檢視詳情",
+      "title": "端點操作"
+    },
+    "endpoint": {
+      "delete": "刪除端點"
+    },
+    "endpointForm": {
+      "host": "主機名",
+      "port": "埠號",
+      "submit": "儲存端點"
+    },
+    "interface": {
+      "network_unassigned": "未分配網路",
+      "id": "介面 ID",
+      "name": "介面名稱",
+      "port": "埠號",
+      "client": "客戶端",
+      "tags": "標籤",
+      "network": "網路"
+    },
+    "endpointEdit": {
+      "title": "編輯端點",
+      "submit": "儲存端點"
+    },
+    "endpointCreate": {
+      "title": "建立端點",
+      "submit": "建立端點",
+      "button": "新增端點"
+    },
+    "endpointTable": {
+      "host": "主機",
+      "wireguardId": "WireGuard",
+      "clientId": "客戶端"
+    },
+    "endpointDelete": {
+      "confirm": "此操作無法復原，確定刪除該端點？"
+    },
+    "joinNetwork": {
+      "label": "加入網路"
+    },
+    "interfaceField": {
+      "name": "介面名稱",
+      "localAddress": "本地位址",
+      "port": "埠號",
+      "mtu": "MTU"
+    },
+    "common": {
+      "tags": "標籤",
+      "cancel": "取消",
+      "confirm": "確定"
+    },
+    "networkForm": {
+      "invalidAcl": "ACL 格式不正確",
+      "name": "網路名稱",
+      "cidr": "CIDR",
+      "acl": "存取控制列表",
+      "aclPlaceholder": "請輸入 JSON 格式的 ACL 定義",
+      "submit": "儲存網路",
+      "aclHelper": "使用 JSON 格式定義允許 / 拒絕規則",
+      "basicHelper": "填寫網路基本資訊"
+    },
+    "networkCreate": {
+      "title": "建立網路",
+      "tabsBasic": "基本資訊",
+      "tabsAcl": "ACL",
+      "submit": "建立網路",
+      "trigger": "新增網路"
+    },
+    "networkDetail": {
+      "invalid": "網路不存在",
+      "invalidDesc": "請求的網路不存在或已被刪除",
+      "titleFallback": "未命名網路",
+      "subtitle": "網路 #{{id}}",
+      "back": "返回網路列表",
+      "edit": "編輯網路",
+      "delete": "刪除網路",
+      "deleteConfirm": "確定刪除該網路？",
+      "tabsOverview": "概覽",
+      "tabsWireguards": "WireGuard",
+      "tabsLinks": "連線",
+      "tabsTopology": "拓撲",
+      "summaryTitle": "網路概要",
+      "summaryDesc": "核心網路設定",
+      "unnamed": "未命名",
+      "noCidr": "尚未設定 CIDR",
+      "id": "網路 ID",
+      "aclTitle": "存取控制列表",
+      "aclEmpty": "尚未設定 ACL",
+      "wireguardsTitle": "關聯 WireGuard",
+      "wireguardsDesc": "已註冊的 WireGuard 介面",
+      "linksTitle": "網路連線",
+      "linksDesc": "WireGuard 之間的連線",
+      "topologyDesc": "網路拓撲視覺化"
+    },
+    "topologySidebar": {
+      "title": "連結詳情",
+      "statusActive": "活躍",
+      "statusInactive": "不活躍",
+      "from": "起點",
+      "to": "終點",
+      "latency": "延遲",
+      "bandwidthUp": "上行頻寬",
+      "bandwidthDown": "下行頻寬",
+      "empty": "點擊連結查看詳情"
+    },
+    "topologyActions": {
+      "loading": "重新整理中...",
+      "refresh": "重新整理拓撲",
+      "exitFullscreen": "退出全螢幕",
+      "fullscreen": "全螢幕顯示"
+    },
+    "networkEdit": {
+      "title": "編輯網路",
+      "submit": "儲存變更"
+    },
+    "networkList": {
+      "headerTitle": "網路概覽",
+      "headerDesc": "管理 WireGuard 網路",
+      "headerTotal_other": "共 {{count}} 個網路",
+      "title": "網路",
+      "subtitle": "WireGuard 網路",
+      "metricsTitle": "指標",
+      "metricsTotal": "網路總數"
+    },
+    "networkField": {
+      "name": "名稱",
+      "cidr": "CIDR",
+      "acl": "ACL"
+    },
+    "networkActions": {
+      "view": "檢視",
+      "title": "網路操作",
+      "edit": "編輯",
+      "delete": "刪除"
+    },
+    "networkDelete": {
+      "confirm": "確認刪除該網路？"
+    },
+    "topologyNode": {
+      "id": "節點 #{{id}}",
+      "unknown": "未知節點",
+      "peers": "對等節點"
+    },
+    "contextMenu": {
+      "openTerminal": "開啟終端機"
+    },
+    "wireguardDetail": {
+      "invalid": "WireGuard 不存在",
+      "invalidDesc": "請求的 WireGuard 設定不可用",
+      "titleFallback": "未命名介面",
+      "subtitle": "WireGuard #{{id}}",
+      "back": "返回 WireGuard 列表",
+      "edit": "編輯 WireGuard",
+      "delete": "刪除 WireGuard",
+      "deleteConfirm": "確定刪除該 WireGuard 設定？",
+      "tabsOverview": "概覽",
+      "tabsEndpoints": "端點",
+      "summaryTitle": "WireGuard 概要",
+      "summaryDesc": "核心介面資訊",
+      "noName": "未設定介面名稱",
+      "noAddress": "未設定位址",
+      "networkId": "網路 ID",
+      "tagsTitle": "標籤",
+      "tagsEmpty": "尚無標籤",
+      "endpointsTitle": "關聯端點",
+      "endpointsDesc": "與此 WireGuard 關聯的端點"
+    },
+    "wireguardForm": {
+      "interfaceName": "介面名稱",
+      "localAddress": "本地位址",
+      "port": "監聽埠",
+      "mtu": "MTU",
+      "privateKey": "私鑰",
+      "tags": "標籤",
+      "selectEndpoint": "選擇端點",
+      "submit": "儲存 WireGuard"
+    },
+    "wireguardEdit": {
+      "title": "編輯 WireGuard",
+      "submit": "儲存變更"
+    },
+    "linkEdit": {
+      "title": "編輯連線",
+      "submit": "儲存連線"
+    },
+    "linkCreate": {
+      "title": "建立連線",
+      "submit": "建立連線",
+      "button": "新增連線"
+    },
+    "linkForm": {
+      "invalid": "連線設定不正確",
+      "submit": "儲存連線"
+    },
+    "link": {
+      "from": "起點",
+      "to": "終點",
+      "up_bw": "上行頻寬",
+      "down_bw": "下行頻寬",
+      "latency": "延遲",
+      "active": "狀態"
+    },
+    "linkState": {
+      "active": "活躍",
+      "inactive": "未啟用"
+    },
+    "linkActions": {
+      "edit": "編輯",
+      "delete": "刪除"
+    },
+    "linkDelete": {
+      "confirm": "確定刪除該連線嗎？"
+    },
+    "wireguardList": {
+      "headerTitle": "WireGuard 介面",
+      "headerDesc": "管理 WireGuard 設備",
+      "headerTotal_other": "共 {{count}} 個介面",
+      "title": "WireGuard"
+    },
+    "wireguardActions": {
+      "view": "檢視",
+      "title": "WireGuard 操作",
+      "edit": "編輯",
+      "delete": "刪除"
+    },
+    "wireguardDelete": {
+      "confirm": "確定刪除該 WireGuard？"
+    },
+    "runtime": {
+      "title": "執行狀態",
+      "subtitle": "WireGuard 設備指標",
+      "refresh": "重新整理",
+      "listen_port": "監聽埠",
+      "protocol": "協定",
+      "peer_count": "節點數量",
+      "status": "狀態",
+      "status_ok": "在線",
+      "status_unknown": "未知",
+      "peer_list": "節點列表",
+      "peer_empty": "目前沒有節點連線",
+      "peer_unknown": "未知客戶端",
+      "peer_endpoint": "端點",
+      "peer_last_handshake": "最近握手",
+      "peer_no_handshake": "尚未連線"
+    },
+    "nav": {
+      "section": "組網",
+      "networks": "網路",
+      "wireguards": "設備",
+      "endpoints": "端點",
+      "links": "連線"
+    },
+    "endpointList": {
+      "title": "端點"
+    },
+    "linkList": {
+      "title": "連線"
+    }
   },
   "input": {
     "keyword": {
@@ -147,6 +479,27 @@
       "placeholder": "請輸入...",
       "add": "添加"
     }
+  },
+  "common": {
+    "stream_log_pkgs_select": "捕獲日志的模塊",
+    "download": "點擊這里下載",
+    "copy": "覆制",
+    "submit": "提交",
+    "login": "登錄",
+    "register": "注冊",
+    "userInfo": "用戶信息",
+    "logout": "退出登錄",
+    "success": "成功",
+    "cancel": "取消",
+    "loading": "載入中...",
+    "add": "添加",
+    "back": "返回",
+    "saving": "保存中",
+    "save": "保存",
+    "failed": "失敗",
+    "clientType": "客戶端類型",
+    "disconnect": "斷開連接",
+    "connect": "連接"
   },
   "traffic": {
     "chart": {
@@ -170,26 +523,6 @@
       "outbound": "歷史出站",
       "total": "歷史總流量"
     }
-  },
-  "common": {
-    "download": "點擊這里下載",
-    "copy": "覆制",
-    "submit": "提交",
-    "login": "登錄",
-    "register": "注冊",
-    "userInfo": "用戶信息",
-    "logout": "退出登錄",
-    "add": "添加",
-    "back": "返回",
-    "saving": "保存中",
-    "save": "保存",
-    "success": "成功",
-    "failed": "失敗",
-    "cancel": "取消",
-    "clientType": "客戶端類型",
-    "disconnect": "斷開連接",
-    "connect": "連接",
-    "stream_log_pkgs_select": "捕獲日志的模塊"
   },
   "frpc": {
     "client_plugins": {
@@ -441,6 +774,38 @@
     "haveAccount": "已有賬號？",
     "login": "登錄"
   },
+  "settings": {
+    "header": {
+      "title": "平台設定",
+      "description": "修改前端平台設定",
+      "note": "此配置僅保存在本地"
+    },
+    "toast": {
+      "updateSuccess": "已更新平台設定"
+    },
+    "loading": {
+      "platform": "正在載入平台設定"
+    },
+    "form": {
+      "useServerGithubLabel": "使用伺服器 GitHub 代理",
+      "useServerGithubDescription": "若開啟，將使用後台配置的代理地址下載",
+      "githubProxyLabel": "自訂 GitHub 代理地址",
+      "githubProxyPlaceholder": "例如 https://ghproxy.com/",
+      "clientApiLabel": "自訂 API URL",
+      "clientApiPlaceholder": "例如 https://api.example.com/",
+      "clientRpcLabel": "自訂 RPC URL",
+      "clientRpcPlaceholder": "例如 https://rpc.example.com/"
+    },
+    "actions": {
+      "saveChanges": "儲存變更"
+    },
+    "dialog": {
+      "confirmSaveTitle": "確認儲存",
+      "confirmSaveDescription": "確定要儲存變更嗎？",
+      "cancel": "取消",
+      "confirm": "確認"
+    }
+  },
   "platform": {
     "configuredServers": "已配置服務端數",
     "unit": "個",
@@ -624,22 +989,5 @@
     "save": "保存",
     "save_success": "保存成功",
     "save_error": "保存失敗"
-  },
-  "修改前端平台设置": "修改前端平台設定",
-  "已更新平台设置": "平台設定已更新",
-  "使用服务器 Github 代理": "使用伺服器 GitHub 代理",
-  "若开启，则使用后台配置的代理地址下载": "若開啟，將使用後端配置的代理位址下載",
-  "自定义 Github 代理地址": "自訂 GitHub 代理位址",
-  "例如 https://ghproxy.com/": "例如 https://ghproxy.com/",
-  "保存更改": "儲存變更",
-  "确认保存": "確認保存",
-  "确定保存修改？": "確定保存變更？",
-  "确认": "確認",
-  "正在加载平台设置": "正在載入平台設定...",
-  "取消": "取消",
-  "自定义 API URL": "自訂 API URL",
-  "自定义 RPC URL": "自訂 RPC URL",
-  "例如 https://api.example.com/": "例如 https://api.example.com/",
-  "例如 https://rpc.example.com/": "例如 https://rpc.example.com/",
-  "此配置仅保存在本地": "此設定僅儲存在此瀏覽器中，不會在裝置間同步。"
+  }
 }

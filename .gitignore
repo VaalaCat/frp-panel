@@ -2,7 +2,7 @@
 __debug*
 .env
 tmp
-*.db
+*.db*
 frp-panel
 out
 cmd/out

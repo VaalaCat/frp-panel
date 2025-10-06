@@ -1,0 +1,231 @@
+syntax = "proto3";
+
+package api_wireguard;
+option go_package = "../pb";
+
+import "common.proto";
+import "types_wg.proto";
+
+message CreateNetworkRequest {
+  optional wireguard.Network network = 1;
+}
+
+message CreateNetworkResponse {
+  optional common.Status status = 1;
+  optional wireguard.Network network = 2;
+}
+
+message DeleteNetworkRequest {
+  optional uint32 id = 1;
+}
+
+message DeleteNetworkResponse {
+  optional common.Status status = 1;
+}
+
+message UpdateNetworkRequest {
+  optional wireguard.Network network = 1;
+}
+
+message UpdateNetworkResponse {
+  optional common.Status status = 1;
+  optional wireguard.Network network = 2;
+}
+
+message GetNetworkRequest {
+  optional uint32 id = 1;
+}
+
+message GetNetworkResponse {
+  optional common.Status status = 1;
+  optional wireguard.Network network = 2;
+}
+
+message ListNetworksRequest {
+  optional int32 page = 1;
+  optional int32 page_size = 2;
+  optional string keyword = 3;
+}
+
+message ListNetworksResponse {
+  optional common.Status status = 1;
+  optional int32 total = 2;
+  repeated wireguard.Network networks = 3;
+}
+
+message GetNetworkTopologyRequest {
+  optional uint32 id = 1;
+}
+
+message GetNetworkTopologyResponse {
+  optional common.Status status = 1;
+  map<uint32, wireguard.WireGuardLinks> adjs = 2;
+}
+
+message CreateEndpointRequest {
+  optional wireguard.Endpoint endpoint = 1;
+}
+
+message CreateEndpointResponse {
+  optional common.Status status = 1;
+  optional wireguard.Endpoint endpoint = 2;
+}
+
+message DeleteEndpointRequest {
+  optional uint32 id = 1;
+}
+
+message DeleteEndpointResponse {
+  optional common.Status status = 1;
+}
+
+message UpdateEndpointRequest {
+  optional wireguard.Endpoint endpoint = 1;
+}
+
+message UpdateEndpointResponse {
+  optional common.Status status = 1;
+  optional wireguard.Endpoint endpoint = 2;
+}
+
+message GetEndpointRequest {
+  optional uint32 id = 1;
+}
+
+message GetEndpointResponse {
+  optional common.Status status = 1;
+  optional wireguard.Endpoint endpoint = 2;
+}
+
+message ListEndpointsRequest {
+  optional int32 page = 1;
+  optional int32 page_size = 2;
+  optional string keyword = 3;
+  optional string client_id = 4;
+  optional uint32 wireguard_id = 5;
+}
+
+message ListEndpointsResponse {
+  optional common.Status status = 1;
+  optional int32 total = 2;
+  repeated wireguard.Endpoint endpoints = 3;
+}
+
+message CreateWireGuardRequest {
+  optional wireguard.WireGuardConfig wireguard_config = 1;
+}
+
+message CreateWireGuardResponse {
+  optional common.Status status = 1;
+  optional wireguard.WireGuardConfig wireguard_config = 2;
+}
+
+message DeleteWireGuardRequest {
+  optional uint32 id = 1;
+  optional string client_id = 2;
+  optional string interface_name = 3;
+}
+
+message DeleteWireGuardResponse {
+  optional common.Status status = 1;
+}
+
+message UpdateWireGuardRequest {
+  optional wireguard.WireGuardConfig wireguard_config = 1;
+  enum UpdateType {
+    UPDATE_TYPE_ADD_PEER = 0;
+    UPDATE_TYPE_REMOVE_PEER = 1;
+    UPDATE_TYPE_UPDATE_PEER = 2;
+    UPDATE_TYPE_PATCH_PEERS = 3;
+  }
+  optional UpdateType update_type = 2;
+}
+
+message UpdateWireGuardResponse {
+  optional common.Status status = 1;
+  optional wireguard.WireGuardConfig wireguard_config = 2;
+}
+
+message GetWireGuardRequest {
+  optional uint32 id = 1;
+  optional string client_id = 2;
+  optional string interface_name = 3;
+}
+
+message GetWireGuardResponse {
+  optional common.Status status = 1;
+  optional wireguard.WireGuardConfig wireguard_config = 2;
+}
+
+message GetWireGuardRuntimeInfoRequest {
+  optional uint32 id = 1;
+  optional string client_id = 2;
+  optional string interface_name = 3;
+}
+
+message GetWireGuardRuntimeInfoResponse {
+  optional common.Status status = 1;
+  optional wireguard.WGDeviceRuntimeInfo wg_device_runtime_info = 2;
+}
+
+message ListWireGuardsRequest {
+  optional int32 page = 1;
+  optional int32 page_size = 2;
+  optional string keyword = 3;
+  optional string client_id = 4;
+  optional uint32 network_id = 5;
+}
+
+message ListWireGuardsResponse {
+  optional common.Status status = 1;
+  optional int32 total = 2;
+  repeated wireguard.WireGuardConfig wireguard_configs = 3;
+}
+
+message CreateWireGuardLinkRequest {
+  optional wireguard.WireGuardLink wireguard_link = 1;
+}
+
+message CreateWireGuardLinkResponse {
+  optional common.Status status = 1;
+  optional wireguard.WireGuardLink wireguard_link = 2;
+}
+
+message DeleteWireGuardLinkRequest {
+  optional uint32 id = 1;
+}
+
+message DeleteWireGuardLinkResponse {
+  optional common.Status status = 1;
+}
+
+message UpdateWireGuardLinkRequest {
+  optional wireguard.WireGuardLink wireguard_link = 1;
+}
+
+message UpdateWireGuardLinkResponse {
+  optional common.Status status = 1;
+  optional wireguard.WireGuardLink wireguard_link = 2;
+}
+
+message GetWireGuardLinkRequest {
+  optional uint32 id = 1;
+}
+
+message GetWireGuardLinkResponse {
+  optional common.Status status = 1;
+  optional wireguard.WireGuardLink wireguard_link = 2;
+}
+
+message ListWireGuardLinksRequest {
+  optional int32 page = 1;
+  optional int32 page_size = 2;
+  optional string keyword = 3;
+  optional uint32 network_id = 4;
+}
+
+message ListWireGuardLinksResponse {
+  optional common.Status status = 1;
+  optional int32 total = 2;
+  repeated wireguard.WireGuardLink wireguard_links = 3;
+}

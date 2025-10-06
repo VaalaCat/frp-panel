@@ -8,6 +8,69 @@
       "repo": "VaalaCat/frp-panel"
     }
   },
+  "selector": {
+    "common": {
+      "placeholder": "请选择...",
+      "notFound": "未找到结果",
+      "loading": "加载中..."
+    },
+    "client": {
+      "placeholder": "客户端名称"
+    },
+    "proxy": {
+      "notFound": "未找到隧道",
+      "placeholder": "隧道名称"
+    },
+    "server": {
+      "placeholder": "服务端名称"
+    }
+  },
+  "canvas": {
+    "panel": {
+      "clients": "客户端",
+      "servers": "服务器",
+      "confirmClear": "确定要清空所有交互节点吗？客户端和服务器节点不会被删除。",
+      "title": "Canvas",
+      "clear": "清空画布",
+      "exitFullscreen": "退出全屏",
+      "fullscreen": "全屏显示",
+      "selectAgent": "选择客户端或服务器",
+      "addNode": "添加节点",
+      "nodeCount": "节点数"
+    },
+    "client": {
+      "unknown": "未知客户端",
+      "stopped": "已停止"
+    },
+    "contextMenu": {
+      "openTerminal": "打开终端",
+      "openLog": "打开日志"
+    },
+    "log": {
+      "noClient": "未选择客户端",
+      "connected": "已连接",
+      "connecting": "连接中",
+      "error": "连接失败",
+      "stop": "停止",
+      "start": "开始",
+      "clear": "清空日志",
+      "selectClient": "请选择要查看日志的客户端"
+    },
+    "server": {
+      "unknown": "未知服务器",
+      "online": "在线",
+      "offline": "离线"
+    },
+    "terminal": {
+      "noClient": "未选择客户端",
+      "connected": "已连接",
+      "connecting": "连接中",
+      "error": "连接失败",
+      "refresh": "刷新终端",
+      "clear": "清空终端",
+      "selectClient": "请选择要连接的客户端"
+    }
+  },
   "client": {
     "detail": {
       "title": "客户端信息",
@@ -18,6 +81,8 @@
       "address": "客户端地址",
       "connectTime": "连接时间"
     },
+    "status_online": "在线",
+    "status_offline": "离线",
     "create": {
       "submitting": "正在创建客户端...",
       "error": "创建客户端失败",
@@ -98,28 +163,9 @@
       "description": "查看客户端流量统计信息",
       "label": "客户端"
     },
-    "status_online": "在线",
-    "status_offline": "离线",
     "status_error": "错误",
     "status_pause": "已暂停",
     "status_unknown": "未知"
-  },
-  "selector": {
-    "client": {
-      "placeholder": "客户端名称"
-    },
-    "common": {
-      "placeholder": "请选择...",
-      "notFound": "未找到结果",
-      "loading": "加载中..."
-    },
-    "proxy": {
-      "notFound": "未找到隧道",
-      "placeholder": "隧道名称"
-    },
-    "server": {
-      "placeholder": "服务端名称"
-    }
   },
   "table": {
     "pagination": {
@@ -135,7 +181,294 @@
     "filter": {
       "placeholder": "根据 {{column}} 筛选"
     },
-    "noData": "没有数据"
+    "noData": "没有数据",
+    "columns": "列选择"
+  },
+  "wg": {
+    "selector": {
+      "endpoint": "端点",
+      "network": "网络",
+      "clientWireguards": "客户端 WireGuard",
+      "client": "客户端"
+    },
+    "endpointDetail": {
+      "invalid": "端点不存在",
+      "invalidDesc": "请求的端点不存在或已被删除",
+      "titleFallback": "未命名端点",
+      "subtitle": "端点 #{{id}}",
+      "back": "返回端点列表",
+      "deleteConfirm": "确定删除该端点？",
+      "tabsOverview": "概览",
+      "tabsRelations": "关联",
+      "summaryTitle": "端点概要",
+      "summaryDesc": "核心信息与元数据",
+      "noHost": "暂无主机信息",
+      "clientId": "客户端 ID",
+      "wireguardId": "WireGuard ID",
+      "relatedWireguardsTitle": "关联 WireGuard",
+      "relatedWireguardsDesc": "使用该端点的 WireGuard",
+      "relatedWireguardsEmpty": "暂无关联 WireGuard"
+    },
+    "endpointActions": {
+      "edit": "编辑端点",
+      "view": "查看详情",
+      "title": "端点操作"
+    },
+    "endpoint": {
+      "delete": "删除端点"
+    },
+    "endpointForm": {
+      "host": "主机名",
+      "port": "端口",
+      "submit": "保存端点"
+    },
+    "interface": {
+      "network_unassigned": "未分配网络",
+      "id": "接口 ID",
+      "name": "接口名称",
+      "port": "端口",
+      "client": "客户端",
+      "tags": "标签",
+      "network": "网络"
+    },
+    "endpointEdit": {
+      "title": "编辑端点",
+      "submit": "保存端点"
+    },
+    "endpointCreate": {
+      "title": "创建端点",
+      "submit": "创建端点",
+      "button": "新建端点"
+    },
+    "endpointTable": {
+      "host": "主机",
+      "wireguardId": "WireGuard",
+      "clientId": "客户端"
+    },
+    "endpointDelete": {
+      "confirm": "该操作无法撤销，确定要删除该端点吗？"
+    },
+    "joinNetwork": {
+      "label": "加入网络"
+    },
+    "interfaceField": {
+      "name": "接口名称",
+      "localAddress": "本地地址",
+      "port": "端口",
+      "mtu": "MTU"
+    },
+    "common": {
+      "tags": "标签",
+      "cancel": "取消",
+      "confirm": "确定"
+    },
+    "networkForm": {
+      "invalidAcl": "ACL 格式不正确",
+      "name": "网络名称",
+      "cidr": "CIDR",
+      "acl": "访问控制列表",
+      "aclPlaceholder": "请输入 JSON 格式的 ACL 定义",
+      "submit": "保存网络",
+      "aclHelper": "使用 JSON 格式定义允许/拒绝规则",
+      "basicHelper": "填写网络基础信息"
+    },
+    "networkCreate": {
+      "title": "创建网络",
+      "tabsBasic": "基础信息",
+      "tabsAcl": "ACL",
+      "submit": "创建网络",
+      "trigger": "新建网络"
+    },
+    "networkDetail": {
+      "invalid": "网络不存在",
+      "invalidDesc": "请求的网络不存在或已被删除",
+      "titleFallback": "未命名网络",
+      "subtitle": "网络 #{{id}}",
+      "back": "返回网络列表",
+      "edit": "编辑网络",
+      "delete": "删除网络",
+      "deleteConfirm": "确定删除该网络？",
+      "tabsOverview": "概览",
+      "tabsWireguards": "WireGuard",
+      "tabsLinks": "连接",
+      "tabsTopology": "拓扑",
+      "summaryTitle": "网络概要",
+      "summaryDesc": "核心网络配置",
+      "unnamed": "未命名",
+      "noCidr": "未配置 CIDR",
+      "id": "网络 ID",
+      "aclTitle": "访问控制列表",
+      "aclEmpty": "尚未配置 ACL",
+      "wireguardsTitle": "关联 WireGuard",
+      "wireguardsDesc": "已注册的 WireGuard 接口",
+      "linksTitle": "网络连接",
+      "linksDesc": "WireGuard 设备之间的连接",
+      "topologyDesc": "网络拓扑可视化"
+    },
+    "topologySidebar": {
+      "title": "链路详情",
+      "statusActive": "活跃",
+      "statusInactive": "不活跃",
+      "from": "起点",
+      "to": "终点",
+      "latency": "延迟",
+      "bandwidthUp": "上行带宽",
+      "bandwidthDown": "下行带宽",
+      "empty": "点击链路查看详情"
+    },
+    "topologyActions": {
+      "loading": "刷新中...",
+      "refresh": "刷新拓扑",
+      "exitFullscreen": "退出全屏",
+      "fullscreen": "全屏显示"
+    },
+    "networkEdit": {
+      "title": "编辑网络",
+      "submit": "保存修改"
+    },
+    "networkList": {
+      "headerTitle": "网络总览",
+      "headerDesc": "管理 WireGuard 网络",
+      "headerTotal_other": "共 {{count}} 个网络",
+      "title": "网络",
+      "subtitle": "WireGuard 网络",
+      "metricsTitle": "指标",
+      "metricsTotal": "网络总数"
+    },
+    "networkField": {
+      "name": "名称",
+      "cidr": "CIDR",
+      "acl": "ACL"
+    },
+    "networkActions": {
+      "view": "查看",
+      "title": "网络操作",
+      "edit": "编辑",
+      "delete": "删除"
+    },
+    "networkDelete": {
+      "confirm": "确认删除该网络？"
+    },
+    "topologyNode": {
+      "id": "节点 #{{id}}",
+      "unknown": "未知节点",
+      "peers": "对等节点"
+    },
+    "contextMenu": {
+      "openTerminal": "打开终端"
+    },
+    "wireguardDetail": {
+      "invalid": "WireGuard 不存在",
+      "invalidDesc": "请求的 WireGuard 配置不可用",
+      "titleFallback": "未命名接口",
+      "subtitle": "WireGuard #{{id}}",
+      "back": "返回 WireGuard 列表",
+      "edit": "编辑 WireGuard",
+      "delete": "删除 WireGuard",
+      "deleteConfirm": "确定删除该 WireGuard 配置？",
+      "tabsOverview": "概览",
+      "tabsEndpoints": "端点",
+      "summaryTitle": "WireGuard 概要",
+      "summaryDesc": "核心接口信息",
+      "noName": "未配置接口名称",
+      "noAddress": "未配置地址",
+      "networkId": "网络 ID",
+      "tagsTitle": "标签",
+      "tagsEmpty": "暂无标签",
+      "endpointsTitle": "关联端点",
+      "endpointsDesc": "与此 WireGuard 关联的端点"
+    },
+    "wireguardForm": {
+      "interfaceName": "接口名称",
+      "localAddress": "本地地址",
+      "port": "监听端口",
+      "mtu": "MTU",
+      "privateKey": "私钥",
+      "tags": "标签",
+      "selectEndpoint": "选择端点",
+      "submit": "保存 WireGuard"
+    },
+    "wireguardEdit": {
+      "title": "编辑 WireGuard",
+      "submit": "保存修改"
+    },
+    "linkEdit": {
+      "title": "编辑连接",
+      "submit": "保存连接"
+    },
+    "linkCreate": {
+      "title": "创建连接",
+      "submit": "创建连接",
+      "button": "新建连接"
+    },
+    "linkForm": {
+      "invalid": "连接配置不正确",
+      "submit": "保存连接"
+    },
+    "link": {
+      "from": "起点",
+      "to": "终点",
+      "up_bw": "上行带宽",
+      "down_bw": "下行带宽",
+      "latency": "延迟",
+      "active": "状态"
+    },
+    "linkState": {
+      "active": "活跃",
+      "inactive": "未激活"
+    },
+    "linkActions": {
+      "edit": "编辑",
+      "delete": "删除"
+    },
+    "linkDelete": {
+      "confirm": "确定删除该连接吗？"
+    },
+    "wireguardList": {
+      "headerTitle": "WireGuard 接口",
+      "headerDesc": "管理 WireGuard 设备",
+      "headerTotal_other": "共 {{count}} 个接口",
+      "title": "WireGuard"
+    },
+    "wireguardActions": {
+      "view": "查看",
+      "title": "WireGuard 操作",
+      "edit": "编辑",
+      "delete": "删除"
+    },
+    "wireguardDelete": {
+      "confirm": "确定删除该 WireGuard？"
+    },
+    "runtime": {
+      "title": "运行状态",
+      "subtitle": "WireGuard 设备指标",
+      "refresh": "刷新",
+      "listen_port": "监听端口",
+      "protocol": "协议",
+      "peer_count": "节点数量",
+      "status": "状态",
+      "status_ok": "在线",
+      "status_unknown": "未知",
+      "peer_list": "节点列表",
+      "peer_empty": "暂无节点连接",
+      "peer_unknown": "未知客户端",
+      "peer_endpoint": "端点",
+      "peer_last_handshake": "最近握手",
+      "peer_no_handshake": "尚未连接"
+    },
+    "nav": {
+      "section": "组网",
+      "networks": "网络",
+      "wireguards": "设备",
+      "endpoints": "端点",
+      "links": "连接"
+    },
+    "endpointList": {
+      "title": "端点"
+    },
+    "linkList": {
+      "title": "连接"
+    }
   },
   "input": {
     "keyword": {
@@ -146,6 +479,27 @@
       "placeholder": "请输入...",
       "add": "添加"
     }
+  },
+  "common": {
+    "stream_log_pkgs_select": "捕获日志的模块",
+    "download": "点击这里下载",
+    "copy": "复制",
+    "submit": "提交",
+    "login": "登录",
+    "register": "注册",
+    "userInfo": "用户信息",
+    "logout": "退出登录",
+    "success": "成功",
+    "cancel": "取消",
+    "loading": "加载中...",
+    "add": "添加",
+    "back": "返回",
+    "saving": "保存中",
+    "save": "保存",
+    "failed": "失败",
+    "clientType": "客户端类型",
+    "disconnect": "断开连接",
+    "connect": "连接"
   },
   "traffic": {
     "chart": {
@@ -169,26 +523,6 @@
       "outbound": "历史出站",
       "total": "历史总流量"
     }
-  },
-  "common": {
-    "download": "点击这里下载",
-    "copy": "复制",
-    "submit": "提交",
-    "login": "登录",
-    "register": "注册",
-    "userInfo": "用户信息",
-    "logout": "退出登录",
-    "add": "添加",
-    "back": "返回",
-    "saving": "保存中",
-    "save": "保存",
-    "success": "成功",
-    "failed": "失败",
-    "cancel": "取消",
-    "clientType": "客户端类型",
-    "disconnect": "断开连接",
-    "connect": "连接",
-    "stream_log_pkgs_select": "捕获日志的模块"
   },
   "frpc": {
     "client_plugins": {
@@ -440,6 +774,38 @@
     "haveAccount": "已有账号？",
     "login": "登录"
   },
+  "settings": {
+    "header": {
+      "title": "平台设置",
+      "description": "修改前端平台设置",
+      "note": "此配置仅保存在本地"
+    },
+    "toast": {
+      "updateSuccess": "已更新平台设置"
+    },
+    "loading": {
+      "platform": "正在加载平台设置"
+    },
+    "form": {
+      "useServerGithubLabel": "使用服务器 Github 代理",
+      "useServerGithubDescription": "若开启，则使用后台配置的代理地址下载",
+      "githubProxyLabel": "自定义 Github 代理地址",
+      "githubProxyPlaceholder": "例如 https://ghproxy.com/",
+      "clientApiLabel": "自定义 API URL",
+      "clientApiPlaceholder": "例如 https://api.example.com/",
+      "clientRpcLabel": "自定义 RPC URL",
+      "clientRpcPlaceholder": "例如 https://rpc.example.com/"
+    },
+    "actions": {
+      "saveChanges": "保存更改"
+    },
+    "dialog": {
+      "confirmSaveTitle": "确认保存",
+      "confirmSaveDescription": "确定保存修改？",
+      "cancel": "取消",
+      "confirm": "确认"
+    }
+  },
   "platform": {
     "configuredServers": "已配置服务端数",
     "unit": "个",
@@ -623,23 +989,5 @@
     "save": "保存",
     "save_success": "保存成功",
     "save_error": "保存失败"
-  },
-  "平台设置": "平台设置",
-  "修改前端平台设置": "修改前端平台设置",
-  "已更新平台设置": "已更新平台设置",
-  "使用服务器 Github 代理": "使用服务器 Github 代理",
-  "若开启，则使用后台配置的代理地址下载": "若开启，则使用后台配置的代理地址下载",
-  "自定义 Github 代理地址": "自定义 Github 代理地址",
-  "例如 https://ghproxy.com/": "例如 https://ghproxy.com/",
-  "保存更改": "保存更改",
-  "确认保存": "确认保存",
-  "确定保存修改？": "确定保存修改？",
-  "确认": "确认",
-  "正在加载平台设置": "正在加载平台设置",
-  "取消": "取消",
-  "自定义 API URL": "自定义 API URL",
-  "自定义 RPC URL": "自定义 RPC URL",
-  "例如 https://api.example.com/": "例如 https://api.example.com/",
-  "例如 https://rpc.example.com/": "例如 https://rpc.example.com/",
-  "此配置仅保存在本地": "该设置仅保存在当前浏览器，不会同步到其他设备"
+  }
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/VaalaCat/frp-panel/services/rbac"
 	"github.com/VaalaCat/frp-panel/services/rpc"
 	"github.com/VaalaCat/frp-panel/services/watcher"
+	"github.com/VaalaCat/frp-panel/services/wg"
 	"github.com/VaalaCat/frp-panel/services/workerd"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
@@ -62,6 +63,7 @@ func NewBaseApp(param struct {
 	appInstance.SetStreamLogHookMgr(param.HookMgr)
 	appInstance.SetShellPTYMgr(param.PtyMgr)
 	appInstance.SetClientRecvMap(&sync.Map{})
+	appInstance.SetNetworkTopologyCache(wg.NewNetworkTopologyCache())
 	return appInstance
 }
 
@@ -391,4 +393,8 @@ func NewWorkerExecManager(cfg conf.Config, appInstance app.Application) app.Work
 		[]string{"serve", "--watch", "--verbose"})
 	appInstance.SetWorkerExecManager(mgr)
 	return mgr
+}
+
+func NewWireGuardManager(appInstance app.Application) app.WireGuardManager {
+	return wg.NewWireGuardManager(appInstance)
 }

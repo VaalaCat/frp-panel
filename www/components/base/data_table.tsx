@@ -25,21 +25,25 @@ interface DataTableProps<TData, TValue> {
   data?: TData[]
   filterColumnName?: string
   table: TableType<TData>
+  toolbar?: React.ReactNode
 }
 
-export function DataTable<TData, TValue>({ columns, filterColumnName, table }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, filterColumnName, table, toolbar }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation()
 
   return (
-    <div>
-      {filterColumnName && (
-        <div className="flex flex-1 items-center py-4">
-          <Input
-            placeholder={t('table.filter.placeholder', { column: filterColumnName })}
-            value={(table.getColumn(filterColumnName)?.getFilterValue() as string) ?? ''}
-            onChange={(event) => table.getColumn(filterColumnName)?.setFilterValue(event.target.value)}
-            className="max-w-sm"
-          />
+    <div className="space-y-4">
+      {(toolbar || filterColumnName) && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {filterColumnName ? (
+            <Input
+              placeholder={t('table.filter.placeholder', { column: filterColumnName })}
+              value={(table.getColumn(filterColumnName)?.getFilterValue() as string) ?? ''}
+              onChange={(event) => table.getColumn(filterColumnName)?.setFilterValue(event.target.value)}
+              className="max-w-sm"
+            />
+          ) : null}
+          {toolbar && <div className="flex items-center gap-2">{toolbar}</div>}
         </div>
       )}
       <div className="rounded-md border">

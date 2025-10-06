@@ -1,126 +1,55 @@
 {
   "nav": {
-    "user": {
-      "profile": "Profile",
-      "settings": "Settings"
+    "wireguard": "WireGuard",
+    "canvas": "Visual Canvas"
+  },
+  "平台设置": "Platform Settings",
+  "修改前端平台设置": "Modify frontend preferences",
+  "已更新平台设置": "Platform settings updated",
+  "使用服务器 Github 代理": "Use server GitHub proxy",
+  "若开启，则使用后台配置的代理地址下载": "If enabled, backend proxy URL will be used for downloads",
+  "自定义 Github 代理地址": "Custom GitHub proxy URL",
+  "例如 https://ghproxy.com/": "e.g. https://ghproxy.com/",
+  "保存更改": "Save changes",
+  "确认保存": "Confirm save",
+  "确定保存修改？": "Are you sure to save changes?",
+  "确认": "Confirm",
+  "正在加载平台设置": "Loading platform settings...",
+  "取消": "Cancel",
+  "自定义 API URL": "Custom API URL",
+  "自定义 RPC URL": "Custom RPC URL",
+  "例如 https://api.example.com/": "e.g. https://api.example.com/",
+  "例如 https://rpc.example.com/": "e.g. https://rpc.example.com/",
+  "此配置仅保存在本地": "These settings are stored only in this browser and will not sync across devices.",
+  "wg": {
+    "topologySidebar": {
+      "id": "Link #{{id}}",
+      "active": "Status: {{status}}"
+    },
+    "terminalNode": {
+      "title": "Terminal",
+      "newTerminal": "New Terminal",
+      "minimize": "Minimize",
+      "maximize": "Maximize",
+      "noClient": "No Client Selected",
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "error": "Connection Failed",
+      "refresh": "Refresh Terminal",
+      "clear": "Clear Terminal",
+      "selectClient": "Please select a client to connect"
+    },
+    "dashboard": {
+      "quickEntry": "Quick actions"
     }
   },
-  "traffic": {
-    "stats": {
-      "title": "Traffic Statistics",
-      "description": "View real-time traffic statistics",
-      "label": "Traffic Stats"
+  "canvas": {
+    "log": {
+      "title": "Log"
     },
-    "chart": {
-      "pie": {
-        "total": "Total Traffic"
-      }
+    "panel": {
+      "searchAgent": "Search client or server...",
+      "refresh": "Refresh Data"
     }
-  },
-  "common": {
-    "refresh": "Refresh",
-    "clear": "Clear",
-    "streamlog": "Stream Log",
-    "loading": "Loading...",
-    "error": "Error",
-    "warning": "Warning",
-    "info": "Information",
-    "delete": "Delete",
-    "edit": "Edit",
-    "newWindow": "New Window"
-  },
-  "auth": {
-    "email": {
-      "required": "Cannot be empty",
-      "invalid": "Please check your email address"
-    },
-    "confirmPassword": "Confirm Password"
-  },
-  "validation": {
-    "required": "Required field",
-    "portRange": {
-      "min": "Port cannot be less than 1",
-      "max": "Port cannot be greater than 65535"
-    },
-    "ipAddress": "Please enter a valid IP address"
-  },
-  "platform": {
-    "refresh": {
-      "data": "Refresh Data"
-    }
-  },
-  "server": {
-    "actions": "Actions",
-    "install": {
-      "copy": "Copy Command"
-    },
-    "start": {
-      "copy": "Copy Command"
-    },
-    "actions_menu": {
-      "edit": "Edit",
-      "start": "Start",
-      "stop": "Stop",
-      "detail": "Details"
-    },
-    "operation": {
-      "stop_success": "Stop successful",
-      "stop_failed": "Stop failed",
-      "start_success": "Start successful",
-      "start_failed": "Start failed"
-    }
-  },
-  "client": {
-    "actions": "Actions",
-    "install": {
-      "copy": "Copy Command"
-    },
-    "join": {
-      "copy": "Copy Command"
-    },
-    "start": {
-      "copy": "Copy Command"
-    },
-    "actions_menu": {
-      "edit": "Edit",
-      "start": "Start",
-      "stop": "Stop",
-      "detail": "Details",
-      "copy_command": "Copy Start Command"
-    },
-    "upgrade": ""
-  },
-  "proxy": {
-    "stats": {
-      "today_traffic_title": "Today's Traffic",
-      "today_traffic_total": "Today's Total",
-      "history_traffic_title": "Historical Traffic",
-      "history_traffic_total": "Historical Total"
-    },
-    "form": {
-      "expand": "Click to expand {{count}} tunnels",
-      "save": "Save",
-      "save_success": "Save successful",
-      "save_error": "Save failed",
-      "default_port": "Default Port",
-      "port_placeholder": "Port (1-65535)",
-      "ip_placeholder": "IP Address (eg. 127.0.0.1)",
-      "secret_placeholder": "Input Secret Key"
-    },
-    "config": {
-      "close": "Close"
-    }
-  },
-  "team": {
-    "add": "Add Team"
-  },
-  "language": {
-    "toggle": "Toggle Language",
-    "zh": "Chinese",
-    "en": "English"
-  },
-  "worker": {
-    "name": "Worker Name",
-    "id": "Worker ID"
   }
 }

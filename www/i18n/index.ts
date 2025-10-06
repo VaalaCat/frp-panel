@@ -4,7 +4,7 @@ import { $language } from '@/store/user';
 import enTranslation from './locales/en.json';
 import frTranslation from './locales/fr.json';
 import zhTranslation from './locales/zh.json';
-import zhtwTranslation from './locales/zhtw.json';
+import zhtwTranslation from './locales/zh-tw.json';
 
 const savedLanguage = $language.get();
 

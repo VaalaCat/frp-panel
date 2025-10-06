@@ -45,6 +45,14 @@ func HandleServerMessage(appInstance app.Application, req *pb.ServerMessage) *pb
 		return app.WrapperServerMsg(appInstance, req, GetWorkerStatus)
 	case pb.Event_EVENT_INSTALL_WORKERD:
 		return app.WrapperServerMsg(appInstance, req, InstallWorkerd)
+	case pb.Event_EVENT_CREATE_WIREGUARD:
+		return app.WrapperServerMsg(appInstance, req, CreateWireGuard)
+	case pb.Event_EVENT_DELETE_WIREGUARD:
+		return app.WrapperServerMsg(appInstance, req, DeleteWireGuard)
+	case pb.Event_EVENT_UPDATE_WIREGUARD:
+		return app.WrapperServerMsg(appInstance, req, UpdateWireGuard)
+	case pb.Event_EVENT_GET_WIREGUARD_RUNTIME_INFO:
+		return app.WrapperServerMsg(appInstance, req, GetWireGuardRuntimeInfo)
 	case pb.Event_EVENT_PING:
 		rawData, _ := proto.Marshal(conf.GetVersion().ToProto())
 		return &pb.ClientMessage{

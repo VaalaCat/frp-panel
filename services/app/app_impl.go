@@ -16,22 +16,24 @@ type application struct {
 	streamLogHookMgr StreamLogHookMgr
 	masterCli        MasterClient
 
-	shellPTYMgr       ShellPTYMgr
-	clientLogManager  ClientLogManager
-	clientRPCHandler  ClientRPCHandler
-	dbManager         DBManager
-	clientController  ClientController
-	clientRecvMap     *sync.Map
-	clientsManager    ClientsManager
-	serverHandler     ServerHandler
-	serverController  ServerController
-	rpcCred           credentials.TransportCredentials
-	conf              conf.Config
-	currentRole       string
-	permManager       PermissionManager
-	enforcer          *casbin.Enforcer
-	workerExecManager WorkerExecManager
-	workersManager    WorkersManager
+	shellPTYMgr          ShellPTYMgr
+	clientLogManager     ClientLogManager
+	clientRPCHandler     ClientRPCHandler
+	dbManager            DBManager
+	clientController     ClientController
+	clientRecvMap        *sync.Map
+	clientsManager       ClientsManager
+	serverHandler        ServerHandler
+	serverController     ServerController
+	rpcCred              credentials.TransportCredentials
+	conf                 conf.Config
+	currentRole          string
+	permManager          PermissionManager
+	enforcer             *casbin.Enforcer
+	workerExecManager    WorkerExecManager
+	workersManager       WorkersManager
+	wireGuardManager     WireGuardManager
+	networkTopologyCache NetworkTopologyCache
 
 	loggerInstance *logrus.Logger
 }
@@ -231,6 +233,16 @@ func (a *application) GetStreamLogHookMgr() StreamLogHookMgr {
 	return a.streamLogHookMgr
 }
 
+// GetWireGuardManager implements Application.
+func (a *application) GetWireGuardManager() WireGuardManager {
+	return a.wireGuardManager
+}
+
+// SetWireGuardManager implements Application.
+func (a *application) SetWireGuardManager(wireGuardManager WireGuardManager) {
+	a.wireGuardManager = wireGuardManager
+}
+
 // SetShellPTYMgr implements Application.
 func (a *application) SetShellPTYMgr(shellPTYMgr ShellPTYMgr) {
 	a.shellPTYMgr = shellPTYMgr
@@ -239,4 +251,14 @@ func (a *application) SetShellPTYMgr(shellPTYMgr ShellPTYMgr) {
 // SetStreamLogHookMgr implements Application.
 func (a *application) SetStreamLogHookMgr(streamLogHookMgr StreamLogHookMgr) {
 	a.streamLogHookMgr = streamLogHookMgr
+}
+
+// GetNetworkTopologyCache implements Application.
+func (a *application) GetNetworkTopologyCache() NetworkTopologyCache {
+	return a.networkTopologyCache
+}
+
+// SetNetworkTopologyCache implements Application.
+func (a *application) SetNetworkTopologyCache(networkTopologyCache NetworkTopologyCache) {
+	a.networkTopologyCache = networkTopologyCache
 }

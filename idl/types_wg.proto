@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package wireguard;
+option go_package = "../pb";
+
+// WireGuardPeerConfig wg peer 的配置
+message WireGuardPeerConfig {
+  uint32 id = 1;
+  string client_id = 2;
+  uint32 user_id = 3;
+  uint32 tenant_id = 4;
+
+  string public_key = 5;           // Peer 的 wg 公钥
+  string preshared_key = 6;        // (可选) Peer 的 WireGuard 预共享密钥
+  repeated string allowed_ips = 7; // 通过此 Peer 路由的 IP 地址/子网
+  Endpoint endpoint = 8;             // (可选) Peer 的公网端点 "host:port"
+  uint32 persistent_keepalive = 9; // 可选
+  repeated string tags = 10; // 标签
+}
+
+// WireGuardConfig wg 配置
+message WireGuardConfig {
+  uint32 id = 1;
+  string client_id = 2;
+  uint32 user_id = 3;
+  uint32 tenant_id = 4;
+
+  string interface_name = 5;  // WireGuard 网络接口的名称
+  string private_key = 6;     // 接口的私钥
+  string local_address = 7;   // 虚拟接口的 CIDR
+  uint32 listen_port = 8;     // (可选) WireGuard 监听端口，如果没有配置，则使用默认端口
+  uint32 interface_mtu = 9;   // 可选
+  repeated WireGuardPeerConfig peers = 10; // Peer 列表
+  repeated Endpoint advertised_endpoints = 11; // (可选) 外部可连接的地址
+  repeated string dns_servers = 12; // (可选) DNS 服务器列表
+  uint32 network_id = 13; // 归属的网络 ID
+  repeated string tags = 14; // 标签
+}
+
+message Endpoint {
+  uint32 id = 1;
+  string host = 2;
+  uint32 port = 3;
+  string client_id = 4;
+  uint32 wireguard_id = 5; // 分配的 WireGuard ID
+}
+
+message WireGuardLink {
+  uint32 id = 1;
+  uint32 from_wireguard_id = 2;
+  uint32 to_wireguard_id = 3;
+  uint32 up_bandwidth_mbps = 4;
+  uint32 down_bandwidth_mbps = 5;
+  uint32 latency_ms = 6;
+  bool active = 7;
+}
+
+message WireGuardLinks {
+  repeated WireGuardLink links = 1;
+}
+
+message Network {
+  uint32 id = 1;
+  uint32 user_id = 2;
+  uint32 tenant_id = 3;
+
+  string name = 4;
+  string cidr = 5;
+  AclConfig acl = 6;
+}
+
+message AclConfig {
+  repeated AclRuleConfig acls = 1;
+}
+
+message AclRuleConfig {
+  string action = 1;
+  repeated string src = 2;
+  repeated string dst = 3;
+}
+
+message WGPeerRuntimeInfo {
+  string public_key = 1;
+  string preshared_key = 2;
+  repeated string allowed_ips = 3;
+  string endpoint_host = 4;
+  uint32 endpoint_port = 5;
+  uint64 tx_bytes = 6;
+  uint64 rx_bytes = 7;
+  uint32 persistent_keepalive_interval = 8;
+  uint64 last_handshake_time_nsec = 9;
+  uint64 last_handshake_time_sec = 10;
+  string client_id = 11;
+
+  map<string, string> extra = 100;
+}
+
+message WGDeviceRuntimeInfo {
+  string private_key = 1;
+  uint32 listen_port = 2;
+  repeated WGPeerRuntimeInfo peers = 3;
+  uint32 protocol_version = 4;
+  int32 errno = 5;
+  string client_id = 6;
+  map<uint32, uint32> ping_map = 7; // to peer endpoint ping
+  string interface_name = 8;
+
+  map<string, string> extra = 100;
+}

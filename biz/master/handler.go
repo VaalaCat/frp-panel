@@ -15,6 +15,8 @@ import (
 	"github.com/VaalaCat/frp-panel/middleware"
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/gin-gonic/gin"
+
+	wgHandler "github.com/VaalaCat/frp-panel/biz/master/wg"
 )
 
 func NewRouter(fs embed.FS, appInstance app.Application) *gin.Engine {
@@ -97,6 +99,40 @@ func ConfigureRouter(appInstance app.Application, router *gin.Engine) {
 			workerHandler.POST("/create_ingress", app.Wrapper(appInstance, worker.CreateWorkerIngress))
 			workerHandler.POST("/get_ingress", app.Wrapper(appInstance, worker.GetWorkerIngress))
 		}
+
+		wgRouter := v1.Group("/wg")
+		{
+			// network
+			wgRouter.POST("/network/create", app.Wrapper(appInstance, wgHandler.CreateNetwork))
+			wgRouter.POST("/network/delete", app.Wrapper(appInstance, wgHandler.DeleteNetwork))
+			wgRouter.POST("/network/update", app.Wrapper(appInstance, wgHandler.UpdateNetwork))
+			wgRouter.POST("/network/get", app.Wrapper(appInstance, wgHandler.GetNetwork))
+			wgRouter.POST("/network/list", app.Wrapper(appInstance, wgHandler.ListNetworks))
+			wgRouter.POST("/network/topology", app.Wrapper(appInstance, wgHandler.GetNetworkTopology))
+
+			// endpoint
+			wgRouter.POST("/endpoint/create", app.Wrapper(appInstance, wgHandler.CreateEndpoint))
+			wgRouter.POST("/endpoint/delete", app.Wrapper(appInstance, wgHandler.DeleteEndpoint))
+			wgRouter.POST("/endpoint/update", app.Wrapper(appInstance, wgHandler.UpdateEndpoint))
+			wgRouter.POST("/endpoint/get", app.Wrapper(appInstance, wgHandler.GetEndpoint))
+			wgRouter.POST("/endpoint/list", app.Wrapper(appInstance, wgHandler.ListEndpoints))
+
+			// link
+			wgRouter.POST("/link/create", app.Wrapper(appInstance, wgHandler.CreateWireGuardLink))
+			wgRouter.POST("/link/delete", app.Wrapper(appInstance, wgHandler.DeleteWireGuardLink))
+			wgRouter.POST("/link/update", app.Wrapper(appInstance, wgHandler.UpdateWireGuardLink))
+			wgRouter.POST("/link/get", app.Wrapper(appInstance, wgHandler.GetWireGuardLink))
+			wgRouter.POST("/link/list", app.Wrapper(appInstance, wgHandler.ListWireGuardLinks))
+
+			// wireguard
+			wgRouter.POST("/create", app.Wrapper(appInstance, wgHandler.CreateWireGuard))
+			wgRouter.POST("/delete", app.Wrapper(appInstance, wgHandler.DeleteWireGuard))
+			wgRouter.POST("/update", app.Wrapper(appInstance, wgHandler.UpdateWireGuard))
+			wgRouter.POST("/get", app.Wrapper(appInstance, wgHandler.GetWireGuard))
+			wgRouter.POST("/list", app.Wrapper(appInstance, wgHandler.ListWireGuards))
+			wgRouter.POST("/runtime/get", app.Wrapper(appInstance, wgHandler.GetWireGuardRuntimeInfo))
+		}
+
 		v1.GET("/pty/:clientID", shell.PTYHandler(appInstance))
 		v1.GET("/log", streamlog.GetLogHandler(appInstance))
 	}

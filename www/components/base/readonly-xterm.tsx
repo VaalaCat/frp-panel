@@ -39,7 +39,7 @@ const LogTerminalComponent = ({ logs, reset }: { logs: string, reset: number }) 
   }, [reset, ref, instance])
 
   useEffect(() => {
-    
+
     // Load the fit addon
     instance?.loadAddon(fitAddon)
 
@@ -47,14 +47,31 @@ const LogTerminalComponent = ({ logs, reset }: { logs: string, reset: number }) 
     fitAddon.fit()
 
     instance?.writeln(currentLine)
-    // Handle resize event
+
+    // 监听窗口大小改变
     window.addEventListener('resize', handleResize)
+
+    // 监听容器大小改变
+    let resizeObserver: ResizeObserver | null = null
+    if (ref.current) {
+      resizeObserver = new ResizeObserver(() => {
+        // 使用 requestAnimationFrame 来避免性能问题
+        requestAnimationFrame(() => {
+          fitAddon.fit()
+        })
+      })
+      resizeObserver.observe(ref.current)
+    }
+
     return () => {
       window.removeEventListener('resize', handleResize)
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+      }
     }
   }, [ref, instance, currentLine])
 
-  return <div ref={ref} style={{ height: '100%', width: '100%'}} />
+  return <div ref={ref} style={{ height: '100%', width: '100%' }} />
 }
 
 export default LogTerminalComponent

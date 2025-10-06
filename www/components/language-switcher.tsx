@@ -34,25 +34,25 @@ export function LanguageSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={() => toggleLanguage('zh')}
           className={currentLanguage === 'zh' ? 'bg-accent' : ''}
         >
           中文(简中)
         </DropdownMenuItem>
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={() => toggleLanguage('zhtw')}
-          className={currentLanguage === 'zh-tw' ? 'bg-accent' : ''}
+          className={currentLanguage === 'zhtw' ? 'bg-accent' : ''}
         >
           中文(繁中)
         </DropdownMenuItem>
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={() => toggleLanguage('en')}
           className={currentLanguage === 'en' ? 'bg-accent' : ''}
         >
           English
         </DropdownMenuItem>
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={() => toggleLanguage('fr')}
           className={currentLanguage === 'fr' ? 'bg-accent' : ''}
         >

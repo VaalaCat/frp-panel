@@ -16,6 +16,7 @@ var (
 		fx.Provide(
 			NewWorkerExecManager,
 			NewWorkersManager,
+			NewWireGuardManager,
 			fx.Annotate(NewWatcher, fx.ResultTags(`name:"clientTaskManager"`)),
 		))
 

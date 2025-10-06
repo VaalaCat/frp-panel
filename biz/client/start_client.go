@@ -21,6 +21,11 @@ func StartFRPCHandler(ctx *app.Context, req *pb.StartFRPCRequest) (*pb.StartFRPC
 		}
 	}
 
+	if err := PullWireGuards(ctx.GetApp(), req.GetClientId(), ctx.GetApp().GetConfig().Client.Secret); err != nil {
+		logger.Logger(ctx).WithError(err).Error("cannot pull client wireguards")
+		return nil, err
+	}
+
 	return &pb.StartFRPCResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "ok"},
 	}, nil
