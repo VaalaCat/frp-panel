@@ -4,8 +4,11 @@ package pty
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 	"syscall"
 
 	opty "github.com/creack/pty"
@@ -25,21 +28,95 @@ func DownloadDependency() error {
 	return nil
 }
 
+type shellCandidate struct {
+	path string
+	args []string
+}
+
 func Start() (PTYInterface, error) {
-	var shellPath string
-	for i := 0; i < len(defaultShells); i++ {
-		shellPath, _ = exec.LookPath(defaultShells[i])
-		if shellPath != "" {
-			break
+	var collectedErr error
+
+	seen := map[string]struct{}{}
+	addCandidate := func(path string, args ...string) []shellCandidate {
+		if path == "" {
+			return nil
 		}
+		key := filepath.Join(path, strings.Join(args, "\x00"))
+		if _, ok := seen[key]; ok {
+			return nil
+		}
+		seen[key] = struct{}{}
+		return []shellCandidate{{path: path, args: args}}
 	}
-	if shellPath == "" {
-		return nil, errors.New("none of the default shells was found")
+
+	var candidates []shellCandidate
+
+	if shell := os.Getenv("SHELL"); shell != "" {
+		if !strings.Contains(shell, string(os.PathSeparator)) {
+			if resolved, err := exec.LookPath(shell); err == nil {
+				shell = resolved
+			} else {
+				collectedErr = errors.Join(collectedErr, err)
+			}
+		}
+		candidates = append(candidates, addCandidate(shell)...)
 	}
-	cmd := exec.Command(shellPath)
+
+	for _, shell := range defaultShells {
+		candidate := shell
+		if !strings.Contains(shell, string(os.PathSeparator)) {
+			if resolved, err := exec.LookPath(shell); err == nil {
+				candidate = resolved
+			} else {
+				collectedErr = errors.Join(collectedErr, err)
+				continue
+			}
+		}
+		candidates = append(candidates, addCandidate(candidate)...)
+	}
+
+	// Android fallbacks
+	if _, err := os.Stat("/system/bin/sh"); err == nil {
+		candidates = append(candidates, addCandidate("/system/bin/sh")...)
+	} else {
+		collectedErr = errors.Join(collectedErr, err)
+	}
+	if _, err := os.Stat("/system/bin/toybox"); err == nil {
+		candidates = append(candidates, addCandidate("/system/bin/toybox", "sh")...)
+	} else {
+		collectedErr = errors.Join(collectedErr, err)
+	}
+
+	for _, candidate := range candidates {
+		pty, err := startPTY(candidate.path, candidate.args...)
+		if err != nil {
+			collectedErr = errors.Join(collectedErr, err)
+			continue
+		}
+		return pty, nil
+	}
+
+	if collectedErr != nil {
+		return nil, collectedErr
+	}
+
+	return nil, errors.New("none of the default shells was found")
+}
+
+func startPTY(path string, args ...string) (PTYInterface, error) {
+	cmd := exec.Command(path, args...)
 	cmd.Env = append(os.Environ(), "TERM=xterm")
+
 	tty, err := opty.Start(cmd)
-	return &Pty{tty: tty, cmd: cmd}, err
+	if err != nil {
+		commandLine := path
+		if len(args) > 0 {
+			commandLine += " " + strings.Join(args, " ")
+		}
+		return nil, fmt.Errorf("%s: %w", commandLine, err)
+	}
+
+	return &Pty{tty: tty, cmd: cmd}, nil
 }
 
 func (pty *Pty) Write(p []byte) (n int, err error) {
