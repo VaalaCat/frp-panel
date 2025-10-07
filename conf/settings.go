@@ -38,10 +38,7 @@ type Config struct {
 		InternalFRPServerHost string `env:"INTERNAL_FRP_SERVER_HOST" env-description:"internal frp server host, used for client connection"`
 	} `env-prefix:"MASTER_"`
 	Server struct {
-		APIPort                   int    `env:"API_PORT" env-default:"8999" env-description:"server api port"`
-		InternalFRPAuthServerHost string `env:"INTERNAL_FRP_AUTH_SERVER_HOST" env-default:"127.0.0.1" env-description:"internal frp auth server host"`
-		InternalFRPAuthServerPort int    `env:"INTERNAL_FRP_AUTH_SERVER_PORT" env-default:"8999" env-description:"internal frp auth server port"`
-		InternalFRPAuthServerPath string `env:"INTERNAL_FRP_AUTH_SERVER_PATH" env-default:"/auth" env-description:"internal frp auth server path"`
+		APIPort int `env:"API_PORT" env-default:"8999" env-description:"server api port"`
 	} `env-prefix:"SERVER_"`
 	DB struct {
 		Type string `env:"TYPE" env-default:"sqlite3" env-description:"db type, mysql or sqlite3 and so on"`

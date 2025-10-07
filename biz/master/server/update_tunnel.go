@@ -6,7 +6,6 @@ import (
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
-	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/dao"
@@ -40,7 +39,7 @@ func UpdateFrpsHander(c *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPS
 		return nil, err
 	}
 
-	srvCfg.HTTPPlugins = []v1.HTTPPluginOptions{conf.FRPsAuthOption(c.GetApp().GetConfig(), defs.DefaultServerID == serverID)}
+	srvCfg.HTTPPlugins = []v1.HTTPPluginOptions{conf.FRPsAuthOption(c.GetApp().GetConfig())}
 
 	if err := srv.SetConfigContent(srvCfg); err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot set server config")
