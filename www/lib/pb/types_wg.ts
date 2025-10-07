@@ -177,6 +177,10 @@ export interface WireGuardLink {
      * @generated from protobuf field: bool active = 7;
      */
     active: boolean;
+    /**
+     * @generated from protobuf field: wireguard.Endpoint to_endpoint = 8;
+     */
+    toEndpoint?: Endpoint;
 }
 /**
  * @generated from protobuf message wireguard.WireGuardLinks
@@ -700,7 +704,8 @@ class WireGuardLink$Type extends MessageType<WireGuardLink> {
             { no: 4, name: "up_bandwidth_mbps", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 5, name: "down_bandwidth_mbps", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 6, name: "latency_ms", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
-            { no: 7, name: "active", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
+            { no: 7, name: "active", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 8, name: "to_endpoint", kind: "message", T: () => Endpoint }
         ]);
     }
     create(value?: PartialMessage<WireGuardLink>): WireGuardLink {
@@ -742,6 +747,9 @@ class WireGuardLink$Type extends MessageType<WireGuardLink> {
                 case /* bool active */ 7:
                     message.active = reader.bool();
                     break;
+                case /* wireguard.Endpoint to_endpoint */ 8:
+                    message.toEndpoint = Endpoint.internalBinaryRead(reader, reader.uint32(), options, message.toEndpoint);
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -775,6 +783,9 @@ class WireGuardLink$Type extends MessageType<WireGuardLink> {
         /* bool active = 7; */
         if (message.active !== false)
             writer.tag(7, WireType.Varint).bool(message.active);
+        /* wireguard.Endpoint to_endpoint = 8; */
+        if (message.toEndpoint)
+            Endpoint.internalBinaryWrite(message.toEndpoint, writer.tag(8, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

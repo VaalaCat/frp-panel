@@ -372,6 +372,7 @@ type WireGuardLink struct {
 	DownBandwidthMbps uint32                 `protobuf:"varint,5,opt,name=down_bandwidth_mbps,json=downBandwidthMbps,proto3" json:"down_bandwidth_mbps,omitempty"`
 	LatencyMs         uint32                 `protobuf:"varint,6,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
 	Active            bool                   `protobuf:"varint,7,opt,name=active,proto3" json:"active,omitempty"`
+	ToEndpoint        *Endpoint              `protobuf:"bytes,8,opt,name=to_endpoint,json=toEndpoint,proto3" json:"to_endpoint,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -453,6 +454,13 @@ func (x *WireGuardLink) GetActive() bool {
 		return x.Active
 	}
 	return false
+}
+
+func (x *WireGuardLink) GetToEndpoint() *Endpoint {
+	if x != nil {
+		return x.ToEndpoint
+	}
+	return nil
 }
 
 type WireGuardLinks struct {
@@ -971,7 +979,7 @@ const file_types_wg_proto_rawDesc = "" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\rR\x04port\x12\x1b\n" +
 	"\tclient_id\x18\x04 \x01(\tR\bclientId\x12!\n" +
-	"\fwireguard_id\x18\x05 \x01(\rR\vwireguardId\"\x86\x02\n" +
+	"\fwireguard_id\x18\x05 \x01(\rR\vwireguardId\"\xbc\x02\n" +
 	"\rWireGuardLink\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12*\n" +
 	"\x11from_wireguard_id\x18\x02 \x01(\rR\x0ffromWireguardId\x12&\n" +
@@ -980,7 +988,9 @@ const file_types_wg_proto_rawDesc = "" +
 	"\x13down_bandwidth_mbps\x18\x05 \x01(\rR\x11downBandwidthMbps\x12\x1d\n" +
 	"\n" +
 	"latency_ms\x18\x06 \x01(\rR\tlatencyMs\x12\x16\n" +
-	"\x06active\x18\a \x01(\bR\x06active\"@\n" +
+	"\x06active\x18\a \x01(\bR\x06active\x124\n" +
+	"\vto_endpoint\x18\b \x01(\v2\x13.wireguard.EndpointR\n" +
+	"toEndpoint\"@\n" +
 	"\x0eWireGuardLinks\x12.\n" +
 	"\x05links\x18\x01 \x03(\v2\x18.wireguard.WireGuardLinkR\x05links\"\x9f\x01\n" +
 	"\aNetwork\x12\x0e\n" +
@@ -1068,18 +1078,19 @@ var file_types_wg_proto_depIdxs = []int32{
 	2,  // 0: wireguard.WireGuardPeerConfig.endpoint:type_name -> wireguard.Endpoint
 	0,  // 1: wireguard.WireGuardConfig.peers:type_name -> wireguard.WireGuardPeerConfig
 	2,  // 2: wireguard.WireGuardConfig.advertised_endpoints:type_name -> wireguard.Endpoint
-	3,  // 3: wireguard.WireGuardLinks.links:type_name -> wireguard.WireGuardLink
-	6,  // 4: wireguard.Network.acl:type_name -> wireguard.AclConfig
-	7,  // 5: wireguard.AclConfig.acls:type_name -> wireguard.AclRuleConfig
-	10, // 6: wireguard.WGPeerRuntimeInfo.extra:type_name -> wireguard.WGPeerRuntimeInfo.ExtraEntry
-	8,  // 7: wireguard.WGDeviceRuntimeInfo.peers:type_name -> wireguard.WGPeerRuntimeInfo
-	11, // 8: wireguard.WGDeviceRuntimeInfo.ping_map:type_name -> wireguard.WGDeviceRuntimeInfo.PingMapEntry
-	12, // 9: wireguard.WGDeviceRuntimeInfo.extra:type_name -> wireguard.WGDeviceRuntimeInfo.ExtraEntry
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	2,  // 3: wireguard.WireGuardLink.to_endpoint:type_name -> wireguard.Endpoint
+	3,  // 4: wireguard.WireGuardLinks.links:type_name -> wireguard.WireGuardLink
+	6,  // 5: wireguard.Network.acl:type_name -> wireguard.AclConfig
+	7,  // 6: wireguard.AclConfig.acls:type_name -> wireguard.AclRuleConfig
+	10, // 7: wireguard.WGPeerRuntimeInfo.extra:type_name -> wireguard.WGPeerRuntimeInfo.ExtraEntry
+	8,  // 8: wireguard.WGDeviceRuntimeInfo.peers:type_name -> wireguard.WGPeerRuntimeInfo
+	11, // 9: wireguard.WGDeviceRuntimeInfo.ping_map:type_name -> wireguard.WGDeviceRuntimeInfo.PingMapEntry
+	12, // 10: wireguard.WGDeviceRuntimeInfo.extra:type_name -> wireguard.WGDeviceRuntimeInfo.ExtraEntry
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_types_wg_proto_init() }

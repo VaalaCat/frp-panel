@@ -57,7 +57,14 @@ func (a *ACL) CanConnect(src, dst ACLEntity) bool {
 func (a *ACL) matchRule(sourceTag, destTag string) bool {
 	for _, r := range a.Acls {
 		if lo.Contains(r.Src, sourceTag) && lo.Contains(r.Dst, destTag) {
-			return true
+			switch r.Action {
+			case "accept":
+				return true
+			case "deny":
+				return false
+			default:
+				return true
+			}
 		}
 	}
 	return false

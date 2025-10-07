@@ -120,6 +120,7 @@ func (w *WireGuardLink) GetReverse() *WireGuardLink {
 			DownBandwidthMbps: w.UpBandwidthMbps,
 			LatencyMs:         w.LatencyMs,
 			Active:            w.Active,
+			ToEndpoint:        w.ToEndpoint,
 		},
 	}
 }

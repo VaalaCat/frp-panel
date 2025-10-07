@@ -69,7 +69,7 @@ func (q *queryImpl) ListWireGuardLinksByNetwork(userInfo models.UserInfo, networ
 	}
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var list []*models.WireGuardLink
-	if err := db.Where(&models.WireGuardLink{
+	if err := db.Preload("ToEndpoint").Where(&models.WireGuardLink{
 		WireGuardLinkEntity: &models.WireGuardLinkEntity{
 			NetworkID: networkID,
 			UserId:    uint32(userInfo.GetUserID()),
@@ -87,7 +87,7 @@ func (q *queryImpl) GetWireGuardLinkByID(userInfo models.UserInfo, id uint) (*mo
 	}
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var m models.WireGuardLink
-	if err := db.Where(&models.WireGuardLink{
+	if err := db.Preload("ToEndpoint").Where(&models.WireGuardLink{
 		Model: gorm.Model{ID: id},
 		WireGuardLinkEntity: &models.WireGuardLinkEntity{
 			UserId:   uint32(userInfo.GetUserID()),
@@ -105,7 +105,7 @@ func (q *queryImpl) GetWireGuardLinkByClientIDs(userInfo models.UserInfo, fromCl
 	}
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var link *models.WireGuardLink
-	if err := db.Where(&models.WireGuardLink{WireGuardLinkEntity: &models.WireGuardLinkEntity{
+	if err := db.Preload("ToEndpoint").Where(&models.WireGuardLink{WireGuardLinkEntity: &models.WireGuardLinkEntity{
 		UserId:          uint32(userInfo.GetUserID()),
 		TenantId:        uint32(userInfo.GetTenantID()),
 		FromWireGuardID: fromClientId,
@@ -125,7 +125,7 @@ func (q *queryImpl) ListWireGuardLinksWithFilters(userInfo models.UserInfo, page
 	var list []*models.WireGuardLink
 	offset := (page - 1) * pageSize
 
-	base := db.Where(&models.WireGuardLink{WireGuardLinkEntity: &models.WireGuardLinkEntity{
+	base := db.Preload("ToEndpoint").Where(&models.WireGuardLink{WireGuardLinkEntity: &models.WireGuardLinkEntity{
 		UserId:   uint32(userInfo.GetUserID()),
 		TenantId: uint32(userInfo.GetTenantID()),
 	}})

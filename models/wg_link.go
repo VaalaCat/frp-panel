@@ -15,6 +15,7 @@ type WireGuardLink struct {
 
 	FromWireGuard *WireGuard `json:"from_wireguard,omitempty" gorm:"foreignKey:FromWireGuardID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	ToWireGuard   *WireGuard `json:"to_wireguard,omitempty" gorm:"foreignKey:ToWireGuardID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ToEndpoint    *Endpoint  `json:"to_endpoint,omitempty" gorm:"foreignKey:ToEndpointID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type WireGuardLinkEntity struct {
@@ -28,6 +29,8 @@ type WireGuardLinkEntity struct {
 	// 有向边两端
 	FromWireGuardID uint `gorm:"index"`
 	ToWireGuardID   uint `gorm:"index"`
+
+	ToEndpointID uint `gorm:"index"`
 
 	// 链路指标
 	UpBandwidthMbps   uint32
@@ -53,6 +56,7 @@ func (w *WireGuardLink) FromPB(pbData *pb.WireGuardLink) {
 	w.DownBandwidthMbps = pbData.GetDownBandwidthMbps()
 	w.LatencyMs = pbData.GetLatencyMs()
 	w.Active = pbData.GetActive()
+	w.ToEndpointID = uint(pbData.GetToEndpoint().GetId())
 }
 
 func (w *WireGuardLink) ToPB() *pb.WireGuardLink {
@@ -64,5 +68,6 @@ func (w *WireGuardLink) ToPB() *pb.WireGuardLink {
 		DownBandwidthMbps: w.DownBandwidthMbps,
 		LatencyMs:         w.LatencyMs,
 		Active:            w.Active,
+		ToEndpoint:        w.ToEndpoint.ToPB(),
 	}
 }

@@ -69,8 +69,8 @@ func (p *dijkstraAllowedIPsPlanner) Compute(peers []*models.WireGuard, links []*
 
 	idToPeer, order := buildNodeIndex(peers)
 	adj := buildAdjacency(order, idToPeer, links, p.policy)
-	aggByNode := runAllPairsDijkstra(order, adj, idToPeer, p.policy)
-	result, err := assemblePeerConfigs(order, aggByNode, idToPeer)
+	aggByNode, edgeInfoMap := runAllPairsDijkstra(order, adj, idToPeer, p.policy)
+	result, err := assemblePeerConfigs(order, aggByNode, edgeInfoMap, idToPeer)
 	if err != nil {
 		return nil, err
 	}
@@ -91,18 +91,23 @@ func (p *dijkstraAllowedIPsPlanner) BuildGraph(peers []*models.WireGuard, links 
 }
 
 type Edge struct {
-	to      uint
-	latency uint32
-	upMbps  uint32
+	to         uint
+	latency    uint32
+	upMbps     uint32
+	toEndpoint *models.Endpoint // 指定的目标端点，可能为 nil
 }
 
 func (e *Edge) ToPB() *pb.WireGuardLink {
-	return &pb.WireGuardLink{
+	link := &pb.WireGuardLink{
 		ToWireguardId:   uint32(e.to),
 		LatencyMs:       e.latency,
 		UpBandwidthMbps: e.upMbps,
 		Active:          true,
 	}
+	if e.toEndpoint != nil {
+		link.ToEndpoint = e.toEndpoint.ToPB()
+	}
+	return link
 }
 
 func buildNodeIndex(peers []*models.WireGuard) (map[uint]*models.WireGuard, []uint) {
@@ -147,7 +152,7 @@ func buildAdjacency(order []uint, idToPeer map[uint]*models.WireGuard, links []*
 			}
 		}
 
-		adj[from] = append(adj[from], Edge{to: to, latency: latency, upMbps: l.UpBandwidthMbps})
+		adj[from] = append(adj[from], Edge{to: to, latency: latency, upMbps: l.UpBandwidthMbps, toEndpoint: l.ToEndpoint})
 	}
 
 	// 2) 若某节点具备 endpoint，则所有其他节点可直连它
@@ -204,8 +209,16 @@ func buildAdjacency(order []uint, idToPeer map[uint]*models.WireGuard, links []*
 	return adj
 }
 
-func runAllPairsDijkstra(order []uint, adj map[uint][]Edge, idToPeer map[uint]*models.WireGuard, policy RoutingPolicy) map[uint]map[uint]map[string]struct{} {
+// EdgeInfo 保存边的端点信息，用于后续组装 PeerConfig
+type EdgeInfo struct {
+	toEndpoint *models.Endpoint
+}
+
+// runAllPairsDijkstra returns: map[src]map[nextHop]map[CIDR], map[src]map[nextHop]*EdgeInfo
+func runAllPairsDijkstra(order []uint, adj map[uint][]Edge, idToPeer map[uint]*models.WireGuard, policy RoutingPolicy) (map[uint]map[uint]map[string]struct{}, map[uint]map[uint]*EdgeInfo) {
 	aggByNode := make(map[uint]map[uint]map[string]struct{}, len(order))
+	edgeInfoMap := make(map[uint]map[uint]*EdgeInfo, len(order)) // 保存 src -> nextHop 的边信息
+
 	for _, src := range order {
 		dist, prev, visited := initSSSP(order)
 		dist[src] = 0
@@ -227,7 +240,7 @@ func runAllPairsDijkstra(order []uint, adj map[uint][]Edge, idToPeer map[uint]*m
 			}
 		}
 
-		// 累计 nextHop -> CIDR
+		// 累计 nextHop -> CIDR，并保存边信息
 		for _, dst := range order {
 			if dst == src {
 				continue
@@ -240,7 +253,7 @@ func runAllPairsDijkstra(order []uint, adj map[uint][]Edge, idToPeer map[uint]*m
 				continue
 			}
 			dstPeer := idToPeer[dst]
-			allowed, err := dstPeer.AsBasePeerConfig()
+			allowed, err := dstPeer.AsBasePeerConfig(nil) // 这里只获取 CIDR，不需要指定 endpoint
 			if err != nil || len(allowed.GetAllowedIps()) == 0 {
 				continue
 			}
@@ -252,9 +265,23 @@ func runAllPairsDijkstra(order []uint, adj map[uint][]Edge, idToPeer map[uint]*m
 				aggByNode[src][next] = map[string]struct{}{}
 			}
 			aggByNode[src][next][cidr] = struct{}{}
+
+			// 保存从 src 到 next 的边信息（查找直接边）
+			if _, ok := edgeInfoMap[src]; !ok {
+				edgeInfoMap[src] = make(map[uint]*EdgeInfo)
+			}
+			if _, ok := edgeInfoMap[src][next]; !ok {
+				// 查找从 src 到 next 的边
+				for _, e := range adj[src] {
+					if e.to == next {
+						edgeInfoMap[src][next] = &EdgeInfo{toEndpoint: e.toEndpoint}
+						break
+					}
+				}
+			}
 		}
 	}
-	return aggByNode
+	return aggByNode, edgeInfoMap
 }
 
 func initSSSP(order []uint) (map[uint]float64, map[uint]uint, map[uint]bool) {
@@ -298,13 +325,20 @@ func findNextHop(src, dst uint, prev map[uint]uint) uint {
 	}
 }
 
-func assemblePeerConfigs(order []uint, aggByNode map[uint]map[uint]map[string]struct{}, idToPeer map[uint]*models.WireGuard) (map[uint][]*pb.WireGuardPeerConfig, error) {
+func assemblePeerConfigs(order []uint, aggByNode map[uint]map[uint]map[string]struct{}, edgeInfoMap map[uint]map[uint]*EdgeInfo, idToPeer map[uint]*models.WireGuard) (map[uint][]*pb.WireGuardPeerConfig, error) {
 	result := make(map[uint][]*pb.WireGuardPeerConfig, len(order))
 	for src, nextMap := range aggByNode {
 		peersForSrc := make([]*pb.WireGuardPeerConfig, 0, len(nextMap))
 		for nextHop, cidrSet := range nextMap {
 			remote := idToPeer[nextHop]
-			base, err := remote.AsBasePeerConfig()
+
+			// 获取从 src 到 nextHop 的边信息，确定使用哪个 endpoint
+			var specifiedEndpoint *models.Endpoint
+			if edgeInfo, ok := edgeInfoMap[src][nextHop]; ok && edgeInfo != nil {
+				specifiedEndpoint = edgeInfo.toEndpoint
+			}
+
+			base, err := remote.AsBasePeerConfig(specifiedEndpoint)
 			if err != nil {
 				return nil, errors.Join(errors.New("build peer base config failed"), err)
 			}

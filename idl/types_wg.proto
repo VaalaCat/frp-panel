@@ -53,6 +53,7 @@ message WireGuardLink {
   uint32 down_bandwidth_mbps = 5;
   uint32 latency_ms = 6;
   bool active = 7;
+  Endpoint to_endpoint = 8;
 }
 
 message WireGuardLinks {

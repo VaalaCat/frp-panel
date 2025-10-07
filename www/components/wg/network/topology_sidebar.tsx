@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { WGEdge } from './types'
 import { useTranslation } from 'react-i18next'
-import { Activity, ArrowUp, ArrowDown, Zap, Link2 } from 'lucide-react'
+import { Activity, ArrowUp, ArrowDown, Zap, Link2, MapPin } from 'lucide-react'
 
 export default function TopologySidebar({ selectedEdge }: { selectedEdge?: WGEdge }) {
 	const { t } = useTranslation()
@@ -35,6 +35,14 @@ export default function TopologySidebar({ selectedEdge }: { selectedEdge?: WGEdg
 								<span className="text-muted-foreground min-w-[80px]">{t('wg.topologySidebar.to')}:</span>
 								<span className="font-mono text-xs break-all">{String(selectedEdge.target)}</span>
 							</div>
+							{selectedEdge.data?.original?.toEndpoint && (
+								<div className="flex items-start gap-2">
+									<span className="text-muted-foreground min-w-[80px]">{t('wg.topologySidebar.endpoint')}:</span>
+									<span className="font-mono text-xs break-all">
+										{selectedEdge.data.original.toEndpoint.host}:{selectedEdge.data.original.toEndpoint.port}
+									</span>
+								</div>
+							)}
 						</div>
 
 						{selectedEdge.data && (

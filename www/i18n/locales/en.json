@@ -313,6 +313,7 @@
       "statusInactive": "Inactive",
       "from": "From",
       "to": "To",
+      "endpoint": "Target Endpoint",
       "latency": "Latency",
       "bandwidthUp": "Upload",
       "bandwidthDown": "Download",
@@ -411,6 +412,8 @@
     "link": {
       "from": "From",
       "to": "To",
+      "toEndpoint": "Target Endpoint",
+      "selectToFirst": "Please select the target node first",
       "up_bw": "Upstream bandwidth",
       "down_bw": "Downstream bandwidth",
       "latency": "Latency",

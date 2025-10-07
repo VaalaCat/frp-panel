@@ -18,7 +18,7 @@ export default function JoinNetworkDialog({ clientId: externalClientId, networkI
   const [endpoints, setEndpoints] = useState<{ id: number; host: string; port: number }[]>([])
   const [networkId, setNetworkId] = useState<number>(externalNetworkId ?? 0)
   const [endpointId, setEndpointId] = useState<string>('')
-  const [ifName, setIfName] = useState(initIfName ?? 'wg0')
+  const [ifName, setIfName] = useState(initIfName ?? 'frpp0')
   const [localAddr, setLocalAddr] = useState('10.10.0.2')
   const [mtu, setMtu] = useState(1420)
   const [port, setPort] = useState(51820)

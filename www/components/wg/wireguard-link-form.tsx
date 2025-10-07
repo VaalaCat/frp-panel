@@ -1,16 +1,17 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { createWireGuardLink, updateWireGuardLink } from '@/api/wg'
-import { CreateWireGuardLinkRequest, UpdateWireGuardLinkRequest } from '@/lib/pb/api_wg'
+import { createWireGuardLink, updateWireGuardLink, getWireGuard } from '@/api/wg'
+import { CreateWireGuardLinkRequest, UpdateWireGuardLinkRequest, GetWireGuardRequest } from '@/lib/pb/api_wg'
 import { WireGuardLink } from '@/lib/pb/types_wg'
 import { WireGuardSelector } from '../base/wireguard-selector'
+import { EndpointSelector } from '../base/endpoint-selector'
 
 export default function WireGuardLinkForm({ link, onSuccess, submitText }: { link?: WireGuardLink; onSuccess?: () => void; submitText?: string }) {
 	const { t } = useTranslation()
@@ -21,6 +22,27 @@ export default function WireGuardLinkForm({ link, onSuccess, submitText }: { lin
 	const [downBw, setDownBw] = useState<number>(link?.downBandwidthMbps ?? 100)
 	const [latency, setLatency] = useState<number>(link?.latencyMs ?? 60)
 	const [active, setActive] = useState<boolean>(link?.active ?? true)
+	const [toClientId, setToClientId] = useState<string>('')
+	const [toEndpointId, setToEndpointId] = useState<number | undefined>(link?.toEndpoint?.id ?? undefined)
+
+	// 当 toId 改变时，获取对应的 clientId
+	useEffect(() => {
+		if (toId) {
+			getWireGuard(GetWireGuardRequest.create({ id: toId }))
+				.then((resp) => {
+					if (resp.wireguardConfig?.clientId) {
+						setToClientId(resp.wireguardConfig.clientId)
+					}
+				})
+				.catch((err) => {
+					console.error('Failed to get wireguard:', err)
+					setToClientId('')
+				})
+		} else {
+			setToClientId('')
+			setToEndpointId(undefined)
+		}
+	}, [toId])
 
 	const onSubmit = async () => {
 		if (!fromId || !toId || fromId === toId) {
@@ -29,28 +51,25 @@ export default function WireGuardLinkForm({ link, onSuccess, submitText }: { lin
 		}
 		setLoading(true)
 		try {
+			const linkData: any = {
+				fromWireguardId: fromId,
+				toWireguardId: toId,
+				upBandwidthMbps: upBw,
+				downBandwidthMbps: downBw,
+				latencyMs: latency,
+				active,
+			}
+			if (toEndpointId) {
+				linkData.toEndpoint = { id: toEndpointId }
+			}
 			if (link?.id) {
+				linkData.id = link.id
 				await updateWireGuardLink(UpdateWireGuardLinkRequest.create({
-					wireguardLink: WireGuardLink.create({
-						id: link.id,
-						fromWireguardId: fromId,
-						toWireguardId: toId,
-						upBandwidthMbps: upBw,
-						downBandwidthMbps: downBw,
-						latencyMs: latency,
-						active,
-					})
+					wireguardLink: WireGuardLink.create(linkData)
 				}))
 			} else {
 				await createWireGuardLink(CreateWireGuardLinkRequest.create({
-					wireguardLink: WireGuardLink.create({
-						fromWireguardId: fromId,
-						toWireguardId: toId,
-						upBandwidthMbps: upBw,
-						downBandwidthMbps: downBw,
-						latencyMs: latency,
-						active,
-					})
+					wireguardLink: WireGuardLink.create(linkData)
 				}))
 			}
 			toast.success(t('common.success'))
@@ -73,6 +92,14 @@ export default function WireGuardLinkForm({ link, onSuccess, submitText }: { lin
 					<Label className="block text-sm mb-1">{t('wg.link.to')}</Label>
 					<WireGuardSelector wireguardID={toId} setWireguardID={setToId} />
 				</div>
+			</div>
+			<div>
+				<Label className="block text-sm mb-1">{t('wg.link.toEndpoint')}</Label>
+				{toClientId ? (
+					<EndpointSelector clientID={toClientId} endpointID={toEndpointId} setEndpointID={setToEndpointId} />
+				) : (
+					<div className="text-sm text-muted-foreground p-2 border rounded-md">{t('wg.link.selectToFirst')}</div>
+				)}
 			</div>
 			<div className="grid grid-cols-3 gap-2">
 				<div>

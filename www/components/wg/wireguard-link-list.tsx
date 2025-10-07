@@ -28,6 +28,7 @@ export type WireGuardLinkRow = {
 	id: number
 	fromWireguardId: number
 	toWireguardId: number
+	toEndpoint?: string
 	upBandwidthMbps?: number
 	downBandwidthMbps?: number
 	latencyMs?: number
@@ -48,6 +49,21 @@ export const WireGuardLinkColumns: ColumnDef<WireGuardLinkRow>[] = [
 		header: function Header() {
 			const { t } = useTranslation()
 			return t('wg.link.to')
+		},
+	},
+	{
+		accessorKey: 'toEndpoint',
+		header: function Header() {
+			const { t } = useTranslation()
+			return t('wg.link.toEndpoint')
+		},
+		cell: ({ row }) => {
+			const endpoint = row.original.toEndpoint
+			return endpoint ? (
+				<span className="text-xs font-mono text-muted-foreground">{endpoint}</span>
+			) : (
+				<span className="text-xs text-muted-foreground italic">-</span>
+			)
 		},
 	},
 	{
@@ -172,6 +188,7 @@ export function WireGuardLinkList({ networkId, keyword }: { networkId?: number; 
 		id: l.id!,
 		fromWireguardId: l.fromWireguardId!,
 		toWireguardId: l.toWireguardId!,
+		toEndpoint: l.toEndpoint ? `${l.toEndpoint.host}:${l.toEndpoint.port}` : undefined,
 		upBandwidthMbps: l.upBandwidthMbps,
 		downBandwidthMbps: l.downBandwidthMbps,
 		latencyMs: l.latencyMs,

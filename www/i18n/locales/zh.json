@@ -313,6 +313,7 @@
       "statusInactive": "不活跃",
       "from": "起点",
       "to": "终点",
+      "endpoint": "目标端点",
       "latency": "延迟",
       "bandwidthUp": "上行带宽",
       "bandwidthDown": "下行带宽",
@@ -410,6 +411,8 @@
     "link": {
       "from": "起点",
       "to": "终点",
+      "toEndpoint": "目标端点",
+      "selectToFirst": "请先选择目标节点",
       "up_bw": "上行带宽",
       "down_bw": "下行带宽",
       "latency": "延迟",

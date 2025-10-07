@@ -41,6 +41,7 @@ func CreateWireGuardLink(ctx *app.Context, req *pb.CreateWireGuardLinkRequest) (
 	reverse := &models.WireGuardLink{}
 	reverse.FromPB((&defs.WireGuardLink{WireGuardLink: l}).GetReverse().WireGuardLink)
 	reverse.NetworkID = from.NetworkID
+	reverse.ToEndpointID = 0
 
 	if err := q.CreateWireGuardLinks(userInfo, m, reverse); err != nil {
 		return nil, err
@@ -68,6 +69,9 @@ func UpdateWireGuardLink(ctx *app.Context, req *pb.UpdateWireGuardLinkRequest) (
 	m.LatencyMs = l.GetLatencyMs()
 	m.UpBandwidthMbps = l.GetUpBandwidthMbps()
 	m.DownBandwidthMbps = l.GetDownBandwidthMbps()
+	if l.GetToEndpoint() != nil && l.GetToEndpoint().GetId() > 0 {
+		m.ToEndpointID = uint(l.GetToEndpoint().GetId())
+	}
 
 	if err := q.UpdateWireGuardLink(userInfo, uint(l.GetId()), m); err != nil {
 		return nil, err

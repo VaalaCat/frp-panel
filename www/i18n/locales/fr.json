@@ -313,6 +313,7 @@
       "statusInactive": "Inactif",
       "from": "De",
       "to": "À",
+      "endpoint": "Point de terminaison",
       "latency": "Latence",
       "bandwidthUp": "Bande passante montante",
       "bandwidthDown": "Bande passante descendante",
@@ -412,6 +413,8 @@
     "link": {
       "from": "Depuis",
       "to": "Vers",
+      "toEndpoint": "Point de terminaison",
+      "selectToFirst": "Veuillez sélectionner un point de terminaison",
       "up_bw": "Débit montant",
       "down_bw": "Débit descendant",
       "latency": "Latence",

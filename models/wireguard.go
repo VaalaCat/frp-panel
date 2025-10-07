@@ -61,7 +61,9 @@ func ParseIPOrCIDRWithNetip(s string) (netip.Addr, netip.Prefix, error) {
 	return netip.Addr{}, netip.Prefix{}, errors.New("invalid ip or cidr")
 }
 
-func (w *WireGuard) AsBasePeerConfig() (*pb.WireGuardPeerConfig, error) {
+// AsBasePeerConfig 将 WireGuard 配置转换为 Peer 配置
+// specifiedEndpoint: 可选参数，用于指定使用的 Endpoint。如果为 nil，则使用第一个 AdvertisedEndpoint
+func (w *WireGuard) AsBasePeerConfig(specifiedEndpoint *Endpoint) (*pb.WireGuardPeerConfig, error) {
 	privKey, err := wgtypes.ParseKey(w.PrivateKey)
 	if err != nil {
 		return nil, errors.Join(errors.New("parse private key error"), err)
@@ -83,10 +85,24 @@ func (w *WireGuard) AsBasePeerConfig() (*pb.WireGuardPeerConfig, error) {
 		PersistentKeepalive: 20,
 		Tags:                w.Tags,
 	}
-	if len(w.AdvertisedEndpoints) > 0 {
+
+	// 优先使用指定的 Endpoint
+	if specifiedEndpoint != nil {
 		resp.Endpoint = &pb.Endpoint{
-			Host: w.AdvertisedEndpoints[0].Host,
-			Port: w.AdvertisedEndpoints[0].Port,
+			Id:          uint32(specifiedEndpoint.ID),
+			Host:        specifiedEndpoint.Host,
+			Port:        specifiedEndpoint.Port,
+			ClientId:    specifiedEndpoint.ClientID,
+			WireguardId: uint32(specifiedEndpoint.WireGuardID),
+		}
+	} else if len(w.AdvertisedEndpoints) > 0 {
+		// 否则使用第一个 AdvertisedEndpoint
+		resp.Endpoint = &pb.Endpoint{
+			Id:          uint32(w.AdvertisedEndpoints[0].ID),
+			Host:        w.AdvertisedEndpoints[0].Host,
+			Port:        w.AdvertisedEndpoints[0].Port,
+			ClientId:    w.AdvertisedEndpoints[0].ClientID,
+			WireguardId: uint32(w.AdvertisedEndpoints[0].WireGuardID),
 		}
 	}
 
@@ -215,6 +231,10 @@ func (*Endpoint) TableName() string {
 }
 
 func (e *Endpoint) ToPB() *pb.Endpoint {
+	if e == nil {
+		return nil
+	}
+
 	return &pb.Endpoint{
 		Id:          uint32(e.ID),
 		Host:        e.Host,
