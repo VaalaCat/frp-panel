@@ -220,6 +220,8 @@
     "endpointForm": {
       "host": "Hôte",
       "port": "Port",
+      "invalid": "Paramètres de point de terminaison invalides",
+      "clientId": "Client",
       "submit": "Enregistrer"
     },
     "interface": {
@@ -588,6 +590,8 @@
       "type": "Type",
       "confirm": "Confirmer",
       "config": "Configuration du Tunnel",
+      "expand_one": "",
+      "expand_many": "",
       "expand_other": "Développer",
       "delete": "Supprimer",
       "tunnel_name": "Nom du Tunnel",

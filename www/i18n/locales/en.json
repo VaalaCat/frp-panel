@@ -220,6 +220,8 @@
     "endpointForm": {
       "host": "Host",
       "port": "Port",
+      "invalid": "Invalid endpoint params",
+      "clientId": "Client",
       "submit": "Save endpoint"
     },
     "interface": {
@@ -586,6 +588,7 @@
       "type": "Type",
       "confirm": "Confirm",
       "config": "Tunnel Configuration",
+      "expand_one": "",
       "expand_other": "Expand",
       "delete": "Delete",
       "tunnel_name": "Tunnel Name",

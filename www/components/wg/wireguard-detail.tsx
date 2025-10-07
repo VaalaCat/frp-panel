@@ -9,15 +9,15 @@ import { GetWireGuardRequest, DeleteWireGuardRequest, GetWireGuardRuntimeInfoReq
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
@@ -37,7 +37,6 @@ const WireGuardDetail: React.FC = () => {
 	const wireguardId = idParam ? Number(idParam) : undefined
 
 	const [openEdit, setOpenEdit] = React.useState(false)
-	const [openDelete, setOpenDelete] = React.useState(false)
 
 	const { data, isLoading, refetch } = useQuery({
 		queryKey: ['getWireGuard', wireguardId],
@@ -93,36 +92,41 @@ const WireGuardDetail: React.FC = () => {
 						{t('wg.wireguardDetail.subtitle', { id: wireguardId })}
 					</p>
 				</div>
-				<div className="flex flex-wrap gap-2">
-					<Button variant="outline" onClick={() => router.push('/wg/wireguards')}>
-						{t('wg.wireguardDetail.back')}
-					</Button>
-					<Button variant="outline" onClick={() => setOpenEdit(true)} disabled={!wireguard}>
-						{t('wg.wireguardDetail.edit')}
-					</Button>
-					<Button variant="destructive" onClick={() => setOpenDelete(true)}>
-						{t('wg.wireguardDetail.delete')}
-					</Button>
-				</div>
-			</div>
+				<Dialog>
+					<div className="flex flex-wrap gap-2">
+						<Button variant="outline" onClick={() => router.push('/wg/wireguards')}>
+							{t('wg.wireguardDetail.back')}
+						</Button>
+						<Button variant="outline" onClick={() => setOpenEdit(true)} disabled={!wireguard}>
+							{t('wg.wireguardDetail.edit')}
+						</Button>
+						<DialogTrigger asChild>
+							<Button variant="destructive">
+								{t('wg.wireguardDetail.delete')}
+							</Button>
+						</DialogTrigger>
+					</div>
 
-			<AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>{t('wg.wireguardDetail.delete')}</AlertDialogTitle>
-						<AlertDialogDescription>{t('wg.wireguardDetail.deleteConfirm')}</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-						<AlertDialogAction
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-							onClick={handleDelete}
-						>
-							{t('wg.wireguardDetail.delete')}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>{t('wg.wireguardDetail.delete')}</DialogTitle>
+							<DialogDescription>{t('wg.wireguardDetail.deleteConfirm')}</DialogDescription>
+						</DialogHeader>
+						<DialogFooter>
+							<DialogClose asChild>
+								<Button variant="outline">
+									{t('common.cancel')}
+								</Button>
+							</DialogClose>
+							<DialogClose asChild>
+								<Button variant="destructive" onClick={handleDelete}>
+									{t('wg.wireguardDetail.delete')}
+								</Button>
+							</DialogClose>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			</div>
 
 			<WireGuardEditDialog
 				clientId={wireguard?.clientId || ''}

@@ -77,6 +77,10 @@ export function WireGuardList({ clientId, networkId, keyword, onChanged }: { cli
 
   const total = data?.total ?? 0
 
+  const handleMutated = React.useCallback(() => {
+    setRefreshKey(makeRandomTrigger())
+  }, [])
+
   const table = useReactTable({
     data: rows,
     columns: WireGuardColumns,
@@ -91,6 +95,9 @@ export function WireGuardList({ clientId, networkId, keyword, onChanged }: { cli
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    meta: {
+      onChanged: handleMutated,
+    },
   })
 
   const toolbar = (

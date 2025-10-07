@@ -12,15 +12,15 @@ import WireGuardLinkEditDialog from './wireguard-link-edit-dialog'
 import { WireGuardLink } from '@/lib/pb/types_wg'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import { MoreHorizontal } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -85,14 +85,13 @@ export const WireGuardLinkColumns: ColumnDef<WireGuardLinkRow>[] = [
 	},
 	{
 		id: 'actions',
-		cell: ({ row }) => <WireGuardLinkActions link={row.original.origin} />,
+		cell: ({ row, table }) => <WireGuardLinkActions link={row.original.origin} onChanged={(table.options.meta as any)?.onChanged} />,
 	},
 ]
 
 function WireGuardLinkActions({ link, onChanged }: { link: WireGuardLink; onChanged?: () => void }) {
 	const { t } = useTranslation()
 	const [openEdit, setOpenEdit] = React.useState(false)
-	const [openDelete, setOpenDelete] = React.useState(false)
 	const onDelete = async () => {
 		if (!link.id) return
 		try {
@@ -106,40 +105,43 @@ function WireGuardLinkActions({ link, onChanged }: { link: WireGuardLink; onChan
 
 	return (
 		<>
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button variant="ghost" size="icon">
-						<MoreHorizontal className="h-4 w-4" />
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end">
-					<DropdownMenuItem onClick={() => setOpenEdit(true)}>{t('wg.linkActions.edit')}</DropdownMenuItem>
-					<DropdownMenuItem
-						onClick={() => setOpenDelete(true)}
-						className="text-destructive"
-					>
-						{t('wg.linkActions.delete')}
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
+			<Dialog>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" size="icon">
+							<MoreHorizontal className="h-4 w-4" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem onClick={() => setOpenEdit(true)}>{t('wg.linkActions.edit')}</DropdownMenuItem>
+						<DialogTrigger asChild>
+							<DropdownMenuItem className="text-destructive">
+								{t('wg.linkActions.delete')}
+							</DropdownMenuItem>
+						</DialogTrigger>
+					</DropdownMenuContent>
+				</DropdownMenu>
+
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{t('wg.linkActions.delete')}</DialogTitle>
+						<DialogDescription>{t('wg.linkDelete.confirm')}</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<DialogClose asChild>
+							<Button variant="outline">
+								{t('common.cancel')}
+							</Button>
+						</DialogClose>
+						<DialogClose asChild>
+							<Button variant="destructive" onClick={onDelete}>
+								{t('wg.linkActions.delete')}
+							</Button>
+						</DialogClose>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 			<WireGuardLinkEditDialog link={link} onSaved={onChanged} open={openEdit} onOpenChange={setOpenEdit} />
-			<AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>{t('wg.linkActions.delete')}</AlertDialogTitle>
-						<AlertDialogDescription>{t('wg.linkDelete.confirm')}</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-						<AlertDialogAction
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-							onClick={onDelete}
-						>
-							{t('wg.linkActions.delete')}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
 		</>
 	)
 }
@@ -177,6 +179,10 @@ export function WireGuardLinkList({ networkId, keyword }: { networkId?: number; 
 		origin: l,
 	}))
 
+	const handleMutated = React.useCallback(() => {
+		setRefreshKey((x) => x + 1)
+	}, [])
+
 	const table = useReactTable({
 		data: rows,
 		columns: WireGuardLinkColumns,
@@ -190,6 +196,9 @@ export function WireGuardLinkList({ networkId, keyword }: { networkId?: number; 
 		getFilteredRowModel: getFilteredRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
+		meta: {
+			onChanged: handleMutated,
+		},
 	})
 
 	return (

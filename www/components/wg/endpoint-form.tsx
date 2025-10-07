@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { createEndpoint, updateEndpoint } from '@/api/wg'
 import { CreateEndpointRequest, UpdateEndpointRequest } from '@/lib/pb/api_wg'
+import { ClientSelector } from '../base/client-selector'
 
 type DisableField = 'host' | 'port'
 
@@ -34,22 +35,27 @@ export default function EndpointForm({
 	const [loading, setLoading] = useState(false)
 	const [host, setHost] = useState(initial?.host ?? '')
 	const [port, setPort] = useState<number | ''>(initial?.port ?? '')
+	const [inputClientId, setInputClientId] = useState(clientId)
 
 	useEffect(() => {
 		setHost(initial?.host ?? '')
 		setPort(initial?.port ?? '')
+		setInputClientId(clientId)
 	}, [initial?.host, initial?.port])
 
 	const disabled = (k: DisableField) => !!disableFields?.includes(k)
 
 	const onSubmit = async () => {
-		if (!clientId || !host || !port) return
+		if (!inputClientId || !host || !port) {
+			toast.error(t('wg.endpointForm.invalid'))
+			return
+		}
 		setLoading(true)
 		try {
 			if (mode === 'edit' && endpointId) {
-				await updateEndpoint(UpdateEndpointRequest.create({ endpoint: { id: endpointId, clientId, host, port: Number(port) } }))
+				await updateEndpoint(UpdateEndpointRequest.create({ endpoint: { id: endpointId, clientId: inputClientId, host, port: Number(port) } }))
 			} else {
-				await createEndpoint(CreateEndpointRequest.create({ endpoint: { clientId, host, port: Number(port) } }))
+				await createEndpoint(CreateEndpointRequest.create({ endpoint: { clientId: inputClientId, host, port: Number(port) } }))
 			}
 			toast.success(t('common.success'))
 			onSuccess?.()
@@ -68,6 +74,10 @@ export default function EndpointForm({
 	return (
 		<div className="space-y-3">
 			<div>
+				<Label className="block text-sm mb-1">{t('wg.endpointForm.clientId')}</Label>
+				<ClientSelector clientID={inputClientId} setClientID={(value) => { setInputClientId(value); setHost('') }} />
+			</div>
+			<div>
 				<Label className="block text-sm mb-1">{t('wg.endpointForm.host')}</Label>
 				<Input value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" disabled={disabled('host')} />
 			</div>
@@ -76,7 +86,7 @@ export default function EndpointForm({
 				<Input value={port} onChange={(e) => setPort(Number(e.target.value) || '')} placeholder="51820" disabled={disabled('port')} />
 			</div>
 			<div className="flex justify-end gap-2">
-				<Button onClick={onSubmit} disabled={loading || !host || !port}>
+				<Button onClick={onSubmit} disabled={loading || !inputClientId || !host || !port}>
 					{submitText ?? t('wg.endpointForm.submit')}
 				</Button>
 			</div>

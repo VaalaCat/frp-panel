@@ -11,15 +11,15 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { deleteWireGuard } from '@/api/wg'
 import { DeleteWireGuardRequest } from '@/lib/pb/api_wg'
@@ -135,14 +135,13 @@ export const WireGuardColumns: ColumnDef<WireGuardTableSchema>[] = [
 	},
 	{
 		id: 'actions',
-		cell: ({ row }) => <WireGuardActions clientId={row.original.clientId} wg={row.original.origin} />,
+		cell: ({ row, table }) => <WireGuardActions clientId={row.original.clientId} wg={row.original.origin} onChanged={(table.options.meta as any)?.onChanged} />,
 	},
 ]
 
 
 function WireGuardActions({ clientId, wg, onChanged }: { clientId: string; wg: WireGuardConfig; onChanged?: () => void }) {
 	const { t } = useTranslation()
-	const [openDelete, setOpenDelete] = useState(false)
 	const [openEdit, setOpenEdit] = useState(false)
 	const onDelete = async () => {
 		if (!wg.id) return
@@ -156,56 +155,53 @@ function WireGuardActions({ clientId, wg, onChanged }: { clientId: string; wg: W
 	}
 	return (
 		<>
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button variant="ghost" size="icon">
-						<MoreHorizontal className="h-4 w-4" />
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end">
-					<DropdownMenuLabel>{t('wg.wireguardActions.title')}</DropdownMenuLabel>
-					<DropdownMenuItem
-						onClick={(e) => {
-							e.preventDefault()
-							e.stopPropagation()
-							setOpenDelete(false)
-							setOpenEdit(true)
-						}}
-					>
-						{t('wg.wireguardActions.edit')}
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						className="text-destructive"
-						onClick={(e) => {
-							e.preventDefault()
-							e.stopPropagation()
-							setOpenEdit(false)
-							setOpenDelete(true)
-						}}
-					>
-						{t('wg.wireguardActions.delete')}
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
-			<WireGuardEditDialog clientId={clientId} wg={wg} onUpdated={onChanged} open={openEdit} onOpenChange={setOpenEdit} />
-			<AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>{t('wg.wireguardActions.delete')}</AlertDialogTitle>
-						<AlertDialogDescription>{t('wg.wireguardDelete.confirm')}</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-						<AlertDialogAction
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-							onClick={onDelete}
+			<Dialog>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" size="icon">
+							<MoreHorizontal className="h-4 w-4" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuLabel>{t('wg.wireguardActions.title')}</DropdownMenuLabel>
+						<DropdownMenuItem
+							onClick={(e) => {
+								e.preventDefault()
+								e.stopPropagation()
+								setOpenEdit(true)
+							}}
 						>
-							{t('wg.wireguardActions.delete')}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+							{t('wg.wireguardActions.edit')}
+						</DropdownMenuItem>
+						<DropdownMenuSeparator />
+						<DialogTrigger asChild>
+							<DropdownMenuItem className="text-destructive">
+								{t('wg.wireguardActions.delete')}
+							</DropdownMenuItem>
+						</DialogTrigger>
+					</DropdownMenuContent>
+				</DropdownMenu>
+
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{t('wg.wireguardActions.delete')}</DialogTitle>
+						<DialogDescription>{t('wg.wireguardDelete.confirm')}</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<DialogClose asChild>
+							<Button variant="outline">
+								{t('common.cancel')}
+							</Button>
+						</DialogClose>
+						<DialogClose asChild>
+							<Button variant="destructive" onClick={onDelete}>
+								{t('wg.wireguardActions.delete')}
+							</Button>
+						</DialogClose>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+			<WireGuardEditDialog clientId={clientId} wg={wg} onUpdated={onChanged} open={openEdit} onOpenChange={setOpenEdit} />
 		</>
 	)
 }

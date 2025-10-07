@@ -9,15 +9,15 @@ import { GetNetworkRequest, DeleteNetworkRequest } from '@/lib/pb/api_wg'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
@@ -39,7 +39,6 @@ const NetworkDetail: React.FC = () => {
 	const networkId = networkIdParam ? Number(networkIdParam) : undefined
 
 	const [openEdit, setOpenEdit] = React.useState(false)
-	const [openDelete, setOpenDelete] = React.useState(false)
 	const [nodes, setNodes] = React.useState<TopologyNode[]>([])
 	const [edges, setEdges] = React.useState<WGEdge[]>([])
 	const [selectedEdgeId, setSelectedEdgeId] = React.useState<string>()
@@ -104,36 +103,41 @@ const NetworkDetail: React.FC = () => {
 						{t('wg.networkDetail.subtitle', { id: networkId })}
 					</p>
 				</div>
-				<div className="flex flex-wrap gap-2">
-					<Button variant="outline" onClick={() => router.push('/wg/networks')}>
-						{t('wg.networkDetail.back')}
-					</Button>
-					<Button variant="outline" onClick={() => setOpenEdit(true)} disabled={!network}>
-						{t('wg.networkDetail.edit')}
-					</Button>
-					<Button variant="destructive" onClick={() => setOpenDelete(true)}>
-						{t('wg.networkDetail.delete')}
-					</Button>
-				</div>
-			</div>
+				<Dialog>
+					<div className="flex flex-wrap gap-2">
+						<Button variant="outline" onClick={() => router.push('/wg/networks')}>
+							{t('wg.networkDetail.back')}
+						</Button>
+						<Button variant="outline" onClick={() => setOpenEdit(true)} disabled={!network}>
+							{t('wg.networkDetail.edit')}
+						</Button>
+						<DialogTrigger asChild>
+							<Button variant="destructive">
+								{t('wg.networkDetail.delete')}
+							</Button>
+						</DialogTrigger>
+					</div>
 
-			<AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>{t('wg.networkDetail.delete')}</AlertDialogTitle>
-						<AlertDialogDescription>{t('wg.networkDetail.deleteConfirm')}</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-						<AlertDialogAction
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-							onClick={handleDelete}
-						>
-							{t('wg.networkDetail.delete')}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>{t('wg.networkDetail.delete')}</DialogTitle>
+							<DialogDescription>{t('wg.networkDetail.deleteConfirm')}</DialogDescription>
+						</DialogHeader>
+						<DialogFooter>
+							<DialogClose asChild>
+								<Button variant="outline">
+									{t('common.cancel')}
+								</Button>
+							</DialogClose>
+							<DialogClose asChild>
+								<Button variant="destructive" onClick={handleDelete}>
+									{t('wg.networkDetail.delete')}
+								</Button>
+							</DialogClose>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			</div>
 
 			<NetworkEditDialog
 				open={openEdit}

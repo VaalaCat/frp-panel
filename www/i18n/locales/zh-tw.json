@@ -220,6 +220,8 @@
     "endpointForm": {
       "host": "主機名",
       "port": "埠號",
+      "invalid": "端點參數不正確",
+      "clientId": "客戶端",
       "submit": "儲存端點"
     },
     "interface": {

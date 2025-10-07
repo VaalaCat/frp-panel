@@ -9,15 +9,15 @@ import { GetEndpointRequest, DeleteEndpointRequest, ListWireGuardsRequest } from
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import EndpointEditDialog from './endpoint-edit-dialog'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -31,7 +31,6 @@ const EndpointDetail: React.FC = () => {
 	const idParam = params.get('id')
 	const endpointId = idParam ? Number(idParam) : undefined
 	const [openEdit, setOpenEdit] = React.useState(false)
-	const [openDelete, setOpenDelete] = React.useState(false)
 
 	const { data, isLoading, refetch } = useQuery({
 		queryKey: ['getEndpoint', endpointId],
@@ -85,36 +84,41 @@ const EndpointDetail: React.FC = () => {
 						{t('wg.endpointDetail.subtitle', { id: endpointId })}
 					</p>
 				</div>
-				<div className="flex flex-wrap gap-2">
-					<Button variant="outline" onClick={() => router.push('/wg/endpoints')}>
-						{t('wg.endpointDetail.back')}
-					</Button>
-					<Button variant="outline" onClick={() => setOpenEdit(true)} disabled={!endpoint}>
-						{t('wg.endpointActions.edit')}
-					</Button>
-					<Button variant="destructive" onClick={() => setOpenDelete(true)}>
-						{t('wg.endpoint.delete')}
-					</Button>
-				</div>
-			</div>
+				<Dialog>
+					<div className="flex flex-wrap gap-2">
+						<Button variant="outline" onClick={() => router.push('/wg/endpoints')}>
+							{t('wg.endpointDetail.back')}
+						</Button>
+						<Button variant="outline" onClick={() => setOpenEdit(true)} disabled={!endpoint}>
+							{t('wg.endpointActions.edit')}
+						</Button>
+						<DialogTrigger asChild>
+							<Button variant="destructive">
+								{t('wg.endpoint.delete')}
+							</Button>
+						</DialogTrigger>
+					</div>
 
-			<AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>{t('wg.endpoint.delete')}</AlertDialogTitle>
-						<AlertDialogDescription>{t('wg.endpointDetail.deleteConfirm')}</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-						<AlertDialogAction
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-							onClick={handleDelete}
-						>
-							{t('wg.endpoint.delete')}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>{t('wg.endpoint.delete')}</DialogTitle>
+							<DialogDescription>{t('wg.endpointDetail.deleteConfirm')}</DialogDescription>
+						</DialogHeader>
+						<DialogFooter>
+							<DialogClose asChild>
+								<Button variant="outline">
+									{t('common.cancel')}
+								</Button>
+							</DialogClose>
+							<DialogClose asChild>
+								<Button variant="destructive" onClick={handleDelete}>
+									{t('wg.endpoint.delete')}
+								</Button>
+							</DialogClose>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			</div>
 
 			<EndpointEditDialog
 				clientId={endpoint?.clientId || ''}

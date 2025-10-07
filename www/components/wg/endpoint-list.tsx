@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { listEndpoints } from '@/api/wg'
 import { ListEndpointsRequest } from '@/lib/pb/api_wg'
 import EndpointEditDialog from './endpoint-edit-dialog'
-import { EndpointColumns } from './endpoint-row'
+import { createEndpointColumns } from './endpoint-row'
 import { Endpoint } from '@/lib/pb/types_wg'
 
 export type EndpointTableSchema = {
@@ -51,10 +51,15 @@ export function EndpointList({ clientId, wireguardId, keyword }: { clientId?: st
     origin: e,
   }))
 
+  const handleMutated = React.useCallback(() => {
+    setRefreshKey((x) => x + 1)
+  }, [])
+
+  const columns = React.useMemo(() => createEndpointColumns({ onChanged: handleMutated }), [handleMutated])
 
   const table = useReactTable({
     data: rows,
-    columns: EndpointColumns,
+    columns,
     state: { sorting, pagination: { pageIndex, pageSize }, columnFilters },
     manualPagination: true,
     pageCount: Math.ceil((data?.total ?? 0) / pageSize),
@@ -72,7 +77,7 @@ export function EndpointList({ clientId, wireguardId, keyword }: { clientId?: st
       <EndpointEditDialog clientId={clientId || ""} onSaved={() => setRefreshKey((x) => x + 1)} open={openAdd} onOpenChange={setOpenAdd}>
         <Button size="sm">{t('wg.endpointCreate.button')}</Button>
       </EndpointEditDialog>
-      <DataTable table={table} columns={EndpointColumns} />
+      <DataTable table={table} columns={columns} />
     </div>
   )
 }

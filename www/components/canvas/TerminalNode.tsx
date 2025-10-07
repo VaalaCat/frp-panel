@@ -33,12 +33,13 @@ const TerminalNodeComponent: React.FC<NodeProps<TerminalNode> & NodeOperations> 
   const [enabled, setEnabled] = useState(!!data.clientId)
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | undefined>()
   const [clear, setClear] = useState(0)
+  const [refetch, setRefetch] = useState(0)
 
   const isFrps = data.clientType === ClientType.FRPS
 
   // 获取客户端状态
   const { data: clientStatusData } = useQuery({
-    queryKey: ['clientStatus', clientId],
+    queryKey: ['clientStatus', clientId, refetch],
     queryFn: async () => {
       if (!clientId) return undefined
       return await getClientsStatus({
@@ -65,6 +66,7 @@ const TerminalNodeComponent: React.FC<NodeProps<TerminalNode> & NodeOperations> 
 
   const handleRefresh = () => {
     setClear(Math.random())
+    setRefetch(refetch + 1)
   }
 
   return (

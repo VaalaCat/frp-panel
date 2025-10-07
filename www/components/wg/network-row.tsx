@@ -11,15 +11,15 @@ import {
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { MoreHorizontal, ArrowUpRight } from 'lucide-react'
 import { deleteNetwork } from '@/api/wg'
@@ -87,7 +87,6 @@ export function createNetworkColumns({ onChanged, t }: { onChanged?: () => void;
 export function NetworkActions({ row, onChanged }: { row: NetworkRow; onChanged?: () => void }) {
 	const { t } = useTranslation()
 	const [openEdit, setOpenEdit] = useState(false)
-	const [openDelete, setOpenDelete] = useState(false)
 
 	const onDelete = async () => {
 		try {
@@ -101,56 +100,53 @@ export function NetworkActions({ row, onChanged }: { row: NetworkRow; onChanged?
 
 	return (
 		<>
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button variant="ghost" size="icon">
-						<MoreHorizontal className="h-4 w-4" />
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end">
-					<DropdownMenuLabel>{t('wg.networkActions.title')}</DropdownMenuLabel>
-					<DropdownMenuItem
-						onClick={(e) => {
-							e.preventDefault()
-							e.stopPropagation()
-							setOpenDelete(false)
-							setOpenEdit(true)
-						}}
-					>
-						{t('wg.networkActions.edit')}
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						className="text-destructive"
-						onClick={(e) => {
-							e.preventDefault()
-							e.stopPropagation()
-							setOpenEdit(false)
-							setOpenDelete(true)
-						}}
-					>
-						{t('wg.networkActions.delete')}
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
-			<NetworkEditDialog network={row.origin} onSaved={onChanged} open={openEdit} onOpenChange={setOpenEdit} />
-			<AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>{t('wg.networkActions.delete')}</AlertDialogTitle>
-						<AlertDialogDescription>{t('wg.networkDelete.confirm')}</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-						<AlertDialogAction
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-							onClick={onDelete}
+			<Dialog>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" size="icon">
+							<MoreHorizontal className="h-4 w-4" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuLabel>{t('wg.networkActions.title')}</DropdownMenuLabel>
+						<DropdownMenuItem
+							onClick={(e) => {
+								e.preventDefault()
+								e.stopPropagation()
+								setOpenEdit(true)
+							}}
 						>
-							{t('wg.networkActions.delete')}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+							{t('wg.networkActions.edit')}
+						</DropdownMenuItem>
+						<DropdownMenuSeparator />
+						<DialogTrigger asChild>
+							<DropdownMenuItem className="text-destructive">
+								{t('wg.networkActions.delete')}
+							</DropdownMenuItem>
+						</DialogTrigger>
+					</DropdownMenuContent>
+				</DropdownMenu>
+
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{t('wg.networkActions.delete')}</DialogTitle>
+						<DialogDescription>{t('wg.networkDelete.confirm')}</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<DialogClose asChild>
+							<Button variant="outline">
+								{t('common.cancel')}
+							</Button>
+						</DialogClose>
+						<DialogClose asChild>
+							<Button variant="destructive" onClick={onDelete}>
+								{t('wg.networkActions.delete')}
+							</Button>
+						</DialogClose>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+			<NetworkEditDialog network={row.origin} onSaved={onChanged} open={openEdit} onOpenChange={setOpenEdit} />
 		</>
 	)
 }

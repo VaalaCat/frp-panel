@@ -220,6 +220,8 @@
     "endpointForm": {
       "host": "主机名",
       "port": "端口",
+      "invalid": "端点参数不正确",
+      "clientId": "客户端",
       "submit": "保存端点"
     },
     "interface": {
