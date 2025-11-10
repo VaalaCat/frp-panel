@@ -32,9 +32,11 @@ type WireGuardEntity struct {
 	InterfaceMtu uint32 `json:"interface_mtu"`
 
 	DnsServers GormArray[string] `json:"dns_servers" gorm:"type:varchar(255)"`
-	ClientID   string            `gorm:"type:varchar(64);uniqueIndex:idx_client_id_name;uniqueIndex:idx_client_id_listen_port"`
+	ClientID   string            `gorm:"type:varchar(64);uniqueIndex:idx_client_id_name;uniqueIndex:idx_client_id_listen_port;uniqueIndex:idx_client_id_ws_listen_port"`
 	NetworkID  uint              `gorm:"index"`
 	Tags       GormArray[string] `json:"tags" gorm:"type:varchar(255)"`
+
+	WsListenPort uint32 `json:"ws_listen_port" gorm:"uniqueIndex:idx_client_id_ws_listen_port"`
 }
 
 func (*WireGuard) TableName() string {
@@ -88,22 +90,10 @@ func (w *WireGuard) AsBasePeerConfig(specifiedEndpoint *Endpoint) (*pb.WireGuard
 
 	// 优先使用指定的 Endpoint
 	if specifiedEndpoint != nil {
-		resp.Endpoint = &pb.Endpoint{
-			Id:          uint32(specifiedEndpoint.ID),
-			Host:        specifiedEndpoint.Host,
-			Port:        specifiedEndpoint.Port,
-			ClientId:    specifiedEndpoint.ClientID,
-			WireguardId: uint32(specifiedEndpoint.WireGuardID),
-		}
+		resp.Endpoint = specifiedEndpoint.ToPB()
 	} else if len(w.AdvertisedEndpoints) > 0 {
 		// 否则使用第一个 AdvertisedEndpoint
-		resp.Endpoint = &pb.Endpoint{
-			Id:          uint32(w.AdvertisedEndpoints[0].ID),
-			Host:        w.AdvertisedEndpoints[0].Host,
-			Port:        w.AdvertisedEndpoints[0].Port,
-			ClientId:    w.AdvertisedEndpoints[0].ClientID,
-			WireguardId: uint32(w.AdvertisedEndpoints[0].WireGuardID),
-		}
+		resp.Endpoint = w.AdvertisedEndpoints[0].ToPB()
 	}
 
 	return resp, nil
@@ -126,18 +116,13 @@ func (w *WireGuard) FromPB(pb *pb.WireGuardConfig) {
 	w.ClientID = pb.GetClientId()
 	w.NetworkID = uint(pb.GetNetworkId())
 	w.Tags = GormArray[string](pb.GetTags())
+	w.WsListenPort = pb.GetWsListenPort()
 
 	w.AdvertisedEndpoints = make([]*Endpoint, 0, len(pb.GetAdvertisedEndpoints()))
 	for _, e := range pb.GetAdvertisedEndpoints() {
-		w.AdvertisedEndpoints = append(w.AdvertisedEndpoints, &Endpoint{
-			Model: gorm.Model{ID: uint(e.GetId())},
-			EndpointEntity: &EndpointEntity{
-				Host:        e.GetHost(),
-				Port:        e.GetPort(),
-				ClientID:    e.GetClientId(),
-				WireGuardID: uint(e.GetWireguardId()),
-			},
-		})
+		endpointModel := &Endpoint{}
+		endpointModel.FromPB(e)
+		w.AdvertisedEndpoints = append(w.AdvertisedEndpoints, endpointModel)
 	}
 }
 
@@ -156,14 +141,9 @@ func (w *WireGuard) ToPB() *pb.WireGuardConfig {
 		NetworkId:     uint32(w.NetworkID),
 		Tags:          w.Tags,
 		AdvertisedEndpoints: lo.Map(w.AdvertisedEndpoints, func(e *Endpoint, _ int) *pb.Endpoint {
-			return &pb.Endpoint{
-				Id:          uint32(e.ID),
-				Host:        e.Host,
-				Port:        e.Port,
-				ClientId:    e.ClientID,
-				WireguardId: uint32(e.WireGuardID),
-			}
+			return e.ToPB()
 		}),
+		WsListenPort: w.ListenPort,
 	}
 }
 
@@ -221,6 +201,8 @@ type Endpoint struct {
 type EndpointEntity struct {
 	Host string `gorm:"uniqueIndex:idx_client_id_host_port"`
 	Port uint32 `gorm:"uniqueIndex:idx_client_id_host_port"`
+	Uri  string
+	Type string `gorm:"type:varchar(255);index"`
 
 	WireGuardID uint   `gorm:"index"`
 	ClientID    string `gorm:"type:varchar(255);uniqueIndex:idx_client_id_host_port"`
@@ -241,6 +223,8 @@ func (e *Endpoint) ToPB() *pb.Endpoint {
 		Port:        e.Port,
 		ClientId:    e.ClientID,
 		WireguardId: uint32(e.WireGuardID),
+		Uri:         e.Uri,
+		Type:        e.Type,
 	}
 }
 
@@ -253,4 +237,6 @@ func (e *Endpoint) FromPB(pbData *pb.Endpoint) {
 	e.Port = pbData.GetPort()
 	e.ClientID = pbData.GetClientId()
 	e.WireGuardID = uint(pbData.GetWireguardId())
+	e.Uri = pbData.GetUri()
+	e.Type = pbData.GetType()
 }

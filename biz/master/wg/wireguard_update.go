@@ -20,21 +20,12 @@ func UpdateWireGuard(ctx *app.Context, req *pb.UpdateWireGuardRequest) (*pb.Upda
 	if cfg == nil || cfg.GetId() == 0 || len(cfg.GetClientId()) == 0 || len(cfg.GetInterfaceName()) == 0 || len(cfg.GetPrivateKey()) == 0 || len(cfg.GetLocalAddress()) == 0 {
 		return nil, errors.New("invalid wireguard config")
 	}
-	model := &models.WireGuard{
-		WireGuardEntity: &models.WireGuardEntity{
-			Name:         cfg.GetInterfaceName(),
-			UserId:       uint32(userInfo.GetUserID()),
-			TenantId:     uint32(userInfo.GetTenantID()),
-			PrivateKey:   cfg.GetPrivateKey(),
-			LocalAddress: cfg.GetLocalAddress(),
-			ListenPort:   cfg.GetListenPort(),
-			InterfaceMtu: cfg.GetInterfaceMtu(),
-			DnsServers:   models.GormArray[string](cfg.GetDnsServers()),
-			ClientID:     cfg.GetClientId(),
-			NetworkID:    uint(cfg.GetNetworkId()),
-			Tags:         models.GormArray[string](cfg.GetTags()),
-		},
-	}
+
+	model := &models.WireGuard{}
+	model.FromPB(cfg)
+	model.UserId = uint32(userInfo.GetUserID())
+	model.TenantId = uint32(userInfo.GetTenantID())
+
 	if err := dao.NewQuery(ctx).UpdateWireGuard(userInfo, uint(cfg.GetId()), model); err != nil {
 		return nil, err
 	}
@@ -62,8 +53,9 @@ func UpdateWireGuard(ctx *app.Context, req *pb.UpdateWireGuardRequest) (*pb.Upda
 			if exist.ClientID != cfg.GetClientId() {
 				return nil, errors.New("endpoint client mismatch")
 			}
-			entity := &models.EndpointEntity{Host: ep.GetHost(), Port: ep.GetPort(), ClientID: exist.ClientID, WireGuardID: uint(cfg.GetId())}
-			if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, uint(exist.ID), entity); err != nil {
+			exist.WireGuardID = uint(cfg.GetId())
+
+			if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, uint(exist.ID), exist.EndpointEntity); err != nil {
 				return nil, err
 			}
 			newSet[uint(exist.ID)] = struct{}{}

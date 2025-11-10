@@ -222,6 +222,8 @@
       "port": "端口",
       "invalid": "端点参数不正确",
       "clientId": "客户端",
+      "type": "端点类型",
+      "uri": "端点 URI",
       "submit": "保存端点"
     },
     "interface": {
@@ -231,7 +233,8 @@
       "port": "端口",
       "client": "客户端",
       "tags": "标签",
-      "network": "网络"
+      "network": "网络",
+      "useGvisorNet": "用户空间网络栈"
     },
     "endpointEdit": {
       "title": "编辑端点",
@@ -243,6 +246,8 @@
       "button": "新建端点"
     },
     "endpointTable": {
+      "type": "",
+      "uri": "",
       "host": "主机",
       "wireguardId": "WireGuard",
       "clientId": "客户端"
@@ -388,6 +393,8 @@
       "mtu": "MTU",
       "privateKey": "私钥",
       "tags": "标签",
+      "wsListenPort": "WebSocket 监听端口",
+      "useGvisorNet": "用户空间网络栈",
       "selectEndpoint": "选择端点",
       "submit": "保存 WireGuard"
     },

@@ -26,3 +26,4 @@ node_modules
 pnpm-global
 TODOs.md
 *.timestamp-*.mjs
+.zed

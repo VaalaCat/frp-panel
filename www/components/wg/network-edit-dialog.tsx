@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import NetworkForm from './network-form'
+import { AclConfig } from '@/lib/pb/types_wg'
 
 export default function NetworkEditDialog({
 	network,
@@ -12,7 +13,7 @@ export default function NetworkEditDialog({
 	open,
 	onOpenChange,
 }: {
-	network: { id: number; name: string; cidr: string; aclString?: string }
+	network: { id: number; name: string; cidr: string; acl?: AclConfig }
 	children?: React.ReactNode
 	onSaved?: () => void
 	open: boolean
@@ -30,7 +31,7 @@ export default function NetworkEditDialog({
 				<NetworkForm
 					mode="edit"
 					networkId={network.id}
-					initial={{ name: network.name, cidr: network.cidr, aclString: network.aclString }}
+					initial={{ name: network.name, cidr: network.cidr, aclString: network.acl ? JSON.stringify(network.acl, null, 2) : '' }}
 					disableFields={['cidr']}
 					submitText={t('wg.networkEdit.submit') as string}
 					onSuccess={() => { onSaved?.() }}

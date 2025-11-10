@@ -32,7 +32,7 @@ export default function EndpointEditDialog({
 					mode={endpoint?.id ? 'edit' : 'create'}
 					clientId={clientId}
 					endpointId={endpoint?.id}
-					initial={{ host: endpoint?.host, port: endpoint?.port }}
+					initial={endpoint}
 					submitText={endpoint?.id ? (t('wg.endpointEdit.submit') as string) : (t('wg.endpointCreate.submit') as string)}
 					onSuccess={() => { onSaved?.(); onOpenChange(false) }}
 				/>

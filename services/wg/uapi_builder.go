@@ -3,9 +3,10 @@ package wg
 import (
 	"encoding/hex"
 	"fmt"
-	"net"
 	"strings"
 
+	"github.com/VaalaCat/frp-panel/defs"
+	"github.com/VaalaCat/frp-panel/pb"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
@@ -50,12 +51,12 @@ func (b *UAPIBuilder) ReplacePeers(replace bool) *UAPIBuilder {
 }
 
 // AddPeerConfig appends a peer configuration section.
-func (b *UAPIBuilder) AddPeerConfig(peer wgtypes.PeerConfig) *UAPIBuilder {
+func (b *UAPIBuilder) AddPeerConfig(peer *defs.WireGuardPeerConfig) *UAPIBuilder {
 	b.peerSections = append(b.peerSections, buildPeerSection(peer, ""))
 	return b
 }
 
-func (b *UAPIBuilder) AddPeers(peers []wgtypes.PeerConfig) *UAPIBuilder {
+func (b *UAPIBuilder) AddPeers(peers []*defs.WireGuardPeerConfig) *UAPIBuilder {
 	for _, peer := range peers {
 		b.AddPeerConfig(peer)
 	}
@@ -63,7 +64,7 @@ func (b *UAPIBuilder) AddPeers(peers []wgtypes.PeerConfig) *UAPIBuilder {
 }
 
 // UpdatePeerConfig appends a peer configuration section with update_only=true.
-func (b *UAPIBuilder) UpdatePeerConfig(peer wgtypes.PeerConfig) *UAPIBuilder {
+func (b *UAPIBuilder) UpdatePeerConfig(peer *defs.WireGuardPeerConfig) *UAPIBuilder {
 	b.peerSections = append(b.peerSections, buildPeerSection(peer, "update_only=true\n"))
 	return b
 }
@@ -114,41 +115,50 @@ func (b *UAPIBuilder) Build() string {
 }
 
 // buildPeerSection converts a wgtypes.PeerConfig into its UAPI text format.
-func buildPeerSection(peer wgtypes.PeerConfig, extraHeader string) string {
+func buildPeerSection(peer *defs.WireGuardPeerConfig, extraHeader string) string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("public_key=%s\n", hex.EncodeToString(peer.PublicKey[:])))
+	typedPeer := peer
+
+	pk := typedPeer.GetParsedPublicKey()
+
+	sb.WriteString(fmt.Sprintf("public_key=%s\n", hex.EncodeToString(pk[:])))
 	if extraHeader != "" {
 		sb.WriteString(extraHeader)
 	}
 
-	if peer.PresharedKey != nil && !isZeroKey(*peer.PresharedKey) {
-		sb.WriteString(fmt.Sprintf("preshared_key=%s\n", hex.EncodeToString(peer.PresharedKey[:])))
+	if typedPeer.GetPresharedKey() != "" {
+		psk := typedPeer.GetParsedPresharedKey()
+		sb.WriteString(fmt.Sprintf("preshared_key=%s\n", hex.EncodeToString(psk[:])))
 	}
 
 	if peer.Endpoint != nil {
 		sb.WriteString(fmt.Sprintf("endpoint=%s\n", normalizeEndpoint(peer.Endpoint)))
 	}
 
-	if peer.PersistentKeepaliveInterval != nil && *peer.PersistentKeepaliveInterval > 0 {
-		secs := int(peer.PersistentKeepaliveInterval.Seconds())
-		sb.WriteString(fmt.Sprintf("persistent_keepalive_interval=%d\n", secs))
+	if peer.GetPersistentKeepalive() > 0 {
+		sb.WriteString(fmt.Sprintf("persistent_keepalive_interval=%d\n", peer.GetPersistentKeepalive()))
 	}
 
-	if peer.ReplaceAllowedIPs {
-		sb.WriteString("replace_allowed_ips=true\n")
-	}
+	sb.WriteString("replace_allowed_ips=true\n")
 
-	for _, allowedIP := range peer.AllowedIPs {
-		sb.WriteString(fmt.Sprintf("allowed_ip=%s\n", allowedIP.String()))
+	for _, allowedIP := range peer.GetAllowedIps() {
+		sb.WriteString(fmt.Sprintf("allowed_ip=%s\n", allowedIP))
 	}
 
 	return sb.String()
 }
 
-func normalizeEndpoint(addr *net.UDPAddr) string {
-	// UDPAddr.String formats IPv6 as [ip%zone]:port; keep as-is to match UAPI.
-	return addr.String()
+func normalizeEndpoint(ep *pb.Endpoint) string {
+	if ep == nil {
+		return ""
+	}
+
+	if ep.GetUri() != "" {
+		return ep.GetUri()
+	}
+
+	return fmt.Sprintf("%s:%d", ep.GetHost(), ep.GetPort())
 }
 
 func isZeroKey(key wgtypes.Key) bool {

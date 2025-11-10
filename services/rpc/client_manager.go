@@ -21,6 +21,7 @@ type ClientsManager interface {
 type ClientsManagerImpl struct {
 	senders     *utils.SyncMap[string, *defs.Connector]
 	connectTime *utils.SyncMap[string, time.Time]
+	lastSeenAt  *utils.SyncMap[string, time.Time]
 }
 
 // Get implements ClientsManager.
@@ -40,11 +41,13 @@ func (c *ClientsManagerImpl) Set(cliID, clientType string, sender pb.Master_Serv
 		CliType: clientType,
 	})
 	c.connectTime.Store(cliID, time.Now())
+	c.lastSeenAt.Store(cliID, time.Now())
 }
 
 func (c *ClientsManagerImpl) Remove(cliID string) {
 	c.senders.Delete(cliID)
 	c.connectTime.Delete(cliID)
+	c.lastSeenAt.Delete(cliID)
 }
 
 func (c *ClientsManagerImpl) ClientAddr(cliID string) string {
@@ -67,9 +70,22 @@ func (c *ClientsManagerImpl) ConnectTime(cliID string) (time.Time, bool) {
 	return t, true
 }
 
+func (c *ClientsManagerImpl) UpdateLastSeenAt(cliID string) {
+	c.lastSeenAt.Store(cliID, time.Now())
+}
+
+func (c *ClientsManagerImpl) GetLastSeenAt(cliID string) (time.Time, bool) {
+	t, ok := c.lastSeenAt.Load(cliID)
+	if !ok {
+		return time.Time{}, false
+	}
+	return t, true
+}
+
 func NewClientsManager() app.ClientsManager {
 	return &ClientsManagerImpl{
 		senders:     &utils.SyncMap[string, *defs.Connector]{},
 		connectTime: &utils.SyncMap[string, time.Time]{},
+		lastSeenAt:  &utils.SyncMap[string, time.Time]{},
 	}
 }

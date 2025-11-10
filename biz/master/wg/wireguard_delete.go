@@ -72,6 +72,7 @@ func DeleteWireGuard(ctx *app.Context, req *pb.DeleteWireGuardRequest) (*pb.Dele
 			wgsvc.DefaultRoutingPolicy(
 				wgsvc.NewACL().LoadFromPB(wgToDelete.Network.ACL.Data),
 				ctx.GetApp().GetNetworkTopologyCache(),
+				ctx.GetApp().GetClientsManager(),
 			))
 		if err != nil {
 			log.WithError(err).Errorf("build peer configs for network failed")

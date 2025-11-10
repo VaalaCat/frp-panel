@@ -4,6 +4,7 @@ import (
 	"errors"
 	"math"
 	"sort"
+	"time"
 
 	"github.com/samber/lo"
 
@@ -21,9 +22,11 @@ type RoutingPolicy struct {
 	MinUpMbps                uint32
 	DefaultEndpointUpMbps    uint32
 	DefaultEndpointLatencyMs uint32
+	OfflineThreshold         time.Duration
 
 	ACL                  *ACL
 	NetworkTopologyCache app.NetworkTopologyCache
+	CliMgr               app.ClientsManager
 }
 
 func (p *RoutingPolicy) LoadACL(acl *ACL) *RoutingPolicy {
@@ -31,15 +34,17 @@ func (p *RoutingPolicy) LoadACL(acl *ACL) *RoutingPolicy {
 	return p
 }
 
-func DefaultRoutingPolicy(acl *ACL, networkTopologyCache app.NetworkTopologyCache) RoutingPolicy {
+func DefaultRoutingPolicy(acl *ACL, networkTopologyCache app.NetworkTopologyCache, cliMgr app.ClientsManager) RoutingPolicy {
 	return RoutingPolicy{
 		LatencyWeight:            1.0,
 		InverseBandwidthWeight:   50.0, // 对低带宽路径给予更高惩罚
 		HopWeight:                1.0,
 		DefaultEndpointUpMbps:    50,
 		DefaultEndpointLatencyMs: 30,
+		OfflineThreshold:         2 * time.Minute,
 		ACL:                      acl,
 		NetworkTopologyCache:     networkTopologyCache,
+		CliMgr:                   cliMgr,
 	}
 }
 
@@ -138,6 +143,14 @@ func buildAdjacency(order []uint, idToPeer map[uint]*models.WireGuard, links []*
 			continue
 		}
 
+		if lastSeenAt, ok := policy.CliMgr.GetLastSeenAt(idToPeer[from].ClientID); !ok || time.Since(lastSeenAt) > policy.OfflineThreshold {
+			continue
+		}
+
+		if lastSeenAt, ok := policy.CliMgr.GetLastSeenAt(idToPeer[to].ClientID); !ok || time.Since(lastSeenAt) > policy.OfflineThreshold {
+			continue
+		}
+
 		// 如果两个peer都没有endpoint，则不建立链路
 		if len(idToPeer[from].AdvertisedEndpoints) == 0 && len(idToPeer[to].AdvertisedEndpoints) == 0 {
 			continue
@@ -183,6 +196,14 @@ func buildAdjacency(order []uint, idToPeer map[uint]*models.WireGuard, links []*
 			}
 			if latencyMs, ok := policy.NetworkTopologyCache.GetLatencyMs(to, from); ok {
 				latency = latencyMs
+			}
+
+			if lastSeenAt, ok := policy.CliMgr.GetLastSeenAt(idToPeer[from].ClientID); !ok || time.Since(lastSeenAt) > policy.OfflineThreshold {
+				continue
+			}
+
+			if lastSeenAt, ok := policy.CliMgr.GetLastSeenAt(idToPeer[to].ClientID); !ok || time.Since(lastSeenAt) > policy.OfflineThreshold {
+				continue
 			}
 
 			// 有 acl 限制

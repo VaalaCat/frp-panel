@@ -188,9 +188,13 @@ const (
 
 const (
 	DefaultDeviceMTU           uint32 = 1400
-	DefaultPersistentKeepalive        = 25
+	DefaultPersistentKeepalive uint32 = 25
 )
 
 var VaalaMagicBytes = []byte("vaala-ping")
 
 const VaalaMagicBytesCookie = uint32(1630367849)
+
+const (
+	DefaultWSHandlerPath = "/api/x-vaala-transport/ws"
+)

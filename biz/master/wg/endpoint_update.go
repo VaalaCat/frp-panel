@@ -24,9 +24,19 @@ func UpdateEndpoint(ctx *app.Context, req *pb.UpdateEndpointRequest) (*pb.Update
 		return nil, err
 	}
 
-	// 只更新 host 和 port
-	oldEndpoint.Host = e.GetHost()
-	oldEndpoint.Port = e.GetPort()
+	if e.GetHost() != "" {
+		oldEndpoint.Host = e.GetHost()
+	}
+	if e.GetPort() != 0 {
+		oldEndpoint.Port = e.GetPort()
+	}
+	if e.GetUri() != "" {
+		oldEndpoint.Uri = e.GetUri()
+	}
+	if e.GetType() != "" {
+		oldEndpoint.Type = e.GetType()
+	}
+
 	if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, uint(e.GetId()), oldEndpoint.EndpointEntity); err != nil {
 		return nil, err
 	}

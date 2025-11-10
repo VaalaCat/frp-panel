@@ -83,6 +83,8 @@ type ClientsManager interface {
 	Remove(cliID string)
 	ClientAddr(cliID string) string
 	ConnectTime(cliID string) (time.Time, bool)
+	UpdateLastSeenAt(cliID string)
+	GetLastSeenAt(cliID string) (time.Time, bool)
 }
 
 type Service interface {

@@ -142,7 +142,7 @@ const NetworkDetail: React.FC = () => {
 			<NetworkEditDialog
 				open={openEdit}
 				onOpenChange={setOpenEdit}
-				network={network ? { id: network.id!, name: network.name || '', cidr: network.cidr || '', aclString: network.acl ? JSON.stringify(network.acl, null, 2) : '' } : { id: networkId, name: '', cidr: '' }}
+				network={network ? { id: network.id!, name: network.name || '', cidr: network.cidr || '', acl: network.acl } : { id: networkId, name: '', cidr: '' }}
 				onSaved={() => {
 					refetch()
 					refetchTopology()

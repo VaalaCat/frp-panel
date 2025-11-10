@@ -20,7 +20,7 @@ func CreateEndpoint(ctx *app.Context, req *pb.CreateEndpointRequest) (*pb.Create
 		return nil, errors.New("invalid endpoint params")
 	}
 
-	entity := &models.EndpointEntity{Host: e.GetHost(), Port: e.GetPort(), ClientID: e.GetClientId()}
+	entity := &models.EndpointEntity{Host: e.GetHost(), Port: e.GetPort(), ClientID: e.GetClientId(), Type: e.GetType(), Uri: e.GetUri()}
 	if err := dao.NewQuery(ctx).CreateEndpoint(userInfo, entity); err != nil {
 		return nil, err
 	}

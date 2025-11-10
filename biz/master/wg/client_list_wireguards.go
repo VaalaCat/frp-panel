@@ -62,7 +62,9 @@ func ListClientWireGuards(ctx *app.Context, req *pb.ListClientWireGuardsRequest)
 				networkPeers[wgCfg.NetworkID], networkLinksMap[wgCfg.NetworkID],
 				wgsvc.DefaultRoutingPolicy(
 					wgsvc.NewACL().LoadFromPB(wgCfg.Network.ACL.Data),
-					ctx.GetApp().GetNetworkTopologyCache()))
+					ctx.GetApp().GetNetworkTopologyCache(),
+					ctx.GetApp().GetClientsManager(),
+				))
 			if err != nil {
 				log.WithError(err).Errorf("failed to plan allowed ips for wireguard configs: %v", wgCfgs)
 				return nil

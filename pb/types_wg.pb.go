@@ -155,6 +155,8 @@ type WireGuardConfig struct {
 	DnsServers          []string               `protobuf:"bytes,12,rep,name=dns_servers,json=dnsServers,proto3" json:"dns_servers,omitempty"`                            // (可选) DNS 服务器列表
 	NetworkId           uint32                 `protobuf:"varint,13,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`                              // 归属的网络 ID
 	Tags                []string               `protobuf:"bytes,14,rep,name=tags,proto3" json:"tags,omitempty"`                                                          // 标签
+	WsListenPort        uint32                 `protobuf:"varint,15,opt,name=ws_listen_port,json=wsListenPort,proto3" json:"ws_listen_port,omitempty"`                   // (可选) WebSocket 监听端口，如果没有配置，则使用默认端口
+	UseGvisorNet        bool                   `protobuf:"varint,16,opt,name=use_gvisor_net,json=useGvisorNet,proto3" json:"use_gvisor_net,omitempty"`                   // (可选) 是否使用 gvisor netstack，环境变量中的ture可以覆盖该配置
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -287,6 +289,20 @@ func (x *WireGuardConfig) GetTags() []string {
 	return nil
 }
 
+func (x *WireGuardConfig) GetWsListenPort() uint32 {
+	if x != nil {
+		return x.WsListenPort
+	}
+	return 0
+}
+
+func (x *WireGuardConfig) GetUseGvisorNet() bool {
+	if x != nil {
+		return x.UseGvisorNet
+	}
+	return false
+}
+
 type Endpoint struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -294,6 +310,8 @@ type Endpoint struct {
 	Port          uint32                 `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
 	ClientId      string                 `protobuf:"bytes,4,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
 	WireguardId   uint32                 `protobuf:"varint,5,opt,name=wireguard_id,json=wireguardId,proto3" json:"wireguard_id,omitempty"` // 分配的 WireGuard ID
+	Uri           string                 `protobuf:"bytes,6,opt,name=uri,proto3" json:"uri,omitempty"`                                     // Endpoint支持多种类型，当类型为非UDP时，需要用到这个字段
+	Type          string                 `protobuf:"bytes,7,opt,name=type,proto3" json:"type,omitempty"`                                   // Endpoint类型, 支持ws/udp
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -361,6 +379,20 @@ func (x *Endpoint) GetWireguardId() uint32 {
 		return x.WireguardId
 	}
 	return 0
+}
+
+func (x *Endpoint) GetUri() string {
+	if x != nil {
+		return x.Uri
+	}
+	return ""
+}
+
+func (x *Endpoint) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
 }
 
 type WireGuardLink struct {
@@ -637,7 +669,7 @@ func (x *AclConfig) GetAcls() []*AclRuleConfig {
 
 type AclRuleConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Action        string                 `protobuf:"bytes,1,opt,name=action,proto3" json:"action,omitempty"`
+	Action        string                 `protobuf:"bytes,1,opt,name=action,proto3" json:"action,omitempty"` // accept or deny
 	Src           []string               `protobuf:"bytes,2,rep,name=src,proto3" json:"src,omitempty"`
 	Dst           []string               `protobuf:"bytes,3,rep,name=dst,proto3" json:"dst,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -953,7 +985,7 @@ const file_types_wg_proto_rawDesc = "" +
 	"\bendpoint\x18\b \x01(\v2\x13.wireguard.EndpointR\bendpoint\x121\n" +
 	"\x14persistent_keepalive\x18\t \x01(\rR\x13persistentKeepalive\x12\x12\n" +
 	"\x04tags\x18\n" +
-	" \x03(\tR\x04tags\"\xf9\x03\n" +
+	" \x03(\tR\x04tags\"\xc5\x04\n" +
 	"\x0fWireGuardConfig\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1b\n" +
 	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12\x17\n" +
@@ -973,13 +1005,17 @@ const file_types_wg_proto_rawDesc = "" +
 	"dnsServers\x12\x1d\n" +
 	"\n" +
 	"network_id\x18\r \x01(\rR\tnetworkId\x12\x12\n" +
-	"\x04tags\x18\x0e \x03(\tR\x04tags\"\x82\x01\n" +
+	"\x04tags\x18\x0e \x03(\tR\x04tags\x12$\n" +
+	"\x0ews_listen_port\x18\x0f \x01(\rR\fwsListenPort\x12$\n" +
+	"\x0euse_gvisor_net\x18\x10 \x01(\bR\fuseGvisorNet\"\xa8\x01\n" +
 	"\bEndpoint\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\rR\x04port\x12\x1b\n" +
 	"\tclient_id\x18\x04 \x01(\tR\bclientId\x12!\n" +
-	"\fwireguard_id\x18\x05 \x01(\rR\vwireguardId\"\xbc\x02\n" +
+	"\fwireguard_id\x18\x05 \x01(\rR\vwireguardId\x12\x10\n" +
+	"\x03uri\x18\x06 \x01(\tR\x03uri\x12\x12\n" +
+	"\x04type\x18\a \x01(\tR\x04type\"\xbc\x02\n" +
 	"\rWireGuardLink\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12*\n" +
 	"\x11from_wireguard_id\x18\x02 \x01(\rR\x0ffromWireguardId\x12&\n" +

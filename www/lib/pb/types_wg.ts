@@ -119,6 +119,14 @@ export interface WireGuardConfig {
      * @generated from protobuf field: repeated string tags = 14;
      */
     tags: string[]; // 标签
+    /**
+     * @generated from protobuf field: uint32 ws_listen_port = 15;
+     */
+    wsListenPort: number; // (可选) WebSocket 监听端口，如果没有配置，则使用默认端口
+    /**
+     * @generated from protobuf field: bool use_gvisor_net = 16;
+     */
+    useGvisorNet: boolean; // (可选) 是否使用 gvisor netstack，环境变量中的ture可以覆盖该配置
 }
 /**
  * @generated from protobuf message wireguard.Endpoint
@@ -144,6 +152,14 @@ export interface Endpoint {
      * @generated from protobuf field: uint32 wireguard_id = 5;
      */
     wireguardId: number; // 分配的 WireGuard ID
+    /**
+     * @generated from protobuf field: string uri = 6;
+     */
+    uri: string; // Endpoint支持多种类型，当类型为非UDP时，需要用到这个字段
+    /**
+     * @generated from protobuf field: string type = 7;
+     */
+    type: string; // Endpoint类型, 支持ws/udp
 }
 /**
  * @generated from protobuf message wireguard.WireGuardLink
@@ -236,7 +252,7 @@ export interface AclRuleConfig {
     /**
      * @generated from protobuf field: string action = 1;
      */
-    action: string;
+    action: string; // accept or deny
     /**
      * @generated from protobuf field: repeated string src = 2;
      */
@@ -481,7 +497,9 @@ class WireGuardConfig$Type extends MessageType<WireGuardConfig> {
             { no: 11, name: "advertised_endpoints", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => Endpoint },
             { no: 12, name: "dns_servers", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
             { no: 13, name: "network_id", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
-            { no: 14, name: "tags", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ }
+            { no: 14, name: "tags", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
+            { no: 15, name: "ws_listen_port", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
+            { no: 16, name: "use_gvisor_net", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<WireGuardConfig>): WireGuardConfig {
@@ -500,6 +518,8 @@ class WireGuardConfig$Type extends MessageType<WireGuardConfig> {
         message.dnsServers = [];
         message.networkId = 0;
         message.tags = [];
+        message.wsListenPort = 0;
+        message.useGvisorNet = false;
         if (value !== undefined)
             reflectionMergePartial<WireGuardConfig>(this, message, value);
         return message;
@@ -550,6 +570,12 @@ class WireGuardConfig$Type extends MessageType<WireGuardConfig> {
                     break;
                 case /* repeated string tags */ 14:
                     message.tags.push(reader.string());
+                    break;
+                case /* uint32 ws_listen_port */ 15:
+                    message.wsListenPort = reader.uint32();
+                    break;
+                case /* bool use_gvisor_net */ 16:
+                    message.useGvisorNet = reader.bool();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -605,6 +631,12 @@ class WireGuardConfig$Type extends MessageType<WireGuardConfig> {
         /* repeated string tags = 14; */
         for (let i = 0; i < message.tags.length; i++)
             writer.tag(14, WireType.LengthDelimited).string(message.tags[i]);
+        /* uint32 ws_listen_port = 15; */
+        if (message.wsListenPort !== 0)
+            writer.tag(15, WireType.Varint).uint32(message.wsListenPort);
+        /* bool use_gvisor_net = 16; */
+        if (message.useGvisorNet !== false)
+            writer.tag(16, WireType.Varint).bool(message.useGvisorNet);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -623,7 +655,9 @@ class Endpoint$Type extends MessageType<Endpoint> {
             { no: 2, name: "host", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "port", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 4, name: "client_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 5, name: "wireguard_id", kind: "scalar", T: 13 /*ScalarType.UINT32*/ }
+            { no: 5, name: "wireguard_id", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
+            { no: 6, name: "uri", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 7, name: "type", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<Endpoint>): Endpoint {
@@ -633,6 +667,8 @@ class Endpoint$Type extends MessageType<Endpoint> {
         message.port = 0;
         message.clientId = "";
         message.wireguardId = 0;
+        message.uri = "";
+        message.type = "";
         if (value !== undefined)
             reflectionMergePartial<Endpoint>(this, message, value);
         return message;
@@ -656,6 +692,12 @@ class Endpoint$Type extends MessageType<Endpoint> {
                     break;
                 case /* uint32 wireguard_id */ 5:
                     message.wireguardId = reader.uint32();
+                    break;
+                case /* string uri */ 6:
+                    message.uri = reader.string();
+                    break;
+                case /* string type */ 7:
+                    message.type = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -684,6 +726,12 @@ class Endpoint$Type extends MessageType<Endpoint> {
         /* uint32 wireguard_id = 5; */
         if (message.wireguardId !== 0)
             writer.tag(5, WireType.Varint).uint32(message.wireguardId);
+        /* string uri = 6; */
+        if (message.uri !== "")
+            writer.tag(6, WireType.LengthDelimited).string(message.uri);
+        /* string type = 7; */
+        if (message.type !== "")
+            writer.tag(7, WireType.LengthDelimited).string(message.type);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

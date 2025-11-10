@@ -222,6 +222,8 @@
       "port": "埠號",
       "invalid": "端點參數不正確",
       "clientId": "客戶端",
+      "type": "端點類型",
+      "uri": "端點 URI",
       "submit": "儲存端點"
     },
     "interface": {
@@ -231,7 +233,8 @@
       "port": "埠號",
       "client": "客戶端",
       "tags": "標籤",
-      "network": "網路"
+      "network": "網路",
+      "useGvisorNet": "用戶空間網絡棧"
     },
     "endpointEdit": {
       "title": "編輯端點",
@@ -243,6 +246,8 @@
       "button": "新增端點"
     },
     "endpointTable": {
+      "type": "",
+      "uri": "",
       "host": "主機",
       "wireguardId": "WireGuard",
       "clientId": "客戶端"
@@ -388,6 +393,8 @@
       "mtu": "MTU",
       "privateKey": "私鑰",
       "tags": "標籤",
+      "wsListenPort": "WebSocket 監聽埠",
+      "useGvisorNet": "用戶空間網絡棧",
       "selectEndpoint": "選擇端點",
       "submit": "儲存 WireGuard"
     },

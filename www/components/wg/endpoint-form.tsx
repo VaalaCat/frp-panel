@@ -10,7 +10,7 @@ import { createEndpoint, updateEndpoint } from '@/api/wg'
 import { CreateEndpointRequest, UpdateEndpointRequest } from '@/lib/pb/api_wg'
 import { ClientSelector } from '../base/client-selector'
 
-type DisableField = 'host' | 'port'
+type DisableField = 'host' | 'port' | 'type' | 'uri'
 
 export default function EndpointForm({
 	mode,
@@ -25,7 +25,7 @@ export default function EndpointForm({
 	mode: 'create' | 'edit'
 	clientId: string
 	endpointId?: number
-	initial?: { host?: string; port?: number | '' }
+	initial?: { host?: string; port?: number | ''; type?: string; uri?: string }
 	disableFields?: DisableField[]
 	submitText?: string
 	onSuccess?: () => void
@@ -35,33 +35,40 @@ export default function EndpointForm({
 	const [loading, setLoading] = useState(false)
 	const [host, setHost] = useState(initial?.host ?? '')
 	const [port, setPort] = useState<number | ''>(initial?.port ?? '')
+	const [type, setType] = useState<string>(initial?.type ?? 'udp')
+	const [uri, setUri] = useState<string>(initial?.uri ?? '')
+
 	const [inputClientId, setInputClientId] = useState(clientId)
 
 	useEffect(() => {
 		setHost(initial?.host ?? '')
 		setPort(initial?.port ?? '')
 		setInputClientId(clientId)
-	}, [initial?.host, initial?.port])
+		setType(initial?.type ?? 'udp')
+		setUri(initial?.uri ?? '')
+	}, [initial?.host, initial?.port, initial?.type, initial?.uri])
 
 	const disabled = (k: DisableField) => !!disableFields?.includes(k)
 
 	const onSubmit = async () => {
-		if (!inputClientId || !host || !port) {
+		if (!inputClientId || !host || !port || !type) {
 			toast.error(t('wg.endpointForm.invalid'))
 			return
 		}
 		setLoading(true)
 		try {
 			if (mode === 'edit' && endpointId) {
-				await updateEndpoint(UpdateEndpointRequest.create({ endpoint: { id: endpointId, clientId: inputClientId, host, port: Number(port) } }))
+				await updateEndpoint(UpdateEndpointRequest.create({ endpoint: { id: endpointId, clientId: inputClientId, host, port: Number(port), type, uri } }))
 			} else {
-				await createEndpoint(CreateEndpointRequest.create({ endpoint: { clientId: inputClientId, host, port: Number(port) } }))
+				await createEndpoint(CreateEndpointRequest.create({ endpoint: { clientId: inputClientId, host, port: Number(port), type, uri } }))
 			}
 			toast.success(t('common.success'))
 			onSuccess?.()
 			if (mode === 'create') {
 				setHost('')
 				setPort('')
+				setType('udp')
+				setUri('')
 			}
 		} catch (e: any) {
 			onError?.(e)
@@ -84,6 +91,14 @@ export default function EndpointForm({
 			<div>
 				<Label className="block text-sm mb-1">{t('wg.endpointForm.port')}</Label>
 				<Input value={port} onChange={(e) => setPort(Number(e.target.value) || '')} placeholder="51820" disabled={disabled('port')} />
+			</div>
+			<div>
+				<Label className="block text-sm mb-1">{t('wg.endpointForm.type')}</Label>
+				<Input value={type} onChange={(e) => setType(e.target.value)} placeholder="udp" disabled={disabled('type')} />
+			</div>
+			<div>
+				<Label className="block text-sm mb-1">{t('wg.endpointForm.uri')}</Label>
+				<Input value={uri} onChange={(e) => setUri(e.target.value)} placeholder="ws://example.com" disabled={disabled('uri')} />
 			</div>
 			<div className="flex justify-end gap-2">
 				<Button onClick={onSubmit} disabled={loading || !inputClientId || !host || !port}>

@@ -222,6 +222,8 @@
       "port": "Port",
       "invalid": "Invalid endpoint params",
       "clientId": "Client",
+      "type": "",
+      "uri": "",
       "submit": "Save endpoint"
     },
     "interface": {
@@ -231,7 +233,8 @@
       "port": "Port",
       "client": "Client",
       "tags": "Tags",
-      "network": "Network"
+      "network": "Network",
+      "useGvisorNet": "User-space netstack"
     },
     "endpointEdit": {
       "title": "Edit endpoint",
@@ -243,6 +246,8 @@
       "button": "New endpoint"
     },
     "endpointTable": {
+      "type": "Endpoint Type",
+      "uri": "Endpoint URI",
       "host": "Host",
       "wireguardId": "WireGuard",
       "clientId": "Client"
@@ -389,6 +394,8 @@
       "mtu": "MTU",
       "privateKey": "Private key",
       "tags": "Tags",
+      "wsListenPort": "WebSocket listening port",
+      "useGvisorNet": "User-space netstack",
       "selectEndpoint": "Select endpoint",
       "submit": "Save WireGuard"
     },

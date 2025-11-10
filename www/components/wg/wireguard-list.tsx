@@ -18,7 +18,7 @@ import { listWireGuards } from '@/api/wg'
 import { ListWireGuardsRequest } from '@/lib/pb/api_wg'
 import { WireGuardConfig } from '@/lib/pb/types_wg'
 import { WireGuardColumns } from './wireguard-row'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -136,20 +136,20 @@ export function WireGuardList({ clientId, networkId, keyword, onChanged }: { cli
   )
 
   return (
-    <div className="space-y-3">
-      <Card>
-        <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-1">
-            <CardTitle>{t('wg.wireguardList.headerTitle')}</CardTitle>
-            <CardDescription>{t('wg.wireguardList.headerDesc')}</CardDescription>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="secondary">{t('wg.wireguardList.headerTotal', { count: total })}</Badge>
-            {toolbar}
-          </div>
-        </CardHeader>
-      </Card>
-      <DataTable table={table} columns={WireGuardColumns} />
-    </div>
+    <Card>
+      <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1">
+          <CardTitle>{t('wg.wireguardList.headerTitle')}</CardTitle>
+          <CardDescription>{t('wg.wireguardList.headerDesc')}</CardDescription>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge variant="secondary">{t('wg.wireguardList.headerTotal', { count: total })}</Badge>
+          {toolbar}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <DataTable table={table} columns={WireGuardColumns} />
+      </CardContent>
+    </Card>
   )
 }

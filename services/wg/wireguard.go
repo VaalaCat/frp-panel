@@ -4,21 +4,34 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/netip"
 	"os"
+	"reflect"
 	"sync"
 	"time"
+	"unsafe"
 
+	"github.com/gin-gonic/gin"
 	probing "github.com/prometheus-community/pro-bing"
+	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"github.com/sourcegraph/conc"
 	"github.com/vishvananda/netlink"
 	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
+	"golang.zx2c4.com/wireguard/tun/netstack"
+	"gvisor.dev/gvisor/pkg/tcpip"
+	"gvisor.dev/gvisor/pkg/tcpip/network/ipv4"
+	"gvisor.dev/gvisor/pkg/tcpip/network/ipv6"
+	"gvisor.dev/gvisor/pkg/tcpip/stack"
 
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/VaalaCat/frp-panel/services/wg/multibind"
+	"github.com/VaalaCat/frp-panel/services/wg/transport/ws"
 	"github.com/VaalaCat/frp-panel/utils"
 )
 
@@ -38,8 +51,11 @@ type wireGuard struct {
 
 	wgDevice  *device.Device
 	tunDevice tun.Device
+	multiBind *multibind.MultiBind
+	gvisorNet *netstack.Net
 
-	running bool
+	running      bool
+	useGvisorNet bool // if true, use gvisor netstack
 
 	svcLogger *logrus.Entry
 	ctx       *app.Context
@@ -59,13 +75,19 @@ func NewWireGuard(ctx *app.Context, ifce defs.WireGuardConfig, logger *logrus.En
 
 	svcCtx, cancel := ctx.CopyWithCancel()
 
+	useGvisorNet := ctx.GetApp().GetConfig().App.UseGvisorNet
+	if !useGvisorNet {
+		useGvisorNet = cfg.GetUseGvisorNet()
+	}
+
 	return &wireGuard{
-		RWMutex:   sync.RWMutex{},
-		ifce:      &cfg,
-		ctx:       svcCtx,
-		cancel:    cancel,
-		svcLogger: logger,
-		pingMap:   &utils.SyncMap[uint32, uint32]{},
+		RWMutex:      sync.RWMutex{},
+		ifce:         &cfg,
+		ctx:          svcCtx,
+		cancel:       cancel,
+		svcLogger:    logger,
+		pingMap:      &utils.SyncMap[uint32, uint32]{},
+		useGvisorNet: useGvisorNet,
 	}, nil
 }
 
@@ -81,6 +103,10 @@ func (w *wireGuard) Start() error {
 		return nil
 	}
 
+	if err := w.initTransports(); err != nil {
+		return errors.Join(fmt.Errorf("init transports failed"), err)
+	}
+
 	if err := w.initWGDevice(); err != nil {
 		return errors.Join(fmt.Errorf("init WG device failed"), err)
 	}
@@ -89,13 +115,23 @@ func (w *wireGuard) Start() error {
 		return errors.Join(fmt.Errorf("apply peer config failed"), err)
 	}
 
-	if err := w.initNetwork(); err != nil {
-		return errors.Join(errors.New("init network failed"), err)
+	if !w.useGvisorNet {
+		if err := w.initNetwork(); err != nil {
+			return errors.Join(errors.New("init network failed"), err)
+		}
 	}
 
 	if err := w.wgDevice.Up(); err != nil {
 		return errors.Join(fmt.Errorf("wgDevice.Up '%s'", w.ifce.GetInterfaceName()), err)
 	}
+
+	// 在 WireGuard 设备启动后配置 gvisor
+	if w.useGvisorNet {
+		if err := w.initGvisorNetwork(); err != nil {
+			return errors.Join(errors.New("init gvisor network failed"), err)
+		}
+	}
+
 	log.Infof("Started service done for iface '%s'", w.ifce.GetInterfaceName())
 	w.running = true
 
@@ -294,21 +330,81 @@ func (w *wireGuard) GetWGRuntimeInfo() (*pb.WGDeviceRuntimeInfo, error) {
 	return runtimeInfo, nil
 }
 
+func (w *wireGuard) initTransports() error {
+	log := w.svcLogger.WithField("op", "initTransports")
+
+	wsTrans := ws.NewWSBind(w.ctx)
+	w.multiBind = multibind.NewMultiBind(
+		w.svcLogger,
+		multibind.NewTransport(conn.NewDefaultBind(), "udp"),
+		multibind.NewTransport(wsTrans, "ws"),
+	)
+
+	engine := gin.New()
+	engine.Any(defs.DefaultWSHandlerPath, func(c *gin.Context) {
+		err := wsTrans.HandleHTTP(c.Writer, c.Request)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	})
+
+	// if ws listen port not set, use wg listen port, share tcp and udp port
+	listenPort := w.ifce.GetWsListenPort()
+	if listenPort == 0 {
+		listenPort = w.ifce.GetListenPort()
+	}
+	go func() {
+		if err := engine.Run(fmt.Sprintf(":%d", listenPort)); err != nil {
+			w.svcLogger.WithError(err).Errorf("failed to run gin engine for ws transport on port %d", listenPort)
+		}
+	}()
+
+	log.Infof("WS transport engine running on port %d", listenPort)
+
+	return nil
+}
+
 func (w *wireGuard) initWGDevice() error {
 	log := w.svcLogger.WithField("op", "initWGDevice")
 
 	log.Debugf("start to create TUN device '%s' (MTU %d)", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu())
 
 	var err error
-	w.tunDevice, err = tun.CreateTUN(w.ifce.GetInterfaceName(), int(w.ifce.GetInterfaceMtu()))
-	if err != nil {
-		return errors.Join(fmt.Errorf("create TUN device '%s' (MTU %d) failed", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu()), err)
+
+	if w.useGvisorNet {
+		log.Infof("using gvisor netstack for TUN device")
+		prf, err := netip.ParsePrefix(w.ifce.GetLocalAddress())
+		if err != nil {
+			return errors.Join(fmt.Errorf("parse local addr '%s' for netip", w.ifce.GetLocalAddress()), err)
+		}
+
+		addrs := lo.Map(w.ifce.GetDnsServers(), func(s string, _ int) netip.Addr {
+			addr, err := netip.ParseAddr(s)
+			if err != nil {
+				return netip.Addr{}
+			}
+			return addr
+		})
+		if len(addrs) == 0 {
+			addrs = []netip.Addr{netip.AddrFrom4([4]byte{1, 2, 4, 8})}
+		}
+		log.Debugf("create netstack TUN with addr '%s' and dns servers '%v'", prf.Addr().String(), addrs)
+		w.tunDevice, w.gvisorNet, err = netstack.CreateNetTUN([]netip.Addr{prf.Addr()}, addrs, 1200)
+		if err != nil {
+			return errors.Join(fmt.Errorf("create netstack TUN device '%s' (MTU %d) failed", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu()), err)
+		}
+	} else {
+		w.tunDevice, err = tun.CreateTUN(w.ifce.GetInterfaceName(), int(w.ifce.GetInterfaceMtu()))
+		if err != nil {
+			return errors.Join(fmt.Errorf("create TUN device '%s' (MTU %d) failed", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu()), err)
+		}
 	}
 
 	log.Debugf("TUN device '%s' (MTU %d) created successfully", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu())
 	log.Debugf("start to create WireGuard device '%s'", w.ifce.GetInterfaceName())
 
-	w.wgDevice = device.NewDevice(w.tunDevice, conn.NewDefaultBind(), &device.Logger{
+	w.wgDevice = device.NewDevice(w.tunDevice, w.multiBind, &device.Logger{
 		Verbosef: w.svcLogger.WithField("wg-dev-iface", w.ifce.GetInterfaceName()).Debugf,
 		Errorf:   w.svcLogger.WithField("wg-dev-iface", w.ifce.GetInterfaceName()).Errorf,
 	})
@@ -331,6 +427,8 @@ func (w *wireGuard) applyPeerConfig() error {
 	if err != nil {
 		return errors.Join(errors.New("parse/validate peers"), err)
 	}
+
+	log.Debugf("wgTypedPeerConfigs: %v", wgTypedPeerConfigs)
 
 	uapiConfigString := generateUAPIConfigString(w.ifce, w.ifce.GetParsedPrivKey(), wgTypedPeerConfigs, !w.running)
 
@@ -379,8 +477,94 @@ func (w *wireGuard) initNetwork() error {
 	return nil
 }
 
+func (w *wireGuard) initGvisorNetwork() error {
+	log := w.svcLogger.WithField("op", "initGvisorNetwork")
+
+	if w.gvisorNet == nil {
+		return errors.New("gvisorNet is nil, cannot initialize network")
+	}
+
+	// wg-go dose not expose the stack field, so we need to use reflection to access it
+	netValue := reflect.ValueOf(w.gvisorNet).Elem()
+	stackField := netValue.FieldByName("stack")
+
+	if !stackField.IsValid() {
+		return errors.New("cannot find stack field in gvisorNet")
+	}
+
+	stackPtrValue := reflect.NewAt(stackField.Type(), unsafe.Pointer(stackField.UnsafeAddr())).Elem()
+	if !stackPtrValue.IsValid() || stackPtrValue.IsNil() {
+		return errors.New("gvisor stack is nil or invalid")
+	}
+
+	gvisorStack := stackPtrValue.Interface().(*stack.Stack)
+	if gvisorStack == nil {
+		return errors.New("gvisor stack is nil after conversion")
+	}
+
+	log.Infof("successfully accessed gvisor stack, enabling IP forwarding")
+
+	if err := gvisorStack.SetForwardingDefaultAndAllNICs(ipv4.ProtocolNumber, true); err != nil {
+		log.Warnf("failed to enable IPv4 forwarding: %v, relay may not work", err)
+	} else {
+		log.Infof("IPv4 forwarding enabled for gvisor netstack")
+	}
+
+	if err := gvisorStack.SetForwardingDefaultAndAllNICs(ipv6.ProtocolNumber, true); err != nil {
+		log.Warnf("failed to enable IPv6 forwarding: %v", err)
+	} else {
+		log.Infof("IPv6 forwarding enabled for gvisor netstack")
+	}
+
+	for _, peer := range w.ifce.Peers {
+		for _, allowedIP := range peer.AllowedIps {
+			prefix, err := netip.ParsePrefix(allowedIP)
+			if err != nil {
+				log.WithError(err).Warnf("failed to parse allowed IP: %s", allowedIP)
+				continue
+			}
+
+			addr := tcpip.AddrFromSlice(prefix.Addr().AsSlice())
+
+			ones := prefix.Bits()
+			maskBytes := make([]byte, len(prefix.Addr().AsSlice()))
+			for i := 0; i < len(maskBytes); i++ {
+				if ones >= 8 {
+					maskBytes[i] = 0xff
+					ones -= 8
+				} else if ones > 0 {
+					maskBytes[i] = byte(0xff << (8 - ones))
+					ones = 0
+				}
+			}
+
+			subnet, err := tcpip.NewSubnet(addr, tcpip.MaskFromBytes(maskBytes))
+			if err != nil {
+				log.WithError(err).Warnf("failed to create subnet for %s", allowedIP)
+				continue
+			}
+
+			route := tcpip.Route{
+				Destination: subnet,
+				NIC:         1,
+			}
+
+			gvisorStack.AddRoute(route)
+			log.Debugf("added route for peer allowed IP: %s via NIC 1", allowedIP)
+		}
+	}
+
+	log.Infof("gvisor netstack initialized with IP forwarding enabled")
+	return nil
+}
+
 func (w *wireGuard) cleanupNetwork() {
 	log := w.svcLogger.WithField("op", "cleanupNetwork")
+
+	if w.useGvisorNet {
+		log.Infof("skip network cleanup for gvisor netstack")
+		return
+	}
 
 	link, err := netlink.LinkByName(w.ifce.GetInterfaceName())
 	if err == nil {

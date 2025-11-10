@@ -1,9 +1,20 @@
-"use client"
+'use client'
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, useReactTable, SortingState, PaginationState, ColumnFiltersState, ColumnDef, Row } from '@tanstack/react-table'
+import {
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  useReactTable,
+  SortingState,
+  PaginationState,
+  ColumnFiltersState,
+  ColumnDef,
+  Row,
+} from '@tanstack/react-table'
 import { DataTable } from '@/components/base/data_table'
 import { Button } from '@/components/ui/button'
 import { listEndpoints } from '@/api/wg'
@@ -18,9 +29,19 @@ export type EndpointTableSchema = {
   port: number
   origin: Endpoint
   clientId: string
+  uri: string
+  type: string
 }
 
-export function EndpointList({ clientId, wireguardId, keyword }: { clientId?: string; wireguardId?: number; keyword?: string }) {
+export function EndpointList({
+  clientId,
+  wireguardId,
+  keyword,
+}: {
+  clientId?: string
+  wireguardId?: number
+  keyword?: string
+}) {
   const { t } = useTranslation()
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -49,6 +70,8 @@ export function EndpointList({ clientId, wireguardId, keyword }: { clientId?: st
     port: e.port!,
     clientId: e.clientId!,
     origin: e,
+    uri: e.uri!,
+    type: e.type!,
   }))
 
   const handleMutated = React.useCallback(() => {
@@ -74,7 +97,12 @@ export function EndpointList({ clientId, wireguardId, keyword }: { clientId?: st
 
   return (
     <div className="space-y-3">
-      <EndpointEditDialog clientId={clientId || ""} onSaved={() => setRefreshKey((x) => x + 1)} open={openAdd} onOpenChange={setOpenAdd}>
+      <EndpointEditDialog
+        clientId={clientId || ''}
+        onSaved={() => setRefreshKey((x) => x + 1)}
+        open={openAdd}
+        onOpenChange={setOpenAdd}
+      >
         <Button size="sm">{t('wg.endpointCreate.button')}</Button>
       </EndpointEditDialog>
       <DataTable table={table} columns={columns} />

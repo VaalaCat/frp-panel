@@ -26,6 +26,9 @@ func RPCPullConfig(ctx *app.Context, req *pb.PullClientConfigReq) (*pb.PullClien
 			req.String(), cli.ClientID)
 	}
 
+	mgr := ctx.GetApp().GetClientsManager()
+	mgr.UpdateLastSeenAt(cli.ClientID)
+
 	if cli.IsShadow {
 		proxies, err := dao.NewQuery(ctx).AdminListProxyConfigsWithFilters(&models.ProxyConfigEntity{
 			OriginClientID: cli.ClientID,

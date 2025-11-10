@@ -33,6 +33,8 @@ export default function WireGuardForm({
 	const [endpoints, setEndpoints] = useState<Endpoint[]>([])
 	const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set<number>())
 	const [tags, setTags] = useState(wg.tags ?? [])
+	const [wsListenPort, setWsListenPort] = useState<number>(wg.wsListenPort ?? 0)
+	const [useGvisorNet, setUseGvisorNet] = useState<boolean>(wg.useGvisorNet ?? false)
 
 	useEffect(() => {
 		listEndpoints(ListEndpointsRequest.create({ page: 1, pageSize: 200, clientId }))
@@ -72,7 +74,9 @@ export default function WireGuardForm({
 						interfaceMtu: mtu,
 						dnsServers: wg.dnsServers ?? [],
 						advertisedEndpoints: selected,
+						wsListenPort: wsListenPort,
 						tags,
+						useGvisorNet,
 					}),
 				}),
 			)
@@ -114,6 +118,14 @@ export default function WireGuardForm({
 			<div>
 				<Label className="block text-sm mb-1">{t('wg.wireguardForm.tags')}</Label>
 				<StringListInput value={tags} onChange={setTags} />
+			</div>
+			<div>
+				<Label className="block text-sm mb-1">{t('wg.wireguardForm.wsListenPort')}</Label>
+				<Input value={wsListenPort} onChange={(e) => setWsListenPort(Number(e.target.value) || 0)} />
+			</div>
+			<div>
+				<Label className="block text-sm mb-1">{t('wg.wireguardForm.useGvisorNet')}</Label>
+				<Checkbox checked={useGvisorNet} onCheckedChange={(v) => setUseGvisorNet(!!v)} />
 			</div>
 			<div className="space-y-2">
 				<div className="font-medium text-sm">{t('wg.wireguardForm.selectEndpoint')}</div>

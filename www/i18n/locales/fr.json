@@ -222,6 +222,8 @@
       "port": "Port",
       "invalid": "Paramètres de point de terminaison invalides",
       "clientId": "Client",
+      "type": "Type de point de terminaison",
+      "uri": "URI de point de terminaison",
       "submit": "Enregistrer"
     },
     "interface": {
@@ -231,7 +233,8 @@
       "port": "Port",
       "client": "Client",
       "tags": "Tags",
-      "network": "Réseau"
+      "network": "Réseau",
+      "useGvisorNet": "User-space netstack"
     },
     "endpointEdit": {
       "title": "Modifier le point de terminaison",
@@ -243,6 +246,8 @@
       "button": "Nouveau point de terminaison"
     },
     "endpointTable": {
+      "type": "",
+      "uri": "",
       "host": "Hôte",
       "wireguardId": "WireGuard",
       "clientId": "Client"
@@ -390,6 +395,8 @@
       "mtu": "MTU",
       "privateKey": "Clé privée",
       "tags": "Tags",
+      "wsListenPort": "Port d'écoute WebSocket",
+      "useGvisorNet": "User-space netstack",
       "selectEndpoint": "Sélectionner un point",
       "submit": "Enregistrer WireGuard"
     },

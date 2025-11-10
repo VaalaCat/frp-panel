@@ -2,7 +2,7 @@ import ELK from 'elkjs'
 import type { TopologyNode, WGEdge } from './types'
 
 export const NODE_WIDTH = 200
-export const NODE_HEIGHT = 100
+export const NODE_HEIGHT = 130
 
 type ElkNode = {
   id: string

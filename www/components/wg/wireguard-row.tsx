@@ -25,7 +25,7 @@ import { deleteWireGuard } from '@/api/wg'
 import { DeleteWireGuardRequest } from '@/lib/pb/api_wg'
 import { toast } from 'sonner'
 import WireGuardEditDialog from './wireguard-edit-dialog'
-import { MoreHorizontal, ArrowUpRight } from 'lucide-react'
+import { MoreHorizontal, ArrowUpRight, X, Check } from 'lucide-react'
 import { WireGuardConfig } from '@/lib/pb/types_wg'
 import { useRouter } from 'next/router'
 
@@ -46,10 +46,8 @@ export const WireGuardColumns: ColumnDef<WireGuardTableSchema>[] = [
 			const { t } = useTranslation()
 			return t('wg.interface.name')
 		},
-		cell: ({ row }: { row: Row<WireGuardTableSchema> }) => {
-			// eslint-disable-next-line react-hooks/rules-of-hooks
+		cell: function Cell({ row }: { row: Row<WireGuardTableSchema> }) {
 			const router = useRouter()
-			// eslint-disable-next-line react-hooks/rules-of-hooks
 			const { t } = useTranslation()
 			return (
 				<div className="flex items-center gap-2">
@@ -110,10 +108,8 @@ export const WireGuardColumns: ColumnDef<WireGuardTableSchema>[] = [
 			const { t } = useTranslation()
 			return t('wg.interface.network')
 		},
-		cell: ({ row }) => {
-			// eslint-disable-next-line react-hooks/rules-of-hooks
+		cell: function Cell({ row }: { row: Row<WireGuardTableSchema> }) {
 			const router = useRouter()
-			// eslint-disable-next-line react-hooks/rules-of-hooks
 			const { t } = useTranslation()
 			return row.original.networkId ? (
 				<Button
@@ -134,8 +130,21 @@ export const WireGuardColumns: ColumnDef<WireGuardTableSchema>[] = [
 		},
 	},
 	{
+		accessorKey: 'useGvisorNet',
+		meta: { label: 'wg.wireguard.list.columns.useGvisorNet' },
+		header: function Header() {
+			const { t } = useTranslation()
+			return t('wg.interface.useGvisorNet')
+		},
+		cell: function Cell({ row }: { row: Row<WireGuardTableSchema> }) {
+			return <span className="text-sm">{row.original.origin.useGvisorNet ?
+				<Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}</span>
+		},
+	},
+	{
 		id: 'actions',
-		cell: ({ row, table }) => <WireGuardActions clientId={row.original.clientId} wg={row.original.origin} onChanged={(table.options.meta as any)?.onChanged} />,
+		cell: ({ row, table }) =>
+			<WireGuardActions clientId={row.original.clientId} wg={row.original.origin} onChanged={(table.options.meta as any)?.onChanged} />,
 	},
 ]
 

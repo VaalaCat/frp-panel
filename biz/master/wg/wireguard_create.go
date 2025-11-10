@@ -12,7 +12,6 @@ import (
 	"github.com/VaalaCat/frp-panel/services/rpc"
 	wgsvc "github.com/VaalaCat/frp-panel/services/wg"
 	"github.com/VaalaCat/frp-panel/utils"
-	"github.com/samber/lo"
 )
 
 // Create/Update/Get/List WireGuard 基于 pb.WireGuardConfig
@@ -64,21 +63,12 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 
 	keys := wgsvc.GenerateKeys()
 
-	wgModel := &models.WireGuard{
-		WireGuardEntity: &models.WireGuardEntity{
-			Name:         cfg.GetInterfaceName(),
-			UserId:       uint32(userInfo.GetUserID()),
-			TenantId:     uint32(userInfo.GetTenantID()),
-			PrivateKey:   keys.PrivateKeyBase64,
-			LocalAddress: newIpCidr.String(),
-			ListenPort:   cfg.GetListenPort(),
-			InterfaceMtu: cfg.GetInterfaceMtu(),
-			DnsServers:   models.GormArray[string](cfg.GetDnsServers()),
-			ClientID:     cfg.GetClientId(),
-			NetworkID:    uint(cfg.GetNetworkId()),
-			Tags:         models.GormArray[string](cfg.GetTags()),
-		},
-	}
+	wgModel := &models.WireGuard{}
+	wgModel.FromPB(cfg)
+	wgModel.UserId = uint32(userInfo.GetUserID())
+	wgModel.TenantId = uint32(userInfo.GetTenantID())
+	wgModel.PrivateKey = keys.PrivateKeyBase64
+	wgModel.LocalAddress = newIpCidr.String()
 
 	log.Debugf("create wireguard with config: %+v", wgModel)
 
@@ -100,14 +90,18 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 			if exist.ClientID != cfg.GetClientId() {
 				return nil, errors.New("endpoint client mismatch")
 			}
-			entity := &models.EndpointEntity{Host: exist.Host, Port: exist.Port, ClientID: exist.ClientID, WireGuardID: wgModel.ID}
-			if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, uint(exist.ID), entity); err != nil {
+			exist.WireGuardID = wgModel.ID
+
+			if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, uint(exist.ID), exist.EndpointEntity); err != nil {
 				return nil, err
 			}
 		} else {
 			// 创建并绑定新端点
-			entity := &models.EndpointEntity{Host: ep.GetHost(), Port: ep.GetPort(), ClientID: cfg.GetClientId(), WireGuardID: wgModel.ID}
-			if err := dao.NewQuery(ctx).CreateEndpoint(userInfo, entity); err != nil {
+			newEp := &models.Endpoint{}
+			newEp.FromPB(ep)
+			newEp.ClientID = cfg.GetClientId()
+			newEp.WireGuardID = wgModel.ID
+			if err := dao.NewQuery(ctx).CreateEndpoint(userInfo, newEp.EndpointEntity); err != nil {
 				return nil, err
 			}
 		}
@@ -128,7 +122,11 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 		peerConfigs, err := wgsvc.PlanAllowedIPs(
 			peers,
 			links,
-			wgsvc.DefaultRoutingPolicy(wgsvc.NewACL().LoadFromPB(network.ACL.Data), ctx.GetApp().GetNetworkTopologyCache()))
+			wgsvc.DefaultRoutingPolicy(
+				wgsvc.NewACL().LoadFromPB(network.ACL.Data),
+				ctx.GetApp().GetNetworkTopologyCache(),
+				ctx.GetApp().GetClientsManager(),
+			))
 		if err != nil {
 			log.WithError(err).Errorf("build peer configs for network failed")
 			return
@@ -161,30 +159,16 @@ func emitCreateWireGuardEventToClient(ctx *app.Context, peer *models.WireGuard, 
 		return errors.New("invalid user")
 	}
 
+	cfg := peer.ToPB()
+	cfg.Peers = peerConfigs
+
 	resp := &pb.CreateWireGuardResponse{}
 
-	err := rpc.CallClientWrapper(ctx, peer.ClientID, pb.Event_EVENT_CREATE_WIREGUARD, &pb.CreateWireGuardRequest{
-		WireguardConfig: &pb.WireGuardConfig{
-			ClientId:      peer.ClientID,
-			UserId:        uint32(userInfo.GetUserID()),
-			TenantId:      uint32(userInfo.GetTenantID()),
-			InterfaceName: peer.Name,
-			PrivateKey:    peer.PrivateKey,
-			LocalAddress:  peer.LocalAddress,
-			ListenPort:    peer.ListenPort,
-			InterfaceMtu:  peer.InterfaceMtu,
-			DnsServers:    peer.DnsServers,
-			AdvertisedEndpoints: lo.Map(peer.AdvertisedEndpoints, func(e *models.Endpoint, _ int) *pb.Endpoint {
-				return &pb.Endpoint{
-					Host: e.Host,
-					Port: e.Port,
-				}
-			}),
-			NetworkId: uint32(peer.NetworkID),
-			Peers:     peerConfigs,
-			Tags:      peer.Tags,
-		},
-	}, resp)
+	req := &pb.CreateWireGuardRequest{
+		WireguardConfig: cfg,
+	}
+
+	err := rpc.CallClientWrapper(ctx, peer.ClientID, pb.Event_EVENT_CREATE_WIREGUARD, req, resp)
 	if err != nil {
 		log.WithError(err).Errorf("create wireguard event send to client error")
 		return err
@@ -202,24 +186,16 @@ func emitPatchWireGuardEventToClient(ctx *app.Context, peer *models.WireGuard, p
 		return errors.New("invalid user")
 	}
 
-	resp := &pb.UpdateWireGuardResponse{}
+	cfg := peer.ToPB()
+	cfg.Peers = peerConfigs
 
-	err := rpc.CallClientWrapper(ctx, peer.ClientID, pb.Event_EVENT_UPDATE_WIREGUARD, &pb.UpdateWireGuardRequest{
-		WireguardConfig: &pb.WireGuardConfig{
-			ClientId:      peer.ClientID,
-			InterfaceName: peer.Name,
-			PrivateKey:    peer.PrivateKey,
-			LocalAddress:  peer.LocalAddress,
-			ListenPort:    peer.ListenPort,
-			InterfaceMtu:  peer.InterfaceMtu,
-			DnsServers:    peer.DnsServers,
-			UserId:        uint32(userInfo.GetUserID()),
-			TenantId:      uint32(userInfo.GetTenantID()),
-			Peers:         peerConfigs,
-			Tags:          peer.Tags,
-		},
-		UpdateType: pb.UpdateWireGuardRequest_UPDATE_TYPE_PATCH_PEERS.Enum(),
-	}, resp)
+	resp := &pb.UpdateWireGuardResponse{}
+	req := &pb.UpdateWireGuardRequest{
+		WireguardConfig: cfg,
+		UpdateType:      pb.UpdateWireGuardRequest_UPDATE_TYPE_PATCH_PEERS.Enum(),
+	}
+
+	err := rpc.CallClientWrapper(ctx, peer.ClientID, pb.Event_EVENT_UPDATE_WIREGUARD, req, resp)
 	if err != nil {
 		log.WithError(err).Errorf("add wireguard event send to client error")
 		return err

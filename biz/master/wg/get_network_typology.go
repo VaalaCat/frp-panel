@@ -43,7 +43,11 @@ func GetNetworkTopology(ctx *app.Context, req *pb.GetNetworkTopologyRequest) (*p
 		return nil, fmt.Errorf("no wireguard peers found")
 	}
 
-	policy := wg.DefaultRoutingPolicy(wg.NewACL().LoadFromPB(peers[0].Network.ACL.Data), ctx.GetApp().GetNetworkTopologyCache())
+	policy := wg.DefaultRoutingPolicy(
+		wg.NewACL().LoadFromPB(peers[0].Network.ACL.Data),
+		ctx.GetApp().GetNetworkTopologyCache(),
+		ctx.GetApp().GetClientsManager(),
+	)
 
 	resp, err := wg.NewDijkstraAllowedIPsPlanner(policy).BuildGraph(peers, links)
 

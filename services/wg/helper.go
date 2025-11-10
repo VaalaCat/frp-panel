@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
-	"time"
 
-	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 
@@ -78,11 +76,11 @@ func GenerateKeys() WGKeys {
 }
 
 // parseAndValidatePeerConfigs 生成wg UAPI格式的peer配置
-func parseAndValidatePeerConfigs(peerConfigs []*defs.WireGuardPeerConfig) ([]wgtypes.PeerConfig, error) {
+func parseAndValidatePeerConfigs(peerConfigs []*defs.WireGuardPeerConfig) ([]*defs.WireGuardPeerConfig, error) {
 	if len(peerConfigs) == 0 {
-		return []wgtypes.PeerConfig{}, nil
+		return []*defs.WireGuardPeerConfig{}, nil
 	}
-	wgTypedPeers := make([]wgtypes.PeerConfig, 0, len(peerConfigs))
+	wgTypedPeers := make([]*defs.WireGuardPeerConfig, 0, len(peerConfigs))
 	for i, pCfg := range peerConfigs {
 		peerIDForLog := pCfg.ClientId
 		if peerIDForLog == "" {
@@ -101,42 +99,25 @@ func parseAndValidatePeerConfigs(peerConfigs []*defs.WireGuardPeerConfig) ([]wgt
 }
 
 // parseAndValidatePeerConfig 将frpp使用的PeerConfig转换为wgtypes.PeerConfig，用来给wg设备使用
-func parseAndValidatePeerConfig(pCfg *defs.WireGuardPeerConfig) (wgtypes.PeerConfig, error) {
-	var typedPeer wgtypes.PeerConfig
+func parseAndValidatePeerConfig(pCfg *defs.WireGuardPeerConfig) (*defs.WireGuardPeerConfig, error) {
 
-	typedPeer.PublicKey = pCfg.GetParsedPublicKey()
-	typedPeer.PresharedKey = pCfg.GetParsedPresharedKey()
-
-	typedPeer.AllowedIPs = make([]net.IPNet, 0, len(pCfg.GetAllowedIps()))
 	for _, cidrStr := range pCfg.GetAllowedIps() {
 		trimmedCidr := strings.TrimSpace(cidrStr)
 		if trimmedCidr == "" {
 			continue
 		}
-		_, ipNet, err := net.ParseCIDR(trimmedCidr)
+		// _, ipNet, err := net.ParseCIDR(trimmedCidr)
+		_, _, err := net.ParseCIDR(trimmedCidr)
 		if err != nil {
-			return wgtypes.PeerConfig{}, errors.Join(errors.New("invalid AllowedIP CIDR"), err)
+			return nil, errors.Join(errors.New("invalid AllowedIP CIDR"), err)
 		}
-		typedPeer.AllowedIPs = append(typedPeer.AllowedIPs, *ipNet)
-	}
-
-	if pCfg.Endpoint != nil {
-		addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", pCfg.Endpoint.Host, pCfg.Endpoint.Port))
-		if err != nil {
-			return wgtypes.PeerConfig{}, errors.Join(errors.New("invalid endpoint address"), err)
-		}
-		typedPeer.Endpoint = addr
 	}
 
 	if pCfg.PersistentKeepalive <= 0 {
-		typedPeer.PersistentKeepaliveInterval = lo.ToPtr(time.Duration(defs.DefaultPersistentKeepalive) * time.Second)
-	} else {
-		interval := time.Duration(pCfg.PersistentKeepalive) * time.Second
-		typedPeer.PersistentKeepaliveInterval = &interval
+		pCfg.PersistentKeepalive = defs.DefaultPersistentKeepalive
 	}
 
-	typedPeer.ReplaceAllowedIPs = true
-	return typedPeer, nil
+	return pCfg, nil
 }
 
 func truncate(s string, maxLen int) string {
@@ -147,7 +128,11 @@ func truncate(s string, maxLen int) string {
 }
 
 // generateUAPIConfigString implementation from previous step
-func generateUAPIConfigString(cfg *defs.WireGuardConfig, wgPrivateKey wgtypes.Key, peerConfigs []wgtypes.PeerConfig, firstStart bool) string {
+func generateUAPIConfigString(cfg *defs.WireGuardConfig,
+	wgPrivateKey wgtypes.Key,
+	peerConfigs []*defs.WireGuardPeerConfig,
+	firstStart bool,
+) string {
 	uapiBuilder := NewUAPIBuilder()
 	uapiBuilder.WithPrivateKey(wgPrivateKey).
 		WithListenPort(int(cfg.ListenPort)).

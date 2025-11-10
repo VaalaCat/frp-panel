@@ -32,6 +32,7 @@ func PullWireGuards(appInstance app.Application, clientID, clientSecret string) 
 	}
 
 	log.Debugf("client [%s] has [%d] wireguards, check their status", clientID, len(resp.GetWireguardConfigs()))
+	log.Tracef("wireguardConfigs: %v", resp.GetWireguardConfigs())
 	wgMgr := ctx.GetApp().GetWireGuardManager()
 	successCnt := 0
 	for _, wireGuard := range resp.GetWireguardConfigs() {
