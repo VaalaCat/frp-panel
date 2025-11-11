@@ -3,6 +3,7 @@ package multibind
 import (
 	"errors"
 	"fmt"
+	"runtime/debug"
 	"sync/atomic"
 
 	"github.com/sirupsen/logrus"
@@ -64,7 +65,10 @@ func (m *MultiBind) Close() error {
 // Open implements conn.Bind.
 func (m *MultiBind) Open(port uint16) (fns []conn.ReceiveFunc, actualPort uint16, err error) {
 	if m.opened.Load() {
-		return nil, 0, conn.ErrBindAlreadyOpen
+		m.svcLogger.Debugf("multibind already opened, closing and reopening for port %d", port)
+		if closeErr := m.Close(); closeErr != nil {
+			m.svcLogger.WithError(closeErr).Warnf("failed to close multibind before reopening")
+		}
 	}
 	m.opened.Store(true)
 
@@ -77,7 +81,7 @@ func (m *MultiBind) Open(port uint16) (fns []conn.ReceiveFunc, actualPort uint16
 			return nil, 0, err
 		}
 
-		if p != 0 {
+		if p != 0 && t.name == "udp" {
 			actualPort = p
 		}
 
@@ -146,6 +150,17 @@ func (m *MultiBind) SetMark(mark uint32) error {
 func (m *MultiBind) recvWrapper(trans *Transport, fns conn.ReceiveFunc) conn.ReceiveFunc {
 
 	return func(packets [][]byte, sizes []int, eps []conn.Endpoint) (n int, err error) {
+		defer func() {
+			if panicRecover := recover(); panicRecover != nil {
+				err = fmt.Errorf("multibind recvWrapper panic: %v, debugStack: %s", panicRecover, debug.Stack())
+				m.svcLogger.WithError(err).Error("multibind recvWrapper panic")
+			}
+		}()
+		defer func() {
+			if err != nil {
+				m.svcLogger.WithError(err).Error("multibind recvWrapper error")
+			}
+		}()
 		log := m.svcLogger.WithField("op", "recvWrapper").WithField("transport", trans.name)
 
 		tmpEps := make([]conn.Endpoint, len(eps))

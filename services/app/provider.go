@@ -247,6 +247,7 @@ type WireGuard interface {
 	// Interface相关
 	GetIfceConfig() (*defs.WireGuardConfig, error)
 	GetBaseIfceConfig() *defs.WireGuardConfig
+	NeedRecreate(newCfg *defs.WireGuardConfig) bool
 
 	// Config相关
 	GenWGConfig() (string, error) // unimplemented

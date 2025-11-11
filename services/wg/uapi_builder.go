@@ -3,6 +3,7 @@ package wg
 import (
 	"encoding/hex"
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/VaalaCat/frp-panel/defs"
@@ -158,7 +159,12 @@ func normalizeEndpoint(ep *pb.Endpoint) string {
 		return ep.GetUri()
 	}
 
-	return fmt.Sprintf("%s:%d", ep.GetHost(), ep.GetPort())
+	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", ep.GetHost(), ep.GetPort()))
+	if err != nil {
+		return ""
+	}
+
+	return addr.String()
 }
 
 func isZeroKey(key wgtypes.Key) bool {

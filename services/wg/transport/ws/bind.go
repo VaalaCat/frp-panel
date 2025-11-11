@@ -61,7 +61,10 @@ func (w *WSBind) Close() error {
 // Open implements conn.Bind.
 func (w *WSBind) Open(port uint16) (fns []conn.ReceiveFunc, actualPort uint16, err error) {
 	if w.opened.Load() {
-		return nil, 0, conn.ErrBindAlreadyOpen
+		w.ctx.Logger().Debugf("ws bind already opened, closing and reopening for port %d", port)
+		if closeErr := w.Close(); closeErr != nil {
+			w.ctx.Logger().WithError(closeErr).Warnf("failed to close ws bind before reopening")
+		}
 	}
 	w.opened.Store(true)
 	w.registerChan = make(chan *serverIncoming, defaultRegisterChanSize)

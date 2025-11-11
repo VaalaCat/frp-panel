@@ -132,11 +132,17 @@ func generateUAPIConfigString(cfg *defs.WireGuardConfig,
 	wgPrivateKey wgtypes.Key,
 	peerConfigs []*defs.WireGuardPeerConfig,
 	firstStart bool,
+	skipListenPort bool,
 ) string {
 	uapiBuilder := NewUAPIBuilder()
-	uapiBuilder.WithPrivateKey(wgPrivateKey).
-		WithListenPort(int(cfg.ListenPort)).
-		ReplacePeers(!firstStart).
+	uapiBuilder.WithPrivateKey(wgPrivateKey)
+
+	// 只在首次启动且未跳过时设置 listen_port,避免在设备运行时更新端口导致死锁
+	if firstStart && !skipListenPort {
+		uapiBuilder.WithListenPort(int(cfg.ListenPort))
+	}
+
+	uapiBuilder.ReplacePeers(!firstStart).
 		AddPeers(peerConfigs)
 
 	return uapiBuilder.Build()

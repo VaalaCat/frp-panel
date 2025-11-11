@@ -81,7 +81,8 @@ func (w *WireGuardPeerConfig) GetParsedPresharedKey() *wgtypes.Key {
 func (w *WireGuardPeerConfig) Equal(other *WireGuardPeerConfig) bool {
 	endpointEqual := false
 	if w.Endpoint != nil && other.Endpoint != nil {
-		endpointEqual = (w.Endpoint.Host == other.Endpoint.Host && w.Endpoint.Port == other.Endpoint.Port)
+		endpointEqual = (w.Endpoint.Host == other.Endpoint.Host && w.Endpoint.Port == other.Endpoint.Port &&
+			w.Endpoint.Uri == other.Endpoint.Uri && w.Endpoint.Type == other.Endpoint.Type)
 	} else if w.Endpoint == nil && other.Endpoint == nil {
 		endpointEqual = true
 	}

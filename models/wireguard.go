@@ -37,6 +37,7 @@ type WireGuardEntity struct {
 	Tags       GormArray[string] `json:"tags" gorm:"type:varchar(255)"`
 
 	WsListenPort uint32 `json:"ws_listen_port" gorm:"uniqueIndex:idx_client_id_ws_listen_port"`
+	UseGvisorNet bool   `json:"use_gvisor_net"`
 }
 
 func (*WireGuard) TableName() string {
@@ -117,7 +118,7 @@ func (w *WireGuard) FromPB(pb *pb.WireGuardConfig) {
 	w.NetworkID = uint(pb.GetNetworkId())
 	w.Tags = GormArray[string](pb.GetTags())
 	w.WsListenPort = pb.GetWsListenPort()
-
+	w.UseGvisorNet = pb.GetUseGvisorNet()
 	w.AdvertisedEndpoints = make([]*Endpoint, 0, len(pb.GetAdvertisedEndpoints()))
 	for _, e := range pb.GetAdvertisedEndpoints() {
 		endpointModel := &Endpoint{}
@@ -144,6 +145,7 @@ func (w *WireGuard) ToPB() *pb.WireGuardConfig {
 			return e.ToPB()
 		}),
 		WsListenPort: w.ListenPort,
+		UseGvisorNet: w.UseGvisorNet,
 	}
 }
 

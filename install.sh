@@ -6,6 +6,7 @@ ARCH=$(uname -m)
 # --- Argument Parsing ---
 custom_proxy=""
 frp_panel_args=() # Use an array to hold arguments for frp-panel
+version="latest"
 
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do
@@ -17,6 +18,11 @@ while [[ "$#" -gt 0 ]]; do
             fi
             custom_proxy="$2"
             echo "使用自定义的 GitHub 镜像: $custom_proxy"
+            shift 2 # shift past argument name and value
+            ;;
+        --version)
+            version="$2"
+            echo "使用自定义的版本: $version"
             shift 2 # shift past argument name and value
             ;;
         *)
@@ -54,16 +60,16 @@ case "$OS" in
     Linux)
         case "$ARCH" in
             x86_64)
-                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/latest/download/frp-panel-linux-amd64"
+                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/download/${version}/frp-panel-linux-amd64"
                 ;;
             aarch64)
-                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/latest/download/frp-panel-linux-arm64"
+                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/download/${version}/frp-panel-linux-arm64"
                 ;;
             armv7l)
-                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/latest/download/frp-panel-linux-armv7l"
+                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/download/${version}/frp-panel-linux-armv7l"
                 ;;
             armv6l)
-                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/latest/download/frp-panel-linux-armv6l"
+                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/download/${version}/frp-panel-linux-armv6l"
                 ;;
             *)
                  echo "Unsupported Linux architecture: $ARCH"
@@ -74,10 +80,10 @@ case "$OS" in
     Darwin)
         case "$ARCH" in
             x86_64)
-                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/latest/download/frp-panel-darwin-amd64"
+                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/download/${version}/frp-panel-darwin-amd64"
                 ;;
             arm64)
-                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/latest/download/frp-panel-darwin-arm64"
+                wget -O frp-panel "${prefix}https://github.com/VaalaCat/frp-panel/releases/download/${version}/frp-panel-darwin-arm64"
                 ;;
             *)
                 echo "Unsupported Darwin architecture: $ARCH"

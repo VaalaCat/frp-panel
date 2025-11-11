@@ -115,14 +115,15 @@ func (w *wireGuard) Start() error {
 		return errors.Join(fmt.Errorf("apply peer config failed"), err)
 	}
 
+	// 在应用配置后再启动设备
+	if err := w.wgDevice.Up(); err != nil {
+		return errors.Join(fmt.Errorf("wgDevice.Up '%s'", w.ifce.GetInterfaceName()), err)
+	}
+
 	if !w.useGvisorNet {
 		if err := w.initNetwork(); err != nil {
 			return errors.Join(errors.New("init network failed"), err)
 		}
-	}
-
-	if err := w.wgDevice.Up(); err != nil {
-		return errors.Join(fmt.Errorf("wgDevice.Up '%s'", w.ifce.GetInterfaceName()), err)
 	}
 
 	// 在 WireGuard 设备启动后配置 gvisor
@@ -325,9 +326,29 @@ func (w *wireGuard) GetWGRuntimeInfo() (*pb.WGDeviceRuntimeInfo, error) {
 	}
 
 	runtimeInfo.PingMap = w.pingMap.Export()
-	runtimeInfo.InterfaceName = w.ifce.GetInterfaceName()
+	if w.useGvisorNet {
+		runtimeInfo.InterfaceName = w.ifce.GetInterfaceName()
+	} else {
+		link, err := netlink.LinkByName(w.ifce.GetInterfaceName())
+		if err != nil {
+			return nil, errors.Join(fmt.Errorf("get iface '%s' via netlink", w.ifce.GetInterfaceName()), err)
+		}
+		runtimeInfo.InterfaceName = link.Attrs().Name
+	}
 
 	return runtimeInfo, nil
+}
+
+func (w *wireGuard) NeedRecreate(newCfg *defs.WireGuardConfig) bool {
+	return w.ifce.GetId() != newCfg.GetId() ||
+		w.ifce.GetInterfaceName() != newCfg.GetInterfaceName() ||
+		w.ifce.GetPrivateKey() != newCfg.GetPrivateKey() ||
+		w.ifce.GetLocalAddress() != newCfg.GetLocalAddress() ||
+		w.ifce.GetListenPort() != newCfg.GetListenPort() ||
+		w.ifce.GetWsListenPort() != newCfg.GetWsListenPort() ||
+		w.ifce.GetInterfaceMtu() != newCfg.GetInterfaceMtu() ||
+		w.ifce.GetUseGvisorNet() != newCfg.GetUseGvisorNet() ||
+		w.ifce.GetNetworkId() != newCfg.GetNetworkId()
 }
 
 func (w *wireGuard) initTransports() error {
@@ -402,6 +423,15 @@ func (w *wireGuard) initWGDevice() error {
 	}
 
 	log.Debugf("TUN device '%s' (MTU %d) created successfully", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu())
+
+	// 在创建 WireGuard 设备之前,先打开 bind 并使用正确的端口,避免后续更新端口导致死锁
+	log.Debugf("opening multibind with port %d before creating WireGuard device", w.ifce.GetListenPort())
+	_, _, err = w.multiBind.Open(uint16(w.ifce.GetListenPort()))
+	if err != nil {
+		return errors.Join(fmt.Errorf("open multibind with port %d failed", w.ifce.GetListenPort()), err)
+	}
+	log.Debugf("multibind opened successfully with port %d", w.ifce.GetListenPort())
+
 	log.Debugf("start to create WireGuard device '%s'", w.ifce.GetInterfaceName())
 
 	w.wgDevice = device.NewDevice(w.tunDevice, w.multiBind, &device.Logger{
@@ -430,13 +460,17 @@ func (w *wireGuard) applyPeerConfig() error {
 
 	log.Debugf("wgTypedPeerConfigs: %v", wgTypedPeerConfigs)
 
-	uapiConfigString := generateUAPIConfigString(w.ifce, w.ifce.GetParsedPrivKey(), wgTypedPeerConfigs, !w.running)
+	// 跳过 listen_port 设置,因为我们已经在 initWGDevice 中通过 bind.Open() 设置了端口
+	// 在运行时通过 UAPI 更新 listen_port 会导致死锁
+	uapiConfigString := generateUAPIConfigString(w.ifce, w.ifce.GetParsedPrivKey(), wgTypedPeerConfigs, !w.running, true)
 
 	log.Debugf("uapiBuilder: %s", uapiConfigString)
 
+	log.Debugf("calling IpcSet...")
 	if err = w.wgDevice.IpcSet(uapiConfigString); err != nil {
 		return errors.Join(errors.New("IpcSet error"), err)
 	}
+	log.Debugf("IpcSet completed successfully")
 
 	return nil
 }
@@ -444,10 +478,24 @@ func (w *wireGuard) applyPeerConfig() error {
 func (w *wireGuard) initNetwork() error {
 	log := w.svcLogger.WithField("op", "initNetwork")
 
-	link, err := netlink.LinkByName(w.ifce.GetInterfaceName())
-	if err != nil {
-		return errors.Join(fmt.Errorf("get iface '%s' via netlink", w.ifce.GetInterfaceName()), err)
+	// 等待 TUN 设备在内核中完全注册,避免竞态条件
+	var link netlink.Link
+	var err error
+	maxRetries := 10
+	for i := 0; i < maxRetries; i++ {
+		link, err = netlink.LinkByName(w.ifce.GetInterfaceName())
+		if err == nil {
+			break
+		}
+		if i < maxRetries-1 {
+			log.Debugf("attempt %d: waiting for iface '%s' to be ready, will retry...", i+1, w.ifce.GetInterfaceName())
+			time.Sleep(100 * time.Millisecond)
+		}
 	}
+	if err != nil {
+		return errors.Join(fmt.Errorf("get iface '%s' via netlink after %d retries", w.ifce.GetInterfaceName(), maxRetries), err)
+	}
+	log.Debugf("successfully found interface '%s' via netlink", w.ifce.GetInterfaceName())
 
 	addr, err := netlink.ParseAddr(w.ifce.GetLocalAddress())
 	if err != nil {

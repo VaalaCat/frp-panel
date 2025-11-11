@@ -49,6 +49,7 @@ require (
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.11
+	gvisor.dev/gvisor v0.0.0-20250503011706-39ed1f5ac29c
 	k8s.io/apimachinery v0.28.8
 )
 
@@ -155,7 +156,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/sqlserver v1.5.3 // indirect
 	gorm.io/plugin/dbresolver v1.5.2 // indirect
-	gvisor.dev/gvisor v0.0.0-20250503011706-39ed1f5ac29c // indirect
 	k8s.io/utils v0.0.0-20230406110748-d93618cff8a2 // indirect
 	modernc.org/libc v1.38.0 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

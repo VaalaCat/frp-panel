@@ -39,9 +39,13 @@ func PullWireGuards(appInstance app.Application, clientID, clientSecret string) 
 		wgCfg := &defs.WireGuardConfig{WireGuardConfig: wireGuard}
 		wgSvc, ok := wgMgr.GetService(wireGuard.GetInterfaceName())
 		if ok {
-			log.Debugf("wireguard [%s] already exists, skip create, update peers if need", wireGuard.GetInterfaceName())
-			wgSvc.PatchPeers(wgCfg.GetParsedPeers())
-			continue
+			if wgSvc.NeedRecreate(wgCfg) {
+				wgMgr.RemoveService(wireGuard.GetInterfaceName())
+			} else {
+				log.Debugf("wireguard [%s] already exists, skip create, update peers if need", wireGuard.GetInterfaceName())
+				wgSvc.PatchPeers(wgCfg.GetParsedPeers())
+				continue
+			}
 		}
 
 		wgSvc, err := wgMgr.CreateService(&defs.WireGuardConfig{WireGuardConfig: wireGuard})
