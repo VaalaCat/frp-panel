@@ -16,12 +16,14 @@ var (
 type networkTopologyCache struct {
 	wireguardRuntimeInfoMap *utils.SyncMap[uint, *pb.WGDeviceRuntimeInfo] // wireguardId -> peerRuntimeInfo
 	fromToLatencyMap        *utils.SyncMap[string, uint32]                // fromWGID::toWGID -> latencyMs
+	virtAddrPingMap         *utils.SyncMap[string, uint32]                // virtAddr -> pingMs
 }
 
 func NewNetworkTopologyCache() *networkTopologyCache {
 	return &networkTopologyCache{
 		wireguardRuntimeInfoMap: &utils.SyncMap[uint, *pb.WGDeviceRuntimeInfo]{},
 		fromToLatencyMap:        &utils.SyncMap[string, uint32]{},
+		virtAddrPingMap:         &utils.SyncMap[string, uint32]{},
 	}
 }
 
@@ -33,6 +35,9 @@ func (c *networkTopologyCache) SetRuntimeInfo(wireguardId uint, runtimeInfo *pb.
 	c.wireguardRuntimeInfoMap.Store(wireguardId, runtimeInfo)
 	for toWireGuardId, latencyMs := range runtimeInfo.GetPingMap() {
 		c.fromToLatencyMap.Store(parseFromToLatencyKey(wireguardId, uint(toWireGuardId)), latencyMs)
+	}
+	for virtAddr, pingMs := range runtimeInfo.GetVirtAddrPingMap() {
+		c.virtAddrPingMap.Store(virtAddr, pingMs)
 	}
 }
 

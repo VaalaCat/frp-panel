@@ -16,6 +16,8 @@ message WireGuardPeerConfig {
   Endpoint endpoint = 8;             // (可选) Peer 的公网端点 "host:port"
   uint32 persistent_keepalive = 9; // 可选
   repeated string tags = 10; // 标签
+
+  string virtual_ip = 11; // 节点虚拟 IP
 }
 
 // WireGuardConfig wg 配置
@@ -88,14 +90,15 @@ message WGPeerRuntimeInfo {
   string public_key = 1;
   string preshared_key = 2;
   repeated string allowed_ips = 3;
-  string endpoint_host = 4;
-  uint32 endpoint_port = 5;
+  // string endpoint_host = 4; // 不再使用
+  // uint32 endpoint_port = 5; // 不再使用
   uint64 tx_bytes = 6;
   uint64 rx_bytes = 7;
   uint32 persistent_keepalive_interval = 8;
   uint64 last_handshake_time_nsec = 9;
   uint64 last_handshake_time_sec = 10;
   string client_id = 11;
+  string endpoint = 12;
 
   map<string, string> extra = 100;
 }
@@ -109,6 +112,10 @@ message WGDeviceRuntimeInfo {
   string client_id = 6;
   map<uint32, uint32> ping_map = 7; // to peer endpoint ping
   string interface_name = 8;
+  map<string, uint32> virt_addr_ping_map = 9; // to peer virtual address ping
+  map<string, uint32> peer_virt_addr_map = 10; // to peer virtual address map
+  map<string, WireGuardPeerConfig> peer_config_map = 11; // to peer config map
+  string virtual_ip = 12; // 节点虚拟 IP
 
   map<string, string> extra = 100;
 }

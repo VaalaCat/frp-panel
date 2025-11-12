@@ -56,6 +56,10 @@ export interface WireGuardPeerConfig {
      * @generated from protobuf field: repeated string tags = 10;
      */
     tags: string[]; // 标签
+    /**
+     * @generated from protobuf field: string virtual_ip = 11;
+     */
+    virtualIp: string; // 节点虚拟 IP
 }
 /**
  * WireGuardConfig wg 配置
@@ -279,14 +283,9 @@ export interface WGPeerRuntimeInfo {
      */
     allowedIps: string[];
     /**
-     * @generated from protobuf field: string endpoint_host = 4;
-     */
-    endpointHost: string;
-    /**
-     * @generated from protobuf field: uint32 endpoint_port = 5;
-     */
-    endpointPort: number;
-    /**
+     * string endpoint_host = 4; // 不再使用
+     * uint32 endpoint_port = 5; // 不再使用
+     *
      * @generated from protobuf field: uint64 tx_bytes = 6;
      */
     txBytes: bigint;
@@ -310,6 +309,10 @@ export interface WGPeerRuntimeInfo {
      * @generated from protobuf field: string client_id = 11;
      */
     clientId: string;
+    /**
+     * @generated from protobuf field: string endpoint = 12;
+     */
+    endpoint: string;
     /**
      * @generated from protobuf field: map<string, string> extra = 100;
      */
@@ -356,6 +359,28 @@ export interface WGDeviceRuntimeInfo {
      */
     interfaceName: string;
     /**
+     * @generated from protobuf field: map<string, uint32> virt_addr_ping_map = 9;
+     */
+    virtAddrPingMap: {
+        [key: string]: number;
+    }; // to peer virtual address ping
+    /**
+     * @generated from protobuf field: map<string, uint32> peer_virt_addr_map = 10;
+     */
+    peerVirtAddrMap: {
+        [key: string]: number;
+    }; // to peer virtual address map
+    /**
+     * @generated from protobuf field: map<string, wireguard.WireGuardPeerConfig> peer_config_map = 11;
+     */
+    peerConfigMap: {
+        [key: string]: WireGuardPeerConfig;
+    }; // to peer config map
+    /**
+     * @generated from protobuf field: string virtual_ip = 12;
+     */
+    virtualIp: string; // 节点虚拟 IP
+    /**
      * @generated from protobuf field: map<string, string> extra = 100;
      */
     extra: {
@@ -375,7 +400,8 @@ class WireGuardPeerConfig$Type extends MessageType<WireGuardPeerConfig> {
             { no: 7, name: "allowed_ips", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
             { no: 8, name: "endpoint", kind: "message", T: () => Endpoint },
             { no: 9, name: "persistent_keepalive", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
-            { no: 10, name: "tags", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ }
+            { no: 10, name: "tags", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
+            { no: 11, name: "virtual_ip", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<WireGuardPeerConfig>): WireGuardPeerConfig {
@@ -389,6 +415,7 @@ class WireGuardPeerConfig$Type extends MessageType<WireGuardPeerConfig> {
         message.allowedIps = [];
         message.persistentKeepalive = 0;
         message.tags = [];
+        message.virtualIp = "";
         if (value !== undefined)
             reflectionMergePartial<WireGuardPeerConfig>(this, message, value);
         return message;
@@ -427,6 +454,9 @@ class WireGuardPeerConfig$Type extends MessageType<WireGuardPeerConfig> {
                     break;
                 case /* repeated string tags */ 10:
                     message.tags.push(reader.string());
+                    break;
+                case /* string virtual_ip */ 11:
+                    message.virtualIp = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -470,6 +500,9 @@ class WireGuardPeerConfig$Type extends MessageType<WireGuardPeerConfig> {
         /* repeated string tags = 10; */
         for (let i = 0; i < message.tags.length; i++)
             writer.tag(10, WireType.LengthDelimited).string(message.tags[i]);
+        /* string virtual_ip = 11; */
+        if (message.virtualIp !== "")
+            writer.tag(11, WireType.LengthDelimited).string(message.virtualIp);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -1094,14 +1127,13 @@ class WGPeerRuntimeInfo$Type extends MessageType<WGPeerRuntimeInfo> {
             { no: 1, name: "public_key", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "preshared_key", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "allowed_ips", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "endpoint_host", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 5, name: "endpoint_port", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 6, name: "tx_bytes", kind: "scalar", T: 4 /*ScalarType.UINT64*/, L: 0 /*LongType.BIGINT*/ },
             { no: 7, name: "rx_bytes", kind: "scalar", T: 4 /*ScalarType.UINT64*/, L: 0 /*LongType.BIGINT*/ },
             { no: 8, name: "persistent_keepalive_interval", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 9, name: "last_handshake_time_nsec", kind: "scalar", T: 4 /*ScalarType.UINT64*/, L: 0 /*LongType.BIGINT*/ },
             { no: 10, name: "last_handshake_time_sec", kind: "scalar", T: 4 /*ScalarType.UINT64*/, L: 0 /*LongType.BIGINT*/ },
             { no: 11, name: "client_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 12, name: "endpoint", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 100, name: "extra", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } }
         ]);
     }
@@ -1110,14 +1142,13 @@ class WGPeerRuntimeInfo$Type extends MessageType<WGPeerRuntimeInfo> {
         message.publicKey = "";
         message.presharedKey = "";
         message.allowedIps = [];
-        message.endpointHost = "";
-        message.endpointPort = 0;
         message.txBytes = 0n;
         message.rxBytes = 0n;
         message.persistentKeepaliveInterval = 0;
         message.lastHandshakeTimeNsec = 0n;
         message.lastHandshakeTimeSec = 0n;
         message.clientId = "";
+        message.endpoint = "";
         message.extra = {};
         if (value !== undefined)
             reflectionMergePartial<WGPeerRuntimeInfo>(this, message, value);
@@ -1137,12 +1168,6 @@ class WGPeerRuntimeInfo$Type extends MessageType<WGPeerRuntimeInfo> {
                 case /* repeated string allowed_ips */ 3:
                     message.allowedIps.push(reader.string());
                     break;
-                case /* string endpoint_host */ 4:
-                    message.endpointHost = reader.string();
-                    break;
-                case /* uint32 endpoint_port */ 5:
-                    message.endpointPort = reader.uint32();
-                    break;
                 case /* uint64 tx_bytes */ 6:
                     message.txBytes = reader.uint64().toBigInt();
                     break;
@@ -1160,6 +1185,9 @@ class WGPeerRuntimeInfo$Type extends MessageType<WGPeerRuntimeInfo> {
                     break;
                 case /* string client_id */ 11:
                     message.clientId = reader.string();
+                    break;
+                case /* string endpoint */ 12:
+                    message.endpoint = reader.string();
                     break;
                 case /* map<string, string> extra */ 100:
                     this.binaryReadMap100(message.extra, reader, options);
@@ -1201,12 +1229,6 @@ class WGPeerRuntimeInfo$Type extends MessageType<WGPeerRuntimeInfo> {
         /* repeated string allowed_ips = 3; */
         for (let i = 0; i < message.allowedIps.length; i++)
             writer.tag(3, WireType.LengthDelimited).string(message.allowedIps[i]);
-        /* string endpoint_host = 4; */
-        if (message.endpointHost !== "")
-            writer.tag(4, WireType.LengthDelimited).string(message.endpointHost);
-        /* uint32 endpoint_port = 5; */
-        if (message.endpointPort !== 0)
-            writer.tag(5, WireType.Varint).uint32(message.endpointPort);
         /* uint64 tx_bytes = 6; */
         if (message.txBytes !== 0n)
             writer.tag(6, WireType.Varint).uint64(message.txBytes);
@@ -1225,6 +1247,9 @@ class WGPeerRuntimeInfo$Type extends MessageType<WGPeerRuntimeInfo> {
         /* string client_id = 11; */
         if (message.clientId !== "")
             writer.tag(11, WireType.LengthDelimited).string(message.clientId);
+        /* string endpoint = 12; */
+        if (message.endpoint !== "")
+            writer.tag(12, WireType.LengthDelimited).string(message.endpoint);
         /* map<string, string> extra = 100; */
         for (let k of globalThis.Object.keys(message.extra))
             writer.tag(100, WireType.LengthDelimited).fork().tag(1, WireType.LengthDelimited).string(k).tag(2, WireType.LengthDelimited).string(message.extra[k]).join();
@@ -1250,6 +1275,10 @@ class WGDeviceRuntimeInfo$Type extends MessageType<WGDeviceRuntimeInfo> {
             { no: 6, name: "client_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 7, name: "ping_map", kind: "map", K: 13 /*ScalarType.UINT32*/, V: { kind: "scalar", T: 13 /*ScalarType.UINT32*/ } },
             { no: 8, name: "interface_name", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 9, name: "virt_addr_ping_map", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 13 /*ScalarType.UINT32*/ } },
+            { no: 10, name: "peer_virt_addr_map", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 13 /*ScalarType.UINT32*/ } },
+            { no: 11, name: "peer_config_map", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "message", T: () => WireGuardPeerConfig } },
+            { no: 12, name: "virtual_ip", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 100, name: "extra", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } }
         ]);
     }
@@ -1263,6 +1292,10 @@ class WGDeviceRuntimeInfo$Type extends MessageType<WGDeviceRuntimeInfo> {
         message.clientId = "";
         message.pingMap = {};
         message.interfaceName = "";
+        message.virtAddrPingMap = {};
+        message.peerVirtAddrMap = {};
+        message.peerConfigMap = {};
+        message.virtualIp = "";
         message.extra = {};
         if (value !== undefined)
             reflectionMergePartial<WGDeviceRuntimeInfo>(this, message, value);
@@ -1297,6 +1330,18 @@ class WGDeviceRuntimeInfo$Type extends MessageType<WGDeviceRuntimeInfo> {
                 case /* string interface_name */ 8:
                     message.interfaceName = reader.string();
                     break;
+                case /* map<string, uint32> virt_addr_ping_map */ 9:
+                    this.binaryReadMap9(message.virtAddrPingMap, reader, options);
+                    break;
+                case /* map<string, uint32> peer_virt_addr_map */ 10:
+                    this.binaryReadMap10(message.peerVirtAddrMap, reader, options);
+                    break;
+                case /* map<string, wireguard.WireGuardPeerConfig> peer_config_map */ 11:
+                    this.binaryReadMap11(message.peerConfigMap, reader, options);
+                    break;
+                case /* string virtual_ip */ 12:
+                    message.virtualIp = reader.string();
+                    break;
                 case /* map<string, string> extra */ 100:
                     this.binaryReadMap100(message.extra, reader, options);
                     break;
@@ -1326,6 +1371,54 @@ class WGDeviceRuntimeInfo$Type extends MessageType<WGDeviceRuntimeInfo> {
             }
         }
         map[key ?? 0] = val ?? 0;
+    }
+    private binaryReadMap9(map: WGDeviceRuntimeInfo["virtAddrPingMap"], reader: IBinaryReader, options: BinaryReadOptions): void {
+        let len = reader.uint32(), end = reader.pos + len, key: keyof WGDeviceRuntimeInfo["virtAddrPingMap"] | undefined, val: WGDeviceRuntimeInfo["virtAddrPingMap"][any] | undefined;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case 1:
+                    key = reader.string();
+                    break;
+                case 2:
+                    val = reader.uint32();
+                    break;
+                default: throw new globalThis.Error("unknown map entry field for field wireguard.WGDeviceRuntimeInfo.virt_addr_ping_map");
+            }
+        }
+        map[key ?? ""] = val ?? 0;
+    }
+    private binaryReadMap10(map: WGDeviceRuntimeInfo["peerVirtAddrMap"], reader: IBinaryReader, options: BinaryReadOptions): void {
+        let len = reader.uint32(), end = reader.pos + len, key: keyof WGDeviceRuntimeInfo["peerVirtAddrMap"] | undefined, val: WGDeviceRuntimeInfo["peerVirtAddrMap"][any] | undefined;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case 1:
+                    key = reader.string();
+                    break;
+                case 2:
+                    val = reader.uint32();
+                    break;
+                default: throw new globalThis.Error("unknown map entry field for field wireguard.WGDeviceRuntimeInfo.peer_virt_addr_map");
+            }
+        }
+        map[key ?? ""] = val ?? 0;
+    }
+    private binaryReadMap11(map: WGDeviceRuntimeInfo["peerConfigMap"], reader: IBinaryReader, options: BinaryReadOptions): void {
+        let len = reader.uint32(), end = reader.pos + len, key: keyof WGDeviceRuntimeInfo["peerConfigMap"] | undefined, val: WGDeviceRuntimeInfo["peerConfigMap"][any] | undefined;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case 1:
+                    key = reader.string();
+                    break;
+                case 2:
+                    val = WireGuardPeerConfig.internalBinaryRead(reader, reader.uint32(), options);
+                    break;
+                default: throw new globalThis.Error("unknown map entry field for field wireguard.WGDeviceRuntimeInfo.peer_config_map");
+            }
+        }
+        map[key ?? ""] = val ?? WireGuardPeerConfig.create();
     }
     private binaryReadMap100(map: WGDeviceRuntimeInfo["extra"], reader: IBinaryReader, options: BinaryReadOptions): void {
         let len = reader.uint32(), end = reader.pos + len, key: keyof WGDeviceRuntimeInfo["extra"] | undefined, val: WGDeviceRuntimeInfo["extra"][any] | undefined;
@@ -1368,6 +1461,22 @@ class WGDeviceRuntimeInfo$Type extends MessageType<WGDeviceRuntimeInfo> {
         /* string interface_name = 8; */
         if (message.interfaceName !== "")
             writer.tag(8, WireType.LengthDelimited).string(message.interfaceName);
+        /* map<string, uint32> virt_addr_ping_map = 9; */
+        for (let k of globalThis.Object.keys(message.virtAddrPingMap))
+            writer.tag(9, WireType.LengthDelimited).fork().tag(1, WireType.LengthDelimited).string(k).tag(2, WireType.Varint).uint32(message.virtAddrPingMap[k]).join();
+        /* map<string, uint32> peer_virt_addr_map = 10; */
+        for (let k of globalThis.Object.keys(message.peerVirtAddrMap))
+            writer.tag(10, WireType.LengthDelimited).fork().tag(1, WireType.LengthDelimited).string(k).tag(2, WireType.Varint).uint32(message.peerVirtAddrMap[k]).join();
+        /* map<string, wireguard.WireGuardPeerConfig> peer_config_map = 11; */
+        for (let k of globalThis.Object.keys(message.peerConfigMap)) {
+            writer.tag(11, WireType.LengthDelimited).fork().tag(1, WireType.LengthDelimited).string(k);
+            writer.tag(2, WireType.LengthDelimited).fork();
+            WireGuardPeerConfig.internalBinaryWrite(message.peerConfigMap[k], writer, options);
+            writer.join().join();
+        }
+        /* string virtual_ip = 12; */
+        if (message.virtualIp !== "")
+            writer.tag(12, WireType.LengthDelimited).string(message.virtualIp);
         /* map<string, string> extra = 100; */
         for (let k of globalThis.Object.keys(message.extra))
             writer.tag(100, WireType.LengthDelimited).fork().tag(1, WireType.LengthDelimited).string(k).tag(2, WireType.LengthDelimited).string(message.extra[k]).join();

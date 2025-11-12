@@ -48,13 +48,21 @@ func (w *WSBind) BatchSize() int {
 
 // Close implements conn.Bind.
 func (w *WSBind) Close() error {
+	w.opened.Store(false)
+
 	for conn := range w.conns {
 		conn.close()
 	}
 	w.conns = make(map[*WSConn]struct{})
-	w.registerChan = make(chan *serverIncoming, defaultRegisterChanSize)
-	w.incomingChan = make(chan *incomingPacket, defaultIncomingChanSize)
-	w.opened.Store(false)
+
+	// 关闭旧的 channels 以释放阻塞的 goroutines
+	if w.registerChan != nil {
+		close(w.registerChan)
+	}
+	if w.incomingChan != nil {
+		close(w.incomingChan)
+	}
+
 	return nil
 }
 
@@ -66,9 +74,11 @@ func (w *WSBind) Open(port uint16) (fns []conn.ReceiveFunc, actualPort uint16, e
 			w.ctx.Logger().WithError(closeErr).Warnf("failed to close ws bind before reopening")
 		}
 	}
-	w.opened.Store(true)
+
+	// 重新创建 channels(在 Close() 后它们已经被关闭)
 	w.registerChan = make(chan *serverIncoming, defaultRegisterChanSize)
 	w.incomingChan = make(chan *incomingPacket, defaultIncomingChanSize)
+	w.opened.Store(true)
 
 	go w.serverLoop()
 	return []conn.ReceiveFunc{w.recvFunc}, port, nil

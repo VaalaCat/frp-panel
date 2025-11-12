@@ -59,9 +59,7 @@ func ParseWGRunningInfo(raw string) (*pb.WGDeviceRuntimeInfo, error) {
 			}
 		case "endpoint":
 			if cur != nil {
-				host, port := parseEndpoint(v)
-				cur.EndpointHost = host
-				cur.EndpointPort = port
+				cur.Endpoint = v
 			}
 		case "tx_bytes":
 			if cur != nil {
@@ -109,35 +107,4 @@ func ParseWGRunningInfo(raw string) (*pb.WGDeviceRuntimeInfo, error) {
 	}
 	flushPeer()
 	return dev, nil
-}
-
-func parseEndpoint(v string) (string, uint32) {
-	v = strings.TrimSpace(v)
-	if v == "" {
-		return "", 0
-	}
-	// IPv6 带 [] 的形式
-	if strings.HasPrefix(v, "[") {
-		rb := strings.IndexByte(v, ']')
-		if rb > 1 && rb+1 < len(v) && v[rb+1] == ':' {
-			host := v[1:rb]
-			portStr := v[rb+2:]
-			if p, err := strconv.ParseUint(portStr, 10, 32); err == nil {
-				return host, uint32(p)
-			}
-			return host, 0
-		}
-		return v, 0
-	}
-	// IPv4 或域名 host:port
-	idx := strings.LastIndexByte(v, ':')
-	if idx <= 0 || idx+1 >= len(v) {
-		return v, 0
-	}
-	host := v[:idx]
-	portStr := v[idx+1:]
-	if p, err := strconv.ParseUint(portStr, 10, 32); err == nil {
-		return host, uint32(p)
-	}
-	return host, 0
 }

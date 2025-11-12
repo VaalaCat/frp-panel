@@ -47,6 +47,7 @@ const NetworkDetail: React.FC = () => {
 		queryKey: ['getNetwork', networkId],
 		queryFn: () => getNetwork(GetNetworkRequest.create({ id: networkId! })),
 		enabled: !!networkId,
+		refetchOnWindowFocus: false,
 	})
 
 	const { topology, isFetching: topologyLoading, refetch: refetchTopology } = useNetworkTopology(networkId)

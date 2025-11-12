@@ -71,7 +71,7 @@ func (w *WireGuard) AsBasePeerConfig(specifiedEndpoint *Endpoint) (*pb.WireGuard
 	if err != nil {
 		return nil, errors.Join(errors.New("parse private key error"), err)
 	}
-	_, localIPPrefix, err := ParseIPOrCIDRWithNetip(w.LocalAddress)
+	addr, localIPPrefix, err := ParseIPOrCIDRWithNetip(w.LocalAddress)
 	if err != nil {
 		return nil, errors.Join(errors.New("parse local address error"), err)
 	}
@@ -87,6 +87,7 @@ func (w *WireGuard) AsBasePeerConfig(specifiedEndpoint *Endpoint) (*pb.WireGuard
 		AllowedIps:          []string{localIPPrefixAllowed.String()},
 		PersistentKeepalive: 20,
 		Tags:                w.Tags,
+		VirtualIp:           addr.String(),
 	}
 
 	// 优先使用指定的 Endpoint

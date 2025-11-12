@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"runtime/debug"
-	"sync/atomic"
 
 	"github.com/sirupsen/logrus"
 	"golang.zx2c4.com/wireguard/conn"
@@ -15,8 +14,6 @@ var (
 )
 
 type MultiBind struct {
-	opened atomic.Bool
-
 	transports []*Transport
 	svcLogger  *logrus.Entry
 }
@@ -54,8 +51,6 @@ func (m *MultiBind) Close() error {
 		}
 	}
 
-	m.opened.Store(false)
-
 	if len(errs) > 0 {
 		return errors.Join(errs...)
 	}
@@ -64,14 +59,6 @@ func (m *MultiBind) Close() error {
 
 // Open implements conn.Bind.
 func (m *MultiBind) Open(port uint16) (fns []conn.ReceiveFunc, actualPort uint16, err error) {
-	if m.opened.Load() {
-		m.svcLogger.Debugf("multibind already opened, closing and reopening for port %d", port)
-		if closeErr := m.Close(); closeErr != nil {
-			m.svcLogger.WithError(closeErr).Warnf("failed to close multibind before reopening")
-		}
-	}
-	m.opened.Store(true)
-
 	multiRecvFunc := []conn.ReceiveFunc{}
 
 	for _, t := range m.transports {

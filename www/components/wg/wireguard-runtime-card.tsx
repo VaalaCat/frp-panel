@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { RefreshCw } from 'lucide-react'
+import { ArrowUpRight, RefreshCw } from 'lucide-react'
 import type { WGDeviceRuntimeInfo, WGPeerRuntimeInfo } from '@/lib/pb/types_wg'
 import { formatBytes } from '@/lib/utils'
+import { useRouter } from 'next/router'
 
 export default function WireGuardRuntimeCard({
 	runtime,
@@ -25,7 +26,7 @@ export default function WireGuardRuntimeCard({
 		<Card>
 			<CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 				<div>
-					<CardTitle>{t('wg.runtime.title')}</CardTitle>
+					<CardTitle>{runtime?.clientId ? runtime.clientId : t('wg.runtime.title')}</CardTitle>
 					<p className="text-sm text-muted-foreground">{t('wg.runtime.subtitle')}</p>
 				</div>
 				<Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
@@ -41,8 +42,8 @@ export default function WireGuardRuntimeCard({
 						loading={loading}
 					/>
 					<RuntimeStat
-						title={t('wg.runtime.protocol')}
-						value={runtime?.protocolVersion ?? '-'}
+						title={t('wg.runtime.virt_ip')}
+						value={runtime?.virtualIp ?? '-'}
 						loading={loading}
 					/>
 					<RuntimeStat title={t('wg.runtime.peer_count')} value={peers.length} loading={loading} />
@@ -58,7 +59,10 @@ export default function WireGuardRuntimeCard({
 						{loading ? (
 							<Skeleton className="h-12 w-full" />
 						) : peers.length ? (
-							peers.map((peer) => <PeerItem key={peer.publicKey} peer={peer} />)
+							peers.sort((a, b) => a.clientId.localeCompare(b.clientId)).map((peer) => <PeerItem key={peer.publicKey} peer={peer}
+								wireguardId={
+									runtime?.peerConfigMap?.[peer.publicKey]?.id ?? 0
+								} />)
 						) : (
 							<p className="text-sm text-muted-foreground">{t('wg.runtime.peer_empty')}</p>
 						)}
@@ -80,21 +84,37 @@ function RuntimeStat({ title, value, loading }: { title: string; value: React.Re
 	)
 }
 
-function PeerItem({ peer }: { peer: WGPeerRuntimeInfo }) {
+function PeerItem({ peer, wireguardId }: { peer: WGPeerRuntimeInfo; wireguardId: number }) {
 	const { t } = useTranslation()
+	const router = useRouter()
 	const lastHandshake = peer.lastHandshakeTimeSec ? new Date(Number(peer.lastHandshakeTimeSec) * 1000) : undefined
 
 	return (
 		<div className="flex flex-col gap-2 rounded-md border p-3">
 			<div className="flex flex-wrap items-center gap-2">
 				<span className="font-mono text-sm truncate max-w-[240px]" title={peer.publicKey}>
-					{peer.publicKey}
+					{peer.clientId || peer.publicKey || t('wg.runtime.peer_unknown')}
 				</span>
-				<Badge variant="outline">{peer.clientId || t('wg.runtime.peer_unknown')}</Badge>
+				<Badge variant="outline">
+					<p className='font-mono text-xs truncate max-w-[240px] text-nowrap w-fit'>{peer.publicKey || t('wg.runtime.peer_unknown')}</p>
+				</Badge>
+				<Button
+					variant="ghost"
+					size="icon"
+					className="h-6 w-6 rounded-full"
+					onClick={(e) => {
+						e.preventDefault()
+						e.stopPropagation()
+						router.push({ pathname: '/wg/wireguard-detail', query: { id: wireguardId } })
+					}}
+					aria-label={t('wg.wireguardActions.view')}
+				>
+					<ArrowUpRight className="h-3.5 w-3.5" />
+				</Button>
 			</div>
 			<div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
 				<div>
-					<span className="font-medium text-foreground">{t('wg.runtime.peer_endpoint')}:</span> {peer.endpointHost}:{peer.endpointPort ?? '-'}
+					<span className="font-medium text-foreground">{t('wg.runtime.peer_endpoint')}:</span> {peer.endpoint ?? '-'}
 				</div>
 				<div>
 					<span className="font-medium text-foreground">{t('wg.runtime.peer_last_handshake')}:</span>{' '}
@@ -105,6 +125,18 @@ function PeerItem({ peer }: { peer: WGPeerRuntimeInfo }) {
 				</div>
 				<div>
 					<span className="font-medium text-foreground">RX:</span> {formatBytes(peer.rxBytes ?? 0)}
+				</div>
+				<div className='flex flex-row gap-2'>
+					<span className="font-medium text-foreground">Route</span>
+					<div className='flex flex-wrap items-center gap-2'>
+						{
+							peer.allowedIps.map((ip) => (
+								<Badge key={ip} variant="outline">
+									<span className="font-mono text-xs truncate max-w-[240px] text-nowrap w-fit">{ip}</span>
+								</Badge>
+							))
+						}
+					</div>
 				</div>
 			</div>
 		</div>

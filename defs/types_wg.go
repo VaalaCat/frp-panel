@@ -2,6 +2,7 @@ package defs
 
 import (
 	"bytes"
+	"encoding/hex"
 	"errors"
 
 	"github.com/VaalaCat/frp-panel/pb"
@@ -61,6 +62,11 @@ func (w *WireGuardPeerConfig) GetParsedPublicKey() wgtypes.Key {
 	}
 
 	return w.parsedPublicKey
+}
+
+func (w *WireGuardPeerConfig) HexPublicKey() string {
+	pk := w.GetParsedPublicKey()
+	return hex.EncodeToString(pk[:])
 }
 
 func (w *WireGuardPeerConfig) GetParsedPresharedKey() *wgtypes.Key {

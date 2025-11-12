@@ -34,6 +34,7 @@ type WireGuardPeerConfig struct {
 	Endpoint            *Endpoint              `protobuf:"bytes,8,opt,name=endpoint,proto3" json:"endpoint,omitempty"`                                                   // (可选) Peer 的公网端点 "host:port"
 	PersistentKeepalive uint32                 `protobuf:"varint,9,opt,name=persistent_keepalive,json=persistentKeepalive,proto3" json:"persistent_keepalive,omitempty"` // 可选
 	Tags                []string               `protobuf:"bytes,10,rep,name=tags,proto3" json:"tags,omitempty"`                                                          // 标签
+	VirtualIp           string                 `protobuf:"bytes,11,opt,name=virtual_ip,json=virtualIp,proto3" json:"virtual_ip,omitempty"`                               // 节点虚拟 IP
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -136,6 +137,13 @@ func (x *WireGuardPeerConfig) GetTags() []string {
 		return x.Tags
 	}
 	return nil
+}
+
+func (x *WireGuardPeerConfig) GetVirtualIp() string {
+	if x != nil {
+		return x.VirtualIp
+	}
+	return ""
 }
 
 // WireGuardConfig wg 配置
@@ -728,19 +736,20 @@ func (x *AclRuleConfig) GetDst() []string {
 }
 
 type WGPeerRuntimeInfo struct {
-	state                       protoimpl.MessageState `protogen:"open.v1"`
-	PublicKey                   string                 `protobuf:"bytes,1,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
-	PresharedKey                string                 `protobuf:"bytes,2,opt,name=preshared_key,json=presharedKey,proto3" json:"preshared_key,omitempty"`
-	AllowedIps                  []string               `protobuf:"bytes,3,rep,name=allowed_ips,json=allowedIps,proto3" json:"allowed_ips,omitempty"`
-	EndpointHost                string                 `protobuf:"bytes,4,opt,name=endpoint_host,json=endpointHost,proto3" json:"endpoint_host,omitempty"`
-	EndpointPort                uint32                 `protobuf:"varint,5,opt,name=endpoint_port,json=endpointPort,proto3" json:"endpoint_port,omitempty"`
-	TxBytes                     uint64                 `protobuf:"varint,6,opt,name=tx_bytes,json=txBytes,proto3" json:"tx_bytes,omitempty"`
-	RxBytes                     uint64                 `protobuf:"varint,7,opt,name=rx_bytes,json=rxBytes,proto3" json:"rx_bytes,omitempty"`
-	PersistentKeepaliveInterval uint32                 `protobuf:"varint,8,opt,name=persistent_keepalive_interval,json=persistentKeepaliveInterval,proto3" json:"persistent_keepalive_interval,omitempty"`
-	LastHandshakeTimeNsec       uint64                 `protobuf:"varint,9,opt,name=last_handshake_time_nsec,json=lastHandshakeTimeNsec,proto3" json:"last_handshake_time_nsec,omitempty"`
-	LastHandshakeTimeSec        uint64                 `protobuf:"varint,10,opt,name=last_handshake_time_sec,json=lastHandshakeTimeSec,proto3" json:"last_handshake_time_sec,omitempty"`
-	ClientId                    string                 `protobuf:"bytes,11,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	Extra                       map[string]string      `protobuf:"bytes,100,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	PublicKey    string                 `protobuf:"bytes,1,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
+	PresharedKey string                 `protobuf:"bytes,2,opt,name=preshared_key,json=presharedKey,proto3" json:"preshared_key,omitempty"`
+	AllowedIps   []string               `protobuf:"bytes,3,rep,name=allowed_ips,json=allowedIps,proto3" json:"allowed_ips,omitempty"`
+	// string endpoint_host = 4; // 不再使用
+	// uint32 endpoint_port = 5; // 不再使用
+	TxBytes                     uint64            `protobuf:"varint,6,opt,name=tx_bytes,json=txBytes,proto3" json:"tx_bytes,omitempty"`
+	RxBytes                     uint64            `protobuf:"varint,7,opt,name=rx_bytes,json=rxBytes,proto3" json:"rx_bytes,omitempty"`
+	PersistentKeepaliveInterval uint32            `protobuf:"varint,8,opt,name=persistent_keepalive_interval,json=persistentKeepaliveInterval,proto3" json:"persistent_keepalive_interval,omitempty"`
+	LastHandshakeTimeNsec       uint64            `protobuf:"varint,9,opt,name=last_handshake_time_nsec,json=lastHandshakeTimeNsec,proto3" json:"last_handshake_time_nsec,omitempty"`
+	LastHandshakeTimeSec        uint64            `protobuf:"varint,10,opt,name=last_handshake_time_sec,json=lastHandshakeTimeSec,proto3" json:"last_handshake_time_sec,omitempty"`
+	ClientId                    string            `protobuf:"bytes,11,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	Endpoint                    string            `protobuf:"bytes,12,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	Extra                       map[string]string `protobuf:"bytes,100,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields               protoimpl.UnknownFields
 	sizeCache                   protoimpl.SizeCache
 }
@@ -796,20 +805,6 @@ func (x *WGPeerRuntimeInfo) GetAllowedIps() []string {
 	return nil
 }
 
-func (x *WGPeerRuntimeInfo) GetEndpointHost() string {
-	if x != nil {
-		return x.EndpointHost
-	}
-	return ""
-}
-
-func (x *WGPeerRuntimeInfo) GetEndpointPort() uint32 {
-	if x != nil {
-		return x.EndpointPort
-	}
-	return 0
-}
-
 func (x *WGPeerRuntimeInfo) GetTxBytes() uint64 {
 	if x != nil {
 		return x.TxBytes
@@ -852,6 +847,13 @@ func (x *WGPeerRuntimeInfo) GetClientId() string {
 	return ""
 }
 
+func (x *WGPeerRuntimeInfo) GetEndpoint() string {
+	if x != nil {
+		return x.Endpoint
+	}
+	return ""
+}
+
 func (x *WGPeerRuntimeInfo) GetExtra() map[string]string {
 	if x != nil {
 		return x.Extra
@@ -860,16 +862,20 @@ func (x *WGPeerRuntimeInfo) GetExtra() map[string]string {
 }
 
 type WGDeviceRuntimeInfo struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	PrivateKey      string                 `protobuf:"bytes,1,opt,name=private_key,json=privateKey,proto3" json:"private_key,omitempty"`
-	ListenPort      uint32                 `protobuf:"varint,2,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	Peers           []*WGPeerRuntimeInfo   `protobuf:"bytes,3,rep,name=peers,proto3" json:"peers,omitempty"`
-	ProtocolVersion uint32                 `protobuf:"varint,4,opt,name=protocol_version,json=protocolVersion,proto3" json:"protocol_version,omitempty"`
-	Errno           int32                  `protobuf:"varint,5,opt,name=errno,proto3" json:"errno,omitempty"`
-	ClientId        string                 `protobuf:"bytes,6,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	PingMap         map[uint32]uint32      `protobuf:"bytes,7,rep,name=ping_map,json=pingMap,proto3" json:"ping_map,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // to peer endpoint ping
-	InterfaceName   string                 `protobuf:"bytes,8,opt,name=interface_name,json=interfaceName,proto3" json:"interface_name,omitempty"`
-	Extra           map[string]string      `protobuf:"bytes,100,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	state           protoimpl.MessageState          `protogen:"open.v1"`
+	PrivateKey      string                          `protobuf:"bytes,1,opt,name=private_key,json=privateKey,proto3" json:"private_key,omitempty"`
+	ListenPort      uint32                          `protobuf:"varint,2,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	Peers           []*WGPeerRuntimeInfo            `protobuf:"bytes,3,rep,name=peers,proto3" json:"peers,omitempty"`
+	ProtocolVersion uint32                          `protobuf:"varint,4,opt,name=protocol_version,json=protocolVersion,proto3" json:"protocol_version,omitempty"`
+	Errno           int32                           `protobuf:"varint,5,opt,name=errno,proto3" json:"errno,omitempty"`
+	ClientId        string                          `protobuf:"bytes,6,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	PingMap         map[uint32]uint32               `protobuf:"bytes,7,rep,name=ping_map,json=pingMap,proto3" json:"ping_map,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // to peer endpoint ping
+	InterfaceName   string                          `protobuf:"bytes,8,opt,name=interface_name,json=interfaceName,proto3" json:"interface_name,omitempty"`
+	VirtAddrPingMap map[string]uint32               `protobuf:"bytes,9,rep,name=virt_addr_ping_map,json=virtAddrPingMap,proto3" json:"virt_addr_ping_map,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`  // to peer virtual address ping
+	PeerVirtAddrMap map[string]uint32               `protobuf:"bytes,10,rep,name=peer_virt_addr_map,json=peerVirtAddrMap,proto3" json:"peer_virt_addr_map,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // to peer virtual address map
+	PeerConfigMap   map[string]*WireGuardPeerConfig `protobuf:"bytes,11,rep,name=peer_config_map,json=peerConfigMap,proto3" json:"peer_config_map,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`          // to peer config map
+	VirtualIp       string                          `protobuf:"bytes,12,opt,name=virtual_ip,json=virtualIp,proto3" json:"virtual_ip,omitempty"`                                                                                                  // 节点虚拟 IP
+	Extra           map[string]string               `protobuf:"bytes,100,rep,name=extra,proto3" json:"extra,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -960,6 +966,34 @@ func (x *WGDeviceRuntimeInfo) GetInterfaceName() string {
 	return ""
 }
 
+func (x *WGDeviceRuntimeInfo) GetVirtAddrPingMap() map[string]uint32 {
+	if x != nil {
+		return x.VirtAddrPingMap
+	}
+	return nil
+}
+
+func (x *WGDeviceRuntimeInfo) GetPeerVirtAddrMap() map[string]uint32 {
+	if x != nil {
+		return x.PeerVirtAddrMap
+	}
+	return nil
+}
+
+func (x *WGDeviceRuntimeInfo) GetPeerConfigMap() map[string]*WireGuardPeerConfig {
+	if x != nil {
+		return x.PeerConfigMap
+	}
+	return nil
+}
+
+func (x *WGDeviceRuntimeInfo) GetVirtualIp() string {
+	if x != nil {
+		return x.VirtualIp
+	}
+	return ""
+}
+
 func (x *WGDeviceRuntimeInfo) GetExtra() map[string]string {
 	if x != nil {
 		return x.Extra
@@ -971,7 +1005,7 @@ var File_types_wg_proto protoreflect.FileDescriptor
 
 const file_types_wg_proto_rawDesc = "" +
 	"\n" +
-	"\x0etypes_wg.proto\x12\twireguard\"\xd5\x02\n" +
+	"\x0etypes_wg.proto\x12\twireguard\"\xf4\x02\n" +
 	"\x13WireGuardPeerConfig\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1b\n" +
 	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12\x17\n" +
@@ -985,7 +1019,9 @@ const file_types_wg_proto_rawDesc = "" +
 	"\bendpoint\x18\b \x01(\v2\x13.wireguard.EndpointR\bendpoint\x121\n" +
 	"\x14persistent_keepalive\x18\t \x01(\rR\x13persistentKeepalive\x12\x12\n" +
 	"\x04tags\x18\n" +
-	" \x03(\tR\x04tags\"\xc5\x04\n" +
+	" \x03(\tR\x04tags\x12\x1d\n" +
+	"\n" +
+	"virtual_ip\x18\v \x01(\tR\tvirtualIp\"\xc5\x04\n" +
 	"\x0fWireGuardConfig\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1b\n" +
 	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12\x17\n" +
@@ -1041,27 +1077,26 @@ const file_types_wg_proto_rawDesc = "" +
 	"\rAclRuleConfig\x12\x16\n" +
 	"\x06action\x18\x01 \x01(\tR\x06action\x12\x10\n" +
 	"\x03src\x18\x02 \x03(\tR\x03src\x12\x10\n" +
-	"\x03dst\x18\x03 \x03(\tR\x03dst\"\xc2\x04\n" +
+	"\x03dst\x18\x03 \x03(\tR\x03dst\"\x94\x04\n" +
 	"\x11WGPeerRuntimeInfo\x12\x1d\n" +
 	"\n" +
 	"public_key\x18\x01 \x01(\tR\tpublicKey\x12#\n" +
 	"\rpreshared_key\x18\x02 \x01(\tR\fpresharedKey\x12\x1f\n" +
 	"\vallowed_ips\x18\x03 \x03(\tR\n" +
-	"allowedIps\x12#\n" +
-	"\rendpoint_host\x18\x04 \x01(\tR\fendpointHost\x12#\n" +
-	"\rendpoint_port\x18\x05 \x01(\rR\fendpointPort\x12\x19\n" +
+	"allowedIps\x12\x19\n" +
 	"\btx_bytes\x18\x06 \x01(\x04R\atxBytes\x12\x19\n" +
 	"\brx_bytes\x18\a \x01(\x04R\arxBytes\x12B\n" +
 	"\x1dpersistent_keepalive_interval\x18\b \x01(\rR\x1bpersistentKeepaliveInterval\x127\n" +
 	"\x18last_handshake_time_nsec\x18\t \x01(\x04R\x15lastHandshakeTimeNsec\x125\n" +
 	"\x17last_handshake_time_sec\x18\n" +
 	" \x01(\x04R\x14lastHandshakeTimeSec\x12\x1b\n" +
-	"\tclient_id\x18\v \x01(\tR\bclientId\x12=\n" +
+	"\tclient_id\x18\v \x01(\tR\bclientId\x12\x1a\n" +
+	"\bendpoint\x18\f \x01(\tR\bendpoint\x12=\n" +
 	"\x05extra\x18d \x03(\v2'.wireguard.WGPeerRuntimeInfo.ExtraEntryR\x05extra\x1a8\n" +
 	"\n" +
 	"ExtraEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8f\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb7\b\n" +
 	"\x13WGDeviceRuntimeInfo\x12\x1f\n" +
 	"\vprivate_key\x18\x01 \x01(\tR\n" +
 	"privateKey\x12\x1f\n" +
@@ -1072,11 +1107,26 @@ const file_types_wg_proto_rawDesc = "" +
 	"\x05errno\x18\x05 \x01(\x05R\x05errno\x12\x1b\n" +
 	"\tclient_id\x18\x06 \x01(\tR\bclientId\x12F\n" +
 	"\bping_map\x18\a \x03(\v2+.wireguard.WGDeviceRuntimeInfo.PingMapEntryR\apingMap\x12%\n" +
-	"\x0einterface_name\x18\b \x01(\tR\rinterfaceName\x12?\n" +
+	"\x0einterface_name\x18\b \x01(\tR\rinterfaceName\x12`\n" +
+	"\x12virt_addr_ping_map\x18\t \x03(\v23.wireguard.WGDeviceRuntimeInfo.VirtAddrPingMapEntryR\x0fvirtAddrPingMap\x12`\n" +
+	"\x12peer_virt_addr_map\x18\n" +
+	" \x03(\v23.wireguard.WGDeviceRuntimeInfo.PeerVirtAddrMapEntryR\x0fpeerVirtAddrMap\x12Y\n" +
+	"\x0fpeer_config_map\x18\v \x03(\v21.wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntryR\rpeerConfigMap\x12\x1d\n" +
+	"\n" +
+	"virtual_ip\x18\f \x01(\tR\tvirtualIp\x12?\n" +
 	"\x05extra\x18d \x03(\v2).wireguard.WGDeviceRuntimeInfo.ExtraEntryR\x05extra\x1a:\n" +
 	"\fPingMapEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\rR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\x1a8\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\x1aB\n" +
+	"\x14VirtAddrPingMapEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\x1aB\n" +
+	"\x14PeerVirtAddrMapEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\x1a`\n" +
+	"\x12PeerConfigMapEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x124\n" +
+	"\x05value\x18\x02 \x01(\v2\x1e.wireguard.WireGuardPeerConfigR\x05value:\x028\x01\x1a8\n" +
 	"\n" +
 	"ExtraEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -1094,7 +1144,7 @@ func file_types_wg_proto_rawDescGZIP() []byte {
 	return file_types_wg_proto_rawDescData
 }
 
-var file_types_wg_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_types_wg_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_types_wg_proto_goTypes = []any{
 	(*WireGuardPeerConfig)(nil), // 0: wireguard.WireGuardPeerConfig
 	(*WireGuardConfig)(nil),     // 1: wireguard.WireGuardConfig
@@ -1108,7 +1158,10 @@ var file_types_wg_proto_goTypes = []any{
 	(*WGDeviceRuntimeInfo)(nil), // 9: wireguard.WGDeviceRuntimeInfo
 	nil,                         // 10: wireguard.WGPeerRuntimeInfo.ExtraEntry
 	nil,                         // 11: wireguard.WGDeviceRuntimeInfo.PingMapEntry
-	nil,                         // 12: wireguard.WGDeviceRuntimeInfo.ExtraEntry
+	nil,                         // 12: wireguard.WGDeviceRuntimeInfo.VirtAddrPingMapEntry
+	nil,                         // 13: wireguard.WGDeviceRuntimeInfo.PeerVirtAddrMapEntry
+	nil,                         // 14: wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntry
+	nil,                         // 15: wireguard.WGDeviceRuntimeInfo.ExtraEntry
 }
 var file_types_wg_proto_depIdxs = []int32{
 	2,  // 0: wireguard.WireGuardPeerConfig.endpoint:type_name -> wireguard.Endpoint
@@ -1121,12 +1174,16 @@ var file_types_wg_proto_depIdxs = []int32{
 	10, // 7: wireguard.WGPeerRuntimeInfo.extra:type_name -> wireguard.WGPeerRuntimeInfo.ExtraEntry
 	8,  // 8: wireguard.WGDeviceRuntimeInfo.peers:type_name -> wireguard.WGPeerRuntimeInfo
 	11, // 9: wireguard.WGDeviceRuntimeInfo.ping_map:type_name -> wireguard.WGDeviceRuntimeInfo.PingMapEntry
-	12, // 10: wireguard.WGDeviceRuntimeInfo.extra:type_name -> wireguard.WGDeviceRuntimeInfo.ExtraEntry
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	12, // 10: wireguard.WGDeviceRuntimeInfo.virt_addr_ping_map:type_name -> wireguard.WGDeviceRuntimeInfo.VirtAddrPingMapEntry
+	13, // 11: wireguard.WGDeviceRuntimeInfo.peer_virt_addr_map:type_name -> wireguard.WGDeviceRuntimeInfo.PeerVirtAddrMapEntry
+	14, // 12: wireguard.WGDeviceRuntimeInfo.peer_config_map:type_name -> wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntry
+	15, // 13: wireguard.WGDeviceRuntimeInfo.extra:type_name -> wireguard.WGDeviceRuntimeInfo.ExtraEntry
+	0,  // 14: wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntry.value:type_name -> wireguard.WireGuardPeerConfig
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_types_wg_proto_init() }
@@ -1140,7 +1197,7 @@ func file_types_wg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_types_wg_proto_rawDesc), len(file_types_wg_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

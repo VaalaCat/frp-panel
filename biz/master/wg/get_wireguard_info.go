@@ -32,6 +32,8 @@ func GetWireGuardRuntimeInfo(ctx *app.Context, req *pb.GetWireGuardRuntimeInfoRe
 		log.WithError(err).Errorf("failed to call get wireguard runtime info with clientId: %s", wgRecord.ClientID)
 		return nil, errors.New("failed to call get wireguard runtime info")
 	}
+	resp.WgDeviceRuntimeInfo.ClientId = wgRecord.ClientID
+	resp.WgDeviceRuntimeInfo.VirtualIp = wgRecord.LocalAddress
 
 	log.Debugf("get wireguard runtime info success with clientId: %s, interfaceName: %s, runtimeInfo: %s",
 		wgRecord.ClientID, wgRecord.Name, resp.GetWgDeviceRuntimeInfo().String())

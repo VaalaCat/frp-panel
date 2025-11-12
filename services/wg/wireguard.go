@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
 	"net/netip"
 	"os"
@@ -46,8 +47,9 @@ var (
 type wireGuard struct {
 	sync.RWMutex
 
-	ifce    *defs.WireGuardConfig
-	pingMap *utils.SyncMap[uint32, uint32] // ms
+	ifce            *defs.WireGuardConfig
+	endpointPingMap *utils.SyncMap[uint32, uint32] // ms
+	virtAddrPingMap *utils.SyncMap[string, uint32] // ms
 
 	wgDevice  *device.Device
 	tunDevice tun.Device
@@ -81,13 +83,14 @@ func NewWireGuard(ctx *app.Context, ifce defs.WireGuardConfig, logger *logrus.En
 	}
 
 	return &wireGuard{
-		RWMutex:      sync.RWMutex{},
-		ifce:         &cfg,
-		ctx:          svcCtx,
-		cancel:       cancel,
-		svcLogger:    logger,
-		pingMap:      &utils.SyncMap[uint32, uint32]{},
-		useGvisorNet: useGvisorNet,
+		RWMutex:         sync.RWMutex{},
+		ifce:            &cfg,
+		ctx:             svcCtx,
+		cancel:          cancel,
+		svcLogger:       logger,
+		endpointPingMap: &utils.SyncMap[uint32, uint32]{},
+		useGvisorNet:    useGvisorNet,
+		virtAddrPingMap: &utils.SyncMap[string, uint32]{},
 	}, nil
 }
 
@@ -325,7 +328,9 @@ func (w *wireGuard) GetWGRuntimeInfo() (*pb.WGDeviceRuntimeInfo, error) {
 		return nil, err
 	}
 
-	runtimeInfo.PingMap = w.pingMap.Export()
+	runtimeInfo.PingMap = w.endpointPingMap.Export()
+	runtimeInfo.VirtAddrPingMap = w.virtAddrPingMap.Export()
+
 	if w.useGvisorNet {
 		runtimeInfo.InterfaceName = w.ifce.GetInterfaceName()
 	} else {
@@ -334,6 +339,29 @@ func (w *wireGuard) GetWGRuntimeInfo() (*pb.WGDeviceRuntimeInfo, error) {
 			return nil, errors.Join(fmt.Errorf("get iface '%s' via netlink", w.ifce.GetInterfaceName()), err)
 		}
 		runtimeInfo.InterfaceName = link.Attrs().Name
+	}
+
+	parsedPeers := w.ifce.GetParsedPeers()
+	parsedPublicKeysPeerMap := make(map[string]*defs.WireGuardPeerConfig)
+	for _, peer := range parsedPeers {
+		parsedPublicKeysPeerMap[peer.HexPublicKey()] = peer
+	}
+
+	runtimeInfo.PeerVirtAddrMap = make(map[string]uint32)
+	for _, peer := range parsedPeers {
+		runtimeInfo.PeerVirtAddrMap[peer.GetVirtualIp()] = peer.GetId()
+	}
+
+	for _, peerRuntimeInfo := range runtimeInfo.GetPeers() {
+		peerConfig, ok := parsedPublicKeysPeerMap[peerRuntimeInfo.PublicKey]
+		if !ok {
+			continue
+		}
+		if runtimeInfo.PeerConfigMap == nil {
+			runtimeInfo.PeerConfigMap = make(map[string]*pb.WireGuardPeerConfig)
+		}
+		runtimeInfo.PeerConfigMap[peerRuntimeInfo.PublicKey] = peerConfig.WireGuardPeerConfig
+		peerRuntimeInfo.ClientId = peerConfig.GetClientId()
 	}
 
 	return runtimeInfo, nil
@@ -424,14 +452,6 @@ func (w *wireGuard) initWGDevice() error {
 
 	log.Debugf("TUN device '%s' (MTU %d) created successfully", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu())
 
-	// 在创建 WireGuard 设备之前,先打开 bind 并使用正确的端口,避免后续更新端口导致死锁
-	log.Debugf("opening multibind with port %d before creating WireGuard device", w.ifce.GetListenPort())
-	_, _, err = w.multiBind.Open(uint16(w.ifce.GetListenPort()))
-	if err != nil {
-		return errors.Join(fmt.Errorf("open multibind with port %d failed", w.ifce.GetListenPort()), err)
-	}
-	log.Debugf("multibind opened successfully with port %d", w.ifce.GetListenPort())
-
 	log.Debugf("start to create WireGuard device '%s'", w.ifce.GetInterfaceName())
 
 	w.wgDevice = device.NewDevice(w.tunDevice, w.multiBind, &device.Logger{
@@ -460,9 +480,7 @@ func (w *wireGuard) applyPeerConfig() error {
 
 	log.Debugf("wgTypedPeerConfigs: %v", wgTypedPeerConfigs)
 
-	// 跳过 listen_port 设置,因为我们已经在 initWGDevice 中通过 bind.Open() 设置了端口
-	// 在运行时通过 UAPI 更新 listen_port 会导致死锁
-	uapiConfigString := generateUAPIConfigString(w.ifce, w.ifce.GetParsedPrivKey(), wgTypedPeerConfigs, !w.running, true)
+	uapiConfigString := generateUAPIConfigString(w.ifce, w.ifce.GetParsedPrivKey(), wgTypedPeerConfigs, !w.running, false)
 
 	log.Debugf("uapiBuilder: %s", uapiConfigString)
 
@@ -674,33 +692,77 @@ func (w *wireGuard) pingPeers() {
 			continue
 		}
 
-		pinger, err := probing.NewPinger(addr)
+		epPinger, err := probing.NewPinger(addr)
 		if err != nil {
 			log.WithError(err).Errorf("failed to create pinger for %s", addr)
-			return
+			continue
 		}
 
-		pinger.Count = 5
+		epPinger.Count = 5
 
-		pinger.OnFinish = func(stats *probing.Statistics) {
+		epPinger.OnFinish = func(stats *probing.Statistics) {
 			// stats.PacketsSent, stats.PacketsRecv, stats.PacketLoss
 			// stats.MinRtt, stats.AvgRtt, stats.MaxRtt, stats.StdDevRtt
-			if w.pingMap != nil {
+			if w.endpointPingMap != nil {
 				log.Tracef("ping stats for %s: %v", addr, stats)
 				avgRttMs := uint32(stats.AvgRtt.Milliseconds())
 				if avgRttMs == 0 { // 0 means bug
 					avgRttMs = 1
 				}
-				w.pingMap.Store(peer.Id, avgRttMs)
+				w.endpointPingMap.Store(peer.Id, avgRttMs)
 			}
 		}
 
-		pinger.OnRecv = func(pkt *probing.Packet) {
+		epPinger.OnRecv = func(pkt *probing.Packet) {
+			log.Tracef("recv from %s", pkt.IPAddr.String())
+		}
+
+		epPinger.OnSendError = func(pkt *probing.Packet, err error) {
+			log.WithError(err).Errorf("failed to send packet to %s", addr)
+			w.endpointPingMap.Store(peer.Id, math.MaxUint32)
+		}
+
+		waitGroup.Go(func() {
+			if err := epPinger.Run(); err != nil {
+				log.WithError(err).Errorf("failed to run pinger for %s", addr)
+				return
+			}
+		})
+	}
+
+	for _, peer := range peers {
+		if peer.VirtualIp == "" {
+			continue
+		}
+
+		addr := peer.VirtualIp
+
+		virtAddrPinger, err := probing.NewPinger(addr)
+		if err != nil {
+			log.WithError(err).Errorf("failed to create pinger for %s", addr)
+			continue
+		}
+
+		virtAddrPinger.Count = 5
+		virtAddrPinger.OnFinish = func(stats *probing.Statistics) {
+			log.Tracef("ping stats for %s: %v", addr, stats)
+			avgRttMs := uint32(stats.AvgRtt.Milliseconds())
+			if avgRttMs == 0 { // 0 means bug
+				avgRttMs = 1
+			}
+			w.virtAddrPingMap.Store(addr, avgRttMs)
+		}
+		virtAddrPinger.OnSendError = func(pkt *probing.Packet, err error) {
+			log.WithError(err).Errorf("failed to send packet to %s", addr)
+			w.virtAddrPingMap.Store(addr, math.MaxUint32)
+		}
+
+		virtAddrPinger.OnRecv = func(pkt *probing.Packet) {
 			log.Tracef("recv from %s", pkt.IPAddr.String())
 		}
 
 		waitGroup.Go(func() {
-			if err := pinger.Run(); err != nil {
+			if err := virtAddrPinger.Run(); err != nil {
 				log.WithError(err).Errorf("failed to run pinger for %s", addr)
 				return
 			}
