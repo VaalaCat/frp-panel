@@ -676,6 +676,8 @@ func (w *wireGuard) pingPeers() {
 		return
 	}
 
+	log.Debugf("start to ping peers, len: %d", len(ifceConfig.Peers))
+
 	peers := ifceConfig.Peers
 
 	var waitGroup conc.WaitGroup
@@ -699,6 +701,7 @@ func (w *wireGuard) pingPeers() {
 		}
 
 		epPinger.Count = 5
+		epPinger.Timeout = 10 * time.Second
 
 		epPinger.OnFinish = func(stats *probing.Statistics) {
 			// stats.PacketsSent, stats.PacketsRecv, stats.PacketLoss
@@ -725,8 +728,10 @@ func (w *wireGuard) pingPeers() {
 		waitGroup.Go(func() {
 			if err := epPinger.Run(); err != nil {
 				log.WithError(err).Errorf("failed to run pinger for %s", addr)
+				w.endpointPingMap.Store(peer.Id, math.MaxUint32)
 				return
 			}
+			log.Debugf("ping endpoint [%s] completed", addr)
 		})
 	}
 
@@ -744,6 +749,8 @@ func (w *wireGuard) pingPeers() {
 		}
 
 		virtAddrPinger.Count = 5
+		virtAddrPinger.InterfaceName = w.ifce.GetInterfaceName()
+		virtAddrPinger.Timeout = 10 * time.Second
 		virtAddrPinger.OnFinish = func(stats *probing.Statistics) {
 			log.Tracef("ping stats for %s: %v", addr, stats)
 			avgRttMs := uint32(stats.AvgRtt.Milliseconds())
@@ -764,10 +771,14 @@ func (w *wireGuard) pingPeers() {
 		waitGroup.Go(func() {
 			if err := virtAddrPinger.Run(); err != nil {
 				log.WithError(err).Errorf("failed to run pinger for %s", addr)
+				w.virtAddrPingMap.Store(addr, math.MaxUint32)
 				return
 			}
+			log.Debugf("ping virt addr [%s] completed", addr)
 		})
 	}
+
+	log.Debugf("wait for pingers to complete")
 
 	rcs := waitGroup.WaitAndRecover()
 	if rcs != nil {

@@ -16,7 +16,7 @@ var (
 type networkTopologyCache struct {
 	wireguardRuntimeInfoMap *utils.SyncMap[uint, *pb.WGDeviceRuntimeInfo] // wireguardId -> peerRuntimeInfo
 	fromToLatencyMap        *utils.SyncMap[string, uint32]                // fromWGID::toWGID -> latencyMs
-	virtAddrPingMap         *utils.SyncMap[string, uint32]                // virtAddr -> pingMs
+	virtAddrPingMap         *utils.SyncMap[string, uint32]                // fromWGID::toWGID -> pingMs
 }
 
 func NewNetworkTopologyCache() *networkTopologyCache {
@@ -36,8 +36,9 @@ func (c *networkTopologyCache) SetRuntimeInfo(wireguardId uint, runtimeInfo *pb.
 	for toWireGuardId, latencyMs := range runtimeInfo.GetPingMap() {
 		c.fromToLatencyMap.Store(parseFromToLatencyKey(wireguardId, uint(toWireGuardId)), latencyMs)
 	}
+
 	for virtAddr, pingMs := range runtimeInfo.GetVirtAddrPingMap() {
-		c.virtAddrPingMap.Store(virtAddr, pingMs)
+		c.virtAddrPingMap.Store(parseFromToLatencyKey(wireguardId, uint(runtimeInfo.PeerVirtAddrMap[virtAddr])), pingMs)
 	}
 }
 
@@ -46,11 +47,24 @@ func (c *networkTopologyCache) DeleteRuntimeInfo(wireguardId uint) {
 }
 
 func (c *networkTopologyCache) GetLatencyMs(fromWGID, toWGID uint) (uint32, bool) {
-	v1, ok := c.fromToLatencyMap.Load(parseFromToLatencyKey(fromWGID, toWGID))
+
+	endpointLatency, ok := c.fromToLatencyMap.Load(parseFromToLatencyKey(fromWGID, toWGID))
 	if !ok {
-		return c.fromToLatencyMap.Load(parseFromToLatencyKey(toWGID, fromWGID))
+		endpointLatency, ok = c.fromToLatencyMap.Load(parseFromToLatencyKey(toWGID, fromWGID))
+		if !ok {
+			return 0, false
+		}
 	}
-	return v1, true
+
+	virtAddrLatency, ok := c.virtAddrPingMap.Load(parseFromToLatencyKey(fromWGID, toWGID))
+	if !ok {
+		virtAddrLatency, ok = c.virtAddrPingMap.Load(parseFromToLatencyKey(toWGID, fromWGID))
+		if !ok {
+			return endpointLatency, false
+		}
+	}
+
+	return (endpointLatency + virtAddrLatency) / 2, true
 }
 
 func parseFromToLatencyKey(fromWGID, toWGID uint) string {
