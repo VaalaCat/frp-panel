@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"runtime/debug"
+	"sync"
 
 	"github.com/sirupsen/logrus"
 	"golang.zx2c4.com/wireguard/conn"
@@ -14,8 +15,9 @@ var (
 )
 
 type MultiBind struct {
-	transports []*Transport
-	svcLogger  *logrus.Entry
+	transports   []*Transport
+	svcLogger    *logrus.Entry
+	endpointPool sync.Pool
 }
 
 func NewMultiBind(logger *logrus.Entry, trans ...*Transport) *MultiBind {
@@ -27,10 +29,17 @@ func NewMultiBind(logger *logrus.Entry, trans ...*Transport) *MultiBind {
 		panic("no transport provided")
 	}
 
-	return &MultiBind{
+	mb := &MultiBind{
 		transports: trans,
 		svcLogger:  logger,
 	}
+
+	mb.endpointPool.New = func() interface{} {
+		eps := make([]conn.Endpoint, 0, 128)
+		return &eps
+	}
+
+	return mb
 }
 
 // BatchSize implements conn.Bind.
@@ -105,16 +114,12 @@ func (m *MultiBind) ParseEndpoint(s string) (conn.Endpoint, error) {
 
 // Send implements conn.Bind.
 func (m *MultiBind) Send(bufs [][]byte, ep conn.Endpoint) error {
-	log := m.svcLogger.WithField("op", "Send")
-
 	e, ok := ep.(*MultiEndpoint)
 	if !ok {
 		return fmt.Errorf("invalid endpoint type, not a MultiEndpoint")
 	}
 
-	log.Tracef("multibind sending packets to endpoint: %s, transport: %s", e.inner.DstToString(), e.trans.name)
-	e.trans.bind.Send(bufs, e.inner)
-	return nil
+	return e.trans.bind.Send(bufs, e.inner)
 }
 
 // SetMark implements conn.Bind.
@@ -141,23 +146,37 @@ func (m *MultiBind) recvWrapper(trans *Transport, fns conn.ReceiveFunc) conn.Rec
 			if panicRecover := recover(); panicRecover != nil {
 				err = fmt.Errorf("multibind recvWrapper panic: %v, debugStack: %s", panicRecover, debug.Stack())
 				m.svcLogger.WithError(err).Error("multibind recvWrapper panic")
-			}
-		}()
-		defer func() {
-			if err != nil {
+			} else if err != nil {
 				m.svcLogger.WithError(err).Error("multibind recvWrapper error")
 			}
 		}()
-		log := m.svcLogger.WithField("op", "recvWrapper").WithField("transport", trans.name)
 
-		tmpEps := make([]conn.Endpoint, len(eps))
+		// 从对象池获取临时 endpoint 切片
+		tmpEpsPtr := m.endpointPool.Get().(*[]conn.Endpoint)
+		tmpEps := *tmpEpsPtr
+
+		// 确保容量足够
+		if cap(tmpEps) < len(eps) {
+			tmpEps = make([]conn.Endpoint, len(eps))
+		} else {
+			tmpEps = tmpEps[:len(eps)]
+		}
+
 		n, err = fns(packets, sizes, tmpEps)
-		log.Tracef("multibind received packets: [%d] from transport: [%s], with endpoints length: [%d], sizes length: [%d], packets length: [%d]",
-			n, trans.name, len(tmpEps), len(sizes), len(packets))
 
-		for i := range eps {
+		// 批量转换 endpoint，只转换实际接收到的数量
+		for i := 0; i < n; i++ {
 			eps[i] = trans.loadOrNewEndpoint(tmpEps[i])
 		}
+
+		// 清空切片内容并归还到对象池
+		for i := range tmpEps {
+			tmpEps[i] = nil
+		}
+		tmpEps = tmpEps[:0]
+		*tmpEpsPtr = tmpEps
+		m.endpointPool.Put(tmpEpsPtr)
+
 		return n, err
 	}
 }

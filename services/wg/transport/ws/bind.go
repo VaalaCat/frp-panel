@@ -5,7 +5,9 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/services/app"
@@ -19,7 +21,10 @@ var (
 
 const (
 	defaultRegisterChanSize = 128
-	defaultIncomingChanSize = 256
+	defaultIncomingChanSize = 2048
+	defaultBatchSize        = 128 // 批量处理大小
+	wsReadBufferSize        = 65536
+	wsWriteBufferSize       = 65536
 )
 
 type WSBind struct {
@@ -29,21 +34,36 @@ type WSBind struct {
 
 	epDialer *websocket.Dialer
 
-	conns  map[*WSConn]struct{}
-	opened atomic.Bool
+	conns      map[*WSConn]struct{}
+	opened     atomic.Bool
+	packetPool sync.Pool // incomingPacket 对象池
 }
 
 func NewWSBind(ctx *app.Context) *WSBind {
-	return &WSBind{
-		ctx:      ctx,
-		epDialer: &websocket.Dialer{},
-		conns:    make(map[*WSConn]struct{}),
+	wb := &WSBind{
+		ctx: ctx,
+		epDialer: &websocket.Dialer{
+			ReadBufferSize:    wsReadBufferSize,
+			WriteBufferSize:   wsWriteBufferSize,
+			EnableCompression: false, // WireGuard 数据已加密，压缩无效且浪费 CPU
+			HandshakeTimeout:  10 * time.Second,
+			WriteBufferPool:   nil,
+		},
+		conns: make(map[*WSConn]struct{}),
 	}
+
+	wb.packetPool.New = func() interface{} {
+		return &incomingPacket{
+			payload: make([]byte, 0, 2048),
+		}
+	}
+
+	return wb
 }
 
 // BatchSize implements conn.Bind.
 func (w *WSBind) BatchSize() int {
-	return 1
+	return defaultBatchSize
 }
 
 // Close implements conn.Bind.
@@ -119,18 +139,40 @@ func (w *WSBind) Send(bufs [][]byte, ep conn.Endpoint) error {
 		return err
 	}
 
+	wsConn.wLock.Lock()
+	defer wsConn.wLock.Unlock()
+
+	writer, err := conn.NextWriter(websocket.BinaryMessage)
+	if err != nil {
+		conn.Close()
+		return fmt.Errorf("ws get writer error: %w", err)
+	}
+
+	// 批量写包
+	// TLV分割
 	for _, buf := range bufs {
 		if len(buf) == 0 {
 			continue
 		}
 
-		wsConn.wLock.Lock()
-		err = conn.WriteMessage(websocket.BinaryMessage, buf)
-		wsConn.wLock.Unlock()
-		if err != nil {
+		// 高低位拼接
+		lenBuf := [2]byte{byte(len(buf) >> 8), byte(len(buf))}
+		if _, err = writer.Write(lenBuf[:]); err != nil {
 			conn.Close()
-			return fmt.Errorf("ws send message error: %w", err)
+			return fmt.Errorf("ws write length error: %w", err)
 		}
+
+		// 写入包内容
+		if _, err = writer.Write(buf); err != nil {
+			conn.Close()
+			return fmt.Errorf("ws write data error: %w", err)
+		}
+	}
+
+	// 一次性写入
+	if err = writer.Close(); err != nil {
+		conn.Close()
+		return fmt.Errorf("ws flush error: %w", err)
 	}
 
 	return nil
@@ -147,6 +189,9 @@ func (w *WSBind) HandleHTTP(writer http.ResponseWriter, r *http.Request) error {
 	}
 
 	upgrader := websocket.Upgrader{
+		ReadBufferSize:    wsReadBufferSize,
+		WriteBufferSize:   wsWriteBufferSize,
+		EnableCompression: false, // WireGuard 数据已加密，压缩无效且浪费 CPU
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
@@ -156,6 +201,9 @@ func (w *WSBind) HandleHTTP(writer http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return fmt.Errorf("ws upgrade error: %w", err)
 	}
+
+	// 禁用写入截止时间，避免在高负载下超时
+	conn.SetWriteDeadline(time.Time{})
 
 	select {
 	case w.registerChan <- &serverIncoming{
@@ -244,6 +292,8 @@ func (w *WSBind) recvFunc(packets [][]byte, sizes []int, eps []conn.Endpoint) (i
 			sizes[idx] = len(payload)
 		}
 		eps[idx] = p.endpoint
+		// 归还 packet 到对象池
+		w.packetPool.Put(p)
 	}
 
 	copyPacket(total, pkt)

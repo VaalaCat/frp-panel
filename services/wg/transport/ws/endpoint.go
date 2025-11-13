@@ -64,45 +64,76 @@ func (w *WSConn) SrcToString() string {
 // client readLoop is started by getConn
 // server readLoop is started by serverLoop
 func (w *WSConn) readLoop(ctx *app.Context) {
+	conn := w.conn
+	incomingChan := w.wsBind.incomingChan
+	done := ctx.Done()
+
+	if incomingChan == nil {
+		ctx.Logger().Error("ws recv channel is nil, skip read")
+		return
+	}
+
+	if conn == nil {
+		ctx.Logger().Error("ws connection is nil, skip read")
+		return
+	}
+
 	for {
+		// data 是 TLV 格式
+		msgType, data, err := conn.ReadMessage()
+		if err != nil {
+			ctx.Logger().WithError(err).Error("ws read message error, close connection")
+			w.close()
+			return
+		}
+
 		select {
-		case <-ctx.Done():
+		case <-done:
 			return
 		default:
-			if w.wsBind.incomingChan == nil {
-				ctx.Logger().Error("ws recv channel is nil, skip read")
-				return
+		}
+
+		if msgType != websocket.BinaryMessage {
+			continue
+		}
+
+		// TLV解包
+		offset := 0
+		for offset+2 <= len(data) {
+			// 读取包长度
+			pktLen := int(data[offset])<<8 | int(data[offset+1])
+			offset += 2
+
+			if offset+pktLen > len(data) {
+				ctx.Logger().Errorf("invalid packet length: %d, remaining: %d", pktLen, len(data)-offset)
+				break
 			}
 
-			if w.conn == nil {
-				ctx.Logger().Error("ws connection is nil, skip read")
-				time.Sleep(time.Second)
-				continue
-			}
+			pkt := w.wsBind.packetPool.Get().(*incomingPacket)
 
-			msgType, data, err := w.conn.ReadMessage()
-			if err != nil {
-				ctx.Logger().WithError(err).Error("ws read message error, close connection")
-				w.close()
-				return
+			// 直接引用原始数据的切片，避免拷贝
+			if cap(pkt.payload) >= pktLen {
+				pkt.payload = pkt.payload[:pktLen]
+				copy(pkt.payload, data[offset:offset+pktLen])
+			} else {
+				pkt.payload = make([]byte, pktLen)
+				copy(pkt.payload, data[offset:offset+pktLen])
 			}
-			if msgType != websocket.BinaryMessage {
-				ctx.Logger().Debugf("ws read message type %d, data length %d, skip", msgType, len(data))
-				continue
-			}
-
-			pkt := &incomingPacket{
-				payload:  data,
-				endpoint: w,
-			}
+			pkt.endpoint = w
 
 			select {
-			case w.wsBind.incomingChan <- pkt:
-			case <-ctx.Done():
+			case incomingChan <- pkt:
+				// 成功发送
+			case <-done:
+				// context 已取消，归还并退出
+				w.wsBind.packetPool.Put(pkt)
 				return
 			default:
-				ctx.Logger().Debugf("ws recv channel is full, drop packet, length %d", len(data))
+				// channel 满了，丢弃包并归还到对象池
+				w.wsBind.packetPool.Put(pkt)
 			}
+
+			offset += pktLen
 		}
 	}
 }
@@ -125,6 +156,9 @@ func (w *WSConn) getConn(ctx *app.Context) (*websocket.Conn, error) {
 	if resp != nil {
 		_ = resp.Body.Close()
 	}
+
+	// 禁用写入截止时间，避免在高负载下超时
+	conn.SetWriteDeadline(time.Time{})
 
 	w.conn = conn
 
