@@ -35,6 +35,7 @@ type WSBind struct {
 	epDialer *websocket.Dialer
 
 	conns      map[*WSConn]struct{}
+	connsMu    sync.RWMutex // 保护 conns map 的并发访问
 	opened     atomic.Bool
 	packetPool sync.Pool // incomingPacket 对象池
 }
@@ -70,10 +71,12 @@ func (w *WSBind) BatchSize() int {
 func (w *WSBind) Close() error {
 	w.opened.Store(false)
 
+	w.connsMu.Lock()
 	for conn := range w.conns {
 		conn.close()
 	}
 	w.conns = make(map[*WSConn]struct{})
+	w.connsMu.Unlock()
 
 	// 关闭旧的 channels 以释放阻塞的 goroutines
 	if w.registerChan != nil {
@@ -134,13 +137,13 @@ func (w *WSBind) Send(bufs [][]byte, ep conn.Endpoint) error {
 		return fmt.Errorf("wrong endpoint type")
 	}
 
+	wsConn.wLock.Lock()
+	defer wsConn.wLock.Unlock()
+
 	conn, err := wsConn.getConn(w.ctx)
 	if err != nil {
 		return err
 	}
-
-	wsConn.wLock.Lock()
-	defer wsConn.wLock.Unlock()
 
 	writer, err := conn.NextWriter(websocket.BinaryMessage)
 	if err != nil {
@@ -232,7 +235,9 @@ func (w *WSBind) serverLoop() {
 				dstText: incoming.remote,
 				wsBind:  w,
 			}
+			w.connsMu.Lock()
 			w.conns[wsConn] = struct{}{}
+			w.connsMu.Unlock()
 			go wsConn.readLoop(w.ctx)
 		}
 	}

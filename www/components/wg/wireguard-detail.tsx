@@ -174,9 +174,22 @@ const WireGuardDetail: React.FC = () => {
 							</div>
 							<div className="space-y-2">
 								<p className="text-sm text-muted-foreground">{t('wg.wireguardDetail.networkId')}</p>
-								<p className="text-lg font-medium">
-									{wireguard?.networkId ? `#${wireguard.networkId}` : t('wg.interface.network_unassigned')}
-								</p>
+								{wireguard?.networkId ? (
+									<Button
+										variant="link"
+										size="sm"
+										className="px-0 text-lg font-medium h-auto"
+										onClick={(e) => {
+											e.preventDefault()
+											e.stopPropagation()
+											router.push(`/wg/network-detail?networkId=${wireguard.networkId}`)
+										}}
+									>
+										#{wireguard.networkId}
+									</Button>
+								) : (
+									<p className="text-lg font-medium">{t('wg.interface.network_unassigned')}</p>
+								)}
 							</div>
 						</CardContent>
 					</Card>

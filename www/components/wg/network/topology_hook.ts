@@ -5,94 +5,162 @@ import { useQuery } from '@tanstack/react-query'
 import { getNetworkTopology, listWireGuards } from '@/api/wg'
 import { GetNetworkTopologyRequest, ListWireGuardsRequest } from '@/lib/pb/api_wg'
 import type { WGEdge, WGNode, TopologyData } from './types'
-import { WireGuardLinks, WireGuardLink, WireGuardConfig } from '@/lib/pb/types_wg'
-import { nanoid } from 'nanoid'
+import type { WireGuardLinks, WireGuardLink, WireGuardConfig } from '@/lib/pb/types_wg'
+import { calculateConnectionQuality } from './layout'
 
-
+/**
+ * 使用网络拓扑数据的 Hook
+ */
 export function useNetworkTopology(networkID?: number) {
-	const { data, isFetching, refetch } = useQuery({
-		queryKey: ['getNetworkTopology', networkID],
-		queryFn: async () => {
-			if (!networkID) return undefined
-			return await getNetworkTopology(GetNetworkTopologyRequest.create({ id: networkID }))
-		},
-		enabled: !!networkID,
-	})
+  // 获取拓扑连接数据
+  const { data: topologyData, isFetching: isTopologyFetching, refetch: refetchTopology } = useQuery({
+    queryKey: ['getNetworkTopology', networkID],
+    queryFn: async () => {
+      if (!networkID) return undefined
+      return await getNetworkTopology(GetNetworkTopologyRequest.create({ id: networkID }))
+    },
+    enabled: !!networkID,
+    staleTime: 10000, // 10秒内数据视为新鲜
+  })
 
-	const { data: wgList } = useQuery({
-		queryKey: ['listWireGuards', networkID],
-		queryFn: async () => {
-			if (!networkID) return undefined
-			return await listWireGuards(
-				ListWireGuardsRequest.create({ page: 1, pageSize: 500, networkId: networkID }),
-			)
-		},
-		enabled: !!networkID,
-	})
+  // 获取 WireGuard 配置列表
+  const { data: wgList, isFetching: isWgListFetching, refetch: refetchWgList } = useQuery({
+    queryKey: ['listWireGuards', networkID],
+    queryFn: async () => {
+      if (!networkID) return undefined
+      return await listWireGuards(
+        ListWireGuardsRequest.create({ 
+          page: 1, 
+          pageSize: 1000, 
+          networkId: networkID 
+        })
+      )
+    },
+    enabled: !!networkID,
+    staleTime: 10000,
+  })
 
-	const topology: TopologyData = useMemo(() => {
-		if (!data?.adjs) return { nodes: [], edges: [] }
-		const nodes: WGNode[] = []
-		const edges: WGEdge[] = []
+  // 统一的刷新函数
+  const refetch = () => {
+    refetchTopology()
+    refetchWgList()
+  }
 
-		const peerIds = new Set<string>()
-		Object.entries(data.adjs).forEach(([fromIdStr, links]) => {
-			peerIds.add(fromIdStr);
-			(links as WireGuardLinks).links.forEach((lk: WireGuardLink) => {
-				peerIds.add(lk.toWireguardId.toString())
-				edges.push({
-					id: `${lk.fromWireguardId}-${lk.toWireguardId}-${lk.id}-${nanoid()}`,
-					source: String(fromIdStr),
-					target: String(lk.toWireguardId),
-					label: `${lk.latencyMs}ms / ${lk.upBandwidthMbps}↑ ${lk.downBandwidthMbps}↓`,
-					animated: lk.active,
-					type: 'wgEdge',
-					data: { original: lk },
-				})
-			})
-		})
+  // 构建拓扑图数据
+  const topology: TopologyData = useMemo(() => {
+    if (!topologyData?.adjs || !wgList?.wireguardConfigs) {
+      return { nodes: [], edges: [] }
+    }
 
-		// label map from WireGuard configs in this network
-		const idToLabel = new Map<number, string>()
-		const configs: WireGuardConfig[] = (wgList?.wireguardConfigs ?? []) as WireGuardConfig[]
-		configs?.forEach((cfg) => {
-			const tagText = (cfg.tags ?? []).filter(Boolean).join(', ')
-			const labelParts = [cfg.clientId, tagText ? `(${tagText})` : undefined, cfg.localAddress]
-			const label = labelParts.filter(Boolean).join(' ')
-			idToLabel.set(cfg.id, label || `WG ${cfg.id}`)
-		})
+    const nodes: WGNode[] = []
+    const edges: WGEdge[] = []
+    const nodeIds = new Set<string>()
 
-		// compute circle layout
-		const ids = Array.from(peerIds).sort((a, b) => Number(a) - Number(b))
-		const radius = 220
-		const centerX = 300
-		const centerY = 260
-		ids.forEach((pid, idx) => {
-			const angle = (2 * Math.PI * idx) / Math.max(ids.length, 1)
-			const x = centerX + radius * Math.cos(angle)
-			const y = centerY + radius * Math.sin(angle)
-			nodes.push({
-				id: pid,
-				type: 'wg',
-				dragHandle: '.drag-handle',
-				data: {
-					label: idToLabel.get(Number(pid)) ?? `WG ${pid}`,
-					original: wgList?.wireguardConfigs?.find((cfg) => cfg.id === Number(pid))
-				},
-				position: { x, y }
-			})
-		})
+    // 创建配置映射
+    const configMap = new Map<number, WireGuardConfig>()
+    wgList.wireguardConfigs.forEach((cfg) => {
+      configMap.set(cfg.id, cfg as WireGuardConfig)
+    })
 
-		return { nodes, edges }
-	}, [data?.adjs, wgList?.wireguardConfigs])
+    // 检测双向连接
+    const bidirectionalEdges = new Set<string>()
+    const adjs = topologyData.adjs as Record<string, WireGuardLinks>
+    Object.entries(adjs).forEach(([fromIdStr, links]) => {
+      const fromId = Number(fromIdStr)
+      ;(links as WireGuardLinks).links.forEach((link: WireGuardLink) => {
+        const reverseLinks = adjs[String(link.toWireguardId)] as WireGuardLinks | undefined
+        if (reverseLinks) {
+          const hasReverse = reverseLinks.links.some(
+            (l: WireGuardLink) => l.toWireguardId === fromId
+          )
+          if (hasReverse) {
+            const edgeKey1 = `${fromId}-${link.toWireguardId}`
+            const edgeKey2 = `${link.toWireguardId}-${fromId}`
+            bidirectionalEdges.add(edgeKey1)
+            bidirectionalEdges.add(edgeKey2)
+          }
+        }
+      })
+    })
 
-	// 进行 ELK 自动布局：注意 React 规则，useMemo 内不能使用 async；这里使用立即执行的副作用去计算并缓存
-	const laid = useMemo(() => ({ nodes: topology.nodes, edges: topology.edges }), [topology.nodes, topology.edges])
+    // 构建边
+    Object.entries(topologyData.adjs).forEach(([fromIdStr, links]) => {
+      const fromId = Number(fromIdStr)
+      nodeIds.add(fromIdStr)
 
-	// 返回布局后的数据（同步化：先用现有坐标快速渲染，随后 panel 会用 useEffect 同步由 layoutNetwork 产生的结果）
-	// 由 TopologyPanel 触发异步布局并 setNodes/setEdges，避免在 hook 内部引入副作用
+      ;(links as WireGuardLinks).links.forEach((link: WireGuardLink) => {
+        const toId = link.toWireguardId
+        nodeIds.add(String(toId))
 
-	return { topology: laid, isFetching, refetch }
+        const edgeKey = `${fromId}-${toId}`
+        const quality = calculateConnectionQuality(
+          link.latencyMs ?? 999,
+          Math.max(link.upBandwidthMbps || 0, link.downBandwidthMbps || 0)
+        )
+
+        // 使用唯一的边ID：结合link.id、源和目标ID
+        const edgeId = link.id && link.id > 0 
+          ? `edge-${link.id}` 
+          : `edge-${fromId}-${toId}-${link.latencyMs || 0}-${Date.now()}`
+
+        edges.push({
+          id: edgeId,
+          source: String(fromId),
+          target: String(toId),
+          type: 'wgEdge',
+          animated: link.active,
+          data: {
+            link,
+            quality,
+            isBidirectional: bidirectionalEdges.has(edgeKey),
+          },
+          label: link.active
+            ? `${link.latencyMs}ms | ${link.upBandwidthMbps}↑ ${link.downBandwidthMbps}↓`
+            : '未激活',
+        })
+      })
+    })
+
+    // 构建节点
+    const sortedIds = Array.from(nodeIds).sort((a, b) => Number(a) - Number(b))
+    
+    sortedIds.forEach((idStr) => {
+      const id = Number(idStr)
+      const config = configMap.get(id)
+
+      // 构建节点标签
+      let label = `WG #${id}`
+      if (config) {
+        const parts = []
+        if (config.clientId) parts.push(config.clientId)
+        if (config.tags && config.tags.length > 0) {
+          parts.push(`(${config.tags.slice(0, 2).join(', ')})`)
+        }
+        if (config.localAddress) parts.push(config.localAddress)
+        label = parts.join(' ') || label
+      }
+
+      nodes.push({
+        id: idStr,
+        type: 'wg',
+        position: { x: 0, y: 0 }, // 将由布局算法计算
+        data: {
+          label,
+          config,
+        },
+        dragHandle: '.drag-handle',
+      })
+    })
+
+    return { nodes, edges }
+  }, [topologyData?.adjs, wgList?.wireguardConfigs])
+
+  const isFetching = isTopologyFetching || isWgListFetching
+
+  return {
+    topology,
+    isFetching,
+    refetch,
+    hasData: topology.nodes.length > 0,
+  }
 }
-
-

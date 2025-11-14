@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Columns3, RotateCcw } from 'lucide-react'
 import JoinNetworkDialog from './join-network-dialog'
-import { makeRandomTrigger } from '@/lib/utils'
+import { useRouter } from 'next/router'
 
 export type WireGuardTableSchema = {
   id: number
@@ -43,8 +43,8 @@ export function WireGuardList({ clientId, networkId, keyword, onChanged }: { cli
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [{ pageIndex, pageSize }, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
   const [columnVisibility, setColumnVisibility] = React.useState<Record<string, boolean>>({})
-  const [refreshKey, setRefreshKey] = React.useState<string>(makeRandomTrigger())
-
+  const [refreshKey, setRefreshKey] = React.useState<number>(0)
+  const router = useRouter()
   const { data, isFetching, refetch } = useQuery({
     queryKey: ['listWireGuards', clientId, networkId, keyword, pageIndex, pageSize, refreshKey],
     queryFn: () =>
@@ -60,9 +60,6 @@ export function WireGuardList({ clientId, networkId, keyword, onChanged }: { cli
     placeholderData: keepPreviousData,
   })
 
-  useEffect(() => {
-    onChanged?.(data?.wireguardConfigs ?? [])
-  }, [data?.wireguardConfigs, onChanged])
 
   const rows: WireGuardTableSchema[] = (data?.wireguardConfigs ?? []).map((w) => ({
     id: w.id!,
@@ -78,7 +75,7 @@ export function WireGuardList({ clientId, networkId, keyword, onChanged }: { cli
   const total = data?.total ?? 0
 
   const handleMutated = React.useCallback(() => {
-    setRefreshKey(makeRandomTrigger())
+    setRefreshKey((x) => x + 1)
   }, [])
 
   const table = useReactTable({
@@ -129,27 +126,27 @@ export function WireGuardList({ clientId, networkId, keyword, onChanged }: { cli
       <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
         <RotateCcw className="h-4 w-4" />
       </Button>
-      <JoinNetworkDialog networkId={networkId} clientId={clientId} onJoined={() => setRefreshKey(makeRandomTrigger())}>
+      <JoinNetworkDialog networkId={networkId} clientId={clientId} onJoined={() => setRefreshKey((x) => x + 1)}>
         <Button size="sm">{t('wg.joinNetwork.label')}</Button>
       </JoinNetworkDialog>
     </div>
   )
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-1">
-          <CardTitle>{t('wg.wireguardList.headerTitle')}</CardTitle>
-          <CardDescription>{t('wg.wireguardList.headerDesc')}</CardDescription>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="secondary">{t('wg.wireguardList.headerTotal', { count: total })}</Badge>
-          {toolbar}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <DataTable table={table} columns={WireGuardColumns} />
-      </CardContent>
-    </Card>
+    <div className="grid gap-4 grid-cols-1">
+      <Card>
+        <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-1">
+            <CardTitle>{t('wg.wireguardList.headerTitle')}</CardTitle>
+            <CardDescription>{t('wg.wireguardList.headerDesc')}</CardDescription>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary">{t('wg.wireguardList.headerTotal', { count: total })}</Badge>
+            {toolbar}
+          </div>
+        </CardHeader>
+      </Card>
+      <DataTable table={table} columns={WireGuardColumns} />
+    </div>
   )
 }

@@ -736,6 +736,10 @@ func (w *wireGuard) pingPeers() {
 	}
 
 	for _, peer := range peers {
+		if w.useGvisorNet {
+			continue
+		}
+
 		if peer.VirtualIp == "" {
 			continue
 		}

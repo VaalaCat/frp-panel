@@ -161,7 +161,22 @@ const EndpointDetail: React.FC = () => {
 							</div>
 							<div className="space-y-2">
 								<p className="text-sm text-muted-foreground">{t('wg.endpointDetail.wireguardId')}</p>
-								<p className="text-lg font-medium">{endpoint?.wireguardId ? `#${endpoint.wireguardId}` : t('wg.interface.network_unassigned')}</p>
+								{endpoint?.wireguardId ? (
+									<Button
+										variant="link"
+										size="sm"
+										className="px-0 text-lg font-medium h-auto"
+										onClick={(e) => {
+											e.preventDefault()
+											e.stopPropagation()
+											router.push(`/wg/wireguard-detail?id=${endpoint.wireguardId}`)
+										}}
+									>
+										#{endpoint.wireguardId}
+									</Button>
+								) : (
+									<p className="text-lg font-medium">{t('wg.interface.network_unassigned')}</p>
+								)}
 							</div>
 						</CardContent>
 					</Card>
@@ -177,7 +192,18 @@ const EndpointDetail: React.FC = () => {
 							{wireguardOptions?.wireguardConfigs?.length ? (
 								wireguardOptions.wireguardConfigs.map((wg) => (
 									<div key={wg.id} className="flex items-center justify-between text-sm">
-										<span className="font-medium">{wg.interfaceName || wg.clientId}</span>
+										<Button
+											variant="link"
+											size="sm"
+											className="px-0 h-auto font-medium"
+											onClick={(e) => {
+												e.preventDefault()
+												e.stopPropagation()
+												router.push(`/wg/wireguard-detail?id=${wg.id}`)
+											}}
+										>
+											{wg.interfaceName || wg.clientId}
+										</Button>
 										<span className="text-muted-foreground">{wg.localAddress}</span>
 									</div>
 								))

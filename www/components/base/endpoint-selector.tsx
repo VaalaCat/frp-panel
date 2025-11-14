@@ -17,7 +17,7 @@ export const EndpointSelector: React.FC<EndpointSelectorProps> = ({ clientID, en
   const { t } = useTranslation()
   const [keyword, setKeyword] = React.useState('')
 
-  const { data, refetch, isFetching } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ['listEndpoints', clientID, keyword],
     queryFn: () =>
       listEndpoints({
@@ -39,7 +39,7 @@ export const EndpointSelector: React.FC<EndpointSelectorProps> = ({ clientID, en
       value={endpointID ? String(endpointID) : ''}
       setValue={(v) => setEndpointID(v ? Number(v) : undefined)}
       onKeyWordChange={setKeyword}
-      onOpenChange={() => refetch()}
+      onOpenChange={onOpenChange}
       isLoading={isFetching}
     />
   )

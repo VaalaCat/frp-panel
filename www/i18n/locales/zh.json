@@ -363,7 +363,8 @@
       "peers": "对等节点"
     },
     "contextMenu": {
-      "openTerminal": "打开终端"
+      "openTerminal": "打开终端",
+      "viewLogs": "查看日志"
     },
     "wireguardDetail": {
       "invalid": "WireGuard 不存在",

@@ -4,6 +4,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, useReactTable, SortingState, PaginationState, ColumnFiltersState, ColumnDef, Row } from '@tanstack/react-table'
+import { useRouter } from 'next/router'
 import { DataTable } from '@/components/base/data_table'
 import { Button } from '@/components/ui/button'
 import { deleteWireGuardLink, listWireGuardLinks } from '@/api/wg'
@@ -43,12 +44,48 @@ export const WireGuardLinkColumns: ColumnDef<WireGuardLinkRow>[] = [
 			const { t } = useTranslation()
 			return t('wg.link.from')
 		},
+		cell: function Cell({ row }: { row: Row<WireGuardLinkRow> }) {
+			// eslint-disable-next-line react-hooks/rules-of-hooks
+			const router = useRouter()
+			return (
+				<Button
+					variant="link"
+					size="sm"
+					className="px-0 text-sm"
+					onClick={(e) => {
+						e.preventDefault()
+						e.stopPropagation()
+						router.push(`/wg/wireguard-detail?id=${row.original.fromWireguardId}`)
+					}}
+				>
+					#{row.original.fromWireguardId}
+				</Button>
+			)
+		},
 	},
 	{
 		accessorKey: 'toWireguardId',
 		header: function Header() {
 			const { t } = useTranslation()
 			return t('wg.link.to')
+		},
+		cell: function Cell({ row }: { row: Row<WireGuardLinkRow> }) {
+			// eslint-disable-next-line react-hooks/rules-of-hooks
+			const router = useRouter()
+			return (
+				<Button
+					variant="link"
+					size="sm"
+					className="px-0 text-sm"
+					onClick={(e) => {
+						e.preventDefault()
+						e.stopPropagation()
+						router.push(`/wg/wireguard-detail?id=${row.original.toWireguardId}`)
+					}}
+				>
+					#{row.original.toWireguardId}
+				</Button>
+			)
 		},
 	},
 	{

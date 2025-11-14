@@ -1,87 +1,171 @@
 'use client'
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import type { WGEdge } from './types'
-import { useTranslation } from 'react-i18next'
-import { Activity, ArrowUp, ArrowDown, Zap, Link2, MapPin } from 'lucide-react'
+import { Activity, TrendingUp, TrendingDown, Clock, MapPin, Zap } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-export default function TopologySidebar({ selectedEdge }: { selectedEdge?: WGEdge }) {
+interface TopologySidebarProps {
+	selectedEdge?: WGEdge
+}
+
+export default function TopologySidebar({ selectedEdge }: TopologySidebarProps) {
 	const { t } = useTranslation()
+
+	if (!selectedEdge) {
+		return null
+	}
+
+	const link = selectedEdge.data?.link
+	const quality = selectedEdge.data?.quality || 'fair'
+	const isBidirectional = selectedEdge.data?.isBidirectional || false
+
+	if (!link) {
+		return null
+	}
+
+	const qualityConfig = {
+		excellent: { label: '优秀', color: 'bg-emerald-500', textColor: 'text-emerald-700' },
+		good: { label: '良好', color: 'bg-green-500', textColor: 'text-green-700' },
+		fair: { label: '一般', color: 'bg-yellow-500', textColor: 'text-yellow-700' },
+		poor: { label: '较差', color: 'bg-red-500', textColor: 'text-red-700' },
+	}
+
+	const config = qualityConfig[quality]
+
 	return (
-		<Card className="w-full">
+		<Card className="h-full shadow-lg border-2">
 			<CardHeader className="pb-3">
-				<CardTitle className="flex items-center gap-2 text-base">
-					<Link2 className="h-4 w-4" />
-					{t('wg.topologySidebar.title')}
+				<CardTitle className="text-lg flex items-center justify-between">
+					<span>连接详情</span>
+					<Badge
+						variant={link.active ? 'default' : 'secondary'}
+						className={cn(link.active && 'bg-emerald-500')}
+					>
+						{link.active ? '激活' : '未激活'}
+					</Badge>
 				</CardTitle>
 			</CardHeader>
-			<CardContent className="space-y-3 text-sm">
-				{selectedEdge ? (
-					<div className="space-y-3">
-						<div className="flex items-center gap-2 pb-2 border-b">
-							<Badge variant={selectedEdge.data?.original?.active ? "default" : "secondary"}>
-								{selectedEdge.data?.original?.active ? t('wg.topologySidebar.statusActive') : t('wg.topologySidebar.statusInactive')}
+			<CardContent className="space-y-4">
+				{/* 连接质量 */}
+				<div className="space-y-2">
+					<div className="text-sm font-medium text-muted-foreground">连接质量</div>
+					<div className="flex items-center gap-2">
+						<div className={cn('w-3 h-3 rounded-full', config.color)} />
+						<span className={cn('font-semibold', config.textColor)}>{config.label}</span>
+						{isBidirectional && (
+							<Badge variant="outline" className="ml-auto">
+								<Activity className="h-3 w-3 mr-1" />
+								双向
 							</Badge>
-						</div>
-
-						<div className="space-y-2">
-							<div className="flex items-start gap-2">
-								<span className="text-muted-foreground min-w-[80px]">{t('wg.topologySidebar.from')}:</span>
-								<span className="font-mono text-xs break-all">{String(selectedEdge.source)}</span>
-							</div>
-							<div className="flex items-start gap-2">
-								<span className="text-muted-foreground min-w-[80px]">{t('wg.topologySidebar.to')}:</span>
-								<span className="font-mono text-xs break-all">{String(selectedEdge.target)}</span>
-							</div>
-							{selectedEdge.data?.original?.toEndpoint && (
-								<div className="flex items-start gap-2">
-									<span className="text-muted-foreground min-w-[80px]">{t('wg.topologySidebar.endpoint')}:</span>
-									<span className="font-mono text-xs break-all">
-										{selectedEdge.data.original.toEndpoint.host}:{selectedEdge.data.original.toEndpoint.port}
-									</span>
-								</div>
-							)}
-						</div>
-
-						{selectedEdge.data && (
-							<div className="space-y-2 pt-2 border-t">
-								<div className="flex items-center justify-between p-2 bg-muted/50 rounded">
-									<div className="flex items-center gap-2">
-										<Zap className="h-4 w-4 text-yellow-500" />
-										<span className="text-muted-foreground">{t('wg.topologySidebar.latency')}</span>
-									</div>
-									<span className="font-semibold">{selectedEdge.data.original.latencyMs}ms</span>
-								</div>
-
-								<div className="flex items-center justify-between p-2 bg-muted/50 rounded">
-									<div className="flex items-center gap-2">
-										<ArrowUp className="h-4 w-4 text-blue-500" />
-										<span className="text-muted-foreground">{t('wg.topologySidebar.bandwidthUp')}</span>
-									</div>
-									<span className="font-semibold">{selectedEdge.data.original.upBandwidthMbps} Mbps</span>
-								</div>
-
-								<div className="flex items-center justify-between p-2 bg-muted/50 rounded">
-									<div className="flex items-center gap-2">
-										<ArrowDown className="h-4 w-4 text-green-500" />
-										<span className="text-muted-foreground">{t('wg.topologySidebar.bandwidthDown')}</span>
-									</div>
-									<span className="font-semibold">{selectedEdge.data.original.downBandwidthMbps} Mbps</span>
-								</div>
-							</div>
 						)}
 					</div>
-				) : (
-					<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-						<Activity className="h-8 w-8 mb-2 opacity-50" />
-						<p className="text-center">{t('wg.topologySidebar.empty')}</p>
+				</div>
+
+				<Separator />
+
+				{/* 性能指标 */}
+				<div className="grid grid-cols-2 gap-3">
+					<MetricCard
+						icon={<Zap className="h-4 w-4" />}
+						label="延迟"
+						value={`${link.latencyMs}ms`}
+						variant={link.latencyMs < 50 ? 'good' : link.latencyMs < 100 ? 'normal' : 'bad'}
+					/>
+					<MetricCard
+						icon={<TrendingUp className="h-4 w-4" />}
+						label="上行带宽"
+						value={`${link.upBandwidthMbps}Mbps`}
+						variant="normal"
+					/>
+					<MetricCard
+						icon={<TrendingDown className="h-4 w-4" />}
+						label="下行带宽"
+						value={`${link.downBandwidthMbps}Mbps`}
+						variant="normal"
+					/>
+					<MetricCard
+						icon={<Activity className="h-4 w-4" />}
+						label="状态"
+						value={link.active ? '在线' : '离线'}
+						variant={link.active ? 'good' : 'bad'}
+					/>
+				</div>
+
+				<Separator />
+
+				{/* 端点信息 */}
+				{link.toEndpoint && (
+					<div className="space-y-2">
+						<div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+							<MapPin className="h-4 w-4" />
+							目标端点
+						</div>
+						<div className="bg-muted/50 rounded-lg p-3 space-y-1">
+							<div className="flex items-center justify-between text-sm">
+								<span className="text-muted-foreground">主机</span>
+								<span className="font-mono font-medium">{link.toEndpoint.host}</span>
+							</div>
+							<div className="flex items-center justify-between text-sm">
+								<span className="text-muted-foreground">端口</span>
+								<span className="font-mono font-medium">{link.toEndpoint.port}</span>
+							</div>
+						</div>
 					</div>
 				)}
+
+				{/* 连接信息 */}
+				<div className="space-y-2">
+					<div className="text-sm font-medium text-muted-foreground">连接信息</div>
+					<div className="space-y-2 text-sm">
+						<InfoRow label="链接 ID" value={`#${link.id}`} />
+						<InfoRow label="源节点" value={`WG #${link.fromWireguardId}`} />
+						<InfoRow label="目标节点" value={`WG #${link.toWireguardId}`} />
+					</div>
+				</div>
+
 			</CardContent>
 		</Card>
 	)
 }
 
+function MetricCard({
+	icon,
+	label,
+	value,
+	variant = 'normal',
+}: {
+	icon: React.ReactNode
+	label: string
+	value: string
+	variant?: 'good' | 'normal' | 'bad'
+}) {
+	const variantClasses = {
+		good: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800',
+		normal: 'bg-muted/50 border-border',
+		bad: 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800',
+	}
 
+	return (
+		<div className={cn('rounded-lg border p-3 space-y-1', variantClasses[variant])}>
+			<div className="flex items-center gap-1.5 text-muted-foreground">
+				{icon}
+				<span className="text-xs">{label}</span>
+			</div>
+			<div className="font-semibold font-mono text-sm">{value}</div>
+		</div>
+	)
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+	return (
+		<div className="flex items-center justify-between">
+			<span className="text-muted-foreground">{label}:</span>
+			<span className="font-mono font-medium">{value}</span>
+		</div>
+	)
+}

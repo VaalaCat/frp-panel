@@ -171,5 +171,7 @@ func (w *WSConn) close() {
 		_ = w.conn.Close()
 		w.conn = nil
 	}
+	w.wsBind.connsMu.Lock()
 	delete(w.wsBind.conns, w)
+	w.wsBind.connsMu.Unlock()
 }

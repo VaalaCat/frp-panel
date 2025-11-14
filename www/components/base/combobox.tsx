@@ -79,7 +79,7 @@ export function Combobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput 
             value={keyword} 
             onValueChange={(v) => debounced(v)} 

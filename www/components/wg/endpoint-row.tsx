@@ -93,11 +93,28 @@ export function createEndpointColumns({ onChanged }: { onChanged?: () => void })
         const { t } = useTranslation()
         return t('wg.endpointTable.wireguardId')
       },
-      cell: ({ row }: { row: Row<EndpointTableSchema> }) => (
-        <div className="flex items-center gap-1">
-          <span className="font-medium">{row.original.origin.wireguardId}</span>
-        </div>
-      ),
+      cell: ({ row }: { row: Row<EndpointTableSchema> }) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const router = useRouter()
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const { t } = useTranslation()
+        return row.original.origin.wireguardId ? (
+          <Button
+            variant="link"
+            size="sm"
+            className="px-0 text-sm"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              router.push(`/wg/wireguard-detail?id=${row.original.origin.wireguardId}`)
+            }}
+          >
+            #{row.original.origin.wireguardId}
+          </Button>
+        ) : (
+          <span className="text-sm text-muted-foreground">{t('wg.interface.network_unassigned')}</span>
+        )
+      },
     },
     {
       accessorKey: 'clientId',

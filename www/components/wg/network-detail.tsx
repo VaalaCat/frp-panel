@@ -252,19 +252,23 @@ const NetworkDetail: React.FC = () => {
 								</Button>
 							</div>
 						</CardHeader>
-						<CardContent className="grid gap-4 md:grid-cols-[2fr_1fr]">
-							<div>
-								<TopologyCanvas
-									data={{ nodes, edges }}
-									onEdgeClick={setSelectedEdgeId}
-									setNodes={setNodes}
-									setEdges={setEdges}
-								/>
-							</div>
+					<CardContent className={selectedEdge ? "grid gap-4 md:grid-cols-[2fr_1fr]" : ""}>
+						<div className="h-[700px] md:h-[800px] lg:h-[900px]">
+							<TopologyCanvas
+								data={{ nodes, edges }}
+								onEdgeClick={setSelectedEdgeId}
+								onPaneClick={() => setSelectedEdgeId(undefined)}
+								setNodes={setNodes}
+								setEdges={setEdges}
+								onLinkCreated={() => refetchTopology()}
+							/>
+						</div>
+						{selectedEdge && (
 							<div>
 								<TopologySidebar selectedEdge={selectedEdge} />
 							</div>
-						</CardContent>
+						)}
+					</CardContent>
 					</Card>
 				</TabsContent>
 			</Tabs>

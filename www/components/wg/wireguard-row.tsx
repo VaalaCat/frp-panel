@@ -64,7 +64,7 @@ export const WireGuardColumns: ColumnDef<WireGuardTableSchema>[] = [
 						onClick={(e) => {
 							e.preventDefault()
 							e.stopPropagation()
-							router.push({ pathname: '/wg/wireguard-detail', query: { id: row.original.id } })
+							router.push(`/wg/wireguard-detail?id=${row.original.id}`)
 						}}
 						aria-label={t('wg.wireguardActions.view')}
 					>
@@ -119,7 +119,7 @@ export const WireGuardColumns: ColumnDef<WireGuardTableSchema>[] = [
 					onClick={(e) => {
 						e.preventDefault()
 						e.stopPropagation()
-						router.push({ pathname: '/wg/network-detail', query: { networkId: row.original.networkId } })
+						router.push(`/wg/network-detail?networkId=${row.original.networkId}`)
 					}}
 				>
 					#{row.original.networkId}
