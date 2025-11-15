@@ -27,7 +27,7 @@ RPC 端口也可以处理自签名 HTTPS 的 API 连接
 
 二者都可使用反向代理服务器连接并提供TLS
 
-如果你想要使用安全的方式，请参考下图设置环境变量「`CLIENT_RPC_URL`和`CLIENT_API_URL`」。
+如果你想要使用安全的方式（反向代理），请参考下图设置环境变量「`CLIENT_RPC_URL`和`CLIENT_API_URL`」。
 
 注意⚠️：请首先使用普通部署的方式部署成功！然后再来调整这两个变量！！！！
 
@@ -66,12 +66,16 @@ services:
     image: vaalacat/frp-panel:latest
     network_mode: host
     environment:
-      APP_GLOBAL_SECRET: your_secret
-      MASTER_RPC_HOST: 1.2.3.4 #服务器的外部IP或域名
-      MASTER_RPC_PORT: 9001
-      MASTER_API_HOST: 1.2.3.4 #服务器的外部IP或域名
-      MASTER_API_PORT: 9000
-      MASTER_API_SCHEME: http
+      APP_GLOBAL_SECRET: your_secret # 随便输入一些随机字符，不要泄露
+      MASTER_RPC_HOST: 1.2.3.4 # 服务器的外部IP或域名
+      MASTER_RPC_PORT: 9001 # RPC 监听端口
+      MASTER_API_HOST: 1.2.3.4 # 服务器的外部IP或域名
+      MASTER_API_PORT: 9000 # API/WebUI监听端口
+      # CLIENT_RPC_URL和CLIENT_API_URL请根据实际情况设置，设置为外部可以通过url访问到master的形式
+      # Client 连接 master RPC 的 URL，如果使用反向代理，请设置为通过反向代理访问的 URL（如wss://example.com:443）
+      CLIENT_RPC_URL: grpc://1.2.3.4:9001）
+      # Client 连接 master API/WebUI 的 URL，如果使用反向代理，请设置为通过反向代理访问的 URL（如https://example.com:443）
+      CLIENT_API_URL: http://1.2.3.4:9000
     volumes:
       - ./data:/data # 数据存储位置
     restart: unless-stopped
@@ -84,14 +88,21 @@ services:
 
 ```bash
 # 推荐
-# MASTER_RPC_HOST要改成你服务器的外部IP
+# MASTER_RPC_HOST等0.0.0.0要改成你服务器的外部IP
 # APP_GLOBAL_SECRET注意不要泄漏，客户端和服务端的是通过Master生成的
+# CLIENT_RPC_URL和CLIENT_API_URL请根据实际情况设置
+# 如果使用反向代理，请设置为通过反向代理访问的 URL，也就是外部如何访问master
+# 如 443端口代理example.com到9000端口
+# CLIENT_RPC_URL=wss://example.com:443
+# CLIENT_API_URL=https://example.com:443
 docker run -d \
 	--network=host \
 	--restart=unless-stopped \
 	-v /opt/frp-panel:/data \
 	-e APP_GLOBAL_SECRET=your_secret \
 	-e MASTER_RPC_HOST=0.0.0.0 \
+	-e CLIENT_RPC_URL=grpc://0.0.0.0:9001 \
+	-e CLIENT_API_URL=http://0.0.0.0:9000 \
 	vaalacat/frp-panel
 ```
 
@@ -100,6 +111,8 @@ docker run -d \
 ```bash
 # 或者
 # 运行时记得删除命令中的中文
+# CLIENT_RPC_URL和CLIENT_API_URL请根据实际情况设置，设置为外部可以通过url访问到master的形式
+# 如果使用反向代理，请设置为通过反向代理访问的 URL，也就是外部如何访问master
 docker run -d -p 9000:9000 \ # API控制台端口
 	-p 9001:9001 \ # rpc端口
 	-p 7000:7000 \ # frps 端口
@@ -108,6 +121,8 @@ docker run -d -p 9000:9000 \ # API控制台端口
 	-v /opt/frp-panel:/data \ # 数据存储位置
 	-e APP_GLOBAL_SECRET=your_secret \ # Master的secret注意不要泄漏，客户端和服务端的是通过Master生成的
 	-e MASTER_RPC_HOST=0.0.0.0 \ # 这里要改成你服务器的外部IP
+	-e CLIENT_RPC_URL=grpc://0.0.0.0:9001 \
+	-e CLIENT_API_URL=http://0.0.0.0:9000 \
 	vaalacat/frp-panel
 ```
 
@@ -136,27 +151,27 @@ services:
     command:
       - --entryPoints.web.address=:80
       - --entryPoints.websecure.address=:443
-	  - --entryPoints.websecure.http2.maxConcurrentStreams=250
+      - --entryPoints.websecure.http2.maxConcurrentStreams=250
       - --providers.docker
       - --providers.docker.network=traefik
       - --api.insecure # 在生产环境请删除这一行
-	  # 这下面使用 80 端口做ACME HTTP DNS证书验证
+    # 这下面使用 80 端口做ACME HTTP DNS证书验证
       - --certificatesresolvers.le.acme.email=me@example.com
       - --certificatesresolvers.le.acme.storage=/etc/traefik/conf/acme.json
       - --certificatesresolvers.le.acme.httpchallenge=true
     ports:
       # 反向代理的 HTTP 端口
       - "80:80"
-	  # 反向代理的 HTTPS 端口
-	  - "443:443"
+      # 反向代理的 HTTPS 端口
+      - "443:443"
       # Traefik 的 Web UI (--api.insecure=true 会使用这个端口)
-	  # 生产环境请删除这个端口
+      # 生产环境请删除这个端口
       - "8080:8080"
     volumes:
       # 挂载 docker.sock，这样 Traefik 可以自动识别主机上所有 docker 容器反向代理配置
       - /var/run/docker.sock:/var/run/docker.sock
-	  # 保存 Traefik 申请的证书
-	  - ./conf:/etc/traefik/conf
+      # 保存 Traefik 申请的证书
+      - ./conf:/etc/traefik/conf
 
   frpp-master:
     image: vaalacat/frp-panel:latest # 这里换成你想使用的版本
@@ -167,8 +182,10 @@ services:
 	# 以便反向代理正确识别需要转发的协议
       MASTER_RPC_HOST: frpp.example.com
       MASTER_API_PORT: 443
-      MASTER_API_HOST: frpp-rpc.example.com
+      MASTER_API_HOST: frpp.example.com
       MASTER_API_SCHEME: https
+      CLIENT_RPC_URL: wss://frpp.example.com:443
+      CLIENT_API_URL: https://frpp.example.com:443
     networks:
       - traefik
     volumes:
@@ -185,7 +202,7 @@ services:
     restart: unless-stopped
     command: master
     labels:
-	  # API
+	  # API/WSS
       - traefik.http.routers.frp-panel-api.rule=Host(`frpp.example.com`)
       - traefik.http.routers.frp-panel-api.tls=true
       - traefik.http.routers.frp-panel-api.tls.certresolver=le
@@ -193,17 +210,9 @@ services:
       - traefik.http.routers.frp-panel-api.service=frp-panel-api
       - traefik.http.services.frp-panel-api.loadbalancer.server.port=9000
       - traefik.http.services.frp-panel-api.loadbalancer.server.scheme=http
-	  # RPC
-      - traefik.http.routers.frp-panel-rpc.rule=Host(`frpp-rpc.example.com`)
-      - traefik.http.routers.frp-panel-rpc.tls=true
-      - traefik.http.routers.frp-panel-rpc.tls.certresolver=le
-      - traefik.http.routers.frp-panel-rpc.entrypoints=websecure
-      - traefik.http.routers.frp-panel-rpc.service=frp-panel-rpc
-      - traefik.http.services.frp-panel-rpc.loadbalancer.server.port=9000
-      - traefik.http.services.frp-panel-rpc.loadbalancer.server.scheme=h2c
       # 下方如果你用不到 frps 的http代理，可以不要
-	  # 需要配置域名 *.frpp.example.com 泛解析到你服务器的公网IP
-	  # 这样可以实现使用 .frpp.example.com 结束的域名，在 443 端口，转发多个服务到多个 frpc
+      # 需要配置域名 *.frpp.example.com 泛解析到你服务器的公网IP
+      # 这样可以实现使用 .frpp.example.com 结束的域名，在 443 端口，转发多个服务到多个 frpc
       - traefik.http.routers.frp-panel-tunnel.rule=HostRegexp(`.*.frpp.example.com`)
       - traefik.http.routers.frp-panel-tunnel.tls.domains[0].sans=*.frpp.example.com
       - traefik.http.routers.frp-panel-tunnel.tls=true
@@ -238,8 +247,9 @@ networks:
 
 ```
 APP_GLOBAL_SECRET=your_secret
-MASTER_RPC_HOST=IP
 DB_DSN=data.db
+CLIENT_RPC_URL=grpc://IP:9001
+CLIENT_API_URL=http://IP:9000
 ```
 
 - master: `frp-panel-amd64.exe master`

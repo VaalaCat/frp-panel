@@ -37,7 +37,7 @@ If FRP-Panel brings you value, consider sponsoring the author:
 
 - Email: me@vaala.cat
 
-Sponsored by [NodeSupport](https://github.com/NodeSeekDev/NodeSupport) / [DartNode](https://dartnode.com)
+Sponsored by [NodeSupport](https://github.com/NodeSeekDev/NodeSupport) / [DartNode](https://dartnode.com) / [DK Cloud](https://www.dkdun.cn)
 
 <div align="left">
   <a href="https://yxvm.com/">
@@ -46,6 +46,11 @@ Sponsored by [NodeSupport](https://github.com/NodeSeekDev/NodeSupport) / [DartNo
   <div align="left">
   <a href="https://dartnode.com">
     <img src="https://dartnode.com/branding/DN-Open-Source-sm.png" width="300"/>
+  </a>
+</div>
+  <div align="left">
+  <a href="https://www.dkdun.cn">
+    <img src="https://www.dkdun.cn/themes/web/www/upload/local68c2dbb2ab148.png" width="300"/>
   </a>
 </div>
 </div>

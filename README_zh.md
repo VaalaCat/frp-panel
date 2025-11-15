@@ -36,11 +36,16 @@ FRP-Panel 是一款基于 FRP 的可视化管理面板，提供中心化配置�
 
 -  邮箱：me@vaala.cat
 
-[NodeSupport](https://github.com/NodeSeekDev/NodeSupport) 赞助了该项目
+[NodeSupport](https://github.com/NodeSeekDev/NodeSupport) / [林枫云](https://www.dkdun.cn) 赞助了该项目
 
 <div align="left">
   <a href="https://yxvm.com/">
     <img src="https://github.com/user-attachments/assets/0bd7087a-7994-4caf-a465-a428af19c5aa" width="300" />
+  </a>
+</div>
+<div align="left">
+  <a href="https://www.dkdun.cn">
+    <img src="https://www.dkdun.cn/themes/web/www/upload/local68c2dbb2ab148.png" width="300" />
   </a>
 </div>
 
