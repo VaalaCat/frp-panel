@@ -29,10 +29,10 @@ export default function TopologySidebar({ selectedEdge }: TopologySidebarProps) 
 	}
 
 	const qualityConfig = {
-		excellent: { label: '优秀', color: 'bg-emerald-500', textColor: 'text-emerald-700' },
-		good: { label: '良好', color: 'bg-green-500', textColor: 'text-green-700' },
-		fair: { label: '一般', color: 'bg-yellow-500', textColor: 'text-yellow-700' },
-		poor: { label: '较差', color: 'bg-red-500', textColor: 'text-red-700' },
+		excellent: { label: t('wg.linkQuality.excellent'), color: 'bg-emerald-500', textColor: 'text-emerald-700' },
+		good: { label: t('wg.linkQuality.good'), color: 'bg-green-500', textColor: 'text-green-700' },
+		fair: { label: t('wg.linkQuality.fair'), color: 'bg-yellow-500', textColor: 'text-yellow-700' },
+		poor: { label: t('wg.linkQuality.poor'), color: 'bg-red-500', textColor: 'text-red-700' },
 	}
 
 	const config = qualityConfig[quality]
@@ -41,26 +41,26 @@ export default function TopologySidebar({ selectedEdge }: TopologySidebarProps) 
 		<Card className="h-full shadow-lg border-2">
 			<CardHeader className="pb-3">
 				<CardTitle className="text-lg flex items-center justify-between">
-					<span>连接详情</span>
+					<span>{t('wg.topologySidebar.title')}</span>
 					<Badge
 						variant={link.active ? 'default' : 'secondary'}
 						className={cn(link.active && 'bg-emerald-500')}
 					>
-						{link.active ? '激活' : '未激活'}
+						{link.active ? t('wg.topologySidebar.statusActive') : t('wg.topologySidebar.statusInactive')}
 					</Badge>
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				{/* 连接质量 */}
 				<div className="space-y-2">
-					<div className="text-sm font-medium text-muted-foreground">连接质量</div>
+					<div className="text-sm font-medium text-muted-foreground">{t('wg.linkQuality.label')}</div>
 					<div className="flex items-center gap-2">
 						<div className={cn('w-3 h-3 rounded-full', config.color)} />
 						<span className={cn('font-semibold', config.textColor)}>{config.label}</span>
 						{isBidirectional && (
 							<Badge variant="outline" className="ml-auto">
 								<Activity className="h-3 w-3 mr-1" />
-								双向
+								{t('wg.linkQuality.bidirectional')}
 							</Badge>
 						)}
 					</div>
@@ -72,26 +72,26 @@ export default function TopologySidebar({ selectedEdge }: TopologySidebarProps) 
 				<div className="grid grid-cols-2 gap-3">
 					<MetricCard
 						icon={<Zap className="h-4 w-4" />}
-						label="延迟"
+						label={t('wg.topologySidebar.latency')}
 						value={`${link.latencyMs}ms`}
 						variant={link.latencyMs < 50 ? 'good' : link.latencyMs < 100 ? 'normal' : 'bad'}
 					/>
 					<MetricCard
 						icon={<TrendingUp className="h-4 w-4" />}
-						label="上行带宽"
+						label={t('wg.topologySidebar.bandwidthUp')}
 						value={`${link.upBandwidthMbps}Mbps`}
 						variant="normal"
 					/>
 					<MetricCard
 						icon={<TrendingDown className="h-4 w-4" />}
-						label="下行带宽"
+						label={t('wg.topologySidebar.bandwidthDown')}
 						value={`${link.downBandwidthMbps}Mbps`}
 						variant="normal"
 					/>
 					<MetricCard
 						icon={<Activity className="h-4 w-4" />}
-						label="状态"
-						value={link.active ? '在线' : '离线'}
+						label={t('wg.runtime.status')}
+						value={link.active ? t('wg.runtime.status_ok') : t('wg.runtime.status_unknown')}
 						variant={link.active ? 'good' : 'bad'}
 					/>
 				</div>
@@ -103,15 +103,15 @@ export default function TopologySidebar({ selectedEdge }: TopologySidebarProps) 
 					<div className="space-y-2">
 						<div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
 							<MapPin className="h-4 w-4" />
-							目标端点
+							{t('wg.topologySidebar.endpoint')}
 						</div>
 						<div className="bg-muted/50 rounded-lg p-3 space-y-1">
 							<div className="flex items-center justify-between text-sm">
-								<span className="text-muted-foreground">主机</span>
+								<span className="text-muted-foreground">{t('wg.endpointForm.host')}</span>
 								<span className="font-mono font-medium">{link.toEndpoint.host}</span>
 							</div>
 							<div className="flex items-center justify-between text-sm">
-								<span className="text-muted-foreground">端口</span>
+								<span className="text-muted-foreground">{t('wg.endpointForm.port')}</span>
 								<span className="font-mono font-medium">{link.toEndpoint.port}</span>
 							</div>
 						</div>
@@ -120,11 +120,11 @@ export default function TopologySidebar({ selectedEdge }: TopologySidebarProps) 
 
 				{/* 连接信息 */}
 				<div className="space-y-2">
-					<div className="text-sm font-medium text-muted-foreground">连接信息</div>
+					<div className="text-sm font-medium text-muted-foreground">{t('wg.linkInfo.label')}</div>
 					<div className="space-y-2 text-sm">
-						<InfoRow label="链接 ID" value={`#${link.id}`} />
-						<InfoRow label="源节点" value={`WG #${link.fromWireguardId}`} />
-						<InfoRow label="目标节点" value={`WG #${link.toWireguardId}`} />
+						<InfoRow label={t('wg.linkInfo.id')} value={`#${link.id}`} />
+						<InfoRow label={t('wg.topologySidebar.from')} value={`WG #${link.fromWireguardId}`} />
+						<InfoRow label={t('wg.topologySidebar.to')} value={`WG #${link.toWireguardId}`} />
 					</div>
 				</div>
 

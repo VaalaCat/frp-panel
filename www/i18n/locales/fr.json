@@ -316,13 +316,12 @@
       "title": "Détails du lien",
       "statusActive": "Actif",
       "statusInactive": "Inactif",
-      "from": "De",
-      "to": "À",
-      "endpoint": "Point de terminaison",
       "latency": "Latence",
       "bandwidthUp": "Bande passante montante",
       "bandwidthDown": "Bande passante descendante",
-      "empty": "Cliquez sur un lien pour voir les détails"
+      "endpoint": "Point de terminaison",
+      "from": "De",
+      "to": "À"
     },
     "topologyActions": {
       "loading": "Actualisation...",
@@ -359,13 +358,57 @@
     "networkDelete": {
       "confirm": "Confirmer la suppression de ce réseau ?"
     },
-    "topologyNode": {
-      "id": "Nœud #{{id}}",
-      "unknown": "Nœud inconnu",
-      "peers": "Pairs"
-    },
     "contextMenu": {
-      "openTerminal": "Ouvrir le terminal"
+      "openTerminal": "Ouvrir le terminal",
+      "viewLogs": "Afficher les journaux"
+    },
+    "topologyInfo": {
+      "nodeCount_one": "{{count}} nœud",
+      "nodeCount_many": "{{count}} nœuds",
+      "nodeCount_other": "{{count}} nœuds",
+      "linkCount_one": "{{count}} lien",
+      "linkCount_many": "{{count}} liens",
+      "linkCount_other": "{{count}} liens"
+    },
+    "linkCreate": {
+      "title": "Créer un lien",
+      "description": "Créer une nouvelle connexion entre le nœud #{{from}} et #{{to}}",
+      "submit": "Créer",
+      "button": "Nouveau lien"
+    },
+    "topology": {
+      "selectNetwork": "Veuillez sélectionner un réseau pour afficher la topologie.",
+      "noData": "Ce réseau n'a pas de données de topologie. Veuillez vous assurer que les nœuds et les liens WireGuard sont configurés.",
+      "title": "Topologie du réseau"
+    },
+    "linkQuality": {
+      "excellent": "Excellent",
+      "good": "Bon",
+      "fair": "Moyen",
+      "poor": "Faible",
+      "label": "Qualité du lien",
+      "bidirectional": "Bidirectionnel"
+    },
+    "runtime": {
+      "status": "Statut",
+      "status_ok": "En ligne",
+      "status_unknown": "Inconnu",
+      "title": "Statut en temps réel",
+      "subtitle": "Indicateurs WireGuard",
+      "refresh": "Actualiser",
+      "listen_port": "Port d'écoute",
+      "virt_ip": "IP virtuelle",
+      "peer_count": "Nombre de pairs",
+      "peer_list": "Liste des pairs",
+      "peer_empty": "Aucun pair connecté",
+      "peer_unknown": "Client inconnu",
+      "peer_endpoint": "Point",
+      "peer_last_handshake": "Dernier handshake",
+      "peer_no_handshake": "Jamais connecté"
+    },
+    "linkInfo": {
+      "label": "Informations sur le lien",
+      "id": "ID du lien"
     },
     "wireguardDetail": {
       "invalid": "WireGuard introuvable",
@@ -408,11 +451,6 @@
       "title": "Modifier le lien",
       "submit": "Enregistrer"
     },
-    "linkCreate": {
-      "title": "Créer un lien",
-      "submit": "Créer",
-      "button": "Nouveau lien"
-    },
     "linkForm": {
       "invalid": "Configuration du lien invalide",
       "submit": "Enregistrer"
@@ -454,23 +492,6 @@
     },
     "wireguardDelete": {
       "confirm": "Confirmer la suppression ?"
-    },
-    "runtime": {
-      "title": "Statut en temps réel",
-      "subtitle": "Indicateurs WireGuard",
-      "refresh": "Actualiser",
-      "listen_port": "Port d'écoute",
-      "protocol": "Protocole",
-      "peer_count": "Nombre de pairs",
-      "status": "Statut",
-      "status_ok": "En ligne",
-      "status_unknown": "Inconnu",
-      "peer_list": "Liste des pairs",
-      "peer_empty": "Aucun pair connecté",
-      "peer_unknown": "Client inconnu",
-      "peer_endpoint": "Point",
-      "peer_last_handshake": "Dernier handshake",
-      "peer_no_handshake": "Jamais connecté"
     },
     "nav": {
       "section": "Réseau",

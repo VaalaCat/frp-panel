@@ -316,13 +316,12 @@
       "title": "連結詳情",
       "statusActive": "活躍",
       "statusInactive": "不活躍",
-      "from": "起點",
-      "to": "終點",
-      "endpoint": "目標端點",
       "latency": "延遲",
       "bandwidthUp": "上行頻寬",
       "bandwidthDown": "下行頻寬",
-      "empty": "點擊連結查看詳情"
+      "endpoint": "目標端點",
+      "from": "起點",
+      "to": "終點"
     },
     "topologyActions": {
       "loading": "重新整理中...",
@@ -357,13 +356,53 @@
     "networkDelete": {
       "confirm": "確認刪除該網路？"
     },
-    "topologyNode": {
-      "id": "節點 #{{id}}",
-      "unknown": "未知節點",
-      "peers": "對等節點"
-    },
     "contextMenu": {
-      "openTerminal": "開啟終端機"
+      "openTerminal": "開啟終端機",
+      "viewLogs": "檢視記錄檔"
+    },
+    "topologyInfo": {
+      "nodeCount_other": "{{count}} 個節點",
+      "linkCount_other": "{{count}} 個連線"
+    },
+    "linkCreate": {
+      "title": "建立連線",
+      "description": "在節點 #{{from}} 和 #{{to}} 之間建立新的連線",
+      "submit": "建立連線",
+      "button": "新增連線"
+    },
+    "topology": {
+      "selectNetwork": "請先選擇一個網路以檢視拓撲圖。",
+      "noData": "該網路目前沒有拓撲資料。請確保網路中已設定 WireGuard 節點和連線。",
+      "title": "網路拓撲圖"
+    },
+    "linkQuality": {
+      "excellent": "優秀",
+      "good": "良好",
+      "fair": "一般",
+      "poor": "較差",
+      "label": "連線品質",
+      "bidirectional": "雙向"
+    },
+    "runtime": {
+      "status": "狀態",
+      "status_ok": "在線",
+      "status_unknown": "未知",
+      "title": "執行狀態",
+      "subtitle": "WireGuard 設備指標",
+      "refresh": "重新整理",
+      "listen_port": "監聽埠",
+      "virt_ip": "虛擬IP",
+      "peer_count": "節點數量",
+      "peer_list": "節點列表",
+      "peer_empty": "目前沒有節點連線",
+      "peer_unknown": "未知客戶端",
+      "peer_endpoint": "端點",
+      "peer_last_handshake": "最近握手",
+      "peer_no_handshake": "尚未連線"
+    },
+    "linkInfo": {
+      "label": "連線資訊",
+      "id": "連結 ID"
     },
     "wireguardDetail": {
       "invalid": "WireGuard 不存在",
@@ -406,11 +445,6 @@
       "title": "編輯連線",
       "submit": "儲存連線"
     },
-    "linkCreate": {
-      "title": "建立連線",
-      "submit": "建立連線",
-      "button": "新增連線"
-    },
     "linkForm": {
       "invalid": "連線設定不正確",
       "submit": "儲存連線"
@@ -450,23 +484,6 @@
     },
     "wireguardDelete": {
       "confirm": "確定刪除該 WireGuard？"
-    },
-    "runtime": {
-      "title": "執行狀態",
-      "subtitle": "WireGuard 設備指標",
-      "refresh": "重新整理",
-      "listen_port": "監聽埠",
-      "protocol": "協定",
-      "peer_count": "節點數量",
-      "status": "狀態",
-      "status_ok": "在線",
-      "status_unknown": "未知",
-      "peer_list": "節點列表",
-      "peer_empty": "目前沒有節點連線",
-      "peer_unknown": "未知客戶端",
-      "peer_endpoint": "端點",
-      "peer_last_handshake": "最近握手",
-      "peer_no_handshake": "尚未連線"
     },
     "nav": {
       "section": "組網",

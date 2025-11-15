@@ -20,7 +20,8 @@
   "wg": {
     "topologySidebar": {
       "id": "連線 #{{id}}",
-      "active": "狀態：{{status}}"
+      "active": "狀態：{{status}}",
+      "empty": "點擊連結查看詳情"
     },
     "terminalNode": {
       "noClient": "",
@@ -33,6 +34,14 @@
     },
     "dashboard": {
       "quickEntry": "快速入口"
+    },
+    "topologyNode": {
+      "id": "節點 #{{id}}",
+      "unknown": "未知節點",
+      "peers": "對等節點"
+    },
+    "runtime": {
+      "protocol": "協定"
     }
   },
   "canvas": {

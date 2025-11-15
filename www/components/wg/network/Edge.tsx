@@ -26,7 +26,7 @@ function getRectIntersection(
   const dx = dirX
   const dy = dirY
   const length = Math.sqrt(dx * dx + dy * dy)
-  
+
   if (length === 0) return { x: centerX, y: centerY }
 
   const normalizedDx = dx / length
@@ -98,12 +98,12 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
   // 计算方向向量
   let dirX = targetCenterX - sourceCenterX
   let dirY = targetCenterY - sourceCenterY
-  
+
   // 检测双向边：按字典序排列source和target，确定偏移方向
   // 这样同一对节点间的两条边会使用一致的偏移方向
   const hasBidirectional = source !== target
   const isSecondaryEdge = hasBidirectional && id.localeCompare(`${target}-${source}`) > 0
-  
+
   // 如果是双向边，给边添加一个小的垂直偏移
   const OFFSET = 12 // 偏移像素，增加到12以避免重叠
   if (isSecondaryEdge) {
@@ -112,17 +112,17 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
     if (length > 0) {
       const perpX = -dirY / length * OFFSET
       const perpY = dirX / length * OFFSET
-      
+
       // 偏移中心点
       const offsetSourceX = sourceCenterX + perpX
       const offsetSourceY = sourceCenterY + perpY
       const offsetTargetX = targetCenterX + perpX
       const offsetTargetY = targetCenterY + perpY
-      
+
       // 重新计算方向
       dirX = offsetTargetX - offsetSourceX
       dirY = offsetTargetY - offsetSourceY
-      
+
       // 使用偏移后的中心点计算交点
       const sourceIntersection = getRectIntersection(
         sourceNode.position.x,
@@ -145,7 +145,7 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
         -dirX,
         -dirY
       )
-      
+
       // 再次偏移交点
       const sourceOffsetIntersection = {
         x: sourceIntersection.x + perpX,
@@ -155,14 +155,14 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
         x: targetIntersection.x + perpX,
         y: targetIntersection.y + perpY
       }
-      
+
       const [edgePath] = getStraightPath({
         sourceX: sourceOffsetIntersection.x,
         sourceY: sourceOffsetIntersection.y,
         targetX: targetOffsetIntersection.x,
         targetY: targetOffsetIntersection.y,
       })
-      
+
       return renderEdge(edgePath, sourceOffsetIntersection, targetOffsetIntersection, dirX, dirY)
     }
   }
@@ -196,9 +196,9 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
     targetX: targetIntersection.x,
     targetY: targetIntersection.y,
   })
-  
+
   return renderEdge(edgePath, sourceIntersection, targetIntersection, dirX, dirY)
-  
+
   function renderEdge(
     path: string,
     sourcePos: { x: number; y: number },
@@ -209,7 +209,7 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
     // 边的样式配置
     const isActive = data?.link?.active ?? false
     const quality = data?.quality || 'fair'
-    
+
     const colorMap: Record<string, string> = {
       excellent: '#10b981',
       good: '#22c55e',
@@ -220,8 +220,8 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
     const strokeColor = selected
       ? '#6366f1'
       : isActive
-      ? colorMap[quality]
-      : '#cbd5e1'
+        ? colorMap[quality]
+        : '#cbd5e1'
 
     const strokeWidth = selected ? 3 : isActive ? 2.5 : 1.5
 
@@ -234,8 +234,8 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
     const labelAngle = angle > 90 || angle < -90 ? angle + 180 : angle
 
     // 构建显示标签 - 简化格式
-    const displayLabel = String(label || (data?.link 
-      ? `${data.link.latencyMs}ms | ${data.link.upBandwidthMbps}↑ ${data.link.downBandwidthMbps}↓`
+    const displayLabel = String(label || (data?.link
+      ? `${data.link.latencyMs}ms ${data.link.upBandwidthMbps}↑ ${data.link.downBandwidthMbps}↓`
       : ''))
 
     return (
@@ -250,15 +250,15 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
             strokeLinecap: 'round',
           }}
         />
-        
+
         {displayLabel && (
           <g transform={`translate(${labelX}, ${labelY})`}>
             <g transform={`rotate(${labelAngle})`}>
               {/* 标签背景 */}
               <rect
-                x={-displayLabel.length * 2.8}
+                x={-displayLabel.length * 2.8 - 8}
                 y={-9}
-                width={displayLabel.length * 5.6}
+                width={displayLabel.length * 5.6 + 16}
                 height={18}
                 rx={3}
                 fill="white"
@@ -269,7 +269,7 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
               />
               {/* 标签文本 */}
               <text
-                className="text-[10px] font-medium pointer-events-none select-none"
+                className="text-[10px] font-mono pointer-events-none select-none"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={strokeColor}

@@ -24,7 +24,8 @@
   "wg": {
     "topologySidebar": {
       "id": "链路 #{{id}}",
-      "active": "状态：{{status}}"
+      "active": "状态：{{status}}",
+      "empty": "点击链路查看详情"
     },
     "terminalNode": {
       "title": "终端",
@@ -41,6 +42,14 @@
     },
     "dashboard": {
       "quickEntry": "快捷入口"
+    },
+    "topologyNode": {
+      "id": "节点 #{{id}}",
+      "unknown": "未知节点",
+      "peers": "对等节点"
+    },
+    "runtime": {
+      "protocol": "协议"
     }
   },
   "canvas": {

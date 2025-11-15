@@ -27,6 +27,7 @@ import {
   FileText
 } from 'lucide-react'
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu'
+import { useRouter } from 'next/router'
 
 interface NodeComponentProps extends NodeProps<WGNode> {
   onOpenTerminal?: (clientId: string, clientType: number) => void
@@ -41,6 +42,7 @@ const WGNodeComponent: React.FC<NodeComponentProps> = ({
   onOpenLog,
 }) => {
   const connection = useConnection()
+  const router = useRouter()
   const isTarget = !!connection.inProgress && connection.fromNode?.id !== id
   const { t } = useTranslation()
 
@@ -124,7 +126,7 @@ const WGNodeComponent: React.FC<NodeComponentProps> = ({
   // 获取连接状态徽章 - 显示延迟
   const getStatusBadge = () => {
     if (!stats.isOnline) {
-      return <Badge variant="secondary" className="text-[10px] px-1.5 py-0">离线</Badge>
+      return <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{t('canvas.client.stopped')}</Badge>
     }
     if (stats.ping !== undefined) {
       if (stats.ping <= 50) {
@@ -135,7 +137,7 @@ const WGNodeComponent: React.FC<NodeComponentProps> = ({
       }
       return <Badge variant="destructive" className="text-[10px] px-1.5 py-0">{stats.ping}ms</Badge>
     }
-    return <Badge className="text-[10px] px-1.5 py-0 bg-emerald-500">在线</Badge>
+    return <Badge className="text-[10px] px-1.5 py-0 bg-emerald-500">{t('canvas.server.online')}</Badge>
   }
 
   const endpoint = useCallback(() => {
@@ -206,7 +208,7 @@ const WGNodeComponent: React.FC<NodeComponentProps> = ({
                   onClick={(e) => {
                     e.stopPropagation()
                     // 跳转到 WireGuard 详情页
-                    window.location.href = `/wg/wireguards?id=${id}`
+                    router.push(`/wg/wireguard-detail?id=${id}`)
                   }}
                   className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
                 >

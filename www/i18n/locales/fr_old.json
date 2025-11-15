@@ -20,7 +20,8 @@
   "wg": {
     "topologySidebar": {
       "id": "Lien #{{id}}",
-      "active": "Statut : {{status}}"
+      "active": "Statut : {{status}}",
+      "empty": "Cliquez sur un lien pour voir les détails"
     },
     "terminalNode": {
       "noClient": "",
@@ -33,6 +34,14 @@
     },
     "dashboard": {
       "quickEntry": "Actions rapides"
+    },
+    "topologyNode": {
+      "id": "Nœud #{{id}}",
+      "unknown": "Nœud inconnu",
+      "peers": "Pairs"
+    },
+    "runtime": {
+      "protocol": "Protocole"
     }
   },
   "canvas": {

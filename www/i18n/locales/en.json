@@ -316,13 +316,12 @@
       "title": "Link Details",
       "statusActive": "Active",
       "statusInactive": "Inactive",
-      "from": "From",
-      "to": "To",
-      "endpoint": "Target Endpoint",
       "latency": "Latency",
       "bandwidthUp": "Upload",
       "bandwidthDown": "Download",
-      "empty": "Click a link to view details"
+      "endpoint": "Target Endpoint",
+      "from": "From",
+      "to": "To"
     },
     "topologyActions": {
       "loading": "Refreshing...",
@@ -358,13 +357,55 @@
     "networkDelete": {
       "confirm": "Confirm delete network?"
     },
-    "topologyNode": {
-      "id": "Node #{{id}}",
-      "unknown": "Unknown Node",
-      "peers": "Peers"
-    },
     "contextMenu": {
-      "openTerminal": "Open Terminal"
+      "openTerminal": "Open Terminal",
+      "viewLogs": "View Logs"
+    },
+    "topologyInfo": {
+      "nodeCount_one": "{{count}} node",
+      "nodeCount_other": "{{count}} nodes",
+      "linkCount_one": "{{count}} link",
+      "linkCount_other": "{{count}} links"
+    },
+    "linkCreate": {
+      "title": "Create Link",
+      "description": "Create a new connection between node #{{from}} and #{{to}}",
+      "submit": "Create Link",
+      "button": "New Link"
+    },
+    "topology": {
+      "selectNetwork": "Please select a network to view the topology.",
+      "noData": "This network has no topology data. Please ensure WireGuard nodes and links are configured.",
+      "title": "Network Topology"
+    },
+    "linkQuality": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor",
+      "label": "Link Quality",
+      "bidirectional": "Bidirectional"
+    },
+    "runtime": {
+      "status": "Status",
+      "status_ok": "Online",
+      "status_unknown": "Unknown",
+      "title": "Runtime status",
+      "subtitle": "WireGuard device metrics",
+      "refresh": "Refresh",
+      "listen_port": "Listen port",
+      "virt_ip": "Virtual IP",
+      "peer_count": "Peer count",
+      "peer_list": "Peer list",
+      "peer_empty": "No peers connected",
+      "peer_unknown": "Unknown client",
+      "peer_endpoint": "Endpoint",
+      "peer_last_handshake": "Last handshake",
+      "peer_no_handshake": "Never connected"
+    },
+    "linkInfo": {
+      "label": "Link Information",
+      "id": "Link ID"
     },
     "wireguardDetail": {
       "invalid": "WireGuard not found",
@@ -407,11 +448,6 @@
       "title": "Edit link",
       "submit": "Save link"
     },
-    "linkCreate": {
-      "title": "Create link",
-      "submit": "Create link",
-      "button": "New link"
-    },
     "linkForm": {
       "invalid": "Invalid link configuration",
       "submit": "Save link"
@@ -452,23 +488,6 @@
     },
     "wireguardDelete": {
       "confirm": "Confirm delete WireGuard?"
-    },
-    "runtime": {
-      "title": "Runtime status",
-      "subtitle": "WireGuard device metrics",
-      "refresh": "Refresh",
-      "listen_port": "Listen port",
-      "protocol": "Protocol",
-      "peer_count": "Peer count",
-      "status": "Status",
-      "status_ok": "Online",
-      "status_unknown": "Unknown",
-      "peer_list": "Peer list",
-      "peer_empty": "No peers connected",
-      "peer_unknown": "Unknown client",
-      "peer_endpoint": "Endpoint",
-      "peer_last_handshake": "Last handshake",
-      "peer_no_handshake": "Never connected"
     },
     "nav": {
       "section": "Virtual Network",

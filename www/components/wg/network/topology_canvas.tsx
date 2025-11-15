@@ -32,6 +32,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import WireGuardLinkForm from '../wireguard-link-form'
+import { useTranslation } from 'react-i18next'
 
 export interface TopologyCanvasProps {
   data: TopologyData
@@ -54,6 +55,7 @@ export default function TopologyCanvas({
   onFullscreenToggle,
   onLinkCreated,
 }: TopologyCanvasProps) {
+  const { t } = useTranslation()
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null)
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   const [newLinkConnection, setNewLinkConnection] = useState<{ from: number; to: number } | null>(null)
@@ -173,7 +175,7 @@ export default function TopologyCanvas({
         dragHandle: '.drag-handle',
         style: { width: 650, height: 500 },
         data: {
-          label: `${clientId} 日志`,
+          label: clientId,
           clientId,
           clientType,
           pkgs: ['all'],
@@ -289,7 +291,7 @@ export default function TopologyCanvas({
               size="icon"
               onClick={onFullscreenToggle}
               className="shadow-lg"
-              title={fullscreen ? '退出全屏' : '全屏显示'}
+              title={fullscreen ? t('wg.topologyActions.exitFullscreen') : t('wg.topologyActions.fullscreen')}
             >
               {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
@@ -300,7 +302,7 @@ export default function TopologyCanvas({
         <Panel position="top-left" className="m-4">
           <div className="bg-card/95 backdrop-blur-sm border-2 border-border rounded-lg shadow-lg px-3 py-2">
             <div className="text-sm font-medium">
-              {data.nodes.filter(n => n.type === 'wg').length} 节点 · {data.edges.length} 连接
+              {t('wg.topologyInfo.nodeCount', { count: data.nodes.filter(n => n.type === 'wg').length })} · {t('wg.topologyInfo.linkCount', { count: data.edges.length })}
             </div>
           </div>
         </Panel>
@@ -310,9 +312,9 @@ export default function TopologyCanvas({
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>创建 WireGuard 连接</DialogTitle>
+            <DialogTitle>{t('wg.linkCreate.title')}</DialogTitle>
             <DialogDescription>
-              在节点 #{newLinkConnection?.from} 和 #{newLinkConnection?.to} 之间创建新的连接
+              {t('wg.linkCreate.description', { from: newLinkConnection?.from, to: newLinkConnection?.to })}
             </DialogDescription>
           </DialogHeader>
           {newLinkConnection && (
@@ -327,7 +329,7 @@ export default function TopologyCanvas({
                 active: true,
               } as any}
               onSuccess={handleLinkCreated}
-              submitText="创建连接"
+              submitText={t('wg.linkCreate.submit')}
             />
           )}
         </DialogContent>

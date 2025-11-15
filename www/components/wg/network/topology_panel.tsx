@@ -99,7 +99,7 @@ export default function TopologyPanel() {
 							variant="outline"
 							size="icon"
 							onClick={toggleFullscreen}
-							title={fullscreen ? '退出全屏' : '全屏显示'}
+							title={fullscreen ? t('wg.topologyActions.exitFullscreen') : t('wg.topologyActions.fullscreen')}
 							className="shadow-md hover:shadow-lg transition-shadow"
 						>
 							{fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -112,7 +112,7 @@ export default function TopologyPanel() {
 					<Alert>
 						<Info className="h-4 w-4" />
 						<AlertDescription>
-							请先选择一个网络以查看拓扑图。
+							{t('wg.topology.selectNetwork')}
 						</AlertDescription>
 					</Alert>
 				)}
@@ -121,7 +121,7 @@ export default function TopologyPanel() {
 					<Alert>
 						<Info className="h-4 w-4" />
 						<AlertDescription>
-							该网络暂无拓扑数据。请确保网络中已配置 WireGuard 节点和连接。
+							{t('wg.topology.noData')}
 						</AlertDescription>
 					</Alert>
 				)}
@@ -132,7 +132,7 @@ export default function TopologyPanel() {
 					<div className="fixed inset-0 z-50 bg-background p-6 flex flex-col gap-4">
 						<div className="flex items-center justify-between">
 							<h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-								网络拓扑图
+								{t('wg.topology.title')}
 							</h2>
 							<div className="flex gap-2">
 								<Button

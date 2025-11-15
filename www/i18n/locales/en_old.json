@@ -24,7 +24,8 @@
   "wg": {
     "topologySidebar": {
       "id": "Link #{{id}}",
-      "active": "Status: {{status}}"
+      "active": "Status: {{status}}",
+      "empty": "Click a link to view details"
     },
     "terminalNode": {
       "title": "Terminal",
@@ -41,6 +42,14 @@
     },
     "dashboard": {
       "quickEntry": "Quick actions"
+    },
+    "topologyNode": {
+      "id": "Node #{{id}}",
+      "unknown": "Unknown Node",
+      "peers": "Peers"
+    },
+    "runtime": {
+      "protocol": "Protocol"
     }
   },
   "canvas": {

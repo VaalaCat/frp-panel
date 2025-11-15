@@ -316,13 +316,12 @@
       "title": "链路详情",
       "statusActive": "活跃",
       "statusInactive": "不活跃",
-      "from": "起点",
-      "to": "终点",
-      "endpoint": "目标端点",
       "latency": "延迟",
       "bandwidthUp": "上行带宽",
       "bandwidthDown": "下行带宽",
-      "empty": "点击链路查看详情"
+      "endpoint": "目标端点",
+      "from": "起点",
+      "to": "终点"
     },
     "topologyActions": {
       "loading": "刷新中...",
@@ -357,14 +356,53 @@
     "networkDelete": {
       "confirm": "确认删除该网络？"
     },
-    "topologyNode": {
-      "id": "节点 #{{id}}",
-      "unknown": "未知节点",
-      "peers": "对等节点"
-    },
     "contextMenu": {
       "openTerminal": "打开终端",
       "viewLogs": "查看日志"
+    },
+    "topologyInfo": {
+      "nodeCount_other": "{{count}} 节点",
+      "linkCount_other": "{{count}} 连接"
+    },
+    "linkCreate": {
+      "title": "创建连接",
+      "description": "在节点 #{{from}} 和 #{{to}} 之间创建新的连接",
+      "submit": "创建连接",
+      "button": "新建连接"
+    },
+    "topology": {
+      "selectNetwork": "请先选择一个网络以查看拓扑图。",
+      "noData": "该网络暂无拓扑数据。请确保网络中已配置 WireGuard 节点和连接。",
+      "title": "网络拓扑图"
+    },
+    "linkQuality": {
+      "excellent": "优秀",
+      "good": "良好",
+      "fair": "一般",
+      "poor": "较差",
+      "label": "连接质量",
+      "bidirectional": "双向"
+    },
+    "runtime": {
+      "status": "状态",
+      "status_ok": "在线",
+      "status_unknown": "未知",
+      "title": "运行状态",
+      "subtitle": "WireGuard 设备指标",
+      "refresh": "刷新",
+      "listen_port": "监听端口",
+      "virt_ip": "虚拟IP",
+      "peer_count": "节点数量",
+      "peer_list": "节点列表",
+      "peer_empty": "暂无节点连接",
+      "peer_unknown": "未知客户端",
+      "peer_endpoint": "端点",
+      "peer_last_handshake": "最近握手",
+      "peer_no_handshake": "尚未连接"
+    },
+    "linkInfo": {
+      "label": "连接信息",
+      "id": "链接 ID"
     },
     "wireguardDetail": {
       "invalid": "WireGuard 不存在",
@@ -407,11 +445,6 @@
       "title": "编辑连接",
       "submit": "保存连接"
     },
-    "linkCreate": {
-      "title": "创建连接",
-      "submit": "创建连接",
-      "button": "新建连接"
-    },
     "linkForm": {
       "invalid": "连接配置不正确",
       "submit": "保存连接"
@@ -451,23 +484,6 @@
     },
     "wireguardDelete": {
       "confirm": "确定删除该 WireGuard？"
-    },
-    "runtime": {
-      "title": "运行状态",
-      "subtitle": "WireGuard 设备指标",
-      "refresh": "刷新",
-      "listen_port": "监听端口",
-      "protocol": "协议",
-      "peer_count": "节点数量",
-      "status": "状态",
-      "status_ok": "在线",
-      "status_unknown": "未知",
-      "peer_list": "节点列表",
-      "peer_empty": "暂无节点连接",
-      "peer_unknown": "未知客户端",
-      "peer_endpoint": "端点",
-      "peer_last_handshake": "最近握手",
-      "peer_no_handshake": "尚未连接"
     },
     "nav": {
       "section": "组网",

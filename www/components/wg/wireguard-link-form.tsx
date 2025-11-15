@@ -36,10 +36,8 @@ export default function WireGuardLinkForm({ link, onSuccess, submitText }: { lin
 				})
 				.catch((err) => {
 					console.error('Failed to get wireguard:', err)
-					setToClientId('')
 				})
 		} else {
-			setToClientId('')
 			setToEndpointId(undefined)
 		}
 	}, [toId])
