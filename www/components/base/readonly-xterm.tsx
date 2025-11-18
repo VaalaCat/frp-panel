@@ -71,7 +71,7 @@ const LogTerminalComponent = ({ logs, reset }: { logs: string, reset: number }) 
     }
   }, [ref, instance, currentLine])
 
-  return <div ref={ref} style={{ height: '100%', width: '100%' }} />
+  return <div ref={ref as React.RefObject<HTMLDivElement>} style={{ height: '100%', width: '100%'}} />
 }
 
 export default LogTerminalComponent
