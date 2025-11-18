@@ -178,7 +178,7 @@ const TerminalComponent = ({ isLoading, clientStatus, reset, setStatus }: Termin
     }
   }, [terminal, isLoading, setStatus])
 
-  return <div ref={ref} style={styles.terminal()} />
+  return <div ref={ref as React.RefObject<HTMLDivElement>} style={styles.terminal()} />
 }
 
 const styles = {
