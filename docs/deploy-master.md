@@ -73,7 +73,7 @@ services:
       MASTER_API_PORT: 9000 # API/WebUI监听端口
       # CLIENT_RPC_URL和CLIENT_API_URL请根据实际情况设置，设置为外部可以通过url访问到master的形式
       # Client 连接 master RPC 的 URL，如果使用反向代理，请设置为通过反向代理访问的 URL（如wss://example.com:443）
-      CLIENT_RPC_URL: grpc://1.2.3.4:9001）
+      CLIENT_RPC_URL: grpc://1.2.3.4:9001
       # Client 连接 master API/WebUI 的 URL，如果使用反向代理，请设置为通过反向代理访问的 URL（如https://example.com:443）
       CLIENT_API_URL: http://1.2.3.4:9000
     volumes:
