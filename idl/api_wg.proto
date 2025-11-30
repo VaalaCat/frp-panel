@@ -55,6 +55,7 @@ message ListNetworksResponse {
 
 message GetNetworkTopologyRequest {
   optional uint32 id = 1;
+  optional bool spf = 2;
 }
 
 message GetNetworkTopologyResponse {

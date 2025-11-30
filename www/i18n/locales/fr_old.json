@@ -42,6 +42,10 @@
     },
     "runtime": {
       "protocol": "Protocole"
+    },
+    "topologyActions": {
+      "noSpf": "Pas de plus court chemin",
+      "default": ""
     }
   },
   "canvas": {

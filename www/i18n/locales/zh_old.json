@@ -50,6 +50,10 @@
     },
     "runtime": {
       "protocol": "协议"
+    },
+    "topologyActions": {
+      "noSpf": "不使用最短路径优先",
+      "default": ""
     }
   },
   "canvas": {

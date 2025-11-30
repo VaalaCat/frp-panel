@@ -326,6 +326,8 @@
     "topologyActions": {
       "loading": "重新整理中...",
       "refresh": "重新整理拓撲",
+      "spf": "最短路",
+      "full": "完整图",
       "exitFullscreen": "退出全螢幕",
       "fullscreen": "全螢幕顯示"
     },

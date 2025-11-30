@@ -52,7 +52,10 @@ type AllowedIPsPlanner interface {
 	// Compute 基于拓扑与链路指标，计算每个节点应配置到直连邻居的 AllowedIPs，并返回节点ID->PeerConfig 列表。
 	// 输入的 peers 应包含同一 Network 下的所有 WireGuard 节点，links 为其有向链路。
 	Compute(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]*pb.WireGuardPeerConfig, error)
+	// BuildGraph 基于拓扑与链路指标，计算每个节点应配置到直连邻居的 AllowedIPs，并返回节点ID->Edge 列表。
 	BuildGraph(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]Edge, error)
+	// BuildFinalGraph 最短路径算法，返回节点ID->Edge 列表。
+	BuildFinalGraph(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]Edge, error)
 }
 
 type dijkstraAllowedIPsPlanner struct {
@@ -95,11 +98,55 @@ func (p *dijkstraAllowedIPsPlanner) BuildGraph(peers []*models.WireGuard, links 
 	return adj, nil
 }
 
+func (p *dijkstraAllowedIPsPlanner) BuildFinalGraph(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]Edge, error) {
+	idToPeer, order := buildNodeIndex(peers)
+	adj := buildAdjacency(order, idToPeer, links, p.policy)
+	routesInfoMap, edgeInfoMap := runAllPairsDijkstra(order, adj, idToPeer, p.policy)
+
+	ret := map[uint][]Edge{}
+	for src, edgeInfo := range edgeInfoMap {
+		for next := range edgeInfo {
+			if _, ok := adj[src]; !ok {
+				continue
+			}
+			originEdge := Edge{}
+			finded := false
+			for _, e := range adj[src] {
+				if e.to == next {
+					originEdge = e
+					finded = true
+					break
+				}
+			}
+			if !finded {
+				continue
+			}
+
+			routesInfo := routesInfoMap[src][next]
+
+			ret[src] = append(ret[src], Edge{
+				to:         next,
+				latency:    originEdge.latency,
+				upMbps:     originEdge.upMbps,
+				toEndpoint: originEdge.toEndpoint,
+				routes:     lo.Keys(routesInfo),
+			})
+		}
+	}
+	for _, id := range order {
+		if _, ok := ret[id]; !ok {
+			ret[id] = []Edge{}
+		}
+	}
+	return ret, nil
+}
+
 type Edge struct {
 	to         uint
 	latency    uint32
 	upMbps     uint32
 	toEndpoint *models.Endpoint // 指定的目标端点，可能为 nil
+	routes     []string         // 路由信息
 }
 
 func (e *Edge) ToPB() *pb.WireGuardLink {
@@ -108,6 +155,7 @@ func (e *Edge) ToPB() *pb.WireGuardLink {
 		LatencyMs:       e.latency,
 		UpBandwidthMbps: e.upMbps,
 		Active:          true,
+		Routes:          e.routes,
 	}
 	if e.toEndpoint != nil {
 		link.ToEndpoint = e.toEndpoint.ToPB()

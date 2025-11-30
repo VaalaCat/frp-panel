@@ -326,6 +326,8 @@
     "topologyActions": {
       "loading": "Refreshing...",
       "refresh": "Refresh Topology",
+      "spf": "Shortest Path First",
+      "full": "Full",
       "exitFullscreen": "Exit Fullscreen",
       "fullscreen": "Fullscreen"
     },

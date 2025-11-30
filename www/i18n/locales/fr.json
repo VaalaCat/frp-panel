@@ -326,6 +326,8 @@
     "topologyActions": {
       "loading": "Actualisation...",
       "refresh": "Actualiser la topologie",
+      "spf": "Plus court chemin",
+      "full": "Complet",
       "exitFullscreen": "Quitter le plein écran",
       "fullscreen": "Plein écran"
     },

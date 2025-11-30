@@ -572,6 +572,7 @@ func (x *ListNetworksResponse) GetNetworks() []*Network {
 type GetNetworkTopologyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Spf           *bool                  `protobuf:"varint,2,opt,name=spf,proto3,oneof" json:"spf,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -611,6 +612,13 @@ func (x *GetNetworkTopologyRequest) GetId() uint32 {
 		return *x.Id
 	}
 	return 0
+}
+
+func (x *GetNetworkTopologyRequest) GetSpf() bool {
+	if x != nil && x.Spf != nil {
+		return *x.Spf
+	}
+	return false
 }
 
 type GetNetworkTopologyResponse struct {
@@ -2399,10 +2407,12 @@ const file_api_wg_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05H\x01R\x05total\x88\x01\x01\x12.\n" +
 	"\bnetworks\x18\x03 \x03(\v2\x12.wireguard.NetworkR\bnetworksB\t\n" +
 	"\a_statusB\b\n" +
-	"\x06_total\"7\n" +
+	"\x06_total\"V\n" +
 	"\x19GetNetworkTopologyRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01B\x05\n" +
-	"\x03_id\"\xf1\x01\n" +
+	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12\x15\n" +
+	"\x03spf\x18\x02 \x01(\bH\x01R\x03spf\x88\x01\x01B\x05\n" +
+	"\x03_idB\x06\n" +
+	"\x04_spf\"\xf1\x01\n" +
 	"\x1aGetNetworkTopologyResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01\x12G\n" +
 	"\x04adjs\x18\x02 \x03(\v23.api_wireguard.GetNetworkTopologyResponse.AdjsEntryR\x04adjs\x1aR\n" +

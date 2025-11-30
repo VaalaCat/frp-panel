@@ -143,6 +143,10 @@ export interface GetNetworkTopologyRequest {
      * @generated from protobuf field: optional uint32 id = 1;
      */
     id?: number;
+    /**
+     * @generated from protobuf field: optional bool spf = 2;
+     */
+    spf?: boolean;
 }
 /**
  * @generated from protobuf message api_wireguard.GetNetworkTopologyResponse
@@ -1118,7 +1122,8 @@ export const ListNetworksResponse = new ListNetworksResponse$Type();
 class GetNetworkTopologyRequest$Type extends MessageType<GetNetworkTopologyRequest> {
     constructor() {
         super("api_wireguard.GetNetworkTopologyRequest", [
-            { no: 1, name: "id", kind: "scalar", opt: true, T: 13 /*ScalarType.UINT32*/ }
+            { no: 1, name: "id", kind: "scalar", opt: true, T: 13 /*ScalarType.UINT32*/ },
+            { no: 2, name: "spf", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<GetNetworkTopologyRequest>): GetNetworkTopologyRequest {
@@ -1135,6 +1140,9 @@ class GetNetworkTopologyRequest$Type extends MessageType<GetNetworkTopologyReque
                 case /* optional uint32 id */ 1:
                     message.id = reader.uint32();
                     break;
+                case /* optional bool spf */ 2:
+                    message.spf = reader.bool();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -1150,6 +1158,9 @@ class GetNetworkTopologyRequest$Type extends MessageType<GetNetworkTopologyReque
         /* optional uint32 id = 1; */
         if (message.id !== undefined)
             writer.tag(1, WireType.Varint).uint32(message.id);
+        /* optional bool spf = 2; */
+        if (message.spf !== undefined)
+            writer.tag(2, WireType.Varint).bool(message.spf);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

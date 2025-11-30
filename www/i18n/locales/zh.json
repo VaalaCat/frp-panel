@@ -326,6 +326,8 @@
     "topologyActions": {
       "loading": "刷新中...",
       "refresh": "刷新拓扑",
+      "spf": "最短路",
+      "full": "完整图",
       "exitFullscreen": "退出全屏",
       "fullscreen": "全屏显示"
     },

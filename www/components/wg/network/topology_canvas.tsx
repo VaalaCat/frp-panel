@@ -14,6 +14,7 @@ import {
   ReactFlowInstance,
   Panel,
   Connection,
+  ReactFlowProvider,
 } from '@xyflow/react'
 import type { TopologyData, TopologyNode, WGEdge } from './types'
 import WGNodeComponent from './Node'
@@ -31,8 +32,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import WireGuardLinkForm from '../wireguard-link-form'
+import { useForceLayout } from './useForceLayout'
 import { useTranslation } from 'react-i18next'
+import WireGuardLinkForm from '../wireguard-link-form'
 
 export interface TopologyCanvasProps {
   data: TopologyData
@@ -43,9 +45,12 @@ export interface TopologyCanvasProps {
   fullscreen?: boolean
   onFullscreenToggle?: () => void
   onLinkCreated?: () => void
+  onNodeDragStart?: (event: React.MouseEvent, node: any) => void
+  onNodeDrag?: (event: React.MouseEvent, node: any) => void
+  onNodeDragStop?: (event: React.MouseEvent, node: any) => void
 }
 
-export default function TopologyCanvas({
+function TopologyFlow({
   data,
   onEdgeClick,
   onPaneClick,
@@ -54,11 +59,17 @@ export default function TopologyCanvas({
   fullscreen,
   onFullscreenToggle,
   onLinkCreated,
+  onNodeDragStart,
+  onNodeDrag,
+  onNodeDragStop,
 }: TopologyCanvasProps) {
   const { t } = useTranslation()
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null)
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   const [newLinkConnection, setNewLinkConnection] = useState<{ from: number; to: number } | null>(null)
+
+  // Use force layout hook
+  const { dragEvents } = useForceLayout()
 
   // 节点变化处理
   const onNodesChange = useCallback(
@@ -226,11 +237,6 @@ export default function TopologyCanvas({
     []
   )
 
-  // 控制按钮处理
-  const handleZoomIn = () => reactFlowInstance.current?.zoomIn()
-  const handleZoomOut = () => reactFlowInstance.current?.zoomOut()
-  const handleFitView = () => reactFlowInstance.current?.fitView({ padding: 0.2, duration: 300 })
-
   return (
     <div className="relative w-full h-full rounded-xl overflow-hidden border-2 border-border bg-background shadow-lg" style={{ width: '100%', height: '100%' }}>
       <ReactFlow
@@ -244,10 +250,22 @@ export default function TopologyCanvas({
         onConnect={onConnect}
         onEdgeClick={(_, edge) => onEdgeClick?.(edge.id)}
         onPaneClick={onPaneClick}
+        onNodeDragStart={(e, n) => {
+          dragEvents.start(e as any, n)
+          onNodeDragStart?.(e, n)
+        }}
+        onNodeDrag={(e, n) => {
+          dragEvents.drag(e as any, n)
+          onNodeDrag?.(e, n)
+        }}
+        onNodeDragStop={(e, n) => {
+          dragEvents.stop()
+          onNodeDragStop?.(e, n)
+        }}
         connectionLineType={ConnectionLineType.Straight}
         connectionLineComponent={FloatingConnectionLine}
         fitView
-        fitViewOptions={{ padding: 0.2, maxZoom: 1.2, minZoom: 0.5 }}
+        fitViewOptions={{ padding: 0.2, maxZoom: 1.2, minZoom: 0.5, duration: 0 }}
         minZoom={0.1}
         maxZoom={2}
         defaultEdgeOptions={{
@@ -335,5 +353,13 @@ export default function TopologyCanvas({
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function TopologyCanvas(props: TopologyCanvasProps) {
+  return (
+    <ReactFlowProvider>
+      <TopologyFlow {...props} />
+    </ReactFlowProvider>
   )
 }

@@ -49,7 +49,13 @@ func GetNetworkTopology(ctx *app.Context, req *pb.GetNetworkTopologyRequest) (*p
 		ctx.GetApp().GetClientsManager(),
 	)
 
-	resp, err := wg.NewDijkstraAllowedIPsPlanner(policy).BuildGraph(peers, links)
+	var resp map[uint][]wg.Edge
+
+	if req.GetSpf() {
+		resp, err = wg.NewDijkstraAllowedIPsPlanner(policy).BuildFinalGraph(peers, links)
+	} else {
+		resp, err = wg.NewDijkstraAllowedIPsPlanner(policy).BuildGraph(peers, links)
+	}
 
 	if err != nil {
 		log.WithError(err).Errorf("failed to build graph")

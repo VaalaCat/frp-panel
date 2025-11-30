@@ -201,6 +201,10 @@ export interface WireGuardLink {
      * @generated from protobuf field: wireguard.Endpoint to_endpoint = 8;
      */
     toEndpoint?: Endpoint;
+    /**
+     * @generated from protobuf field: repeated string routes = 9;
+     */
+    routes: string[];
 }
 /**
  * @generated from protobuf message wireguard.WireGuardLinks
@@ -786,7 +790,8 @@ class WireGuardLink$Type extends MessageType<WireGuardLink> {
             { no: 5, name: "down_bandwidth_mbps", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 6, name: "latency_ms", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 7, name: "active", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-            { no: 8, name: "to_endpoint", kind: "message", T: () => Endpoint }
+            { no: 8, name: "to_endpoint", kind: "message", T: () => Endpoint },
+            { no: 9, name: "routes", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<WireGuardLink>): WireGuardLink {
@@ -798,6 +803,7 @@ class WireGuardLink$Type extends MessageType<WireGuardLink> {
         message.downBandwidthMbps = 0;
         message.latencyMs = 0;
         message.active = false;
+        message.routes = [];
         if (value !== undefined)
             reflectionMergePartial<WireGuardLink>(this, message, value);
         return message;
@@ -830,6 +836,9 @@ class WireGuardLink$Type extends MessageType<WireGuardLink> {
                     break;
                 case /* wireguard.Endpoint to_endpoint */ 8:
                     message.toEndpoint = Endpoint.internalBinaryRead(reader, reader.uint32(), options, message.toEndpoint);
+                    break;
+                case /* repeated string routes */ 9:
+                    message.routes.push(reader.string());
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -867,6 +876,9 @@ class WireGuardLink$Type extends MessageType<WireGuardLink> {
         /* wireguard.Endpoint to_endpoint = 8; */
         if (message.toEndpoint)
             Endpoint.internalBinaryWrite(message.toEndpoint, writer.tag(8, WireType.LengthDelimited).fork(), options).join();
+        /* repeated string routes = 9; */
+        for (let i = 0; i < message.routes.length; i++)
+            writer.tag(9, WireType.LengthDelimited).string(message.routes[i]);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

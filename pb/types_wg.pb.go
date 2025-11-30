@@ -413,6 +413,7 @@ type WireGuardLink struct {
 	LatencyMs         uint32                 `protobuf:"varint,6,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
 	Active            bool                   `protobuf:"varint,7,opt,name=active,proto3" json:"active,omitempty"`
 	ToEndpoint        *Endpoint              `protobuf:"bytes,8,opt,name=to_endpoint,json=toEndpoint,proto3" json:"to_endpoint,omitempty"`
+	Routes            []string               `protobuf:"bytes,9,rep,name=routes,proto3" json:"routes,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -499,6 +500,13 @@ func (x *WireGuardLink) GetActive() bool {
 func (x *WireGuardLink) GetToEndpoint() *Endpoint {
 	if x != nil {
 		return x.ToEndpoint
+	}
+	return nil
+}
+
+func (x *WireGuardLink) GetRoutes() []string {
+	if x != nil {
+		return x.Routes
 	}
 	return nil
 }
@@ -1051,7 +1059,7 @@ const file_types_wg_proto_rawDesc = "" +
 	"\tclient_id\x18\x04 \x01(\tR\bclientId\x12!\n" +
 	"\fwireguard_id\x18\x05 \x01(\rR\vwireguardId\x12\x10\n" +
 	"\x03uri\x18\x06 \x01(\tR\x03uri\x12\x12\n" +
-	"\x04type\x18\a \x01(\tR\x04type\"\xbc\x02\n" +
+	"\x04type\x18\a \x01(\tR\x04type\"\xd4\x02\n" +
 	"\rWireGuardLink\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12*\n" +
 	"\x11from_wireguard_id\x18\x02 \x01(\rR\x0ffromWireguardId\x12&\n" +
@@ -1062,7 +1070,8 @@ const file_types_wg_proto_rawDesc = "" +
 	"latency_ms\x18\x06 \x01(\rR\tlatencyMs\x12\x16\n" +
 	"\x06active\x18\a \x01(\bR\x06active\x124\n" +
 	"\vto_endpoint\x18\b \x01(\v2\x13.wireguard.EndpointR\n" +
-	"toEndpoint\"@\n" +
+	"toEndpoint\x12\x16\n" +
+	"\x06routes\x18\t \x03(\tR\x06routes\"@\n" +
 	"\x0eWireGuardLinks\x12.\n" +
 	"\x05links\x18\x01 \x03(\v2\x18.wireguard.WireGuardLinkR\x05links\"\x9f\x01\n" +
 	"\aNetwork\x12\x0e\n" +
