@@ -20,19 +20,21 @@ func UpdateWireGuard(ctx *app.Context, req *pb.UpdateWireGuardRequest) (*pb.Upda
 	if cfg == nil || cfg.GetId() == 0 || len(cfg.GetClientId()) == 0 || len(cfg.GetInterfaceName()) == 0 || len(cfg.GetPrivateKey()) == 0 || len(cfg.GetLocalAddress()) == 0 {
 		return nil, errors.New("invalid wireguard config")
 	}
+	q := dao.NewQuery(ctx)
+	m := dao.NewMutation(ctx)
 
 	model := &models.WireGuard{}
 	model.FromPB(cfg)
 	model.UserId = uint32(userInfo.GetUserID())
 	model.TenantId = uint32(userInfo.GetTenantID())
 
-	if err := dao.NewQuery(ctx).UpdateWireGuard(userInfo, uint(cfg.GetId()), model); err != nil {
+	if err := m.UpdateWireGuard(userInfo, uint(cfg.GetId()), model); err != nil {
 		return nil, err
 	}
 
 	// 端点赋值与解绑
 	// 1) 读取当前绑定的端点
-	currentList, err := dao.NewQuery(ctx).ListEndpointsWithFilters(userInfo, 1, 1000, "", uint(cfg.GetId()), "")
+	currentList, err := q.ListEndpointsWithFilters(userInfo, 1, 1000, "", uint(cfg.GetId()), "")
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +47,7 @@ func UpdateWireGuard(ctx *app.Context, req *pb.UpdateWireGuardRequest) (*pb.Upda
 			continue
 		}
 		if ep.GetId() > 0 {
-			exist, err := dao.NewQuery(ctx).GetEndpointByID(userInfo, uint(ep.GetId()))
+			exist, err := q.GetEndpointByID(userInfo, uint(ep.GetId()))
 			if err != nil {
 				return nil, err
 			}
@@ -55,13 +57,13 @@ func UpdateWireGuard(ctx *app.Context, req *pb.UpdateWireGuardRequest) (*pb.Upda
 			}
 			exist.WireGuardID = uint(cfg.GetId())
 
-			if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, uint(exist.ID), exist.EndpointEntity); err != nil {
+			if err := m.UpdateEndpoint(userInfo, uint(exist.ID), exist.EndpointEntity); err != nil {
 				return nil, err
 			}
 			newSet[uint(exist.ID)] = struct{}{}
 		} else {
 			entity := &models.EndpointEntity{Host: ep.GetHost(), Port: ep.GetPort(), ClientID: cfg.GetClientId(), WireGuardID: uint(cfg.GetId())}
-			if err := dao.NewQuery(ctx).CreateEndpoint(userInfo, entity); err != nil {
+			if err := m.CreateEndpoint(userInfo, entity); err != nil {
 				return nil, err
 			}
 			// 无法获取新建 id，这里不加入 newSet；不影响后续解绑逻辑（仅解绑 current - new）
@@ -73,12 +75,12 @@ func UpdateWireGuard(ctx *app.Context, req *pb.UpdateWireGuardRequest) (*pb.Upda
 		if _, ok := newSet[id]; ok {
 			continue
 		}
-		exist, err := dao.NewQuery(ctx).GetEndpointByID(userInfo, id)
+		exist, err := q.GetEndpointByID(userInfo, id)
 		if err != nil {
 			return nil, err
 		}
 		entity := &models.EndpointEntity{Host: exist.Host, Port: exist.Port, ClientID: exist.ClientID, WireGuardID: 0}
-		if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, id, entity); err != nil {
+		if err := m.UpdateEndpoint(userInfo, id, entity); err != nil {
 			return nil, err
 		}
 	}

@@ -208,7 +208,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 			}
 
 			if cliType == defs.CliTypeClient {
-				if err := dao.NewQuery(ctx).AdminUpdateClientLastSeen(req.GetClientId()); err != nil {
+				if err := dao.NewMutation(ctx).AdminUpdateClientLastSeen(req.GetClientId()); err != nil {
 					logger.Logger(ctx).Errorf("cannot update client last seen, %s id: [%s]", req.GetEvent().String(), req.GetClientId())
 				}
 			}

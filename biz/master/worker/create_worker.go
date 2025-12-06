@@ -19,13 +19,15 @@ func CreateWorker(ctx *app.Context, req *pb.CreateWorkerRequest) (*pb.CreateWork
 		clientId  = req.GetClientId()
 		reqWorker = req.GetWorker()
 	)
+	q := dao.NewQuery(ctx)
+	m := dao.NewMutation(ctx)
 
 	if err := validateCreateWorker(req); err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("invalid create worker request, origin is: [%s]", req.String())
 		return nil, err
 	}
 
-	cli, err := dao.NewQuery(ctx).GetClientByClientID(userInfo, clientId)
+	cli, err := q.GetClientByClientID(userInfo, clientId)
 	if err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot get client, id: [%s], workerName: [%s]", clientId, reqWorker.GetName())
 		return nil, err
@@ -38,7 +40,7 @@ func CreateWorker(ctx *app.Context, req *pb.CreateWorkerRequest) (*pb.CreateWork
 
 	workerToCreate.Clients = append(workerToCreate.Clients, *cli)
 
-	if err := dao.NewQuery(ctx).CreateWorker(userInfo, workerToCreate); err != nil {
+	if err := m.CreateWorker(userInfo, workerToCreate); err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot create worker, workerName: [%s]", workerToCreate.Name)
 		return nil, err
 	}

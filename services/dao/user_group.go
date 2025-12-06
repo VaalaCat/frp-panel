@@ -7,7 +7,16 @@ import (
 	"github.com/VaalaCat/frp-panel/models"
 )
 
-func (q *queryImpl) CreateGroup(userInfo models.UserInfo, groupID, groupName, comment string) (*models.UserGroup, error) {
+type UserGroupMutation interface {
+	CreateGroup(userInfo models.UserInfo, groupID, groupName, comment string) (*models.UserGroup, error)
+	DeleteGroup(userInfo models.UserInfo, groupID string) error
+}
+
+type userGroupMutation struct{ *mutationImpl }
+
+func newUserGroupMutation(base *mutationImpl) UserGroupMutation { return &userGroupMutation{base} }
+
+func (m *userGroupMutation) CreateGroup(userInfo models.UserInfo, groupID, groupName, comment string) (*models.UserGroup, error) {
 	if groupID == "" || groupName == "" {
 		return nil, fmt.Errorf("invalid group id or group name")
 	}
@@ -16,7 +25,7 @@ func (q *queryImpl) CreateGroup(userInfo models.UserInfo, groupID, groupName, co
 		return nil, fmt.Errorf("only admin can create group")
 	}
 
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 
 	g := &models.UserGroup{
 		TenantID:  userInfo.GetTenantID(),
@@ -32,12 +41,12 @@ func (q *queryImpl) CreateGroup(userInfo models.UserInfo, groupID, groupName, co
 	return g, nil
 }
 
-func (q *queryImpl) DeleteGroup(userInfo models.UserInfo, groupID string) error {
+func (m *userGroupMutation) DeleteGroup(userInfo models.UserInfo, groupID string) error {
 	if userInfo.GetRole() != defs.UserRole_Admin {
 		return fmt.Errorf("only admin can delete group")
 	}
 
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().Where(&models.UserGroup{
 		TenantID: userInfo.GetTenantID(),
 		GroupID:  groupID,

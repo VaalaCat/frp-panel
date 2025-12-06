@@ -23,6 +23,8 @@ func CreateWireGuardLink(ctx *app.Context, req *pb.CreateWireGuardLinkRequest) (
 	}
 	// 校验两端属于同一 network
 	q := dao.NewQuery(ctx)
+	mut := dao.NewMutation(ctx)
+
 	from, err := q.GetWireGuardByID(userInfo, uint(l.GetFromWireguardId()))
 	if err != nil {
 		return nil, err
@@ -43,7 +45,7 @@ func CreateWireGuardLink(ctx *app.Context, req *pb.CreateWireGuardLinkRequest) (
 	reverse.NetworkID = from.NetworkID
 	reverse.ToEndpointID = 0
 
-	if err := q.CreateWireGuardLinks(userInfo, m, reverse); err != nil {
+	if err := mut.CreateWireGuardLinks(userInfo, m, reverse); err != nil {
 		return nil, err
 	}
 	return &pb.CreateWireGuardLinkResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"}, WireguardLink: m.ToPB()}, nil
@@ -59,6 +61,8 @@ func UpdateWireGuardLink(ctx *app.Context, req *pb.UpdateWireGuardLinkRequest) (
 		return nil, errors.New("invalid link params")
 	}
 	q := dao.NewQuery(ctx)
+	mut := dao.NewMutation(ctx)
+
 	m, err := q.GetWireGuardLinkByID(userInfo, uint(l.GetId()))
 	if err != nil {
 		return nil, err
@@ -73,7 +77,7 @@ func UpdateWireGuardLink(ctx *app.Context, req *pb.UpdateWireGuardLinkRequest) (
 		m.ToEndpointID = uint(l.GetToEndpoint().GetId())
 	}
 
-	if err := q.UpdateWireGuardLink(userInfo, uint(l.GetId()), m); err != nil {
+	if err := mut.UpdateWireGuardLink(userInfo, uint(l.GetId()), m); err != nil {
 		return nil, err
 	}
 	return &pb.UpdateWireGuardLinkResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"}, WireguardLink: m.ToPB()}, nil
@@ -89,21 +93,24 @@ func DeleteWireGuardLink(ctx *app.Context, req *pb.DeleteWireGuardLinkRequest) (
 		return nil, errors.New("invalid id")
 	}
 
-	link, err := dao.NewQuery(ctx).GetWireGuardLinkByID(userInfo, id)
+	q := dao.NewQuery(ctx)
+	m := dao.NewMutation(ctx)
+
+	link, err := q.GetWireGuardLinkByID(userInfo, id)
 	if err != nil {
 		return nil, err
 	}
 
-	rev, err := dao.NewQuery(ctx).GetWireGuardLinkByClientIDs(userInfo, link.ToWireGuardID, link.FromWireGuardID)
+	rev, err := q.GetWireGuardLinkByClientIDs(userInfo, link.ToWireGuardID, link.FromWireGuardID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := dao.NewQuery(ctx).DeleteWireGuardLink(userInfo, uint(link.ID)); err != nil {
+	if err := m.DeleteWireGuardLink(userInfo, uint(link.ID)); err != nil {
 		return nil, err
 	}
 
-	if err := dao.NewQuery(ctx).DeleteWireGuardLink(userInfo, uint(rev.ID)); err != nil {
+	if err := m.DeleteWireGuardLink(userInfo, uint(rev.ID)); err != nil {
 		return nil, err
 	}
 

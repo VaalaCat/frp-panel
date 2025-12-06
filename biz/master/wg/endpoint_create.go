@@ -21,7 +21,7 @@ func CreateEndpoint(ctx *app.Context, req *pb.CreateEndpointRequest) (*pb.Create
 	}
 
 	entity := &models.EndpointEntity{Host: e.GetHost(), Port: e.GetPort(), ClientID: e.GetClientId(), Type: e.GetType(), Uri: e.GetUri()}
-	if err := dao.NewQuery(ctx).CreateEndpoint(userInfo, entity); err != nil {
+	if err := dao.NewMutation(ctx).CreateEndpoint(userInfo, entity); err != nil {
 		return nil, err
 	}
 	return &pb.CreateEndpointResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"}, Endpoint: &pb.Endpoint{Id: 0, Host: entity.Host, Port: entity.Port, ClientId: entity.ClientID}}, nil

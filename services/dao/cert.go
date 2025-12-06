@@ -14,13 +14,30 @@ import (
 	"github.com/VaalaCat/frp-panel/utils/logger"
 )
 
-func (q *queryImpl) InitCert(template *x509.Certificate) *tls.Config {
+type CertQuery interface {
+	CountCerts() (int64, error)
+	GetDefaultKeyPair() (keyPem []byte, certPem []byte, err error)
+}
+
+type CertMutation interface {
+	InitCert(template *x509.Certificate) *tls.Config
+}
+
+type certQuery struct{ *queryImpl }
+type certMutation struct{ *mutationImpl }
+
+func newCertQuery(base *queryImpl) CertQuery          { return &certQuery{base} }
+func newCertMutation(base *mutationImpl) CertMutation { return &certMutation{base} }
+
+func (m *certMutation) InitCert(template *x509.Certificate) *tls.Config {
 	ctx := context.Background()
 	var (
 		certPem []byte
 		keyPem  []byte
 	)
-	cnt, err := q.CountCerts()
+	query := NewQuery(m.ctx)
+
+	cnt, err := query.CountCerts()
 	if err != nil {
 		logger.Logger(ctx).Fatal(err)
 	}
@@ -29,7 +46,7 @@ func (q *queryImpl) InitCert(template *x509.Certificate) *tls.Config {
 		if err != nil {
 			logger.Logger(ctx).Fatal(err)
 		}
-		if err = q.ctx.GetApp().GetDBManager().GetDefaultDB().Create(&models.Cert{
+		if err = m.ctx.GetApp().GetDBManager().GetDefaultDB().Create(&models.Cert{
 			Name:     "default",
 			CertFile: certPem,
 			CaFile:   certPem,
@@ -38,7 +55,7 @@ func (q *queryImpl) InitCert(template *x509.Certificate) *tls.Config {
 			logger.Logger(ctx).Fatal(err)
 		}
 	} else {
-		keyPem, certPem, err = q.GetDefaultKeyPair()
+		keyPem, certPem, err = query.GetDefaultKeyPair()
 		if err != nil {
 			logger.Logger(ctx).Fatal(err)
 		}
@@ -79,7 +96,7 @@ func GenX509Info(template *x509.Certificate) (certPem []byte, keyPem []byte, err
 	return certBuf.Bytes(), keyBuf.Bytes(), nil
 }
 
-func (q *queryImpl) CountCerts() (int64, error) {
+func (q *certQuery) CountCerts() (int64, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.Cert{}).Count(&count).Error
@@ -89,7 +106,7 @@ func (q *queryImpl) CountCerts() (int64, error) {
 	return count, nil
 }
 
-func (q *queryImpl) GetDefaultKeyPair() (keyPem []byte, certPem []byte, err error) {
+func (q *certQuery) GetDefaultKeyPair() (keyPem []byte, certPem []byte, err error) {
 	resp := &models.Cert{}
 	err = q.ctx.GetApp().GetDBManager().GetDefaultDB().Model(&models.Cert{}).
 		Where(&models.Cert{Name: "default"}).First(resp).Error

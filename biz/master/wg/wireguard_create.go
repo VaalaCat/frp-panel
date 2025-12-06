@@ -28,14 +28,16 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 	if cfg == nil || len(cfg.GetClientId()) == 0 || len(cfg.GetInterfaceName()) == 0 || len(cfg.GetLocalAddress()) == 0 {
 		return nil, errors.New("invalid wireguard config")
 	}
+	q := dao.NewQuery(ctx)
+	m := dao.NewMutation(ctx)
 
-	ips, err := dao.NewQuery(ctx).GetWireGuardLocalAddressesByNetworkID(userInfo, uint(cfg.GetNetworkId()))
+	ips, err := q.GetWireGuardLocalAddressesByNetworkID(userInfo, uint(cfg.GetNetworkId()))
 	if err != nil {
 		log.WithError(err).Errorf("get wireguard local addresses by network id failed")
 		return nil, err
 	}
 
-	network, err := dao.NewQuery(ctx).GetNetworkByID(userInfo, uint(cfg.GetNetworkId()))
+	network, err := q.GetNetworkByID(userInfo, uint(cfg.GetNetworkId()))
 	if err != nil {
 		log.WithError(err).Errorf("get network by id failed")
 		return nil, err
@@ -72,7 +74,7 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 
 	log.Debugf("create wireguard with config: %+v", wgModel)
 
-	if err := dao.NewQuery(ctx).CreateWireGuard(userInfo, wgModel); err != nil {
+	if err := m.CreateWireGuard(userInfo, wgModel); err != nil {
 		return nil, err
 	}
 
@@ -83,7 +85,7 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 		}
 		if ep.GetId() > 0 {
 			// 复用现有 endpoint，要求归属同一 client
-			exist, err := dao.NewQuery(ctx).GetEndpointByID(userInfo, uint(ep.GetId()))
+			exist, err := q.GetEndpointByID(userInfo, uint(ep.GetId()))
 			if err != nil {
 				return nil, err
 			}
@@ -92,7 +94,7 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 			}
 			exist.WireGuardID = wgModel.ID
 
-			if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, uint(exist.ID), exist.EndpointEntity); err != nil {
+			if err := m.UpdateEndpoint(userInfo, uint(exist.ID), exist.EndpointEntity); err != nil {
 				return nil, err
 			}
 		} else {
@@ -101,19 +103,19 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 			newEp.FromPB(ep)
 			newEp.ClientID = cfg.GetClientId()
 			newEp.WireGuardID = wgModel.ID
-			if err := dao.NewQuery(ctx).CreateEndpoint(userInfo, newEp.EndpointEntity); err != nil {
+			if err := m.CreateEndpoint(userInfo, newEp.EndpointEntity); err != nil {
 				return nil, err
 			}
 		}
 	}
 
 	go func() {
-		peers, err := dao.NewQuery(ctx).GetWireGuardsByNetworkID(userInfo, uint(cfg.GetNetworkId()))
+		peers, err := q.GetWireGuardsByNetworkID(userInfo, uint(cfg.GetNetworkId()))
 		if err != nil {
 			log.WithError(err).Errorf("get wireguards by network id failed")
 			return
 		}
-		links, err := dao.NewQuery(ctx).ListWireGuardLinksByNetwork(userInfo, uint(cfg.GetNetworkId()))
+		links, err := q.ListWireGuardLinksByNetwork(userInfo, uint(cfg.GetNetworkId()))
 		if err != nil {
 			log.WithError(err).Errorf("get wireguard links by network id failed")
 			return

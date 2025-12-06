@@ -16,7 +16,44 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (q *queryImpl) GetProxyStatsByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyStatsEntity, error) {
+type ProxyQuery interface {
+	GetProxyStatsByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyStatsEntity, error)
+	GetProxyStatsByServerID(userInfo models.UserInfo, serverID string) ([]*models.ProxyStatsEntity, error)
+	AdminGetTenantProxyStats(tenantID int) ([]*models.ProxyStatsEntity, error)
+	AdminGetAllProxyStats(tx *gorm.DB) ([]*models.ProxyStatsEntity, error)
+	AdminGetProxyConfigByClientIDAndName(clientID string, name string) (*models.ProxyConfig, error)
+	GetProxyConfigsByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyConfigEntity, error)
+	GetProxyConfigByFilter(userInfo models.UserInfo, proxyConfig *models.ProxyConfigEntity) (*models.ProxyConfig, error)
+	ListProxyConfigsWithFilters(userInfo models.UserInfo, page, pageSize int, filters *models.ProxyConfigEntity) ([]*models.ProxyConfig, error)
+	AdminListProxyConfigsWithFilters(filters *models.ProxyConfigEntity) ([]*models.ProxyConfig, error)
+	ListProxyConfigsWithFiltersAndKeyword(userInfo models.UserInfo, page, pageSize int, filters *models.ProxyConfigEntity, keyword string) ([]*models.ProxyConfig, error)
+	ListProxyConfigsWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ProxyConfig, error)
+	ListProxyConfigs(userInfo models.UserInfo, page, pageSize int) ([]*models.ProxyConfig, error)
+	GetProxyConfigByOriginClientIDAndName(userInfo models.UserInfo, clientID string, name string) (*models.ProxyConfig, error)
+	CountProxyConfigs(userInfo models.UserInfo) (int64, error)
+	CountProxyConfigsWithFilters(userInfo models.UserInfo, filters *models.ProxyConfigEntity) (int64, error)
+	CountProxyConfigsWithFiltersAndKeyword(userInfo models.UserInfo, filters *models.ProxyConfigEntity, keyword string) (int64, error)
+	GetProxyConfigsByWorkerId(userInfo models.UserInfo, workerID string) ([]*models.ProxyConfig, error)
+}
+
+type ProxyMutation interface {
+	AdminUpdateProxyStats(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error
+	AdminCreateProxyConfig(proxyCfg *models.ProxyConfig) error
+	RebuildProxyConfigFromClient(userInfo models.UserInfo, client *models.Client) error
+	CreateProxyConfig(userInfo models.UserInfo, proxyCfg *models.ProxyConfigEntity) error
+	UpdateProxyConfig(userInfo models.UserInfo, proxyCfg *models.ProxyConfig) error
+	DeleteProxyConfig(userInfo models.UserInfo, clientID, name string) error
+	DeleteProxyConfigsByClientIDOrOriginClientID(userInfo models.UserInfo, clientID string) error
+	DeleteProxyConfigsByClientID(userInfo models.UserInfo, clientID string) error
+}
+
+type proxyQuery struct{ *queryImpl }
+type proxyMutation struct{ *mutationImpl }
+
+func newProxyQuery(base *queryImpl) ProxyQuery          { return &proxyQuery{base} }
+func newProxyMutation(base *mutationImpl) ProxyMutation { return &proxyMutation{base} }
+
+func (q *proxyQuery) GetProxyStatsByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyStatsEntity, error) {
 	if clientID == "" {
 		return nil, fmt.Errorf("invalid client id")
 	}
@@ -52,7 +89,7 @@ func (q *queryImpl) GetProxyStatsByClientID(userInfo models.UserInfo, clientID s
 	}), nil
 }
 
-func (q *queryImpl) GetProxyStatsByServerID(userInfo models.UserInfo, serverID string) ([]*models.ProxyStatsEntity, error) {
+func (q *proxyQuery) GetProxyStatsByServerID(userInfo models.UserInfo, serverID string) ([]*models.ProxyStatsEntity, error) {
 	if serverID == "" {
 		return nil, fmt.Errorf("invalid server id")
 	}
@@ -77,12 +114,12 @@ func (q *queryImpl) GetProxyStatsByServerID(userInfo models.UserInfo, serverID s
 	}), nil
 }
 
-func (q *queryImpl) AdminUpdateProxyStats(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
+func (m *proxyMutation) AdminUpdateProxyStats(srv *models.ServerEntity, inputs []*pb.ProxyInfo) error {
 	if srv.ServerID == "" {
 		return fmt.Errorf("invalid server id")
 	}
 
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		queryResults := make([]interface{}, 3)
@@ -201,7 +238,7 @@ func (q *queryImpl) AdminUpdateProxyStats(srv *models.ServerEntity, inputs []*pb
 	})
 }
 
-func (q *queryImpl) AdminGetTenantProxyStats(tenantID int) ([]*models.ProxyStatsEntity, error) {
+func (q *proxyQuery) AdminGetTenantProxyStats(tenantID int) ([]*models.ProxyStatsEntity, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	list := []*models.ProxyStats{}
 	err := db.
@@ -217,7 +254,7 @@ func (q *queryImpl) AdminGetTenantProxyStats(tenantID int) ([]*models.ProxyStats
 	}), nil
 }
 
-func (q *queryImpl) AdminGetAllProxyStats(tx *gorm.DB) ([]*models.ProxyStatsEntity, error) {
+func (q *proxyQuery) AdminGetAllProxyStats(tx *gorm.DB) ([]*models.ProxyStatsEntity, error) {
 	db := tx
 	list := []*models.ProxyStats{}
 	err := db.Clauses(clause.Locking{Strength: "UPDATE"}).
@@ -230,15 +267,16 @@ func (q *queryImpl) AdminGetAllProxyStats(tx *gorm.DB) ([]*models.ProxyStatsEnti
 	}), nil
 }
 
-func (q *queryImpl) AdminCreateProxyConfig(proxyCfg *models.ProxyConfig) error {
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+func (m *proxyMutation) AdminCreateProxyConfig(proxyCfg *models.ProxyConfig) error {
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Create(proxyCfg).Error
 }
 
 // RebuildProxyConfigFromClient rebuild proxy from client
 // skip stopped proxy
-func (q *queryImpl) RebuildProxyConfigFromClient(userInfo models.UserInfo, client *models.Client) error {
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+func (m *proxyMutation) RebuildProxyConfigFromClient(userInfo models.UserInfo, client *models.Client) error {
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
+	query := NewQuery(m.ctx)
 
 	pxyCfgs, err := utils.LoadProxiesFromContent(client.ConfigContent)
 	if err != nil {
@@ -251,7 +289,7 @@ func (q *queryImpl) RebuildProxyConfigFromClient(userInfo models.UserInfo, clien
 		proxyCfg := &models.ProxyConfig{
 			ProxyConfigEntity: &models.ProxyConfigEntity{},
 		}
-		if oldProxyCfg, err := q.GetProxyConfigByOriginClientIDAndName(userInfo, client.ClientID, pxyCfg.GetBaseConfig().Name); err == nil {
+		if oldProxyCfg, err := query.GetProxyConfigByOriginClientIDAndName(userInfo, client.ClientID, pxyCfg.GetBaseConfig().Name); err == nil {
 			logger.Logger(context.Background()).WithError(err).Warnf("proxy config already exist, will be override, clientID: [%s], name: [%s]",
 				client.ClientID, pxyCfg.GetBaseConfig().Name)
 			proxyCfg.Model = oldProxyCfg.Model
@@ -268,7 +306,7 @@ func (q *queryImpl) RebuildProxyConfigFromClient(userInfo models.UserInfo, clien
 		proxyConfigEntities = append(proxyConfigEntities, proxyCfg)
 	}
 
-	if err := q.DeleteProxyConfigsByClientIDOrOriginClientID(userInfo, client.ClientID); err != nil {
+	if err := m.DeleteProxyConfigsByClientIDOrOriginClientID(userInfo, client.ClientID); err != nil {
 		return err
 	}
 
@@ -279,7 +317,7 @@ func (q *queryImpl) RebuildProxyConfigFromClient(userInfo models.UserInfo, clien
 	return db.Save(proxyConfigEntities).Error
 }
 
-func (q *queryImpl) AdminGetProxyConfigByClientIDAndName(clientID string, name string) (*models.ProxyConfig, error) {
+func (q *proxyQuery) AdminGetProxyConfigByClientIDAndName(clientID string, name string) (*models.ProxyConfig, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	proxyCfg := &models.ProxyConfig{}
 	err := db.
@@ -294,7 +332,7 @@ func (q *queryImpl) AdminGetProxyConfigByClientIDAndName(clientID string, name s
 	return proxyCfg, nil
 }
 
-func (q *queryImpl) GetProxyConfigsByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyConfigEntity, error) {
+func (q *proxyQuery) GetProxyConfigsByClientID(userInfo models.UserInfo, clientID string) ([]*models.ProxyConfigEntity, error) {
 	if clientID == "" {
 		return nil, fmt.Errorf("invalid client id")
 	}
@@ -315,7 +353,7 @@ func (q *queryImpl) GetProxyConfigsByClientID(userInfo models.UserInfo, clientID
 	}), nil
 }
 
-func (q *queryImpl) GetProxyConfigByFilter(userInfo models.UserInfo, proxyConfig *models.ProxyConfigEntity) (*models.ProxyConfig, error) {
+func (q *proxyQuery) GetProxyConfigByFilter(userInfo models.UserInfo, proxyConfig *models.ProxyConfigEntity) (*models.ProxyConfig, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	filter := &models.ProxyConfigEntity{}
 
@@ -348,7 +386,7 @@ func (q *queryImpl) GetProxyConfigByFilter(userInfo models.UserInfo, proxyConfig
 	return respProxyCfg, nil
 }
 
-func (q *queryImpl) ListProxyConfigsWithFilters(userInfo models.UserInfo, page, pageSize int, filters *models.ProxyConfigEntity) ([]*models.ProxyConfig, error) {
+func (q *proxyQuery) ListProxyConfigsWithFilters(userInfo models.UserInfo, page, pageSize int, filters *models.ProxyConfigEntity) ([]*models.ProxyConfig, error) {
 	if page < 1 || pageSize < 1 {
 		return nil, fmt.Errorf("invalid page or page size")
 	}
@@ -370,7 +408,7 @@ func (q *queryImpl) ListProxyConfigsWithFilters(userInfo models.UserInfo, page, 
 	return proxyConfigs, nil
 }
 
-func (q *queryImpl) AdminListProxyConfigsWithFilters(filters *models.ProxyConfigEntity) ([]*models.ProxyConfig, error) {
+func (q *proxyQuery) AdminListProxyConfigsWithFilters(filters *models.ProxyConfigEntity) ([]*models.ProxyConfig, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 
 	var proxyConfigs []*models.ProxyConfig
@@ -384,7 +422,7 @@ func (q *queryImpl) AdminListProxyConfigsWithFilters(filters *models.ProxyConfig
 	return proxyConfigs, nil
 }
 
-func (q *queryImpl) ListProxyConfigsWithFiltersAndKeyword(userInfo models.UserInfo, page, pageSize int, filters *models.ProxyConfigEntity, keyword string) ([]*models.ProxyConfig, error) {
+func (q *proxyQuery) ListProxyConfigsWithFiltersAndKeyword(userInfo models.UserInfo, page, pageSize int, filters *models.ProxyConfigEntity, keyword string) ([]*models.ProxyConfig, error) {
 	if page < 1 || pageSize < 1 || len(keyword) == 0 {
 		return nil, fmt.Errorf("invalid page or page size or keyword")
 	}
@@ -406,26 +444,26 @@ func (q *queryImpl) ListProxyConfigsWithFiltersAndKeyword(userInfo models.UserIn
 	return proxyConfigs, nil
 }
 
-func (q *queryImpl) ListProxyConfigsWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ProxyConfig, error) {
+func (q *proxyQuery) ListProxyConfigsWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.ProxyConfig, error) {
 	return q.ListProxyConfigsWithFiltersAndKeyword(userInfo, page, pageSize, &models.ProxyConfigEntity{}, keyword)
 }
 
-func (q *queryImpl) ListProxyConfigs(userInfo models.UserInfo, page, pageSize int) ([]*models.ProxyConfig, error) {
+func (q *proxyQuery) ListProxyConfigs(userInfo models.UserInfo, page, pageSize int) ([]*models.ProxyConfig, error) {
 	return q.ListProxyConfigsWithFilters(userInfo, page, pageSize, &models.ProxyConfigEntity{})
 }
 
-func (q *queryImpl) CreateProxyConfig(userInfo models.UserInfo, proxyCfg *models.ProxyConfigEntity) error {
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+func (m *proxyMutation) CreateProxyConfig(userInfo models.UserInfo, proxyCfg *models.ProxyConfigEntity) error {
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	proxyCfg.UserID = userInfo.GetUserID()
 	proxyCfg.TenantID = userInfo.GetTenantID()
 	return db.Create(&models.ProxyConfig{ProxyConfigEntity: proxyCfg}).Error
 }
 
-func (q *queryImpl) UpdateProxyConfig(userInfo models.UserInfo, proxyCfg *models.ProxyConfig) error {
+func (m *proxyMutation) UpdateProxyConfig(userInfo models.UserInfo, proxyCfg *models.ProxyConfig) error {
 	if proxyCfg.ID == 0 {
 		return fmt.Errorf("invalid proxy config id")
 	}
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	proxyCfg.UserID = userInfo.GetUserID()
 	proxyCfg.TenantID = userInfo.GetTenantID()
 	return db.Where(&models.ProxyConfig{
@@ -440,11 +478,11 @@ func (q *queryImpl) UpdateProxyConfig(userInfo models.UserInfo, proxyCfg *models
 	}).Save(proxyCfg).Error
 }
 
-func (q *queryImpl) DeleteProxyConfig(userInfo models.UserInfo, clientID, name string) error {
+func (m *proxyMutation) DeleteProxyConfig(userInfo models.UserInfo, clientID, name string) error {
 	if clientID == "" || name == "" {
 		return fmt.Errorf("invalid client id or name")
 	}
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().
 		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
 			UserID:   userInfo.GetUserID(),
@@ -455,11 +493,11 @@ func (q *queryImpl) DeleteProxyConfig(userInfo models.UserInfo, clientID, name s
 		Delete(&models.ProxyConfig{}).Error
 }
 
-func (q *queryImpl) DeleteProxyConfigsByClientIDOrOriginClientID(userInfo models.UserInfo, clientID string) error {
+func (m *proxyMutation) DeleteProxyConfigsByClientIDOrOriginClientID(userInfo models.UserInfo, clientID string) error {
 	if clientID == "" {
 		return fmt.Errorf("invalid client id")
 	}
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().
 		Where(
 			db.Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
@@ -477,11 +515,11 @@ func (q *queryImpl) DeleteProxyConfigsByClientIDOrOriginClientID(userInfo models
 		Delete(&models.ProxyConfig{}).Error
 }
 
-func (q *queryImpl) DeleteProxyConfigsByClientID(userInfo models.UserInfo, clientID string) error {
+func (m *proxyMutation) DeleteProxyConfigsByClientID(userInfo models.UserInfo, clientID string) error {
 	if clientID == "" {
 		return fmt.Errorf("invalid client id")
 	}
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().
 		Where(&models.ProxyConfig{ProxyConfigEntity: &models.ProxyConfigEntity{
 			UserID:   userInfo.GetUserID(),
@@ -491,7 +529,7 @@ func (q *queryImpl) DeleteProxyConfigsByClientID(userInfo models.UserInfo, clien
 		Delete(&models.ProxyConfig{}).Error
 }
 
-func (q *queryImpl) GetProxyConfigByOriginClientIDAndName(userInfo models.UserInfo, clientID string, name string) (*models.ProxyConfig, error) {
+func (q *proxyQuery) GetProxyConfigByOriginClientIDAndName(userInfo models.UserInfo, clientID string, name string) (*models.ProxyConfig, error) {
 	if clientID == "" || name == "" {
 		return nil, fmt.Errorf("invalid client id or name")
 	}
@@ -511,11 +549,11 @@ func (q *queryImpl) GetProxyConfigByOriginClientIDAndName(userInfo models.UserIn
 	return item, nil
 }
 
-func (q *queryImpl) CountProxyConfigs(userInfo models.UserInfo) (int64, error) {
+func (q *proxyQuery) CountProxyConfigs(userInfo models.UserInfo) (int64, error) {
 	return q.CountProxyConfigsWithFilters(userInfo, &models.ProxyConfigEntity{})
 }
 
-func (q *queryImpl) CountProxyConfigsWithFilters(userInfo models.UserInfo, filters *models.ProxyConfigEntity) (int64, error) {
+func (q *proxyQuery) CountProxyConfigsWithFilters(userInfo models.UserInfo, filters *models.ProxyConfigEntity) (int64, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	filters.UserID = userInfo.GetUserID()
 	filters.TenantID = userInfo.GetTenantID()
@@ -530,7 +568,7 @@ func (q *queryImpl) CountProxyConfigsWithFilters(userInfo models.UserInfo, filte
 	return count, nil
 }
 
-func (q *queryImpl) CountProxyConfigsWithFiltersAndKeyword(userInfo models.UserInfo, filters *models.ProxyConfigEntity, keyword string) (int64, error) {
+func (q *proxyQuery) CountProxyConfigsWithFiltersAndKeyword(userInfo models.UserInfo, filters *models.ProxyConfigEntity, keyword string) (int64, error) {
 	if len(keyword) == 0 {
 		return q.CountProxyConfigsWithFilters(userInfo, filters)
 	}
@@ -549,7 +587,7 @@ func (q *queryImpl) CountProxyConfigsWithFiltersAndKeyword(userInfo models.UserI
 	return count, nil
 }
 
-func (q *queryImpl) GetProxyConfigsByWorkerId(userInfo models.UserInfo, workerID string) ([]*models.ProxyConfig, error) {
+func (q *proxyQuery) GetProxyConfigsByWorkerId(userInfo models.UserInfo, workerID string) ([]*models.ProxyConfig, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	items := []*models.ProxyConfig{}
 

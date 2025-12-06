@@ -36,7 +36,7 @@ func CreateNetwork(ctx *app.Context, req *pb.CreateNetworkRequest) (*pb.CreateNe
 		ACL:      models.JSON[*pb.AclConfig]{Data: req.GetNetwork().GetAcl()},
 	}
 
-	if err := dao.NewQuery(ctx).CreateNetwork(userInfo, entity); err != nil {
+	if err := dao.NewMutation(ctx).CreateNetwork(userInfo, entity); err != nil {
 		log.WithError(err).Errorf("create network error")
 		return nil, err
 	}

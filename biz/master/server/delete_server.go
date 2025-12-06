@@ -25,7 +25,7 @@ func DeleteServerHandler(c *app.Context, req *pb.DeleteServerRequest) (*pb.Delet
 		}, nil
 	}
 
-	if err := dao.NewQuery(c).DeleteServer(userInfo, userServerID); err != nil {
+	if err := dao.NewMutation(c).DeleteServer(userInfo, userServerID); err != nil {
 		return nil, err
 	}
 

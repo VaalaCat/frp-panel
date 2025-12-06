@@ -25,7 +25,7 @@ func RemoveFrpsHandler(c *app.Context, req *pb.RemoveFRPSRequest) (*pb.RemoveFRP
 		return nil, err
 	}
 
-	if err = dao.NewQuery(c).DeleteServer(userInfo, serverID); err != nil {
+	if err = dao.NewMutation(c).DeleteServer(userInfo, serverID); err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot delete server, id: [%s]", serverID)
 		return nil, err
 	}

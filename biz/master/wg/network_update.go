@@ -20,7 +20,7 @@ func UpdateNetwork(ctx *app.Context, req *pb.UpdateNetworkRequest) (*pb.UpdateNe
 		return nil, errors.New("invalid network")
 	}
 	entity := &models.NetworkEntity{Name: n.GetName(), CIDR: n.GetCidr(), ACL: models.JSON[*pb.AclConfig]{Data: n.GetAcl()}}
-	if err := dao.NewQuery(ctx).UpdateNetwork(userInfo, uint(n.GetId()), entity); err != nil {
+	if err := dao.NewMutation(ctx).UpdateNetwork(userInfo, uint(n.GetId()), entity); err != nil {
 		return nil, err
 	}
 

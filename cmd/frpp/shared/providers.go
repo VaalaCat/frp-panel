@@ -151,7 +151,7 @@ func NewDBManager(ctx *app.Context, appInstance app.Application) app.DBManager {
 }
 
 func NewMasterTLSConfig(ctx *app.Context) *tls.Config {
-	return dao.NewQuery(ctx).InitCert(conf.GetCertTemplate(ctx.GetApp().GetConfig()))
+	return dao.NewMutation(ctx).InitCert(conf.GetCertTemplate(ctx.GetApp().GetConfig()))
 }
 
 func NewTLSMasterService(appInstance app.Application, masterTLSConfig *tls.Config) master.MasterService {
@@ -250,7 +250,7 @@ func NewDefaultServerConfig(ctx *app.Context) conf.Config {
 
 	logger.Logger(ctx).Infof("init default internal server")
 
-	dao.NewQuery(ctx).InitDefaultServer(appInstance.GetConfig().Master.APIHost)
+	dao.NewMutation(ctx).InitDefaultServer(appInstance.GetConfig().Master.APIHost)
 	defaultServer, err := dao.NewQuery(ctx).GetDefaultServer()
 
 	if err != nil {

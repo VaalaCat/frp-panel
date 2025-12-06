@@ -41,7 +41,7 @@ func CollectDailyStats(appInstance app.Application) error {
 		}
 	})
 
-	if err := dao.NewQuery(ctx).AdminMSaveTodyStats(tx, proxyDailyStats); err != nil {
+	if err := dao.NewMutation(ctx).AdminMSaveTodyStats(tx, proxyDailyStats); err != nil {
 		logger.Logger(context.Background()).WithError(err).Error("CollectDailyStats cannot save stats")
 		return err
 	}

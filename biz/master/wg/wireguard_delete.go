@@ -23,13 +23,16 @@ func DeleteWireGuard(ctx *app.Context, req *pb.DeleteWireGuardRequest) (*pb.Dele
 		return &pb.DeleteWireGuardResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "invalid id"}}, nil
 	}
 
-	wgToDelete, err := dao.NewQuery(ctx).GetWireGuardByID(userInfo, id)
+	q := dao.NewQuery(ctx)
+	m := dao.NewMutation(ctx)
+
+	wgToDelete, err := q.GetWireGuardByID(userInfo, id)
 	if err != nil {
 		log.WithError(err).Errorf("get wireguard by id failed")
 		return nil, err
 	}
 
-	if err := dao.NewQuery(ctx).DeleteWireGuard(userInfo, id); err != nil {
+	if err := m.DeleteWireGuard(userInfo, id); err != nil {
 		log.WithError(err).Errorf("delete wireguard failed")
 		return nil, err
 	}
@@ -51,7 +54,7 @@ func DeleteWireGuard(ctx *app.Context, req *pb.DeleteWireGuardRequest) (*pb.Dele
 			log.Errorf("cannot get response, client id: [%s]", wgToDelete.ClientID)
 		}
 
-		peers, err := dao.NewQuery(ctx).GetWireGuardsByNetworkID(userInfo, uint(wgToDelete.NetworkID))
+		peers, err := q.GetWireGuardsByNetworkID(userInfo, uint(wgToDelete.NetworkID))
 		if err != nil {
 			log.WithError(err).Errorf("get wireguards by network id failed")
 			return
@@ -62,7 +65,7 @@ func DeleteWireGuard(ctx *app.Context, req *pb.DeleteWireGuardRequest) (*pb.Dele
 			return
 		}
 
-		links, err := dao.NewQuery(ctx).ListWireGuardLinksByNetwork(userInfo, uint(wgToDelete.NetworkID))
+		links, err := q.ListWireGuardLinksByNetwork(userInfo, uint(wgToDelete.NetworkID))
 		if err != nil {
 			log.WithError(err).Errorf("get wireguard links by network id failed")
 			return

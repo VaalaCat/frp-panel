@@ -7,7 +7,27 @@ import (
 	"gorm.io/gorm"
 )
 
-func (q *queryImpl) CreateEndpoint(userInfo models.UserInfo, endpoint *models.EndpointEntity) error {
+type EndpointQuery interface {
+	GetEndpointByID(userInfo models.UserInfo, id uint) (*models.Endpoint, error)
+	ListEndpoints(userInfo models.UserInfo, page, pageSize int) ([]*models.Endpoint, error)
+	CountEndpoints(userInfo models.UserInfo) (int64, error)
+	ListEndpointsWithFilters(userInfo models.UserInfo, page, pageSize int, clientID string, wireguardID uint, keyword string) ([]*models.Endpoint, error)
+	CountEndpointsWithFilters(userInfo models.UserInfo, clientID string, wireguardID uint, keyword string) (int64, error)
+}
+
+type EndpointMutation interface {
+	CreateEndpoint(userInfo models.UserInfo, endpoint *models.EndpointEntity) error
+	UpdateEndpoint(userInfo models.UserInfo, id uint, endpoint *models.EndpointEntity) error
+	DeleteEndpoint(userInfo models.UserInfo, id uint) error
+}
+
+type endpointQuery struct{ *queryImpl }
+type endpointMutation struct{ *mutationImpl }
+
+func newEndpointQuery(base *queryImpl) EndpointQuery          { return &endpointQuery{base} }
+func newEndpointMutation(base *mutationImpl) EndpointMutation { return &endpointMutation{base} }
+
+func (m *endpointMutation) CreateEndpoint(userInfo models.UserInfo, endpoint *models.EndpointEntity) error {
 	if endpoint == nil {
 		return fmt.Errorf("invalid endpoint entity")
 	}
@@ -15,29 +35,29 @@ func (q *queryImpl) CreateEndpoint(userInfo models.UserInfo, endpoint *models.En
 		return fmt.Errorf("invalid endpoint host or port")
 	}
 	// scope via parent wireguard/client
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Create(&models.Endpoint{EndpointEntity: endpoint}).Error
 }
 
-func (q *queryImpl) UpdateEndpoint(userInfo models.UserInfo, id uint, endpoint *models.EndpointEntity) error {
+func (m *endpointMutation) UpdateEndpoint(userInfo models.UserInfo, id uint, endpoint *models.EndpointEntity) error {
 	if id == 0 || endpoint == nil {
 		return fmt.Errorf("invalid endpoint id or entity")
 	}
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Where(&models.Endpoint{
 		Model: gorm.Model{ID: id},
 	}).Save(&models.Endpoint{Model: gorm.Model{ID: id}, EndpointEntity: endpoint}).Error
 }
 
-func (q *queryImpl) DeleteEndpoint(userInfo models.UserInfo, id uint) error {
+func (m *endpointMutation) DeleteEndpoint(userInfo models.UserInfo, id uint) error {
 	if id == 0 {
 		return fmt.Errorf("invalid endpoint id")
 	}
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().Where(&models.Endpoint{Model: gorm.Model{ID: id}}).Delete(&models.Endpoint{}).Error
 }
 
-func (q *queryImpl) GetEndpointByID(userInfo models.UserInfo, id uint) (*models.Endpoint, error) {
+func (q *endpointQuery) GetEndpointByID(userInfo models.UserInfo, id uint) (*models.Endpoint, error) {
 	if id == 0 {
 		return nil, fmt.Errorf("invalid endpoint id")
 	}
@@ -49,7 +69,7 @@ func (q *queryImpl) GetEndpointByID(userInfo models.UserInfo, id uint) (*models.
 	return &e, nil
 }
 
-func (q *queryImpl) ListEndpoints(userInfo models.UserInfo, page, pageSize int) ([]*models.Endpoint, error) {
+func (q *endpointQuery) ListEndpoints(userInfo models.UserInfo, page, pageSize int) ([]*models.Endpoint, error) {
 	if page < 1 || pageSize < 1 {
 		return nil, fmt.Errorf("invalid page or page size")
 	}
@@ -62,7 +82,7 @@ func (q *queryImpl) ListEndpoints(userInfo models.UserInfo, page, pageSize int) 
 	return list, nil
 }
 
-func (q *queryImpl) CountEndpoints(userInfo models.UserInfo) (int64, error) {
+func (q *endpointQuery) CountEndpoints(userInfo models.UserInfo) (int64, error) {
 	var count int64
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	if err := db.Model(&models.Endpoint{}).Count(&count).Error; err != nil {
@@ -72,7 +92,7 @@ func (q *queryImpl) CountEndpoints(userInfo models.UserInfo) (int64, error) {
 }
 
 // ListEndpointsWithFilters 根据 clientID / wireguardID / keyword 过滤端点
-func (q *queryImpl) ListEndpointsWithFilters(userInfo models.UserInfo, page, pageSize int, clientID string, wireguardID uint, keyword string) ([]*models.Endpoint, error) {
+func (q *endpointQuery) ListEndpointsWithFilters(userInfo models.UserInfo, page, pageSize int, clientID string, wireguardID uint, keyword string) ([]*models.Endpoint, error) {
 	if page < 1 || pageSize < 1 {
 		return nil, fmt.Errorf("invalid page or page size")
 	}
@@ -80,7 +100,7 @@ func (q *queryImpl) ListEndpointsWithFilters(userInfo models.UserInfo, page, pag
 
 	// 若指定 clientID，先校验归属
 	if len(clientID) > 0 {
-		if _, err := q.GetClientByClientID(userInfo, clientID); err != nil {
+		if _, err := newClientQuery(q.queryImpl).GetClientByClientID(userInfo, clientID); err != nil {
 			return nil, err
 		}
 	}
@@ -103,11 +123,11 @@ func (q *queryImpl) ListEndpointsWithFilters(userInfo models.UserInfo, page, pag
 	return list, nil
 }
 
-func (q *queryImpl) CountEndpointsWithFilters(userInfo models.UserInfo, clientID string, wireguardID uint, keyword string) (int64, error) {
+func (q *endpointQuery) CountEndpointsWithFilters(userInfo models.UserInfo, clientID string, wireguardID uint, keyword string) (int64, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 
 	if len(clientID) > 0 {
-		if _, err := q.GetClientByClientID(userInfo, clientID); err != nil {
+		if _, err := newClientQuery(q.queryImpl).GetClientByClientID(userInfo, clientID); err != nil {
 			return 0, err
 		}
 	}

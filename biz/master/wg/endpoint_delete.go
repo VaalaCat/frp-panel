@@ -18,7 +18,7 @@ func DeleteEndpoint(ctx *app.Context, req *pb.DeleteEndpointRequest) (*pb.Delete
 	if id == 0 {
 		return nil, errors.New("invalid id")
 	}
-	if err := dao.NewQuery(ctx).DeleteEndpoint(userInfo, id); err != nil {
+	if err := dao.NewMutation(ctx).DeleteEndpoint(userInfo, id); err != nil {
 		return nil, err
 	}
 	return &pb.DeleteEndpointResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"}}, nil

@@ -22,7 +22,10 @@ func UpdateWorker(ctx *app.Context, req *pb.UpdateWorkerRequest) (*pb.UpdateWork
 		oldClientIds []string
 	)
 
-	workerToUpdate, err := dao.NewQuery(ctx).GetWorkerByWorkerID(userInfo, wrokerReq.GetWorkerId())
+	q := dao.NewQuery(ctx)
+	m := dao.NewMutation(ctx)
+
+	workerToUpdate, err := q.GetWorkerByWorkerID(userInfo, wrokerReq.GetWorkerId())
 	if err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot get worker, id: [%s]", wrokerReq.GetWorkerId())
 		return nil, fmt.Errorf("cannot get worker, id: [%s]", wrokerReq.GetWorkerId())
@@ -30,7 +33,7 @@ func UpdateWorker(ctx *app.Context, req *pb.UpdateWorkerRequest) (*pb.UpdateWork
 
 	clis := []*models.Client{}
 	if len(clientIds) != 0 {
-		clis, err = dao.NewQuery(ctx).GetClientsByClientIDs(userInfo, clientIds)
+		clis, err = q.GetClientsByClientIDs(userInfo, clientIds)
 		if err != nil {
 			logger.Logger(ctx).WithError(err).Errorf("cannot get client, id: [%s]", utils.MarshalForJson(clientIds))
 			return nil, fmt.Errorf("cannot get client, id: [%s]", utils.MarshalForJson(clientIds))
@@ -64,7 +67,7 @@ func UpdateWorker(ctx *app.Context, req *pb.UpdateWorkerRequest) (*pb.UpdateWork
 		updatedFields = append(updatedFields, "config_template")
 	}
 
-	if err := dao.NewQuery(ctx).UpdateWorker(userInfo, workerToUpdate); err != nil {
+	if err := m.UpdateWorker(userInfo, workerToUpdate); err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot update worker, id: [%s]", wrokerReq.GetWorkerId())
 		return nil, fmt.Errorf("cannot update worker, id: [%s]", wrokerReq.GetWorkerId())
 	}

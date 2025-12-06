@@ -56,7 +56,7 @@ func RegisterHandler(c *app.Context, req *pb.RegisterRequest) (*pb.RegisterRespo
 		newUser.Role = defs.UserRole_Admin
 	}
 
-	err = dao.NewQuery(c).CreateUser(newUser)
+	err = dao.NewMutation(c).CreateUser(newUser)
 	if err != nil {
 		return &pb.RegisterResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},

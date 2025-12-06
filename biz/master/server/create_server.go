@@ -31,7 +31,7 @@ func InitServerHandler(c *app.Context, req *pb.InitServerRequest) (*pb.InitServe
 
 	globalServerID := app.GlobalClientID(userInfo.GetUserName(), "s", userServerID)
 
-	if err := dao.NewQuery(c).CreateServer(userInfo,
+	if err := dao.NewMutation(c).CreateServer(userInfo,
 		&models.ServerEntity{
 			ServerID:      globalServerID,
 			TenantID:      userInfo.GetTenantID(),

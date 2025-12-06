@@ -47,7 +47,7 @@ func UpdateUserInfoHander(c *app.Context, req *pb.UpdateUserInfoRequest) (*pb.Up
 		newUserEntity.Token = newUserInfo.GetToken()
 	}
 
-	if err := dao.NewQuery(c).UpdateUser(userInfo, newUserEntity); err != nil {
+	if err := dao.NewMutation(c).UpdateUser(userInfo, newUserEntity); err != nil {
 		return &pb.UpdateUserInfoResponse{
 			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: err.Error()},
 		}, err

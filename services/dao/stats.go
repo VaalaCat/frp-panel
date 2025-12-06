@@ -11,12 +11,29 @@ const (
 	MSetBatchSize = 100
 )
 
-func (q *queryImpl) AdminSaveTodyStats(s *models.HistoryProxyStats) error {
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+type StatsQuery interface {
+	GetHistoryStatsByProxyID(userInfo models.UserInfo, proxyID int) ([]*models.HistoryProxyStats, error)
+	GetHistoryStatsByClientID(userInfo models.UserInfo, clientID string) ([]*models.HistoryProxyStats, error)
+	GetHistoryStatsByServerID(userInfo models.UserInfo, serverID string) ([]*models.HistoryProxyStats, error)
+}
+
+type StatsMutation interface {
+	AdminSaveTodyStats(s *models.HistoryProxyStats) error
+	AdminMSaveTodyStats(tx *gorm.DB, s []*models.HistoryProxyStats) error
+}
+
+type statsQuery struct{ *queryImpl }
+type statsMutation struct{ *mutationImpl }
+
+func newStatsQuery(base *queryImpl) StatsQuery          { return &statsQuery{base} }
+func newStatsMutation(base *mutationImpl) StatsMutation { return &statsMutation{base} }
+
+func (m *statsMutation) AdminSaveTodyStats(s *models.HistoryProxyStats) error {
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Save(s).Error
 }
 
-func (q *queryImpl) AdminMSaveTodyStats(tx *gorm.DB, s []*models.HistoryProxyStats) error {
+func (m *statsMutation) AdminMSaveTodyStats(tx *gorm.DB, s []*models.HistoryProxyStats) error {
 	if len(s) == 0 {
 		return nil
 	}
@@ -31,7 +48,7 @@ func (q *queryImpl) AdminMSaveTodyStats(tx *gorm.DB, s []*models.HistoryProxySta
 	return nil
 }
 
-func (q *queryImpl) GetHistoryStatsByProxyID(userInfo models.UserInfo, proxyID int) ([]*models.HistoryProxyStats, error) {
+func (q *statsQuery) GetHistoryStatsByProxyID(userInfo models.UserInfo, proxyID int) ([]*models.HistoryProxyStats, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var stats []*models.HistoryProxyStats
 	err := db.Where(&models.HistoryProxyStats{
@@ -45,7 +62,7 @@ func (q *queryImpl) GetHistoryStatsByProxyID(userInfo models.UserInfo, proxyID i
 	return stats, nil
 }
 
-func (q *queryImpl) GetHistoryStatsByClientID(userInfo models.UserInfo, clientID string) ([]*models.HistoryProxyStats, error) {
+func (q *statsQuery) GetHistoryStatsByClientID(userInfo models.UserInfo, clientID string) ([]*models.HistoryProxyStats, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var stats []*models.HistoryProxyStats
 	err := db.Where(&models.HistoryProxyStats{
@@ -59,7 +76,7 @@ func (q *queryImpl) GetHistoryStatsByClientID(userInfo models.UserInfo, clientID
 	return stats, nil
 }
 
-func (q *queryImpl) GetHistoryStatsByServerID(userInfo models.UserInfo, serverID string) ([]*models.HistoryProxyStats, error) {
+func (q *statsQuery) GetHistoryStatsByServerID(userInfo models.UserInfo, serverID string) ([]*models.HistoryProxyStats, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var stats []*models.HistoryProxyStats
 	err := db.Where(&models.HistoryProxyStats{

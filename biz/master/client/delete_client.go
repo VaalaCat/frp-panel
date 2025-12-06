@@ -29,11 +29,11 @@ func DeleteClientHandler(ctx *app.Context, req *pb.DeleteClientRequest) (*pb.Del
 		}, nil
 	}
 
-	if err := dao.NewQuery(ctx).DeleteClient(userInfo, clientID); err != nil {
+	if err := dao.NewMutation(ctx).DeleteClient(userInfo, clientID); err != nil {
 		return nil, err
 	}
 
-	if err := dao.NewQuery(ctx).DeleteProxyConfigsByClientIDOrOriginClientID(userInfo, clientID); err != nil {
+	if err := dao.NewMutation(ctx).DeleteProxyConfigsByClientIDOrOriginClientID(userInfo, clientID); err != nil {
 		return nil, err
 	}
 
