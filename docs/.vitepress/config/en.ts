@@ -9,12 +9,20 @@ export const enConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
     sidebar: [
       {
         text: "Quick Start",
-        collapsed: true,
+        collapsed: false,
         link: "/en/quick-start",
         items: [
           { text: "Master Deployment", link: "/en/deploy-master" },
           { text: "Server Deployment", link: "/en/deploy-server" },
           { text: "Client Deployment", link: "/en/deploy-client" },
+        ],
+      },
+      {
+        text: "Advanced Usage",
+        collapsed: false,
+        link: "/en/wireguard",
+        items: [
+          { text: "WireGuard Multi-Hop Networking", link: "/en/wireguard" },
         ],
       },
       {

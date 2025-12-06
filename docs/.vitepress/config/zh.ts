@@ -19,6 +19,14 @@ export const zhConfig: LocaleSpecificConfig<DefaultTheme.Config> = {
         ],
       },
       {
+        text: "进阶使用",
+        collapsed: false,
+        link: "/advanced-usage",
+        items: [
+          { text: "WireGuard 多跳智能组网", link: "/wireguard" },
+        ],
+      },
+      {
         text: "配置说明",
         collapsed: false,
         link: "/all-configs",
