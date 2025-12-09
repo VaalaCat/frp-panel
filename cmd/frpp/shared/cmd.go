@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
@@ -410,19 +411,50 @@ func warnDepParam(cmd *cobra.Command) {
 	}
 }
 
+// sanitizeArgs removes duplicated executable paths that some runtimes push as the first argument.
+func sanitizeArgs(raw []string) []string {
+	if len(raw) == 0 {
+		return raw
+	}
+
+	first := raw[0]
+
+	if first == os.Args[0] {
+		return raw[1:]
+	}
+
+	execPath, err := os.Executable()
+	if err == nil {
+		execBase := filepath.Base(execPath)
+		if first == execPath || filepath.Base(first) == execBase {
+			return raw[1:]
+		}
+	}
+
+	if filepath.Base(first) == filepath.Base(os.Args[0]) {
+		return raw[1:]
+	}
+
+	return raw
+}
+
 func SetMasterCommandIfNonePresent(rootCmd *cobra.Command) {
-	cmd, _, err := rootCmd.Find(os.Args[1:])
-	if err == nil && cmd.Use == rootCmd.Use && cmd.Flags().Parse(os.Args[1:]) != pflag.ErrHelp {
-		args := append([]string{"master"}, os.Args[1:]...)
-		rootCmd.SetArgs(args)
+	args := sanitizeArgs(os.Args[1:])
+	rootCmd.SetArgs(args)
+
+	cmd, _, err := rootCmd.Find(args)
+	if err == nil && cmd.Use == rootCmd.Use && cmd.Flags().Parse(args) != pflag.ErrHelp {
+		rootCmd.SetArgs(append([]string{"master"}, args...))
 	}
 }
 
 func SetClientCommandIfNonePresent(rootCmd *cobra.Command) {
-	cmd, _, err := rootCmd.Find(os.Args[1:])
-	if err == nil && cmd.Use == rootCmd.Use && cmd.Flags().Parse(os.Args[1:]) != pflag.ErrHelp {
-		args := append([]string{"client"}, os.Args[1:]...)
-		rootCmd.SetArgs(args)
+	args := sanitizeArgs(os.Args[1:])
+	rootCmd.SetArgs(args)
+
+	cmd, _, err := rootCmd.Find(args)
+	if err == nil && cmd.Use == rootCmd.Use && cmd.Flags().Parse(args) != pflag.ErrHelp {
+		rootCmd.SetArgs(append([]string{"client"}, args...))
 	}
 }
 
