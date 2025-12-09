@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	bizcommon "github.com/VaalaCat/frp-panel/biz/common"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -54,6 +55,7 @@ func BuildCommand(fs embed.FS) *cobra.Command {
 		NewStartServiceCmd(),
 		NewStopServiceCmd(),
 		NewRestartServiceCmd(),
+		NewUpgradeCmd(cfg),
 		NewVersionCmd(),
 	)
 }
@@ -339,6 +341,62 @@ func NewRestartServiceCmd() *cobra.Command {
 			utils.ControlSystemService(args, "restart", func() {})
 		},
 	}
+}
+
+func NewUpgradeCmd(cfg conf.Config) *cobra.Command {
+	upgradeCmd := &cobra.Command{
+		Use:   "upgrade",
+		Short: "自助升级 frp-panel 二进制",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+
+			version, _ := cmd.Flags().GetString("version")
+			githubProxy, _ := cmd.Flags().GetString("github-proxy")
+			httpProxy, _ := cmd.Flags().GetString("http-proxy")
+			binPath, _ := cmd.Flags().GetString("bin")
+			noBackup, _ := cmd.Flags().GetBool("no-backup")
+			skipServiceStop, _ := cmd.Flags().GetBool("no-service-stop")
+			serviceName, _ := cmd.Flags().GetString("service-name")
+			useGithubProxy, _ := cmd.Flags().GetBool("use-github-proxy")
+
+			if useGithubProxy && len(githubProxy) == 0 {
+				githubProxy = cfg.App.GithubProxyUrl
+			}
+			if len(httpProxy) == 0 {
+				httpProxy = cfg.HTTP_PROXY
+			}
+
+			opts := bizcommon.UpgradeOptions{
+				Version:        version,
+				GithubProxy:    githubProxy,
+				HTTPProxy:      httpProxy,
+				TargetPath:     binPath,
+				Backup:         !noBackup,
+				StopService:    !skipServiceStop,
+				ServiceName:    serviceName,
+				UseGithubProxy: useGithubProxy,
+			}
+
+			if err := bizcommon.UpgradeSelf(ctx, opts); err != nil {
+				logger.Logger(ctx).Errorf("升级失败: %v", err)
+				return err
+			}
+
+			logger.Logger(ctx).Info("升级完成，如为 systemd 服务请记得重启 frpp 服务生效")
+			return nil
+		},
+	}
+
+	upgradeCmd.Flags().StringP("version", "v", "latest", "target version, default latest")
+	upgradeCmd.Flags().Bool("use-github-proxy", false, "use github proxy when downloading release asset")
+	upgradeCmd.Flags().String("github-proxy", "", "github proxy prefix, e.g. https://ghfast.top/")
+	upgradeCmd.Flags().String("http-proxy", "", "http/https proxy for download, default HTTP_PROXY")
+	upgradeCmd.Flags().String("bin", "", "binary path to overwrite, default current running binary")
+	upgradeCmd.Flags().Bool("no-backup", false, "do not create .bak backup before overwrite")
+	upgradeCmd.Flags().Bool("no-service-stop", false, "do not stop systemd service before upgrade")
+	upgradeCmd.Flags().String("service-name", "frpp", "systemd service name to control")
+
+	return upgradeCmd
 }
 
 func NewVersionCmd() *cobra.Command {

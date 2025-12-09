@@ -57,7 +57,7 @@ If your Linux system has `/etc/sysctl.d`, run:
 ```bash
 echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-frp-panel.conf
 echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-frp-panel.conf
-echo 'net.ipv4.icmp_echo_ignore_all = 1' | sudo tee -a /etc/sysctl.d/99-frp-panel.conf
+echo 'net.ipv4.ping_group_range = 0 2147483647' | sudo tee -a /etc/sysctl.d/99-frp-panel.conf
 sudo sysctl -p /etc/sysctl.d/99-frp-panel.conf
 ```
 
@@ -66,7 +66,7 @@ Otherwise, use `/etc/sysctl.conf`:
 ```bash
 echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.conf
 echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.conf
-echo 'net.ipv4.icmp_echo_ignore_all = 1' | sudo tee -a /etc/sysctl.conf
+echo 'net.ipv4.ping_group_range = 0 2147483647' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p /etc/sysctl.conf
 ```
 
@@ -158,4 +158,3 @@ If you need two nodes to always connect directly, you have two options:
 
 1. Configure ACLs so the two nodes can only communicate via direct connections.
 2. Create a manual connection between them and set bandwidth to 1000 Mbps so they prefer a direct link.
-

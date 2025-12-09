@@ -56,14 +56,14 @@ frp-panel 目前内置了 wiregaurd-go 用于实现组网功能。并且实现�
 ```bash
 echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-frp-panel.conf
 echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-frp-panel.conf
-echo 'net.ipv4.icmp_echo_ignore_all = 1' | sudo tee -a /etc/sysctl.d/99-frp-panel.conf
+echo 'net.ipv4.ping_group_range = 0 2147483647' | sudo tee -a /etc/sysctl.d/99-frp-panel.conf
 sudo sysctl -p /etc/sysctl.d/99-frp-panel.conf
 ```
 否则, 使用 `/etc/sysctl.conf` 文件:
 ```bash
 echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.conf
 echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.conf
-echo 'net.ipv4.icmp_echo_ignore_all = 1' | sudo tee -a /etc/sysctl.conf
+echo 'net.ipv4.ping_group_range = 0 2147483647' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p /etc/sysctl.conf
 ```
 
