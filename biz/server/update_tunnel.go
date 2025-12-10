@@ -24,6 +24,8 @@ func UpdateFrpsHander(ctx *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFR
 		}, err
 	}
 
+	InjectAuthPlugin(ctx, s)
+
 	serverID := req.GetServerId()
 	if cli := ctx.GetApp().GetServerController().Get(serverID); cli != nil {
 		if !reflect.DeepEqual(cli.GetCommonCfg(), s) {
@@ -37,8 +39,6 @@ func UpdateFrpsHander(ctx *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFR
 			}, nil
 		}
 	}
-
-	InjectAuthPlugin(ctx, s)
 
 	ctx.GetApp().GetServerController().Add(serverID, server.NewServerHandler(s))
 	ctx.GetApp().GetServerController().Run(serverID)

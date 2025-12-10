@@ -45,6 +45,8 @@ func PullConfig(appInstance app.Application, serverID, serverSecret string) erro
 
 	ctrl := appInstance.GetServerController()
 
+	InjectAuthPlugin(ctx, s)
+
 	if t := ctrl.Get(serverID); t != nil {
 		if !reflect.DeepEqual(t.GetCommonCfg(), s) {
 			t.Stop()
@@ -55,8 +57,6 @@ func PullConfig(appInstance app.Application, serverID, serverSecret string) erro
 			return nil
 		}
 	}
-
-	InjectAuthPlugin(ctx, s)
 
 	ctrl.Add(serverID, server.NewServerHandler(s))
 	ctrl.Run(serverID)
