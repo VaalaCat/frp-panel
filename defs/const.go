@@ -65,6 +65,12 @@ const (
 const (
 	DefaultServerID    = "default"
 	DefaultAdminUserID = 1
+	DefaultServiceName = "frpp"
+)
+
+const (
+	LocalHost            = "127.0.0.1"
+	FRP_Plugin_Multiuser = "multiuser"
 )
 
 const (

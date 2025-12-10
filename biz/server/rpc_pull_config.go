@@ -4,15 +4,20 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/server"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
+	v1 "github.com/fatedier/frp/pkg/config/v1"
+	"github.com/samber/lo"
 )
 
 func PullConfig(appInstance app.Application, serverID, serverSecret string) error {
-	ctx := context.Background()
+	ctx := app.NewContext(context.Background(), appInstance)
+
 	logger.Logger(ctx).Infof("start to pull server config, serverID: [%s]", serverID)
 
 	cli := appInstance.GetMasterCli()
@@ -50,9 +55,22 @@ func PullConfig(appInstance app.Application, serverID, serverSecret string) erro
 			return nil
 		}
 	}
+
+	InjectAuthPlugin(ctx, s)
+
 	ctrl.Add(serverID, server.NewServerHandler(s))
 	ctrl.Run(serverID)
 
 	logger.Logger(ctx).Infof("pull server config success, serverID: [%s]", serverID)
 	return nil
+}
+
+func InjectAuthPlugin(ctx *app.Context, cfg *v1.ServerConfig) {
+	cfg.HTTPPlugins = lo.Filter(cfg.HTTPPlugins, func(item v1.HTTPPluginOptions, _ int) bool {
+		return item.Name != defs.FRP_Plugin_Multiuser
+	})
+	cfg.HTTPPlugins = append(
+		cfg.HTTPPlugins,
+		conf.FRPsAuthOption(ctx.GetApp().GetConfig()),
+	)
 }

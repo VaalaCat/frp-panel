@@ -183,7 +183,7 @@ func NewMasterCmd(cfg conf.Config, fs embed.FS) *cobra.Command {
 				}
 			}
 
-			if srv, err := utils.CreateSystemService(args, run); err != nil {
+			if srv, err := utils.CreateSystemService(defs.DefaultServiceName, args, run); err != nil {
 				run()
 			} else {
 				srv.Run()
@@ -225,7 +225,7 @@ func NewClientCmd(cfg conf.Config) *cobra.Command {
 					logger.Logger(context.Background()).Fatalf("clientApp FX Application Error: %v", err)
 				}
 			}
-			if srv, err := utils.CreateSystemService(args, run); err != nil {
+			if srv, err := utils.CreateSystemService(defs.DefaultServiceName, args, run); err != nil {
 				run()
 			} else {
 				srv.Run()
@@ -270,7 +270,7 @@ func NewServerCmd(cfg conf.Config) *cobra.Command {
 					logger.Logger(context.Background()).Fatalf("serverApp FX Application Error: %v", err)
 				}
 			}
-			if srv, err := utils.CreateSystemService(args, run); err != nil {
+			if srv, err := utils.CreateSystemService(defs.DefaultServiceName, args, run); err != nil {
 				run()
 			} else {
 				srv.Run()
@@ -290,7 +290,7 @@ func NewInstallServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "install", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "install", func() {})
 		},
 	}
 }
@@ -302,7 +302,7 @@ func NewUninstallServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "uninstall", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "uninstall", func() {})
 		},
 	}
 }
@@ -314,7 +314,7 @@ func NewStartServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "start", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "start", func() {})
 		},
 	}
 }
@@ -326,7 +326,7 @@ func NewStopServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "stop", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "stop", func() {})
 		},
 	}
 }
@@ -338,7 +338,7 @@ func NewRestartServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "restart", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "restart", func() {})
 		},
 	}
 }

@@ -35,14 +35,14 @@ func (ss *SystemService) iRun() {
 	ss.run()
 }
 
-func CreateSystemService(args []string, run func()) (service.Service, error) {
+func CreateSystemService(svcName string, args []string, run func()) (service.Service, error) {
 	currentPath, err := os.Executable()
 	if err != nil {
 		return nil, fmt.Errorf("get current path failed, err: %v", err)
 	}
 
 	svcConfig := &service.Config{
-		Name:             "frpp",
+		Name:             svcName,
 		DisplayName:      "frp-panel",
 		Description:      "this is frp-panel service, developed by [VaalaCat] - https://github.com/VaalaCat/frp-panel",
 		Arguments:        args,
@@ -60,11 +60,11 @@ func CreateSystemService(args []string, run func()) (service.Service, error) {
 	return s, nil
 }
 
-func ControlSystemService(args []string, action string, run func()) error {
+func ControlSystemService(svcName string, args []string, action string, run func()) error {
 	ctx := context.Background()
 
 	logger.Logger(ctx).Info("try to ", action, " service, args:", args)
-	s, err := CreateSystemService(args, run)
+	s, err := CreateSystemService(svcName, args, run)
 	if err != nil {
 		logger.Logger(ctx).WithError(err).Error("create service controller failed")
 		return err
