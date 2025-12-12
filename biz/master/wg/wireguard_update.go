@@ -62,11 +62,15 @@ func UpdateWireGuard(ctx *app.Context, req *pb.UpdateWireGuardRequest) (*pb.Upda
 			}
 			newSet[uint(exist.ID)] = struct{}{}
 		} else {
-			entity := &models.EndpointEntity{Host: ep.GetHost(), Port: ep.GetPort(), ClientID: cfg.GetClientId(), WireGuardID: uint(cfg.GetId())}
-			if err := m.CreateEndpoint(userInfo, entity); err != nil {
+
+			entity := &models.Endpoint{}
+			entity.FromPB(ep)
+			entity.WireGuardID = uint(cfg.GetId())
+			entity.ClientID = cfg.GetClientId()
+
+			if err := m.CreateEndpoint(userInfo, entity.EndpointEntity); err != nil {
 				return nil, err
 			}
-			// 无法获取新建 id，这里不加入 newSet；不影响后续解绑逻辑（仅解绑 current - new）
 		}
 	}
 
@@ -79,8 +83,10 @@ func UpdateWireGuard(ctx *app.Context, req *pb.UpdateWireGuardRequest) (*pb.Upda
 		if err != nil {
 			return nil, err
 		}
-		entity := &models.EndpointEntity{Host: exist.Host, Port: exist.Port, ClientID: exist.ClientID, WireGuardID: 0}
-		if err := m.UpdateEndpoint(userInfo, id, entity); err != nil {
+		entity := &models.Endpoint{}
+		entity.FromPB(exist.ToPB())
+		entity.WireGuardID = 0
+		if err := m.UpdateEndpoint(userInfo, id, entity.EndpointEntity); err != nil {
 			return nil, err
 		}
 	}

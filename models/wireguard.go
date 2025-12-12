@@ -88,6 +88,9 @@ func (w *WireGuard) AsBasePeerConfig(specifiedEndpoint *Endpoint) (*pb.WireGuard
 		PersistentKeepalive: 20,
 		Tags:                w.Tags,
 		VirtualIp:           addr.String(),
+		ListenPort:          w.ListenPort,
+		WsListenPort:        w.WsListenPort,
+		UseGvisorNet:        w.UseGvisorNet,
 	}
 
 	// 优先使用指定的 Endpoint
@@ -202,13 +205,13 @@ type Endpoint struct {
 }
 
 type EndpointEntity struct {
-	Host string `gorm:"uniqueIndex:idx_client_id_host_port"`
-	Port uint32 `gorm:"uniqueIndex:idx_client_id_host_port"`
+	Host string `gorm:"uniqueIndex:idx_client_id_host_port_type"`
+	Port uint32 `gorm:"uniqueIndex:idx_client_id_host_port_type"`
 	Uri  string
-	Type string `gorm:"type:varchar(255);index"`
+	Type string `gorm:"type:varchar(255);index;uniqueIndex:idx_client_id_host_port_type"`
 
 	WireGuardID uint   `gorm:"index"`
-	ClientID    string `gorm:"type:varchar(255);uniqueIndex:idx_client_id_host_port"`
+	ClientID    string `gorm:"type:varchar(255);uniqueIndex:idx_client_id_host_port_type"`
 }
 
 func (*Endpoint) TableName() string {
@@ -216,7 +219,7 @@ func (*Endpoint) TableName() string {
 }
 
 func (e *Endpoint) ToPB() *pb.Endpoint {
-	if e == nil {
+	if e == nil || e.EndpointEntity == nil {
 		return nil
 	}
 

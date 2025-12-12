@@ -85,7 +85,7 @@ func ListClientWorkers(ctx *app.Context, req *pb.ListClientWorkersRequest) (*pb.
 		}, fmt.Errorf("cannot list workers, clientId: [%s]", clientId)
 	}
 
-	logger.Logger(ctx).Infof("list workers, clientId: [%s], worker len: [%d]", clientId, len(workers))
+	logger.Logger(ctx).Debugf("list workers, clientId: [%s], worker len: [%d]", clientId, len(workers))
 
 	return &pb.ListClientWorkersResponse{
 		Status: &pb.Status{

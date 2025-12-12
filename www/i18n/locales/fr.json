@@ -246,8 +246,8 @@
       "button": "Nouveau point de terminaison"
     },
     "endpointTable": {
-      "type": "",
-      "uri": "",
+      "type": "Type de point de terminaison",
+      "uri": "URI de point de terminaison",
       "host": "Hôte",
       "wireguardId": "WireGuard",
       "clientId": "Client"
@@ -320,6 +320,7 @@
       "bandwidthUp": "Bande passante montante",
       "bandwidthDown": "Bande passante descendante",
       "endpoint": "Point de terminaison",
+      "routes": "Routes",
       "from": "De",
       "to": "À"
     },
@@ -433,6 +434,13 @@
       "endpointsTitle": "Points associés",
       "endpointsDesc": "Points de terminaison liés"
     },
+    "wireguardActions": {
+      "restart": "Redémarrer",
+      "view": "Voir",
+      "title": "Actions WireGuard",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
     "wireguardForm": {
       "interfaceName": "Nom de l'interface",
       "localAddress": "Adresse locale",
@@ -485,12 +493,6 @@
       "headerTotal_many": "{{count}} interfaces",
       "headerTotal_other": "{{count}} interfaces",
       "title": "WireGuard"
-    },
-    "wireguardActions": {
-      "view": "Voir",
-      "title": "Actions WireGuard",
-      "edit": "Modifier",
-      "delete": "Supprimer"
     },
     "wireguardDelete": {
       "confirm": "Confirmer la suppression ?"
@@ -623,9 +625,9 @@
       "type": "Type",
       "confirm": "Confirmer",
       "config": "Configuration du Tunnel",
-      "expand_one": "",
-      "expand_many": "",
-      "expand_other": "Développer",
+      "expand_one": "Développer un",
+      "expand_many": "Développer plusieurs",
+      "expand_other": "Développer d'autres",
       "delete": "Supprimer",
       "tunnel_name": "Nom du Tunnel",
       "type_label": "Type : [{{type}}]",

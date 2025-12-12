@@ -21,8 +21,8 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { deleteWireGuard } from '@/api/wg'
-import { DeleteWireGuardRequest } from '@/lib/pb/api_wg'
+import { deleteWireGuard, restartWireGuard } from '@/api/wg'
+import { DeleteWireGuardRequest, RestartWireGuardRequest } from '@/lib/pb/api_wg'
 import { toast } from 'sonner'
 import WireGuardEditDialog from './wireguard-edit-dialog'
 import { MoreHorizontal, ArrowUpRight, X, Check } from 'lucide-react'
@@ -152,6 +152,16 @@ export const WireGuardColumns: ColumnDef<WireGuardTableSchema>[] = [
 function WireGuardActions({ clientId, wg, onChanged }: { clientId: string; wg: WireGuardConfig; onChanged?: () => void }) {
 	const { t } = useTranslation()
 	const [openEdit, setOpenEdit] = useState(false)
+	const onRestart = async () => {
+		if (!wg.id) return
+		try {
+			await restartWireGuard(RestartWireGuardRequest.create({ id: wg.id }))
+			toast.success(t('common.success'))
+			onChanged?.()
+		} catch (e: any) {
+			toast.error(e.message)
+		}
+	}
 	const onDelete = async () => {
 		if (!wg.id) return
 		try {
@@ -181,6 +191,15 @@ function WireGuardActions({ clientId, wg, onChanged }: { clientId: string; wg: W
 							}}
 						>
 							{t('wg.wireguardActions.edit')}
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={(e) => {
+								e.preventDefault()
+								e.stopPropagation()
+								onRestart()
+							}}
+						>
+							{t('wg.wireguardActions.restart')}
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DialogTrigger asChild>

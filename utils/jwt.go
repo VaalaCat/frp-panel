@@ -54,12 +54,12 @@ func ParseToken(secretKey, tokenStr string) (u jwt.MapClaims, err error) {
 	})
 
 	if err != nil {
-		return nil, errors.New("couldn't handle this token")
+		return nil, errors.Join(errors.New("couldn't handle this token, token parse error"), err)
 	}
 
 	if t, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return t, nil
 	}
 
-	return nil, errors.New("couldn't handle this token")
+	return nil, errors.New("couldn't handle this token, is invalid")
 }

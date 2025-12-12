@@ -49,9 +49,10 @@ func DefaultRoutingPolicy(acl *ACL, networkTopologyCache app.NetworkTopologyCach
 }
 
 type AllowedIPsPlanner interface {
-	// Compute 基于拓扑与链路指标，计算每个节点应配置到直连邻居的 AllowedIPs，并返回节点ID->PeerConfig 列表。
+	// Compute 基于拓扑与链路指标，计算每个节点应配置到直连邻居的 AllowedIPs。
 	// 输入的 peers 应包含同一 Network 下的所有 WireGuard 节点，links 为其有向链路。
-	Compute(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]*pb.WireGuardPeerConfig, error)
+	// 返回节点ID->PeerConfig 列表，节点所有 ID->Edge 列表。
+	Compute(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]*pb.WireGuardPeerConfig, map[uint][]Edge, error)
 	// BuildGraph 基于拓扑与链路指标，计算每个节点应配置到直连邻居的 AllowedIPs，并返回节点ID->Edge 列表。
 	BuildGraph(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]Edge, error)
 	// BuildFinalGraph 最短路径算法，返回节点ID->Edge 列表。
@@ -66,13 +67,13 @@ func NewDijkstraAllowedIPsPlanner(policy RoutingPolicy) AllowedIPsPlanner {
 	return &dijkstraAllowedIPsPlanner{policy: policy}
 }
 
-func PlanAllowedIPs(peers []*models.WireGuard, links []*models.WireGuardLink, policy RoutingPolicy) (map[uint][]*pb.WireGuardPeerConfig, error) {
+func PlanAllowedIPs(peers []*models.WireGuard, links []*models.WireGuardLink, policy RoutingPolicy) (map[uint][]*pb.WireGuardPeerConfig, map[uint][]Edge, error) {
 	return NewDijkstraAllowedIPsPlanner(policy).Compute(peers, links)
 }
 
-func (p *dijkstraAllowedIPsPlanner) Compute(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]*pb.WireGuardPeerConfig, error) {
+func (p *dijkstraAllowedIPsPlanner) Compute(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]*pb.WireGuardPeerConfig, map[uint][]Edge, error) {
 	if len(peers) == 0 {
-		return map[uint][]*pb.WireGuardPeerConfig{}, nil
+		return map[uint][]*pb.WireGuardPeerConfig{}, map[uint][]Edge{}, nil
 	}
 
 	idToPeer, order := buildNodeIndex(peers)
@@ -80,10 +81,18 @@ func (p *dijkstraAllowedIPsPlanner) Compute(peers []*models.WireGuard, links []*
 	aggByNode, edgeInfoMap := runAllPairsDijkstra(order, adj, idToPeer, p.policy)
 	result, err := assemblePeerConfigs(order, aggByNode, edgeInfoMap, idToPeer)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	fillIsolates(order, result)
-	return result, nil
+
+	// 填充没有链路的节点
+	for _, id := range order {
+		if _, ok := adj[id]; !ok {
+			adj[id] = []Edge{}
+		}
+	}
+
+	return result, adj, nil
 }
 
 func (p *dijkstraAllowedIPsPlanner) BuildGraph(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]Edge, error) {
@@ -403,7 +412,7 @@ func assemblePeerConfigs(order []uint, aggByNode map[uint]map[uint]map[string]st
 
 			// 获取从 src 到 nextHop 的边信息，确定使用哪个 endpoint
 			var specifiedEndpoint *models.Endpoint
-			if edgeInfo, ok := edgeInfoMap[src][nextHop]; ok && edgeInfo != nil {
+			if edgeInfo, ok := edgeInfoMap[src][nextHop]; ok && edgeInfo != nil && edgeInfo.toEndpoint != nil {
 				specifiedEndpoint = edgeInfo.toEndpoint
 			}
 

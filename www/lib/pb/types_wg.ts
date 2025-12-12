@@ -60,6 +60,18 @@ export interface WireGuardPeerConfig {
      * @generated from protobuf field: string virtual_ip = 11;
      */
     virtualIp: string; // 节点虚拟 IP
+    /**
+     * @generated from protobuf field: uint32 listen_port = 12;
+     */
+    listenPort: number; // WireGuard 监听端口
+    /**
+     * @generated from protobuf field: uint32 ws_listen_port = 13;
+     */
+    wsListenPort: number; // WebSocket 监听端口
+    /**
+     * @generated from protobuf field: bool use_gvisor_net = 14;
+     */
+    useGvisorNet: boolean; // 是否使用 gvisor netstack
 }
 /**
  * WireGuardConfig wg 配置
@@ -131,6 +143,12 @@ export interface WireGuardConfig {
      * @generated from protobuf field: bool use_gvisor_net = 16;
      */
     useGvisorNet: boolean; // (可选) 是否使用 gvisor netstack，环境变量中的ture可以覆盖该配置
+    /**
+     * @generated from protobuf field: map<uint32, wireguard.WireGuardLinks> adjs = 17;
+     */
+    adjs: {
+        [key: number]: WireGuardLinks;
+    }; // 当前网络内所有节点ID->Edge 列表，全量图结构
 }
 /**
  * @generated from protobuf message wireguard.Endpoint
@@ -405,7 +423,10 @@ class WireGuardPeerConfig$Type extends MessageType<WireGuardPeerConfig> {
             { no: 8, name: "endpoint", kind: "message", T: () => Endpoint },
             { no: 9, name: "persistent_keepalive", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 10, name: "tags", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
-            { no: 11, name: "virtual_ip", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 11, name: "virtual_ip", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 12, name: "listen_port", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
+            { no: 13, name: "ws_listen_port", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
+            { no: 14, name: "use_gvisor_net", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<WireGuardPeerConfig>): WireGuardPeerConfig {
@@ -420,6 +441,9 @@ class WireGuardPeerConfig$Type extends MessageType<WireGuardPeerConfig> {
         message.persistentKeepalive = 0;
         message.tags = [];
         message.virtualIp = "";
+        message.listenPort = 0;
+        message.wsListenPort = 0;
+        message.useGvisorNet = false;
         if (value !== undefined)
             reflectionMergePartial<WireGuardPeerConfig>(this, message, value);
         return message;
@@ -461,6 +485,15 @@ class WireGuardPeerConfig$Type extends MessageType<WireGuardPeerConfig> {
                     break;
                 case /* string virtual_ip */ 11:
                     message.virtualIp = reader.string();
+                    break;
+                case /* uint32 listen_port */ 12:
+                    message.listenPort = reader.uint32();
+                    break;
+                case /* uint32 ws_listen_port */ 13:
+                    message.wsListenPort = reader.uint32();
+                    break;
+                case /* bool use_gvisor_net */ 14:
+                    message.useGvisorNet = reader.bool();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -507,6 +540,15 @@ class WireGuardPeerConfig$Type extends MessageType<WireGuardPeerConfig> {
         /* string virtual_ip = 11; */
         if (message.virtualIp !== "")
             writer.tag(11, WireType.LengthDelimited).string(message.virtualIp);
+        /* uint32 listen_port = 12; */
+        if (message.listenPort !== 0)
+            writer.tag(12, WireType.Varint).uint32(message.listenPort);
+        /* uint32 ws_listen_port = 13; */
+        if (message.wsListenPort !== 0)
+            writer.tag(13, WireType.Varint).uint32(message.wsListenPort);
+        /* bool use_gvisor_net = 14; */
+        if (message.useGvisorNet !== false)
+            writer.tag(14, WireType.Varint).bool(message.useGvisorNet);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -536,7 +578,8 @@ class WireGuardConfig$Type extends MessageType<WireGuardConfig> {
             { no: 13, name: "network_id", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 14, name: "tags", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
             { no: 15, name: "ws_listen_port", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
-            { no: 16, name: "use_gvisor_net", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
+            { no: 16, name: "use_gvisor_net", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 17, name: "adjs", kind: "map", K: 13 /*ScalarType.UINT32*/, V: { kind: "message", T: () => WireGuardLinks } }
         ]);
     }
     create(value?: PartialMessage<WireGuardConfig>): WireGuardConfig {
@@ -557,6 +600,7 @@ class WireGuardConfig$Type extends MessageType<WireGuardConfig> {
         message.tags = [];
         message.wsListenPort = 0;
         message.useGvisorNet = false;
+        message.adjs = {};
         if (value !== undefined)
             reflectionMergePartial<WireGuardConfig>(this, message, value);
         return message;
@@ -614,6 +658,9 @@ class WireGuardConfig$Type extends MessageType<WireGuardConfig> {
                 case /* bool use_gvisor_net */ 16:
                     message.useGvisorNet = reader.bool();
                     break;
+                case /* map<uint32, wireguard.WireGuardLinks> adjs */ 17:
+                    this.binaryReadMap17(message.adjs, reader, options);
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -624,6 +671,22 @@ class WireGuardConfig$Type extends MessageType<WireGuardConfig> {
             }
         }
         return message;
+    }
+    private binaryReadMap17(map: WireGuardConfig["adjs"], reader: IBinaryReader, options: BinaryReadOptions): void {
+        let len = reader.uint32(), end = reader.pos + len, key: keyof WireGuardConfig["adjs"] | undefined, val: WireGuardConfig["adjs"][any] | undefined;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case 1:
+                    key = reader.uint32();
+                    break;
+                case 2:
+                    val = WireGuardLinks.internalBinaryRead(reader, reader.uint32(), options);
+                    break;
+                default: throw new globalThis.Error("unknown map entry field for field wireguard.WireGuardConfig.adjs");
+            }
+        }
+        map[key ?? 0] = val ?? WireGuardLinks.create();
     }
     internalBinaryWrite(message: WireGuardConfig, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* uint32 id = 1; */
@@ -674,6 +737,13 @@ class WireGuardConfig$Type extends MessageType<WireGuardConfig> {
         /* bool use_gvisor_net = 16; */
         if (message.useGvisorNet !== false)
             writer.tag(16, WireType.Varint).bool(message.useGvisorNet);
+        /* map<uint32, wireguard.WireGuardLinks> adjs = 17; */
+        for (let k of globalThis.Object.keys(message.adjs)) {
+            writer.tag(17, WireType.LengthDelimited).fork().tag(1, WireType.Varint).uint32(parseInt(k));
+            writer.tag(2, WireType.LengthDelimited).fork();
+            WireGuardLinks.internalBinaryWrite(message.adjs[k as any], writer, options);
+            writer.join().join();
+        }
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

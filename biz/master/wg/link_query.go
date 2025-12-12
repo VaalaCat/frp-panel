@@ -68,13 +68,21 @@ func UpdateWireGuardLink(ctx *app.Context, req *pb.UpdateWireGuardLinkRequest) (
 		return nil, err
 	}
 
+	var newEp *models.Endpoint
+	if l.GetToEndpoint() != nil && l.GetToEndpoint().GetId() > 0 {
+		newEp, err = q.GetEndpointByID(userInfo, uint(l.GetToEndpoint().GetId()))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// 只能修改这些
 	m.Active = l.GetActive()
 	m.LatencyMs = l.GetLatencyMs()
 	m.UpBandwidthMbps = l.GetUpBandwidthMbps()
 	m.DownBandwidthMbps = l.GetDownBandwidthMbps()
 	if l.GetToEndpoint() != nil && l.GetToEndpoint().GetId() > 0 {
-		m.ToEndpointID = uint(l.GetToEndpoint().GetId())
+		m.ToEndpoint = newEp
 	}
 
 	if err := mut.UpdateWireGuardLink(userInfo, uint(l.GetId()), m); err != nil {

@@ -29,7 +29,7 @@ type server struct {
 }
 
 func (s *server) ReportWireGuardRuntimeInfo(ctx context.Context, req *pb.ReportWireGuardRuntimeInfoReq) (*pb.ReportWireGuardRuntimeInfoResp, error) {
-	logger.Logger(ctx).Infof("report wireguard runtime info, clientID: [%s], interfaceName: [%s]", req.GetBase().GetClientId(), req.GetInterfaceName())
+	logger.Logger(ctx).Debugf("report wireguard runtime info, clientID: [%s], interfaceName: [%s]", req.GetBase().GetClientId(), req.GetInterfaceName())
 	appCtx := app.NewContext(ctx, s.appInstance)
 
 	if client, err := client.ValidateClientRequest(appCtx, req.GetBase()); err != nil {
@@ -44,14 +44,14 @@ func (s *server) ReportWireGuardRuntimeInfo(ctx context.Context, req *pb.ReportW
 			},
 		}, nil
 	}
-	logger.Logger(appCtx).Infof("validate client success, clientID: [%s], interfaceName: [%s]", req.GetBase().GetClientId(), req.GetInterfaceName())
+	logger.Logger(appCtx).Debugf("validate client success, clientID: [%s], interfaceName: [%s]", req.GetBase().GetClientId(), req.GetInterfaceName())
 
 	return wg.ReportWireGuardRuntimeInfo(appCtx, req)
 }
 
 // ListClientWireGuards implements pb.MasterServer.
 func (s *server) ListClientWireGuards(ctx context.Context, req *pb.ListClientWireGuardsRequest) (*pb.ListClientWireGuardsResponse, error) {
-	logger.Logger(ctx).Infof("list client wire guards, clientID: [%s]", req.GetBase().GetClientId())
+	logger.Logger(ctx).Debugf("list client wire guards, clientID: [%s]", req.GetBase().GetClientId())
 	appCtx := app.NewContext(ctx, s.appInstance)
 
 	if client, err := client.ValidateClientRequest(appCtx, req.GetBase()); err != nil {
@@ -78,7 +78,7 @@ func (s *server) ListClientWireGuards(ctx context.Context, req *pb.ListClientWir
 
 // ListClientWorkers implements pb.MasterServer.
 func (s *server) ListClientWorkers(ctx context.Context, req *pb.ListClientWorkersRequest) (*pb.ListClientWorkersResponse, error) {
-	logger.Logger(ctx).Infof("list client workers, clientID: [%s]", req.GetBase().GetClientId())
+	logger.Logger(ctx).Debugf("list client workers, clientID: [%s]", req.GetBase().GetClientId())
 	appCtx := app.NewContext(ctx, s.appInstance)
 
 	if client, err := client.ValidateClientRequest(appCtx, req.GetBase()); err != nil {
@@ -94,7 +94,7 @@ func (s *server) ListClientWorkers(ctx context.Context, req *pb.ListClientWorker
 		}, nil
 	}
 
-	logger.Logger(appCtx).Infof("validate client success, clientID: [%s]", req.GetBase().GetClientId())
+	logger.Logger(appCtx).Debugf("validate client success, clientID: [%s]", req.GetBase().GetClientId())
 
 	return worker.ListClientWorkers(appCtx, req)
 }
@@ -125,19 +125,19 @@ func runRpcServer(appInstance app.Application, s *grpc.Server) {
 
 // PullClientConfig implements pb.MasterServer.
 func (s *server) PullClientConfig(ctx context.Context, req *pb.PullClientConfigReq) (*pb.PullClientConfigResp, error) {
-	logger.Logger(ctx).Infof("pull client config, clientID: [%+v]", req.GetBase().GetClientId())
+	logger.Logger(ctx).Debugf("pull client config, clientID: [%+v]", req.GetBase().GetClientId())
 	return client.RPCPullConfig(app.NewContext(ctx, s.appInstance), req)
 }
 
 // PullServerConfig implements pb.MasterServer.
 func (s *server) PullServerConfig(ctx context.Context, req *pb.PullServerConfigReq) (*pb.PullServerConfigResp, error) {
-	logger.Logger(ctx).Infof("pull server config, serverID: [%+v]", req.GetBase().GetServerId())
+	logger.Logger(ctx).Debugf("pull server config, serverID: [%+v]", req.GetBase().GetServerId())
 	return masterserver.RPCPullConfig(app.NewContext(ctx, s.appInstance), req)
 }
 
 // FRPCAuth implements pb.MasterServer.
 func (s *server) FRPCAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPAuthResponse, error) {
-	logger.Logger(ctx).Infof("frpc auth, user: [%+v] ,serverID: [%+v]", req.GetUser(), req.GetBase().GetServerId())
+	logger.Logger(ctx).Debugf("frpc auth, user: [%+v] ,serverID: [%+v]", req.GetUser(), req.GetBase().GetServerId())
 	return masterserver.FRPAuth(app.NewContext(ctx, s.appInstance), req)
 }
 
@@ -230,7 +230,7 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 
 // PushProxyInfo implements pb.MasterServer.
 func (s *server) PushProxyInfo(ctx context.Context, req *pb.PushProxyInfoReq) (*pb.PushProxyInfoResp, error) {
-	logger.Logger(ctx).Infof("push proxy info, req server: [%+v]", req.GetProxyInfos())
+	logger.Logger(ctx).Debugf("push proxy info, req server: [%+v]", req.GetProxyInfos())
 	return masterserver.PushProxyInfo(app.NewContext(ctx, s.appInstance), req)
 }
 

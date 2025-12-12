@@ -35,6 +35,9 @@ type WireGuardPeerConfig struct {
 	PersistentKeepalive uint32                 `protobuf:"varint,9,opt,name=persistent_keepalive,json=persistentKeepalive,proto3" json:"persistent_keepalive,omitempty"` // 可选
 	Tags                []string               `protobuf:"bytes,10,rep,name=tags,proto3" json:"tags,omitempty"`                                                          // 标签
 	VirtualIp           string                 `protobuf:"bytes,11,opt,name=virtual_ip,json=virtualIp,proto3" json:"virtual_ip,omitempty"`                               // 节点虚拟 IP
+	ListenPort          uint32                 `protobuf:"varint,12,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`                           // WireGuard 监听端口
+	WsListenPort        uint32                 `protobuf:"varint,13,opt,name=ws_listen_port,json=wsListenPort,proto3" json:"ws_listen_port,omitempty"`                   // WebSocket 监听端口
+	UseGvisorNet        bool                   `protobuf:"varint,14,opt,name=use_gvisor_net,json=useGvisorNet,proto3" json:"use_gvisor_net,omitempty"`                   // 是否使用 gvisor netstack
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -146,25 +149,47 @@ func (x *WireGuardPeerConfig) GetVirtualIp() string {
 	return ""
 }
 
+func (x *WireGuardPeerConfig) GetListenPort() uint32 {
+	if x != nil {
+		return x.ListenPort
+	}
+	return 0
+}
+
+func (x *WireGuardPeerConfig) GetWsListenPort() uint32 {
+	if x != nil {
+		return x.WsListenPort
+	}
+	return 0
+}
+
+func (x *WireGuardPeerConfig) GetUseGvisorNet() bool {
+	if x != nil {
+		return x.UseGvisorNet
+	}
+	return false
+}
+
 // WireGuardConfig wg 配置
 type WireGuardConfig struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Id                  uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	ClientId            string                 `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	UserId              uint32                 `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	TenantId            uint32                 `protobuf:"varint,4,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	InterfaceName       string                 `protobuf:"bytes,5,opt,name=interface_name,json=interfaceName,proto3" json:"interface_name,omitempty"`                    // WireGuard 网络接口的名称
-	PrivateKey          string                 `protobuf:"bytes,6,opt,name=private_key,json=privateKey,proto3" json:"private_key,omitempty"`                             // 接口的私钥
-	LocalAddress        string                 `protobuf:"bytes,7,opt,name=local_address,json=localAddress,proto3" json:"local_address,omitempty"`                       // 虚拟接口的 CIDR
-	ListenPort          uint32                 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`                            // (可选) WireGuard 监听端口，如果没有配置，则使用默认端口
-	InterfaceMtu        uint32                 `protobuf:"varint,9,opt,name=interface_mtu,json=interfaceMtu,proto3" json:"interface_mtu,omitempty"`                      // 可选
-	Peers               []*WireGuardPeerConfig `protobuf:"bytes,10,rep,name=peers,proto3" json:"peers,omitempty"`                                                        // Peer 列表
-	AdvertisedEndpoints []*Endpoint            `protobuf:"bytes,11,rep,name=advertised_endpoints,json=advertisedEndpoints,proto3" json:"advertised_endpoints,omitempty"` // (可选) 外部可连接的地址
-	DnsServers          []string               `protobuf:"bytes,12,rep,name=dns_servers,json=dnsServers,proto3" json:"dns_servers,omitempty"`                            // (可选) DNS 服务器列表
-	NetworkId           uint32                 `protobuf:"varint,13,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`                              // 归属的网络 ID
-	Tags                []string               `protobuf:"bytes,14,rep,name=tags,proto3" json:"tags,omitempty"`                                                          // 标签
-	WsListenPort        uint32                 `protobuf:"varint,15,opt,name=ws_listen_port,json=wsListenPort,proto3" json:"ws_listen_port,omitempty"`                   // (可选) WebSocket 监听端口，如果没有配置，则使用默认端口
-	UseGvisorNet        bool                   `protobuf:"varint,16,opt,name=use_gvisor_net,json=useGvisorNet,proto3" json:"use_gvisor_net,omitempty"`                   // (可选) 是否使用 gvisor netstack，环境变量中的ture可以覆盖该配置
+	state               protoimpl.MessageState     `protogen:"open.v1"`
+	Id                  uint32                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ClientId            string                     `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	UserId              uint32                     `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	TenantId            uint32                     `protobuf:"varint,4,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	InterfaceName       string                     `protobuf:"bytes,5,opt,name=interface_name,json=interfaceName,proto3" json:"interface_name,omitempty"`                                      // WireGuard 网络接口的名称
+	PrivateKey          string                     `protobuf:"bytes,6,opt,name=private_key,json=privateKey,proto3" json:"private_key,omitempty"`                                               // 接口的私钥
+	LocalAddress        string                     `protobuf:"bytes,7,opt,name=local_address,json=localAddress,proto3" json:"local_address,omitempty"`                                         // 虚拟接口的 CIDR
+	ListenPort          uint32                     `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`                                              // (可选) WireGuard 监听端口，如果没有配置，则使用默认端口
+	InterfaceMtu        uint32                     `protobuf:"varint,9,opt,name=interface_mtu,json=interfaceMtu,proto3" json:"interface_mtu,omitempty"`                                        // 可选
+	Peers               []*WireGuardPeerConfig     `protobuf:"bytes,10,rep,name=peers,proto3" json:"peers,omitempty"`                                                                          // Peer 列表
+	AdvertisedEndpoints []*Endpoint                `protobuf:"bytes,11,rep,name=advertised_endpoints,json=advertisedEndpoints,proto3" json:"advertised_endpoints,omitempty"`                   // (可选) 外部可连接的地址
+	DnsServers          []string                   `protobuf:"bytes,12,rep,name=dns_servers,json=dnsServers,proto3" json:"dns_servers,omitempty"`                                              // (可选) DNS 服务器列表
+	NetworkId           uint32                     `protobuf:"varint,13,opt,name=network_id,json=networkId,proto3" json:"network_id,omitempty"`                                                // 归属的网络 ID
+	Tags                []string                   `protobuf:"bytes,14,rep,name=tags,proto3" json:"tags,omitempty"`                                                                            // 标签
+	WsListenPort        uint32                     `protobuf:"varint,15,opt,name=ws_listen_port,json=wsListenPort,proto3" json:"ws_listen_port,omitempty"`                                     // (可选) WebSocket 监听端口，如果没有配置，则使用默认端口
+	UseGvisorNet        bool                       `protobuf:"varint,16,opt,name=use_gvisor_net,json=useGvisorNet,proto3" json:"use_gvisor_net,omitempty"`                                     // (可选) 是否使用 gvisor netstack，环境变量中的ture可以覆盖该配置
+	Adjs                map[uint32]*WireGuardLinks `protobuf:"bytes,17,rep,name=adjs,proto3" json:"adjs,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // 当前网络内所有节点ID->Edge 列表，全量图结构
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -309,6 +334,13 @@ func (x *WireGuardConfig) GetUseGvisorNet() bool {
 		return x.UseGvisorNet
 	}
 	return false
+}
+
+func (x *WireGuardConfig) GetAdjs() map[uint32]*WireGuardLinks {
+	if x != nil {
+		return x.Adjs
+	}
+	return nil
 }
 
 type Endpoint struct {
@@ -1013,7 +1045,7 @@ var File_types_wg_proto protoreflect.FileDescriptor
 
 const file_types_wg_proto_rawDesc = "" +
 	"\n" +
-	"\x0etypes_wg.proto\x12\twireguard\"\xf4\x02\n" +
+	"\x0etypes_wg.proto\x12\twireguard\"\xe1\x03\n" +
 	"\x13WireGuardPeerConfig\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1b\n" +
 	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12\x17\n" +
@@ -1029,7 +1061,11 @@ const file_types_wg_proto_rawDesc = "" +
 	"\x04tags\x18\n" +
 	" \x03(\tR\x04tags\x12\x1d\n" +
 	"\n" +
-	"virtual_ip\x18\v \x01(\tR\tvirtualIp\"\xc5\x04\n" +
+	"virtual_ip\x18\v \x01(\tR\tvirtualIp\x12\x1f\n" +
+	"\vlisten_port\x18\f \x01(\rR\n" +
+	"listenPort\x12$\n" +
+	"\x0ews_listen_port\x18\r \x01(\rR\fwsListenPort\x12$\n" +
+	"\x0euse_gvisor_net\x18\x0e \x01(\bR\fuseGvisorNet\"\xd3\x05\n" +
 	"\x0fWireGuardConfig\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1b\n" +
 	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12\x17\n" +
@@ -1051,7 +1087,11 @@ const file_types_wg_proto_rawDesc = "" +
 	"network_id\x18\r \x01(\rR\tnetworkId\x12\x12\n" +
 	"\x04tags\x18\x0e \x03(\tR\x04tags\x12$\n" +
 	"\x0ews_listen_port\x18\x0f \x01(\rR\fwsListenPort\x12$\n" +
-	"\x0euse_gvisor_net\x18\x10 \x01(\bR\fuseGvisorNet\"\xa8\x01\n" +
+	"\x0euse_gvisor_net\x18\x10 \x01(\bR\fuseGvisorNet\x128\n" +
+	"\x04adjs\x18\x11 \x03(\v2$.wireguard.WireGuardConfig.AdjsEntryR\x04adjs\x1aR\n" +
+	"\tAdjsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\rR\x03key\x12/\n" +
+	"\x05value\x18\x02 \x01(\v2\x19.wireguard.WireGuardLinksR\x05value:\x028\x01\"\xa8\x01\n" +
 	"\bEndpoint\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x12\n" +
@@ -1153,7 +1193,7 @@ func file_types_wg_proto_rawDescGZIP() []byte {
 	return file_types_wg_proto_rawDescData
 }
 
-var file_types_wg_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_types_wg_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_types_wg_proto_goTypes = []any{
 	(*WireGuardPeerConfig)(nil), // 0: wireguard.WireGuardPeerConfig
 	(*WireGuardConfig)(nil),     // 1: wireguard.WireGuardConfig
@@ -1165,34 +1205,37 @@ var file_types_wg_proto_goTypes = []any{
 	(*AclRuleConfig)(nil),       // 7: wireguard.AclRuleConfig
 	(*WGPeerRuntimeInfo)(nil),   // 8: wireguard.WGPeerRuntimeInfo
 	(*WGDeviceRuntimeInfo)(nil), // 9: wireguard.WGDeviceRuntimeInfo
-	nil,                         // 10: wireguard.WGPeerRuntimeInfo.ExtraEntry
-	nil,                         // 11: wireguard.WGDeviceRuntimeInfo.PingMapEntry
-	nil,                         // 12: wireguard.WGDeviceRuntimeInfo.VirtAddrPingMapEntry
-	nil,                         // 13: wireguard.WGDeviceRuntimeInfo.PeerVirtAddrMapEntry
-	nil,                         // 14: wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntry
-	nil,                         // 15: wireguard.WGDeviceRuntimeInfo.ExtraEntry
+	nil,                         // 10: wireguard.WireGuardConfig.AdjsEntry
+	nil,                         // 11: wireguard.WGPeerRuntimeInfo.ExtraEntry
+	nil,                         // 12: wireguard.WGDeviceRuntimeInfo.PingMapEntry
+	nil,                         // 13: wireguard.WGDeviceRuntimeInfo.VirtAddrPingMapEntry
+	nil,                         // 14: wireguard.WGDeviceRuntimeInfo.PeerVirtAddrMapEntry
+	nil,                         // 15: wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntry
+	nil,                         // 16: wireguard.WGDeviceRuntimeInfo.ExtraEntry
 }
 var file_types_wg_proto_depIdxs = []int32{
 	2,  // 0: wireguard.WireGuardPeerConfig.endpoint:type_name -> wireguard.Endpoint
 	0,  // 1: wireguard.WireGuardConfig.peers:type_name -> wireguard.WireGuardPeerConfig
 	2,  // 2: wireguard.WireGuardConfig.advertised_endpoints:type_name -> wireguard.Endpoint
-	2,  // 3: wireguard.WireGuardLink.to_endpoint:type_name -> wireguard.Endpoint
-	3,  // 4: wireguard.WireGuardLinks.links:type_name -> wireguard.WireGuardLink
-	6,  // 5: wireguard.Network.acl:type_name -> wireguard.AclConfig
-	7,  // 6: wireguard.AclConfig.acls:type_name -> wireguard.AclRuleConfig
-	10, // 7: wireguard.WGPeerRuntimeInfo.extra:type_name -> wireguard.WGPeerRuntimeInfo.ExtraEntry
-	8,  // 8: wireguard.WGDeviceRuntimeInfo.peers:type_name -> wireguard.WGPeerRuntimeInfo
-	11, // 9: wireguard.WGDeviceRuntimeInfo.ping_map:type_name -> wireguard.WGDeviceRuntimeInfo.PingMapEntry
-	12, // 10: wireguard.WGDeviceRuntimeInfo.virt_addr_ping_map:type_name -> wireguard.WGDeviceRuntimeInfo.VirtAddrPingMapEntry
-	13, // 11: wireguard.WGDeviceRuntimeInfo.peer_virt_addr_map:type_name -> wireguard.WGDeviceRuntimeInfo.PeerVirtAddrMapEntry
-	14, // 12: wireguard.WGDeviceRuntimeInfo.peer_config_map:type_name -> wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntry
-	15, // 13: wireguard.WGDeviceRuntimeInfo.extra:type_name -> wireguard.WGDeviceRuntimeInfo.ExtraEntry
-	0,  // 14: wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntry.value:type_name -> wireguard.WireGuardPeerConfig
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	10, // 3: wireguard.WireGuardConfig.adjs:type_name -> wireguard.WireGuardConfig.AdjsEntry
+	2,  // 4: wireguard.WireGuardLink.to_endpoint:type_name -> wireguard.Endpoint
+	3,  // 5: wireguard.WireGuardLinks.links:type_name -> wireguard.WireGuardLink
+	6,  // 6: wireguard.Network.acl:type_name -> wireguard.AclConfig
+	7,  // 7: wireguard.AclConfig.acls:type_name -> wireguard.AclRuleConfig
+	11, // 8: wireguard.WGPeerRuntimeInfo.extra:type_name -> wireguard.WGPeerRuntimeInfo.ExtraEntry
+	8,  // 9: wireguard.WGDeviceRuntimeInfo.peers:type_name -> wireguard.WGPeerRuntimeInfo
+	12, // 10: wireguard.WGDeviceRuntimeInfo.ping_map:type_name -> wireguard.WGDeviceRuntimeInfo.PingMapEntry
+	13, // 11: wireguard.WGDeviceRuntimeInfo.virt_addr_ping_map:type_name -> wireguard.WGDeviceRuntimeInfo.VirtAddrPingMapEntry
+	14, // 12: wireguard.WGDeviceRuntimeInfo.peer_virt_addr_map:type_name -> wireguard.WGDeviceRuntimeInfo.PeerVirtAddrMapEntry
+	15, // 13: wireguard.WGDeviceRuntimeInfo.peer_config_map:type_name -> wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntry
+	16, // 14: wireguard.WGDeviceRuntimeInfo.extra:type_name -> wireguard.WGDeviceRuntimeInfo.ExtraEntry
+	4,  // 15: wireguard.WireGuardConfig.AdjsEntry.value:type_name -> wireguard.WireGuardLinks
+	0,  // 16: wireguard.WGDeviceRuntimeInfo.PeerConfigMapEntry.value:type_name -> wireguard.WireGuardPeerConfig
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_types_wg_proto_init() }
@@ -1206,7 +1249,7 @@ func file_types_wg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_types_wg_proto_rawDesc), len(file_types_wg_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

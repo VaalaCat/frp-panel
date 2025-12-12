@@ -9,7 +9,6 @@ import (
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/dao"
 	"github.com/VaalaCat/frp-panel/services/wg"
-	"github.com/samber/lo"
 )
 
 func GetNetworkTopology(ctx *app.Context, req *pb.GetNetworkTopologyRequest) (*pb.GetNetworkTopologyResponse, error) {
@@ -62,29 +61,7 @@ func GetNetworkTopology(ctx *app.Context, req *pb.GetNetworkTopologyRequest) (*p
 		return nil, err
 	}
 
-	adjs := make(map[uint32]*pb.WireGuardLinks)
-	for id, peerConfigs := range resp {
-		adjs[uint32(id)] = &pb.WireGuardLinks{
-			Links: lo.Map(peerConfigs, func(e wg.Edge, _ int) *pb.WireGuardLink {
-				v := e.ToPB()
-				v.FromWireguardId = uint32(uint(id))
-				return v
-			}),
-		}
-	}
-
-	for id, links := range adjs {
-		for _, link := range links.GetLinks() {
-			toWireguardEdges, ok := adjs[uint32(link.GetToWireguardId())]
-			if ok {
-				for _, edge := range toWireguardEdges.GetLinks() {
-					if edge.GetToWireguardId() == uint32(uint(id)) {
-						link.DownBandwidthMbps = edge.GetUpBandwidthMbps()
-					}
-				}
-			}
-		}
-	}
+	adjs := adjsToPB(resp)
 
 	return &pb.GetNetworkTopologyResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"},

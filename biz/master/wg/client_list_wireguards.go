@@ -50,6 +50,27 @@ func ListClientWireGuards(ctx *app.Context, req *pb.ListClientWireGuardsRequest)
 		networkPeers[wgCfg.NetworkID] = append(networkPeers[wgCfg.NetworkID], wgCfg)
 	}
 
+	networkPeerConfigsMap := make(map[uint]map[uint][]*pb.WireGuardPeerConfig)
+	networkAllEdgesMap := make(map[uint]map[uint][]wgsvc.Edge)
+
+	for _, networkID := range networkIDs {
+		peerConfigs, allEdges, err := wgsvc.PlanAllowedIPs(
+			networkPeers[networkID], networkLinksMap[networkID],
+			wgsvc.DefaultRoutingPolicy(
+				wgsvc.NewACL().LoadFromPB(networkPeers[networkID][0].Network.ACL.Data),
+				ctx.GetApp().GetNetworkTopologyCache(),
+				ctx.GetApp().GetClientsManager(),
+			))
+
+		if err != nil {
+			log.WithError(err).Errorf("failed to plan allowed ips for wireguard configs: %v", wgCfgs)
+			return nil, err
+		}
+
+		networkPeerConfigsMap[networkID] = peerConfigs
+		networkAllEdgesMap[networkID] = allEdges
+	}
+
 	resp := &pb.ListClientWireGuardsResponse{
 		Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"},
 		WireguardConfigs: lo.Map(wgCfgs, func(wgCfg *models.WireGuard, _ int) *pb.WireGuardConfig {
@@ -58,22 +79,13 @@ func ListClientWireGuards(ctx *app.Context, req *pb.ListClientWireGuardsRequest)
 				return nil
 			}
 
-			peerConfigs, err := wgsvc.PlanAllowedIPs(
-				networkPeers[wgCfg.NetworkID], networkLinksMap[wgCfg.NetworkID],
-				wgsvc.DefaultRoutingPolicy(
-					wgsvc.NewACL().LoadFromPB(wgCfg.Network.ACL.Data),
-					ctx.GetApp().GetNetworkTopologyCache(),
-					ctx.GetApp().GetClientsManager(),
-				))
-			if err != nil {
-				log.WithError(err).Errorf("failed to plan allowed ips for wireguard configs: %v", wgCfgs)
-				return nil
-			}
-
 			r := wgCfg.ToPB()
-			r.Peers = lo.Map(peerConfigs[wgCfg.ID], func(peerCfg *pb.WireGuardPeerConfig, _ int) *pb.WireGuardPeerConfig {
-				return peerCfg
-			})
+			r.Peers = lo.Map(networkPeerConfigsMap[wgCfg.NetworkID][wgCfg.ID],
+				func(peerCfg *pb.WireGuardPeerConfig, _ int) *pb.WireGuardPeerConfig {
+					return peerCfg
+				})
+
+			r.Adjs = adjsToPB(networkAllEdgesMap[wgCfg.NetworkID])
 
 			return r
 		}),

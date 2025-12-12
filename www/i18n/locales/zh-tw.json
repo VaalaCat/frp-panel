@@ -246,8 +246,8 @@
       "button": "新增端點"
     },
     "endpointTable": {
-      "type": "",
-      "uri": "",
+      "type": "端點類型",
+      "uri": "端點 URI",
       "host": "主機",
       "wireguardId": "WireGuard",
       "clientId": "客戶端"
@@ -320,6 +320,7 @@
       "bandwidthUp": "上行頻寬",
       "bandwidthDown": "下行頻寬",
       "endpoint": "目標端點",
+      "routes": "Routes",
       "from": "起點",
       "to": "終點"
     },
@@ -427,6 +428,13 @@
       "endpointsTitle": "關聯端點",
       "endpointsDesc": "與此 WireGuard 關聯的端點"
     },
+    "wireguardActions": {
+      "restart": "重啟",
+      "view": "檢視",
+      "title": "WireGuard 操作",
+      "edit": "編輯",
+      "delete": "刪除"
+    },
     "wireguardForm": {
       "interfaceName": "介面名稱",
       "localAddress": "本地位址",
@@ -477,12 +485,6 @@
       "headerDesc": "管理 WireGuard 設備",
       "headerTotal_other": "共 {{count}} 個介面",
       "title": "WireGuard"
-    },
-    "wireguardActions": {
-      "view": "檢視",
-      "title": "WireGuard 操作",
-      "edit": "編輯",
-      "delete": "刪除"
     },
     "wireguardDelete": {
       "confirm": "確定刪除該 WireGuard？"

@@ -30,7 +30,7 @@ export const EndpointSelector: React.FC<EndpointSelectorProps> = ({ clientID, en
     enabled: !!clientID,
   })
 
-  const items = (data?.endpoints ?? []).map((e) => ({ value: String(e.id), label: `${e.host}:${e.port}` }))
+  const items = (data?.endpoints ?? []).map((e) => ({ value: String(e.id), label: `${e.uri ? e.uri : `${e.host}:${e.port}`}` }))
 
   return (
     <Combobox

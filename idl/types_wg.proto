@@ -18,6 +18,9 @@ message WireGuardPeerConfig {
   repeated string tags = 10; // 标签
 
   string virtual_ip = 11; // 节点虚拟 IP
+  uint32 listen_port = 12; // WireGuard 监听端口
+  uint32 ws_listen_port = 13; // WebSocket 监听端口
+  bool use_gvisor_net = 14; // 是否使用 gvisor netstack
 }
 
 // WireGuardConfig wg 配置
@@ -39,6 +42,8 @@ message WireGuardConfig {
   repeated string tags = 14; // 标签
   uint32 ws_listen_port = 15; // (可选) WebSocket 监听端口，如果没有配置，则使用默认端口
   bool use_gvisor_net = 16; // (可选) 是否使用 gvisor netstack，环境变量中的ture可以覆盖该配置
+
+  map<uint32, wireguard.WireGuardLinks> adjs = 17; // 当前网络内所有节点ID->Edge 列表，全量图结构
 }
 
 message Endpoint {

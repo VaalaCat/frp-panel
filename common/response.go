@@ -32,7 +32,7 @@ type RespType interface {
 		pb.GetWorkerStatusResponse | pb.InstallWorkerdResponse | pb.RedeployWorkerResponse |
 		pb.StartSteamLogResponse |
 		// wireguard api
-		pb.CreateNetworkResponse | pb.DeleteNetworkResponse | pb.UpdateNetworkResponse | pb.GetNetworkResponse | pb.ListNetworksResponse |
+		pb.CreateNetworkResponse | pb.DeleteNetworkResponse | pb.UpdateNetworkResponse | pb.GetNetworkResponse | pb.ListNetworksResponse | pb.RestartWireGuardResponse |
 		pb.CreateEndpointResponse | pb.DeleteEndpointResponse | pb.UpdateEndpointResponse | pb.GetEndpointResponse | pb.ListEndpointsResponse |
 		pb.CreateWireGuardResponse | pb.DeleteWireGuardResponse | pb.UpdateWireGuardResponse | pb.GetWireGuardResponse | pb.ListWireGuardsResponse |
 		pb.CreateWireGuardLinkResponse | pb.DeleteWireGuardLinkResponse | pb.UpdateWireGuardLinkResponse | pb.GetWireGuardLinkResponse | pb.ListWireGuardLinksResponse |
@@ -120,6 +120,8 @@ func getEvent(origin interface{}) (pb.Event, protoreflect.ProtoMessage, error) {
 		return pb.Event_EVENT_DELETE_WIREGUARD, ptr, nil
 	case *pb.UpdateWireGuardResponse:
 		return pb.Event_EVENT_UPDATE_WIREGUARD, ptr, nil
+	case *pb.RestartWireGuardResponse:
+		return pb.Event_EVENT_RESTART_WIREGUARD, ptr, nil
 	case *pb.GetWireGuardRuntimeInfoResponse:
 		return pb.Event_EVENT_GET_WIREGUARD_RUNTIME_INFO, ptr, nil
 	default:

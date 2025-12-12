@@ -19,7 +19,7 @@ func AuthCtx(appInstance app.Application) func(*gin.Context) {
 		appCtx := app.NewContext(c, appInstance)
 
 		defer func() {
-			logger.Logger(c).Info("finish auth user middleware")
+			logger.Logger(c).Debugf("finish auth user middleware")
 		}()
 
 		userID, err := cast.ToIntE(c.Value(defs.UserIDKey))
@@ -32,22 +32,22 @@ func AuthCtx(appInstance app.Application) func(*gin.Context) {
 
 		u, err = dao.NewQuery(appCtx).GetUserByUserID(userID)
 		if err != nil {
-			logger.Logger(c).Errorf("get user by user id failed: %v", err)
+			logger.Logger(c).WithError(err).Errorf("get user by user id failed, userID: [%d]", userID)
 			common.ErrUnAuthorized(c, "token invalid")
 			c.Abort()
 			return
 		}
 
-		logger.Logger(c).Infof("auth middleware authed user is: [%+v]", u)
+		logger.Logger(c).Debugf("auth middleware authed user is: [%+v]", u)
 
 		if u.Valid() {
-			logger.Logger(c).Infof("set auth user to context, login success")
+			logger.Logger(c).Debugf("set auth user to context, login success")
 			c.Set(defs.UserInfoKey, u)
 			c.Next()
 			return
 		} else {
 			if uid == 1 {
-				logger.Logger(c).Infof("seems to be admin assign token login")
+				logger.Logger(c).Debugf("seems to be admin assign token login")
 				c.Next()
 				return
 			}

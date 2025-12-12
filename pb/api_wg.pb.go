@@ -70,7 +70,7 @@ func (x UpdateWireGuardRequest_UpdateType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use UpdateWireGuardRequest_UpdateType.Descriptor instead.
 func (UpdateWireGuardRequest_UpdateType) EnumDescriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{26, 0}
+	return file_api_wg_proto_rawDescGZIP(), []int{28, 0}
 }
 
 type CreateNetworkRequest struct {
@@ -1385,6 +1385,110 @@ func (x *DeleteWireGuardResponse) GetStatus() *Status {
 	return nil
 }
 
+type RestartWireGuardRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	ClientId      *string                `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3,oneof" json:"client_id,omitempty"`
+	InterfaceName *string                `protobuf:"bytes,3,opt,name=interface_name,json=interfaceName,proto3,oneof" json:"interface_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RestartWireGuardRequest) Reset() {
+	*x = RestartWireGuardRequest{}
+	mi := &file_api_wg_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RestartWireGuardRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RestartWireGuardRequest) ProtoMessage() {}
+
+func (x *RestartWireGuardRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_wg_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RestartWireGuardRequest.ProtoReflect.Descriptor instead.
+func (*RestartWireGuardRequest) Descriptor() ([]byte, []int) {
+	return file_api_wg_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *RestartWireGuardRequest) GetId() uint32 {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return 0
+}
+
+func (x *RestartWireGuardRequest) GetClientId() string {
+	if x != nil && x.ClientId != nil {
+		return *x.ClientId
+	}
+	return ""
+}
+
+func (x *RestartWireGuardRequest) GetInterfaceName() string {
+	if x != nil && x.InterfaceName != nil {
+		return *x.InterfaceName
+	}
+	return ""
+}
+
+type RestartWireGuardResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RestartWireGuardResponse) Reset() {
+	*x = RestartWireGuardResponse{}
+	mi := &file_api_wg_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RestartWireGuardResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RestartWireGuardResponse) ProtoMessage() {}
+
+func (x *RestartWireGuardResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_wg_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RestartWireGuardResponse.ProtoReflect.Descriptor instead.
+func (*RestartWireGuardResponse) Descriptor() ([]byte, []int) {
+	return file_api_wg_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *RestartWireGuardResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
 type UpdateWireGuardRequest struct {
 	state           protoimpl.MessageState             `protogen:"open.v1"`
 	WireguardConfig *WireGuardConfig                   `protobuf:"bytes,1,opt,name=wireguard_config,json=wireguardConfig,proto3,oneof" json:"wireguard_config,omitempty"`
@@ -1395,7 +1499,7 @@ type UpdateWireGuardRequest struct {
 
 func (x *UpdateWireGuardRequest) Reset() {
 	*x = UpdateWireGuardRequest{}
-	mi := &file_api_wg_proto_msgTypes[26]
+	mi := &file_api_wg_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1407,7 +1511,7 @@ func (x *UpdateWireGuardRequest) String() string {
 func (*UpdateWireGuardRequest) ProtoMessage() {}
 
 func (x *UpdateWireGuardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[26]
+	mi := &file_api_wg_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1420,7 +1524,7 @@ func (x *UpdateWireGuardRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateWireGuardRequest.ProtoReflect.Descriptor instead.
 func (*UpdateWireGuardRequest) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{26}
+	return file_api_wg_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *UpdateWireGuardRequest) GetWireguardConfig() *WireGuardConfig {
@@ -1447,7 +1551,7 @@ type UpdateWireGuardResponse struct {
 
 func (x *UpdateWireGuardResponse) Reset() {
 	*x = UpdateWireGuardResponse{}
-	mi := &file_api_wg_proto_msgTypes[27]
+	mi := &file_api_wg_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1459,7 +1563,7 @@ func (x *UpdateWireGuardResponse) String() string {
 func (*UpdateWireGuardResponse) ProtoMessage() {}
 
 func (x *UpdateWireGuardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[27]
+	mi := &file_api_wg_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1472,7 +1576,7 @@ func (x *UpdateWireGuardResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateWireGuardResponse.ProtoReflect.Descriptor instead.
 func (*UpdateWireGuardResponse) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{27}
+	return file_api_wg_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *UpdateWireGuardResponse) GetStatus() *Status {
@@ -1500,7 +1604,7 @@ type GetWireGuardRequest struct {
 
 func (x *GetWireGuardRequest) Reset() {
 	*x = GetWireGuardRequest{}
-	mi := &file_api_wg_proto_msgTypes[28]
+	mi := &file_api_wg_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1512,7 +1616,7 @@ func (x *GetWireGuardRequest) String() string {
 func (*GetWireGuardRequest) ProtoMessage() {}
 
 func (x *GetWireGuardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[28]
+	mi := &file_api_wg_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1525,7 +1629,7 @@ func (x *GetWireGuardRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWireGuardRequest.ProtoReflect.Descriptor instead.
 func (*GetWireGuardRequest) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{28}
+	return file_api_wg_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetWireGuardRequest) GetId() uint32 {
@@ -1559,7 +1663,7 @@ type GetWireGuardResponse struct {
 
 func (x *GetWireGuardResponse) Reset() {
 	*x = GetWireGuardResponse{}
-	mi := &file_api_wg_proto_msgTypes[29]
+	mi := &file_api_wg_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1571,7 +1675,7 @@ func (x *GetWireGuardResponse) String() string {
 func (*GetWireGuardResponse) ProtoMessage() {}
 
 func (x *GetWireGuardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[29]
+	mi := &file_api_wg_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1584,7 +1688,7 @@ func (x *GetWireGuardResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWireGuardResponse.ProtoReflect.Descriptor instead.
 func (*GetWireGuardResponse) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{29}
+	return file_api_wg_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GetWireGuardResponse) GetStatus() *Status {
@@ -1612,7 +1716,7 @@ type GetWireGuardRuntimeInfoRequest struct {
 
 func (x *GetWireGuardRuntimeInfoRequest) Reset() {
 	*x = GetWireGuardRuntimeInfoRequest{}
-	mi := &file_api_wg_proto_msgTypes[30]
+	mi := &file_api_wg_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1624,7 +1728,7 @@ func (x *GetWireGuardRuntimeInfoRequest) String() string {
 func (*GetWireGuardRuntimeInfoRequest) ProtoMessage() {}
 
 func (x *GetWireGuardRuntimeInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[30]
+	mi := &file_api_wg_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1637,7 +1741,7 @@ func (x *GetWireGuardRuntimeInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWireGuardRuntimeInfoRequest.ProtoReflect.Descriptor instead.
 func (*GetWireGuardRuntimeInfoRequest) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{30}
+	return file_api_wg_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetWireGuardRuntimeInfoRequest) GetId() uint32 {
@@ -1671,7 +1775,7 @@ type GetWireGuardRuntimeInfoResponse struct {
 
 func (x *GetWireGuardRuntimeInfoResponse) Reset() {
 	*x = GetWireGuardRuntimeInfoResponse{}
-	mi := &file_api_wg_proto_msgTypes[31]
+	mi := &file_api_wg_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1683,7 +1787,7 @@ func (x *GetWireGuardRuntimeInfoResponse) String() string {
 func (*GetWireGuardRuntimeInfoResponse) ProtoMessage() {}
 
 func (x *GetWireGuardRuntimeInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[31]
+	mi := &file_api_wg_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1696,7 +1800,7 @@ func (x *GetWireGuardRuntimeInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWireGuardRuntimeInfoResponse.ProtoReflect.Descriptor instead.
 func (*GetWireGuardRuntimeInfoResponse) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{31}
+	return file_api_wg_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetWireGuardRuntimeInfoResponse) GetStatus() *Status {
@@ -1726,7 +1830,7 @@ type ListWireGuardsRequest struct {
 
 func (x *ListWireGuardsRequest) Reset() {
 	*x = ListWireGuardsRequest{}
-	mi := &file_api_wg_proto_msgTypes[32]
+	mi := &file_api_wg_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1738,7 +1842,7 @@ func (x *ListWireGuardsRequest) String() string {
 func (*ListWireGuardsRequest) ProtoMessage() {}
 
 func (x *ListWireGuardsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[32]
+	mi := &file_api_wg_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1751,7 +1855,7 @@ func (x *ListWireGuardsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWireGuardsRequest.ProtoReflect.Descriptor instead.
 func (*ListWireGuardsRequest) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{32}
+	return file_api_wg_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ListWireGuardsRequest) GetPage() int32 {
@@ -1800,7 +1904,7 @@ type ListWireGuardsResponse struct {
 
 func (x *ListWireGuardsResponse) Reset() {
 	*x = ListWireGuardsResponse{}
-	mi := &file_api_wg_proto_msgTypes[33]
+	mi := &file_api_wg_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1812,7 +1916,7 @@ func (x *ListWireGuardsResponse) String() string {
 func (*ListWireGuardsResponse) ProtoMessage() {}
 
 func (x *ListWireGuardsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[33]
+	mi := &file_api_wg_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1825,7 +1929,7 @@ func (x *ListWireGuardsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWireGuardsResponse.ProtoReflect.Descriptor instead.
 func (*ListWireGuardsResponse) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{33}
+	return file_api_wg_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ListWireGuardsResponse) GetStatus() *Status {
@@ -1858,7 +1962,7 @@ type CreateWireGuardLinkRequest struct {
 
 func (x *CreateWireGuardLinkRequest) Reset() {
 	*x = CreateWireGuardLinkRequest{}
-	mi := &file_api_wg_proto_msgTypes[34]
+	mi := &file_api_wg_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1870,7 +1974,7 @@ func (x *CreateWireGuardLinkRequest) String() string {
 func (*CreateWireGuardLinkRequest) ProtoMessage() {}
 
 func (x *CreateWireGuardLinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[34]
+	mi := &file_api_wg_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1883,7 +1987,7 @@ func (x *CreateWireGuardLinkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWireGuardLinkRequest.ProtoReflect.Descriptor instead.
 func (*CreateWireGuardLinkRequest) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{34}
+	return file_api_wg_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *CreateWireGuardLinkRequest) GetWireguardLink() *WireGuardLink {
@@ -1903,7 +2007,7 @@ type CreateWireGuardLinkResponse struct {
 
 func (x *CreateWireGuardLinkResponse) Reset() {
 	*x = CreateWireGuardLinkResponse{}
-	mi := &file_api_wg_proto_msgTypes[35]
+	mi := &file_api_wg_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1915,7 +2019,7 @@ func (x *CreateWireGuardLinkResponse) String() string {
 func (*CreateWireGuardLinkResponse) ProtoMessage() {}
 
 func (x *CreateWireGuardLinkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[35]
+	mi := &file_api_wg_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1928,7 +2032,7 @@ func (x *CreateWireGuardLinkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWireGuardLinkResponse.ProtoReflect.Descriptor instead.
 func (*CreateWireGuardLinkResponse) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{35}
+	return file_api_wg_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *CreateWireGuardLinkResponse) GetStatus() *Status {
@@ -1954,7 +2058,7 @@ type DeleteWireGuardLinkRequest struct {
 
 func (x *DeleteWireGuardLinkRequest) Reset() {
 	*x = DeleteWireGuardLinkRequest{}
-	mi := &file_api_wg_proto_msgTypes[36]
+	mi := &file_api_wg_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1966,7 +2070,7 @@ func (x *DeleteWireGuardLinkRequest) String() string {
 func (*DeleteWireGuardLinkRequest) ProtoMessage() {}
 
 func (x *DeleteWireGuardLinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[36]
+	mi := &file_api_wg_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1979,7 +2083,7 @@ func (x *DeleteWireGuardLinkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteWireGuardLinkRequest.ProtoReflect.Descriptor instead.
 func (*DeleteWireGuardLinkRequest) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{36}
+	return file_api_wg_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *DeleteWireGuardLinkRequest) GetId() uint32 {
@@ -1998,7 +2102,7 @@ type DeleteWireGuardLinkResponse struct {
 
 func (x *DeleteWireGuardLinkResponse) Reset() {
 	*x = DeleteWireGuardLinkResponse{}
-	mi := &file_api_wg_proto_msgTypes[37]
+	mi := &file_api_wg_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2010,7 +2114,7 @@ func (x *DeleteWireGuardLinkResponse) String() string {
 func (*DeleteWireGuardLinkResponse) ProtoMessage() {}
 
 func (x *DeleteWireGuardLinkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[37]
+	mi := &file_api_wg_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2023,7 +2127,7 @@ func (x *DeleteWireGuardLinkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteWireGuardLinkResponse.ProtoReflect.Descriptor instead.
 func (*DeleteWireGuardLinkResponse) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{37}
+	return file_api_wg_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *DeleteWireGuardLinkResponse) GetStatus() *Status {
@@ -2042,7 +2146,7 @@ type UpdateWireGuardLinkRequest struct {
 
 func (x *UpdateWireGuardLinkRequest) Reset() {
 	*x = UpdateWireGuardLinkRequest{}
-	mi := &file_api_wg_proto_msgTypes[38]
+	mi := &file_api_wg_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2054,7 +2158,7 @@ func (x *UpdateWireGuardLinkRequest) String() string {
 func (*UpdateWireGuardLinkRequest) ProtoMessage() {}
 
 func (x *UpdateWireGuardLinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[38]
+	mi := &file_api_wg_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2067,7 +2171,7 @@ func (x *UpdateWireGuardLinkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateWireGuardLinkRequest.ProtoReflect.Descriptor instead.
 func (*UpdateWireGuardLinkRequest) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{38}
+	return file_api_wg_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *UpdateWireGuardLinkRequest) GetWireguardLink() *WireGuardLink {
@@ -2087,7 +2191,7 @@ type UpdateWireGuardLinkResponse struct {
 
 func (x *UpdateWireGuardLinkResponse) Reset() {
 	*x = UpdateWireGuardLinkResponse{}
-	mi := &file_api_wg_proto_msgTypes[39]
+	mi := &file_api_wg_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2099,7 +2203,7 @@ func (x *UpdateWireGuardLinkResponse) String() string {
 func (*UpdateWireGuardLinkResponse) ProtoMessage() {}
 
 func (x *UpdateWireGuardLinkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[39]
+	mi := &file_api_wg_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2112,7 +2216,7 @@ func (x *UpdateWireGuardLinkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateWireGuardLinkResponse.ProtoReflect.Descriptor instead.
 func (*UpdateWireGuardLinkResponse) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{39}
+	return file_api_wg_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *UpdateWireGuardLinkResponse) GetStatus() *Status {
@@ -2138,7 +2242,7 @@ type GetWireGuardLinkRequest struct {
 
 func (x *GetWireGuardLinkRequest) Reset() {
 	*x = GetWireGuardLinkRequest{}
-	mi := &file_api_wg_proto_msgTypes[40]
+	mi := &file_api_wg_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2150,7 +2254,7 @@ func (x *GetWireGuardLinkRequest) String() string {
 func (*GetWireGuardLinkRequest) ProtoMessage() {}
 
 func (x *GetWireGuardLinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[40]
+	mi := &file_api_wg_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2163,7 +2267,7 @@ func (x *GetWireGuardLinkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWireGuardLinkRequest.ProtoReflect.Descriptor instead.
 func (*GetWireGuardLinkRequest) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{40}
+	return file_api_wg_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *GetWireGuardLinkRequest) GetId() uint32 {
@@ -2183,7 +2287,7 @@ type GetWireGuardLinkResponse struct {
 
 func (x *GetWireGuardLinkResponse) Reset() {
 	*x = GetWireGuardLinkResponse{}
-	mi := &file_api_wg_proto_msgTypes[41]
+	mi := &file_api_wg_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2195,7 +2299,7 @@ func (x *GetWireGuardLinkResponse) String() string {
 func (*GetWireGuardLinkResponse) ProtoMessage() {}
 
 func (x *GetWireGuardLinkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[41]
+	mi := &file_api_wg_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2208,7 +2312,7 @@ func (x *GetWireGuardLinkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWireGuardLinkResponse.ProtoReflect.Descriptor instead.
 func (*GetWireGuardLinkResponse) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{41}
+	return file_api_wg_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *GetWireGuardLinkResponse) GetStatus() *Status {
@@ -2237,7 +2341,7 @@ type ListWireGuardLinksRequest struct {
 
 func (x *ListWireGuardLinksRequest) Reset() {
 	*x = ListWireGuardLinksRequest{}
-	mi := &file_api_wg_proto_msgTypes[42]
+	mi := &file_api_wg_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2249,7 +2353,7 @@ func (x *ListWireGuardLinksRequest) String() string {
 func (*ListWireGuardLinksRequest) ProtoMessage() {}
 
 func (x *ListWireGuardLinksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[42]
+	mi := &file_api_wg_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2262,7 +2366,7 @@ func (x *ListWireGuardLinksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWireGuardLinksRequest.ProtoReflect.Descriptor instead.
 func (*ListWireGuardLinksRequest) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{42}
+	return file_api_wg_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ListWireGuardLinksRequest) GetPage() int32 {
@@ -2304,7 +2408,7 @@ type ListWireGuardLinksResponse struct {
 
 func (x *ListWireGuardLinksResponse) Reset() {
 	*x = ListWireGuardLinksResponse{}
-	mi := &file_api_wg_proto_msgTypes[43]
+	mi := &file_api_wg_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2316,7 +2420,7 @@ func (x *ListWireGuardLinksResponse) String() string {
 func (*ListWireGuardLinksResponse) ProtoMessage() {}
 
 func (x *ListWireGuardLinksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_wg_proto_msgTypes[43]
+	mi := &file_api_wg_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2329,7 +2433,7 @@ func (x *ListWireGuardLinksResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWireGuardLinksResponse.ProtoReflect.Descriptor instead.
 func (*ListWireGuardLinksResponse) Descriptor() ([]byte, []int) {
-	return file_api_wg_proto_rawDescGZIP(), []int{43}
+	return file_api_wg_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *ListWireGuardLinksResponse) GetStatus() *Status {
@@ -2488,6 +2592,17 @@ const file_api_wg_proto_rawDesc = "" +
 	"\x0f_interface_name\"Q\n" +
 	"\x17DeleteWireGuardResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"\xa4\x01\n" +
+	"\x17RestartWireGuardRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12 \n" +
+	"\tclient_id\x18\x02 \x01(\tH\x01R\bclientId\x88\x01\x01\x12*\n" +
+	"\x0einterface_name\x18\x03 \x01(\tH\x02R\rinterfaceName\x88\x01\x01B\x05\n" +
+	"\x03_idB\f\n" +
+	"\n" +
+	"_client_idB\x11\n" +
+	"\x0f_interface_name\"R\n" +
+	"\x18RestartWireGuardResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
 	"\a_status\"\xe0\x02\n" +
 	"\x16UpdateWireGuardRequest\x12J\n" +
 	"\x10wireguard_config\x18\x01 \x01(\v2\x1a.wireguard.WireGuardConfigH\x00R\x0fwireguardConfig\x88\x01\x01\x12V\n" +
@@ -2615,7 +2730,7 @@ func file_api_wg_proto_rawDescGZIP() []byte {
 }
 
 var file_api_wg_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_wg_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
+var file_api_wg_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_api_wg_proto_goTypes = []any{
 	(UpdateWireGuardRequest_UpdateType)(0),  // 0: api_wireguard.UpdateWireGuardRequest.UpdateType
 	(*CreateNetworkRequest)(nil),            // 1: api_wireguard.CreateNetworkRequest
@@ -2644,89 +2759,92 @@ var file_api_wg_proto_goTypes = []any{
 	(*CreateWireGuardResponse)(nil),         // 24: api_wireguard.CreateWireGuardResponse
 	(*DeleteWireGuardRequest)(nil),          // 25: api_wireguard.DeleteWireGuardRequest
 	(*DeleteWireGuardResponse)(nil),         // 26: api_wireguard.DeleteWireGuardResponse
-	(*UpdateWireGuardRequest)(nil),          // 27: api_wireguard.UpdateWireGuardRequest
-	(*UpdateWireGuardResponse)(nil),         // 28: api_wireguard.UpdateWireGuardResponse
-	(*GetWireGuardRequest)(nil),             // 29: api_wireguard.GetWireGuardRequest
-	(*GetWireGuardResponse)(nil),            // 30: api_wireguard.GetWireGuardResponse
-	(*GetWireGuardRuntimeInfoRequest)(nil),  // 31: api_wireguard.GetWireGuardRuntimeInfoRequest
-	(*GetWireGuardRuntimeInfoResponse)(nil), // 32: api_wireguard.GetWireGuardRuntimeInfoResponse
-	(*ListWireGuardsRequest)(nil),           // 33: api_wireguard.ListWireGuardsRequest
-	(*ListWireGuardsResponse)(nil),          // 34: api_wireguard.ListWireGuardsResponse
-	(*CreateWireGuardLinkRequest)(nil),      // 35: api_wireguard.CreateWireGuardLinkRequest
-	(*CreateWireGuardLinkResponse)(nil),     // 36: api_wireguard.CreateWireGuardLinkResponse
-	(*DeleteWireGuardLinkRequest)(nil),      // 37: api_wireguard.DeleteWireGuardLinkRequest
-	(*DeleteWireGuardLinkResponse)(nil),     // 38: api_wireguard.DeleteWireGuardLinkResponse
-	(*UpdateWireGuardLinkRequest)(nil),      // 39: api_wireguard.UpdateWireGuardLinkRequest
-	(*UpdateWireGuardLinkResponse)(nil),     // 40: api_wireguard.UpdateWireGuardLinkResponse
-	(*GetWireGuardLinkRequest)(nil),         // 41: api_wireguard.GetWireGuardLinkRequest
-	(*GetWireGuardLinkResponse)(nil),        // 42: api_wireguard.GetWireGuardLinkResponse
-	(*ListWireGuardLinksRequest)(nil),       // 43: api_wireguard.ListWireGuardLinksRequest
-	(*ListWireGuardLinksResponse)(nil),      // 44: api_wireguard.ListWireGuardLinksResponse
-	nil,                                     // 45: api_wireguard.GetNetworkTopologyResponse.AdjsEntry
-	(*Network)(nil),                         // 46: wireguard.Network
-	(*Status)(nil),                          // 47: common.Status
-	(*Endpoint)(nil),                        // 48: wireguard.Endpoint
-	(*WireGuardConfig)(nil),                 // 49: wireguard.WireGuardConfig
-	(*WGDeviceRuntimeInfo)(nil),             // 50: wireguard.WGDeviceRuntimeInfo
-	(*WireGuardLink)(nil),                   // 51: wireguard.WireGuardLink
-	(*WireGuardLinks)(nil),                  // 52: wireguard.WireGuardLinks
+	(*RestartWireGuardRequest)(nil),         // 27: api_wireguard.RestartWireGuardRequest
+	(*RestartWireGuardResponse)(nil),        // 28: api_wireguard.RestartWireGuardResponse
+	(*UpdateWireGuardRequest)(nil),          // 29: api_wireguard.UpdateWireGuardRequest
+	(*UpdateWireGuardResponse)(nil),         // 30: api_wireguard.UpdateWireGuardResponse
+	(*GetWireGuardRequest)(nil),             // 31: api_wireguard.GetWireGuardRequest
+	(*GetWireGuardResponse)(nil),            // 32: api_wireguard.GetWireGuardResponse
+	(*GetWireGuardRuntimeInfoRequest)(nil),  // 33: api_wireguard.GetWireGuardRuntimeInfoRequest
+	(*GetWireGuardRuntimeInfoResponse)(nil), // 34: api_wireguard.GetWireGuardRuntimeInfoResponse
+	(*ListWireGuardsRequest)(nil),           // 35: api_wireguard.ListWireGuardsRequest
+	(*ListWireGuardsResponse)(nil),          // 36: api_wireguard.ListWireGuardsResponse
+	(*CreateWireGuardLinkRequest)(nil),      // 37: api_wireguard.CreateWireGuardLinkRequest
+	(*CreateWireGuardLinkResponse)(nil),     // 38: api_wireguard.CreateWireGuardLinkResponse
+	(*DeleteWireGuardLinkRequest)(nil),      // 39: api_wireguard.DeleteWireGuardLinkRequest
+	(*DeleteWireGuardLinkResponse)(nil),     // 40: api_wireguard.DeleteWireGuardLinkResponse
+	(*UpdateWireGuardLinkRequest)(nil),      // 41: api_wireguard.UpdateWireGuardLinkRequest
+	(*UpdateWireGuardLinkResponse)(nil),     // 42: api_wireguard.UpdateWireGuardLinkResponse
+	(*GetWireGuardLinkRequest)(nil),         // 43: api_wireguard.GetWireGuardLinkRequest
+	(*GetWireGuardLinkResponse)(nil),        // 44: api_wireguard.GetWireGuardLinkResponse
+	(*ListWireGuardLinksRequest)(nil),       // 45: api_wireguard.ListWireGuardLinksRequest
+	(*ListWireGuardLinksResponse)(nil),      // 46: api_wireguard.ListWireGuardLinksResponse
+	nil,                                     // 47: api_wireguard.GetNetworkTopologyResponse.AdjsEntry
+	(*Network)(nil),                         // 48: wireguard.Network
+	(*Status)(nil),                          // 49: common.Status
+	(*Endpoint)(nil),                        // 50: wireguard.Endpoint
+	(*WireGuardConfig)(nil),                 // 51: wireguard.WireGuardConfig
+	(*WGDeviceRuntimeInfo)(nil),             // 52: wireguard.WGDeviceRuntimeInfo
+	(*WireGuardLink)(nil),                   // 53: wireguard.WireGuardLink
+	(*WireGuardLinks)(nil),                  // 54: wireguard.WireGuardLinks
 }
 var file_api_wg_proto_depIdxs = []int32{
-	46, // 0: api_wireguard.CreateNetworkRequest.network:type_name -> wireguard.Network
-	47, // 1: api_wireguard.CreateNetworkResponse.status:type_name -> common.Status
-	46, // 2: api_wireguard.CreateNetworkResponse.network:type_name -> wireguard.Network
-	47, // 3: api_wireguard.DeleteNetworkResponse.status:type_name -> common.Status
-	46, // 4: api_wireguard.UpdateNetworkRequest.network:type_name -> wireguard.Network
-	47, // 5: api_wireguard.UpdateNetworkResponse.status:type_name -> common.Status
-	46, // 6: api_wireguard.UpdateNetworkResponse.network:type_name -> wireguard.Network
-	47, // 7: api_wireguard.GetNetworkResponse.status:type_name -> common.Status
-	46, // 8: api_wireguard.GetNetworkResponse.network:type_name -> wireguard.Network
-	47, // 9: api_wireguard.ListNetworksResponse.status:type_name -> common.Status
-	46, // 10: api_wireguard.ListNetworksResponse.networks:type_name -> wireguard.Network
-	47, // 11: api_wireguard.GetNetworkTopologyResponse.status:type_name -> common.Status
-	45, // 12: api_wireguard.GetNetworkTopologyResponse.adjs:type_name -> api_wireguard.GetNetworkTopologyResponse.AdjsEntry
-	48, // 13: api_wireguard.CreateEndpointRequest.endpoint:type_name -> wireguard.Endpoint
-	47, // 14: api_wireguard.CreateEndpointResponse.status:type_name -> common.Status
-	48, // 15: api_wireguard.CreateEndpointResponse.endpoint:type_name -> wireguard.Endpoint
-	47, // 16: api_wireguard.DeleteEndpointResponse.status:type_name -> common.Status
-	48, // 17: api_wireguard.UpdateEndpointRequest.endpoint:type_name -> wireguard.Endpoint
-	47, // 18: api_wireguard.UpdateEndpointResponse.status:type_name -> common.Status
-	48, // 19: api_wireguard.UpdateEndpointResponse.endpoint:type_name -> wireguard.Endpoint
-	47, // 20: api_wireguard.GetEndpointResponse.status:type_name -> common.Status
-	48, // 21: api_wireguard.GetEndpointResponse.endpoint:type_name -> wireguard.Endpoint
-	47, // 22: api_wireguard.ListEndpointsResponse.status:type_name -> common.Status
-	48, // 23: api_wireguard.ListEndpointsResponse.endpoints:type_name -> wireguard.Endpoint
-	49, // 24: api_wireguard.CreateWireGuardRequest.wireguard_config:type_name -> wireguard.WireGuardConfig
-	47, // 25: api_wireguard.CreateWireGuardResponse.status:type_name -> common.Status
-	49, // 26: api_wireguard.CreateWireGuardResponse.wireguard_config:type_name -> wireguard.WireGuardConfig
-	47, // 27: api_wireguard.DeleteWireGuardResponse.status:type_name -> common.Status
-	49, // 28: api_wireguard.UpdateWireGuardRequest.wireguard_config:type_name -> wireguard.WireGuardConfig
-	0,  // 29: api_wireguard.UpdateWireGuardRequest.update_type:type_name -> api_wireguard.UpdateWireGuardRequest.UpdateType
-	47, // 30: api_wireguard.UpdateWireGuardResponse.status:type_name -> common.Status
-	49, // 31: api_wireguard.UpdateWireGuardResponse.wireguard_config:type_name -> wireguard.WireGuardConfig
-	47, // 32: api_wireguard.GetWireGuardResponse.status:type_name -> common.Status
-	49, // 33: api_wireguard.GetWireGuardResponse.wireguard_config:type_name -> wireguard.WireGuardConfig
-	47, // 34: api_wireguard.GetWireGuardRuntimeInfoResponse.status:type_name -> common.Status
-	50, // 35: api_wireguard.GetWireGuardRuntimeInfoResponse.wg_device_runtime_info:type_name -> wireguard.WGDeviceRuntimeInfo
-	47, // 36: api_wireguard.ListWireGuardsResponse.status:type_name -> common.Status
-	49, // 37: api_wireguard.ListWireGuardsResponse.wireguard_configs:type_name -> wireguard.WireGuardConfig
-	51, // 38: api_wireguard.CreateWireGuardLinkRequest.wireguard_link:type_name -> wireguard.WireGuardLink
-	47, // 39: api_wireguard.CreateWireGuardLinkResponse.status:type_name -> common.Status
-	51, // 40: api_wireguard.CreateWireGuardLinkResponse.wireguard_link:type_name -> wireguard.WireGuardLink
-	47, // 41: api_wireguard.DeleteWireGuardLinkResponse.status:type_name -> common.Status
-	51, // 42: api_wireguard.UpdateWireGuardLinkRequest.wireguard_link:type_name -> wireguard.WireGuardLink
-	47, // 43: api_wireguard.UpdateWireGuardLinkResponse.status:type_name -> common.Status
-	51, // 44: api_wireguard.UpdateWireGuardLinkResponse.wireguard_link:type_name -> wireguard.WireGuardLink
-	47, // 45: api_wireguard.GetWireGuardLinkResponse.status:type_name -> common.Status
-	51, // 46: api_wireguard.GetWireGuardLinkResponse.wireguard_link:type_name -> wireguard.WireGuardLink
-	47, // 47: api_wireguard.ListWireGuardLinksResponse.status:type_name -> common.Status
-	51, // 48: api_wireguard.ListWireGuardLinksResponse.wireguard_links:type_name -> wireguard.WireGuardLink
-	52, // 49: api_wireguard.GetNetworkTopologyResponse.AdjsEntry.value:type_name -> wireguard.WireGuardLinks
-	50, // [50:50] is the sub-list for method output_type
-	50, // [50:50] is the sub-list for method input_type
-	50, // [50:50] is the sub-list for extension type_name
-	50, // [50:50] is the sub-list for extension extendee
-	0,  // [0:50] is the sub-list for field type_name
+	48, // 0: api_wireguard.CreateNetworkRequest.network:type_name -> wireguard.Network
+	49, // 1: api_wireguard.CreateNetworkResponse.status:type_name -> common.Status
+	48, // 2: api_wireguard.CreateNetworkResponse.network:type_name -> wireguard.Network
+	49, // 3: api_wireguard.DeleteNetworkResponse.status:type_name -> common.Status
+	48, // 4: api_wireguard.UpdateNetworkRequest.network:type_name -> wireguard.Network
+	49, // 5: api_wireguard.UpdateNetworkResponse.status:type_name -> common.Status
+	48, // 6: api_wireguard.UpdateNetworkResponse.network:type_name -> wireguard.Network
+	49, // 7: api_wireguard.GetNetworkResponse.status:type_name -> common.Status
+	48, // 8: api_wireguard.GetNetworkResponse.network:type_name -> wireguard.Network
+	49, // 9: api_wireguard.ListNetworksResponse.status:type_name -> common.Status
+	48, // 10: api_wireguard.ListNetworksResponse.networks:type_name -> wireguard.Network
+	49, // 11: api_wireguard.GetNetworkTopologyResponse.status:type_name -> common.Status
+	47, // 12: api_wireguard.GetNetworkTopologyResponse.adjs:type_name -> api_wireguard.GetNetworkTopologyResponse.AdjsEntry
+	50, // 13: api_wireguard.CreateEndpointRequest.endpoint:type_name -> wireguard.Endpoint
+	49, // 14: api_wireguard.CreateEndpointResponse.status:type_name -> common.Status
+	50, // 15: api_wireguard.CreateEndpointResponse.endpoint:type_name -> wireguard.Endpoint
+	49, // 16: api_wireguard.DeleteEndpointResponse.status:type_name -> common.Status
+	50, // 17: api_wireguard.UpdateEndpointRequest.endpoint:type_name -> wireguard.Endpoint
+	49, // 18: api_wireguard.UpdateEndpointResponse.status:type_name -> common.Status
+	50, // 19: api_wireguard.UpdateEndpointResponse.endpoint:type_name -> wireguard.Endpoint
+	49, // 20: api_wireguard.GetEndpointResponse.status:type_name -> common.Status
+	50, // 21: api_wireguard.GetEndpointResponse.endpoint:type_name -> wireguard.Endpoint
+	49, // 22: api_wireguard.ListEndpointsResponse.status:type_name -> common.Status
+	50, // 23: api_wireguard.ListEndpointsResponse.endpoints:type_name -> wireguard.Endpoint
+	51, // 24: api_wireguard.CreateWireGuardRequest.wireguard_config:type_name -> wireguard.WireGuardConfig
+	49, // 25: api_wireguard.CreateWireGuardResponse.status:type_name -> common.Status
+	51, // 26: api_wireguard.CreateWireGuardResponse.wireguard_config:type_name -> wireguard.WireGuardConfig
+	49, // 27: api_wireguard.DeleteWireGuardResponse.status:type_name -> common.Status
+	49, // 28: api_wireguard.RestartWireGuardResponse.status:type_name -> common.Status
+	51, // 29: api_wireguard.UpdateWireGuardRequest.wireguard_config:type_name -> wireguard.WireGuardConfig
+	0,  // 30: api_wireguard.UpdateWireGuardRequest.update_type:type_name -> api_wireguard.UpdateWireGuardRequest.UpdateType
+	49, // 31: api_wireguard.UpdateWireGuardResponse.status:type_name -> common.Status
+	51, // 32: api_wireguard.UpdateWireGuardResponse.wireguard_config:type_name -> wireguard.WireGuardConfig
+	49, // 33: api_wireguard.GetWireGuardResponse.status:type_name -> common.Status
+	51, // 34: api_wireguard.GetWireGuardResponse.wireguard_config:type_name -> wireguard.WireGuardConfig
+	49, // 35: api_wireguard.GetWireGuardRuntimeInfoResponse.status:type_name -> common.Status
+	52, // 36: api_wireguard.GetWireGuardRuntimeInfoResponse.wg_device_runtime_info:type_name -> wireguard.WGDeviceRuntimeInfo
+	49, // 37: api_wireguard.ListWireGuardsResponse.status:type_name -> common.Status
+	51, // 38: api_wireguard.ListWireGuardsResponse.wireguard_configs:type_name -> wireguard.WireGuardConfig
+	53, // 39: api_wireguard.CreateWireGuardLinkRequest.wireguard_link:type_name -> wireguard.WireGuardLink
+	49, // 40: api_wireguard.CreateWireGuardLinkResponse.status:type_name -> common.Status
+	53, // 41: api_wireguard.CreateWireGuardLinkResponse.wireguard_link:type_name -> wireguard.WireGuardLink
+	49, // 42: api_wireguard.DeleteWireGuardLinkResponse.status:type_name -> common.Status
+	53, // 43: api_wireguard.UpdateWireGuardLinkRequest.wireguard_link:type_name -> wireguard.WireGuardLink
+	49, // 44: api_wireguard.UpdateWireGuardLinkResponse.status:type_name -> common.Status
+	53, // 45: api_wireguard.UpdateWireGuardLinkResponse.wireguard_link:type_name -> wireguard.WireGuardLink
+	49, // 46: api_wireguard.GetWireGuardLinkResponse.status:type_name -> common.Status
+	53, // 47: api_wireguard.GetWireGuardLinkResponse.wireguard_link:type_name -> wireguard.WireGuardLink
+	49, // 48: api_wireguard.ListWireGuardLinksResponse.status:type_name -> common.Status
+	53, // 49: api_wireguard.ListWireGuardLinksResponse.wireguard_links:type_name -> wireguard.WireGuardLink
+	54, // 50: api_wireguard.GetNetworkTopologyResponse.AdjsEntry.value:type_name -> wireguard.WireGuardLinks
+	51, // [51:51] is the sub-list for method output_type
+	51, // [51:51] is the sub-list for method input_type
+	51, // [51:51] is the sub-list for extension type_name
+	51, // [51:51] is the sub-list for extension extendee
+	0,  // [0:51] is the sub-list for field type_name
 }
 
 func init() { file_api_wg_proto_init() }
@@ -2780,13 +2898,15 @@ func file_api_wg_proto_init() {
 	file_api_wg_proto_msgTypes[41].OneofWrappers = []any{}
 	file_api_wg_proto_msgTypes[42].OneofWrappers = []any{}
 	file_api_wg_proto_msgTypes[43].OneofWrappers = []any{}
+	file_api_wg_proto_msgTypes[44].OneofWrappers = []any{}
+	file_api_wg_proto_msgTypes[45].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_wg_proto_rawDesc), len(file_api_wg_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   45,
+			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

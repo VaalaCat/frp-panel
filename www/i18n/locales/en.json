@@ -222,8 +222,8 @@
       "port": "Port",
       "invalid": "Invalid endpoint params",
       "clientId": "Client",
-      "type": "",
-      "uri": "",
+      "type": "Endpoint Type",
+      "uri": "Endpoint URI",
       "submit": "Save endpoint"
     },
     "interface": {
@@ -320,6 +320,7 @@
       "bandwidthUp": "Upload",
       "bandwidthDown": "Download",
       "endpoint": "Target Endpoint",
+      "routes": "Routes",
       "from": "From",
       "to": "To"
     },
@@ -430,6 +431,13 @@
       "endpointsTitle": "Linked endpoints",
       "endpointsDesc": "Endpoints associated with this WireGuard interface"
     },
+    "wireguardActions": {
+      "restart": "Restart",
+      "view": "View",
+      "title": "WireGuard actions",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
     "wireguardForm": {
       "interfaceName": "Interface name",
       "localAddress": "Local address",
@@ -481,12 +489,6 @@
       "headerTotal_one": "{{count}} device total",
       "headerTotal_other": "{{count}} devices total",
       "title": "WireGuards"
-    },
-    "wireguardActions": {
-      "view": "View",
-      "title": "WireGuard actions",
-      "edit": "Edit",
-      "delete": "Delete"
     },
     "wireguardDelete": {
       "confirm": "Confirm delete WireGuard?"
@@ -619,8 +621,8 @@
       "type": "Type",
       "confirm": "Confirm",
       "config": "Tunnel Configuration",
-      "expand_one": "",
-      "expand_other": "Expand",
+      "expand_one": "Expand one",
+      "expand_other": "Expand other",
       "delete": "Delete",
       "tunnel_name": "Tunnel Name",
       "type_label": "Type: [{{type}}]",

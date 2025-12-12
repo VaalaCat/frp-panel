@@ -46,6 +46,11 @@ func AddPeer(ctx *app.Context, wgSvc app.WireGuard, req *pb.UpdateWireGuardReque
 		}
 	}
 
+	if err := wgSvc.UpdateAdjs(req.GetWireguardConfig().GetAdjs()); err != nil {
+		log.WithError(err).Errorf("update adjs failed, adjs: %+v", req.GetWireguardConfig().GetAdjs())
+		return nil, err
+	}
+
 	log.Infof("add peer done")
 
 	return &pb.UpdateWireGuardResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"}}, nil
@@ -62,6 +67,11 @@ func RemovePeer(ctx *app.Context, wgSvc app.WireGuard, req *pb.UpdateWireGuardRe
 			log.WithError(err).Errorf("remove peer failed")
 			continue
 		}
+	}
+
+	if err := wgSvc.UpdateAdjs(req.GetWireguardConfig().GetAdjs()); err != nil {
+		log.WithError(err).Errorf("update adjs failed, adjs: %+v", req.GetWireguardConfig().GetAdjs())
+		return nil, err
 	}
 
 	log.Infof("remove peer done")
@@ -82,6 +92,11 @@ func UpdatePeer(ctx *app.Context, wgSvc app.WireGuard, req *pb.UpdateWireGuardRe
 		}
 	}
 
+	if err := wgSvc.UpdateAdjs(req.GetWireguardConfig().GetAdjs()); err != nil {
+		log.WithError(err).Errorf("update adjs failed, adjs: %+v", req.GetWireguardConfig().GetAdjs())
+		return nil, err
+	}
+
 	log.Infof("update peer done")
 
 	return &pb.UpdateWireGuardResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"}}, nil
@@ -97,6 +112,11 @@ func PatchPeers(ctx *app.Context, wgSvc app.WireGuard, req *pb.UpdateWireGuardRe
 	diffResp, err := wgSvc.PatchPeers(wgCfg.GetParsedPeers())
 	if err != nil {
 		log.WithError(err).Errorf("patch peers failed")
+		return nil, err
+	}
+
+	if err = wgSvc.UpdateAdjs(req.GetWireguardConfig().GetAdjs()); err != nil {
+		log.WithError(err).Errorf("update adjs failed, adjs: %+v", req.GetWireguardConfig().GetAdjs())
 		return nil, err
 	}
 

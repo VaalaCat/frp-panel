@@ -195,7 +195,8 @@ func (q *linkQuery) CountWireGuardLinksWithFilters(userInfo models.UserInfo, net
 func (q *linkQuery) AdminListWireGuardLinksWithNetworkIDs(networkIDs []uint) ([]*models.WireGuardLink, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var list []*models.WireGuardLink
-	if err := db.Where("network_id IN ?", networkIDs).Find(&list).Error; err != nil {
+	if err := db.Preload("ToEndpoint").
+		Where("network_id IN ?", networkIDs).Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil

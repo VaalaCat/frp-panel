@@ -128,6 +128,7 @@ func ConfigureRouter(appInstance app.Application, router *gin.Engine) {
 			wgRouter.POST("/create", app.Wrapper(appInstance, wgHandler.CreateWireGuard))
 			wgRouter.POST("/delete", app.Wrapper(appInstance, wgHandler.DeleteWireGuard))
 			wgRouter.POST("/update", app.Wrapper(appInstance, wgHandler.UpdateWireGuard))
+			wgRouter.POST("/restart", app.Wrapper(appInstance, wgHandler.RestartWireGuard))
 			wgRouter.POST("/get", app.Wrapper(appInstance, wgHandler.GetWireGuard))
 			wgRouter.POST("/list", app.Wrapper(appInstance, wgHandler.ListWireGuards))
 			wgRouter.POST("/runtime/get", app.Wrapper(appInstance, wgHandler.GetWireGuardRuntimeInfo))

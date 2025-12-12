@@ -51,6 +51,7 @@ const (
 	Event_EVENT_DELETE_WIREGUARD           Event = 24
 	Event_EVENT_UPDATE_WIREGUARD           Event = 25
 	Event_EVENT_GET_WIREGUARD_RUNTIME_INFO Event = 26
+	Event_EVENT_RESTART_WIREGUARD          Event = 27
 )
 
 // Enum value maps for Event.
@@ -83,6 +84,7 @@ var (
 		24: "EVENT_DELETE_WIREGUARD",
 		25: "EVENT_UPDATE_WIREGUARD",
 		26: "EVENT_GET_WIREGUARD_RUNTIME_INFO",
+		27: "EVENT_RESTART_WIREGUARD",
 	}
 	Event_value = map[string]int32{
 		"EVENT_UNSPECIFIED":                0,
@@ -112,6 +114,7 @@ var (
 		"EVENT_DELETE_WIREGUARD":           24,
 		"EVENT_UPDATE_WIREGUARD":           25,
 		"EVENT_GET_WIREGUARD_RUNTIME_INFO": 26,
+		"EVENT_RESTART_WIREGUARD":          27,
 	}
 )
 
@@ -1510,7 +1513,7 @@ const file_rpc_master_proto_rawDesc = "" +
 	"\x0f_interface_nameB\x0f\n" +
 	"\r_runtime_info\"H\n" +
 	"\x1eReportWireGuardRuntimeInfoResp\x12&\n" +
-	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusR\x06status*\x99\x05\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusR\x06status*\xb6\x05\n" +
 	"\x05Event\x12\x15\n" +
 	"\x11EVENT_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15EVENT_REGISTER_CLIENT\x10\x01\x12\x19\n" +
@@ -1542,7 +1545,8 @@ const file_rpc_master_proto_rawDesc = "" +
 	"\x16EVENT_CREATE_WIREGUARD\x10\x17\x12\x1a\n" +
 	"\x16EVENT_DELETE_WIREGUARD\x10\x18\x12\x1a\n" +
 	"\x16EVENT_UPDATE_WIREGUARD\x10\x19\x12$\n" +
-	" EVENT_GET_WIREGUARD_RUNTIME_INFO\x10\x1a2\x81\a\n" +
+	" EVENT_GET_WIREGUARD_RUNTIME_INFO\x10\x1a\x12\x1b\n" +
+	"\x17EVENT_RESTART_WIREGUARD\x10\x1b2\x81\a\n" +
 	"\x06Master\x12>\n" +
 	"\n" +
 	"ServerSend\x12\x15.master.ClientMessage\x1a\x15.master.ServerMessage(\x010\x01\x12M\n" +

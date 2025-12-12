@@ -4,8 +4,8 @@ import React from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getWireGuard, deleteWireGuard, getWireGuardRuntime } from '@/api/wg'
-import { GetWireGuardRequest, DeleteWireGuardRequest, GetWireGuardRuntimeInfoRequest } from '@/lib/pb/api_wg'
+import { getWireGuard, deleteWireGuard, getWireGuardRuntime, restartWireGuard } from '@/api/wg'
+import { GetWireGuardRequest, DeleteWireGuardRequest, GetWireGuardRuntimeInfoRequest, RestartWireGuardRequest } from '@/lib/pb/api_wg'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -57,6 +57,17 @@ const WireGuardDetail: React.FC = () => {
 
 	const wireguard = data?.wireguardConfig
 
+	const handleRestart = async () => {
+		if (!wireguardId) return
+		try {
+			await restartWireGuard(RestartWireGuardRequest.create({ id: wireguardId }))
+			toast.success(t('common.success'))
+			refetchRuntime()
+		} catch (error: any) {
+			toast.error(error?.message ?? 'Error')
+		}
+	}
+
 	const handleDelete = async () => {
 		if (!wireguardId) return
 		try {
@@ -99,6 +110,9 @@ const WireGuardDetail: React.FC = () => {
 						</Button>
 						<Button variant="outline" onClick={() => setOpenEdit(true)} disabled={!wireguard}>
 							{t('wg.wireguardDetail.edit')}
+						</Button>
+						<Button variant="outline" onClick={handleRestart} disabled={!wireguard}>
+							{t('wg.wireguardActions.restart')}
 						</Button>
 						<DialogTrigger asChild>
 							<Button variant="destructive">

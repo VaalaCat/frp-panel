@@ -21,7 +21,7 @@ func GetWireGuardRuntimeInfo(ctx *app.Context, req *pb.GetWireGuardRuntimeInfoRe
 
 	wgRecord, err := dao.NewQuery(ctx).GetWireGuardByID(userInfo, uint(req.GetId()))
 	if err != nil {
-		log.WithError(err).Errorf("get wireguard by id failed")
+		log.WithError(err).Errorf("get wireguard by id failed, clientId: [%s], id: [%d]", req.GetClientId(), req.GetId())
 		return nil, errors.New("get wireguard by id failed")
 	}
 
@@ -29,13 +29,13 @@ func GetWireGuardRuntimeInfo(ctx *app.Context, req *pb.GetWireGuardRuntimeInfoRe
 	if err := rpc.CallClientWrapper(ctx, wgRecord.ClientID, pb.Event_EVENT_GET_WIREGUARD_RUNTIME_INFO, &pb.GetWireGuardRuntimeInfoRequest{
 		InterfaceName: &wgRecord.Name,
 	}, resp); err != nil {
-		log.WithError(err).Errorf("failed to call get wireguard runtime info with clientId: %s", wgRecord.ClientID)
+		log.WithError(err).Errorf("failed to call get wireguard runtime info with clientId: [%s], id: [%d]", wgRecord.ClientID, req.GetId())
 		return nil, errors.New("failed to call get wireguard runtime info")
 	}
 	resp.WgDeviceRuntimeInfo.ClientId = wgRecord.ClientID
 	resp.WgDeviceRuntimeInfo.VirtualIp = wgRecord.LocalAddress
 
-	log.Debugf("get wireguard runtime info success with clientId: %s, interfaceName: %s, runtimeInfo: %s",
+	log.Debugf("get wireguard runtime info success with clientId: [%s], interfaceName: [%s], runtimeInfo: [%s]",
 		wgRecord.ClientID, wgRecord.Name, resp.GetWgDeviceRuntimeInfo().String())
 
 	return resp, nil

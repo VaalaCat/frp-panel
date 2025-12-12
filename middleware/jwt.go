@@ -20,7 +20,7 @@ import (
 func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		defer func() {
-			logger.Logger(c).Info("finish jwt middleware")
+			logger.Logger(c).Debugf("finish jwt middleware")
 		}()
 
 		var tokenStr string
@@ -30,7 +30,7 @@ func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 				for k, v := range t {
 					c.Set(k, v)
 				}
-				logger.Logger(c).Infof("query auth success")
+				logger.Logger(c).Debugf("query auth success")
 				if err = resignAndPatchCtxJWT(c, appInstance, cast.ToInt(t[defs.UserIDKey]), t, tokenStr); err != nil {
 					logger.Logger(c).WithError(err).Errorf("resign jwt error")
 					common.ErrUnAuthorized(c, "resign jwt error")
@@ -41,7 +41,7 @@ func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 				SetToken(c, appInstance, cast.ToInt(t[defs.UserIDKey]), t)
 				return
 			}
-			logger.Logger(c).Infof("query auth failed")
+			logger.Logger(c).Debugf("query auth failed")
 		}
 
 		cookieToken, err := c.Cookie(appInstance.GetConfig().App.CookieName)
@@ -50,7 +50,7 @@ func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 				for k, v := range t {
 					c.Set(k, v)
 				}
-				logger.Logger(c).Infof("cookie auth success")
+				logger.Logger(c).Debugf("cookie auth success")
 				if err = resignAndPatchCtxJWT(c, appInstance, cast.ToInt(t[defs.UserIDKey]), t, cookieToken); err != nil {
 					logger.Logger(c).WithError(err).Errorf("resign jwt error")
 					common.ErrUnAuthorized(c, "resign jwt error")
@@ -80,7 +80,7 @@ func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 			for k, v := range t {
 				c.Set(k, v)
 			}
-			logger.Logger(c).Infof("header auth success")
+			logger.Logger(c).Debugf("header auth success")
 			if err = resignAndPatchCtxJWT(c, appInstance, cast.ToInt(t[defs.UserIDKey]), t, tokenStr); err != nil {
 				logger.Logger(c).WithError(err).Errorf("resign jwt error")
 				common.ErrUnAuthorized(c, "resign jwt error")
@@ -90,7 +90,7 @@ func JWTAuth(appInstance app.Application) func(c *gin.Context) {
 			c.Next()
 			return
 		} else {
-			logger.Logger(c).WithError(err).Errorf("jwt middleware parse token error")
+			logger.Logger(c).WithError(err).Errorf("jwt middleware parse token error, token: [%s]", tokenStr)
 		}
 	}
 }
@@ -99,7 +99,7 @@ func resignAndPatchCtxJWT(c *gin.Context, appInstance app.Application, userID in
 	tokenExpire, _ := t.GetExpirationTime()
 	now := time.Now().Add(time.Duration(appInstance.GetConfig().App.CookieAge/2) * time.Second)
 	if now.Before(tokenExpire.Time) {
-		logger.Logger(c).Infof("jwt not going to expire, continue to use old one")
+		logger.Logger(c).Debugf("jwt not going to expire, continue to use old one")
 		c.Set(defs.TokenKey, tokenStr)
 		return nil
 	}
@@ -112,7 +112,7 @@ func resignAndPatchCtxJWT(c *gin.Context, appInstance app.Application, userID in
 
 	PushTokenStr(c, appInstance, tokenStr)
 
-	logger.Logger(c).Infof("jwt going to expire, resigning token")
+	logger.Logger(c).Debugf("jwt going to expire, resigning token")
 	return nil
 }
 
@@ -135,7 +135,7 @@ func SetToken(c *gin.Context, appInstance app.Application, userID int, payload j
 
 // PushTokenStr 推送token到客户端
 func PushTokenStr(c *gin.Context, appInstance app.Application, tokenStr string) {
-	logger.Logger(c).Infof("push new token to client")
+	logger.Logger(c).Debugf("push new token to client")
 	c.SetCookie(appInstance.GetConfig().App.CookieName,
 		tokenStr,
 		appInstance.GetConfig().App.CookieAge,

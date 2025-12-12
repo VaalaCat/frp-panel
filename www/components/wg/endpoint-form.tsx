@@ -46,7 +46,7 @@ export default function EndpointForm({
 		setInputClientId(clientId)
 		setType(initial?.type ?? 'udp')
 		setUri(initial?.uri ?? '')
-	}, [initial?.host, initial?.port, initial?.type, initial?.uri])
+	}, [clientId, initial?.host, initial?.port, initial?.type, initial?.uri])
 
 	const disabled = (k: DisableField) => !!disableFields?.includes(k)
 

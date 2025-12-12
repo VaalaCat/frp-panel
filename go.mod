@@ -9,6 +9,7 @@ require (
 	github.com/casbin/casbin/v2 v2.105.0
 	github.com/casbin/gorm-adapter/v3 v3.29.0
 	github.com/coocood/freecache v1.2.4
+	github.com/coreos/go-iptables v0.8.0
 	github.com/creack/pty v1.1.24
 	github.com/fatedier/frp v0.65.0
 	github.com/fatedier/golib v0.5.1
@@ -26,6 +27,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kardianos/service v1.2.2
 	github.com/lucasepe/codename v0.2.0
+	github.com/pion/stun/v3 v3.0.2
 	github.com/prometheus-community/pro-bing v0.7.0
 	github.com/samber/lo v1.47.0
 	github.com/shirou/gopsutil/v4 v4.25.4
@@ -34,7 +36,7 @@ require (
 	github.com/spf13/cast v1.7.1
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	github.com/tidwall/pretty v1.2.1
 	github.com/tiendc/go-deepcopy v1.2.0
 	github.com/vishvananda/netlink v1.3.1
@@ -107,10 +109,11 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	github.com/pion/dtls/v2 v2.2.7 // indirect
-	github.com/pion/logging v0.2.2 // indirect
+	github.com/pion/dtls/v3 v3.0.8 // indirect
+	github.com/pion/logging v0.2.4 // indirect
 	github.com/pion/stun/v2 v2.0.0 // indirect
 	github.com/pion/transport/v2 v2.2.1 // indirect
-	github.com/pion/transport/v3 v3.0.7 // indirect
+	github.com/pion/transport/v3 v3.1.1 // indirect
 	github.com/pires/go-proxyproto v0.7.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
@@ -134,7 +137,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/vishvananda/netns v0.0.5 // indirect
-	github.com/wlynxg/anet v0.0.3 // indirect
+	github.com/wlynxg/anet v0.0.5 // indirect
 	github.com/xtaci/kcp-go/v5 v5.6.13 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.uber.org/dig v1.18.1 // indirect

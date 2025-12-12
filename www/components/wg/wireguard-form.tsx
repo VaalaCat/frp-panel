@@ -36,6 +36,18 @@ export default function WireGuardForm({
 	const [wsListenPort, setWsListenPort] = useState<number>(wg.wsListenPort ?? 0)
 	const [useGvisorNet, setUseGvisorNet] = useState<boolean>(wg.useGvisorNet ?? false)
 
+	// 外部传入的 wg 变更时，刷新表单的初始值，避免提交旧数据
+	useEffect(() => {
+		setIfName(wg.interfaceName ?? '')
+		setLocalAddr(wg.localAddress ?? '')
+		setMtu(wg.interfaceMtu ?? 1420)
+		setPort(wg.listenPort ?? 51820)
+		setPrivKey(wg.privateKey ?? '')
+		setTags(wg.tags ?? [])
+		setWsListenPort(wg.wsListenPort ?? 0)
+		setUseGvisorNet(wg.useGvisorNet ?? false)
+	}, [wg])
+
 	useEffect(() => {
 		listEndpoints(ListEndpointsRequest.create({ page: 1, pageSize: 200, clientId }))
 			.then((res) => {
@@ -45,7 +57,7 @@ export default function WireGuardForm({
 				setSelectedIds(preset)
 			})
 			.catch((err) => toast.error(err.message))
-	}, [clientId, wg.id])
+	}, [clientId, wg.id, wg.advertisedEndpoints])
 
 	const onToggle = (id: number, checked: boolean) => {
 		setSelectedIds((prev) => {

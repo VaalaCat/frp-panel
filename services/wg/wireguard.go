@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
 	"net/http"
 	"net/netip"
 	"os"
@@ -14,10 +13,8 @@ import (
 	"unsafe"
 
 	"github.com/gin-gonic/gin"
-	probing "github.com/prometheus-community/pro-bing"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
-	"github.com/sourcegraph/conc"
 	"github.com/vishvananda/netlink"
 	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
@@ -55,6 +52,7 @@ type wireGuard struct {
 	tunDevice tun.Device
 	multiBind *multibind.MultiBind
 	gvisorNet *netstack.Net
+	fwManager *firewallManager
 
 	running      bool
 	useGvisorNet bool // if true, use gvisor netstack
@@ -82,6 +80,8 @@ func NewWireGuard(ctx *app.Context, ifce defs.WireGuardConfig, logger *logrus.En
 		useGvisorNet = cfg.GetUseGvisorNet()
 	}
 
+	fwManager := newFirewallManager(logger.WithField("component", "iptables"))
+
 	return &wireGuard{
 		RWMutex:         sync.RWMutex{},
 		ifce:            &cfg,
@@ -91,6 +91,7 @@ func NewWireGuard(ctx *app.Context, ifce defs.WireGuardConfig, logger *logrus.En
 		endpointPingMap: &utils.SyncMap[uint32, uint32]{},
 		useGvisorNet:    useGvisorNet,
 		virtAddrPingMap: &utils.SyncMap[string, uint32]{},
+		fwManager:       fwManager,
 	}, nil
 }
 
@@ -136,6 +137,10 @@ func (w *wireGuard) Start() error {
 		}
 	}
 
+	if err := w.applyFirewallRulesLocked(); err != nil {
+		return errors.Join(errors.New("apply firewall rules failed"), err)
+	}
+
 	log.Infof("Started service done for iface '%s'", w.ifce.GetInterfaceName())
 	w.running = true
 
@@ -156,6 +161,10 @@ func (w *wireGuard) Stop() error {
 	}
 
 	log.Info("Stopping service...")
+
+	if err := w.cleanupFirewallRulesLocked(); err != nil {
+		log.WithError(err).Warn("cleanup firewall rules failed")
+	}
 
 	w.cleanupWGDevice()
 	w.cleanupNetwork()
@@ -365,6 +374,14 @@ func (w *wireGuard) GetWGRuntimeInfo() (*pb.WGDeviceRuntimeInfo, error) {
 	}
 
 	return runtimeInfo, nil
+}
+
+func (w *wireGuard) UpdateAdjs(adjs map[uint32]*pb.WireGuardLinks) error {
+	w.Lock()
+	defer w.Unlock()
+
+	w.ifce.Adjs = adjs
+	return nil
 }
 
 func (w *wireGuard) NeedRecreate(newCfg *defs.WireGuardConfig) bool {
@@ -654,6 +671,26 @@ func (w *wireGuard) cleanupWGDevice() {
 	log.Debug("Cleanup WG device complete.")
 }
 
+func (w *wireGuard) applyFirewallRulesLocked() error {
+	if w.useGvisorNet || w.fwManager == nil {
+		return nil
+	}
+
+	prefix, err := netip.ParsePrefix(w.ifce.GetLocalAddress())
+	if err != nil {
+		return errors.Join(fmt.Errorf("parse local address '%s' for firewall", w.ifce.GetLocalAddress()), err)
+	}
+
+	return w.fwManager.ApplyRelayRules(w.ifce.GetInterfaceName(), prefix.Masked().String())
+}
+
+func (w *wireGuard) cleanupFirewallRulesLocked() error {
+	if w.useGvisorNet || w.fwManager == nil {
+		return nil
+	}
+	return w.fwManager.Cleanup(w.ifce.GetInterfaceName())
+}
+
 func (w *wireGuard) reportStatusTask() {
 	for {
 		select {
@@ -663,129 +700,5 @@ func (w *wireGuard) reportStatusTask() {
 			w.pingPeers()
 			time.Sleep(ReportInterval)
 		}
-	}
-}
-
-func (w *wireGuard) pingPeers() {
-
-	log := w.svcLogger.WithField("op", "pingPeers")
-
-	ifceConfig, err := w.GetIfceConfig()
-	if err != nil {
-		log.WithError(err).Errorf("failed to get interface config")
-		return
-	}
-
-	log.Debugf("start to ping peers, len: %d", len(ifceConfig.Peers))
-
-	peers := ifceConfig.Peers
-
-	var waitGroup conc.WaitGroup
-
-	for _, peer := range peers {
-
-		addr := ""
-
-		if peer.Endpoint != nil && peer.Endpoint.Host != "" {
-			addr = peer.Endpoint.Host
-		}
-
-		if addr == "" {
-			continue
-		}
-
-		epPinger, err := probing.NewPinger(addr)
-		if err != nil {
-			log.WithError(err).Errorf("failed to create pinger for %s", addr)
-			continue
-		}
-
-		epPinger.Count = 5
-		epPinger.Timeout = 10 * time.Second
-
-		epPinger.OnFinish = func(stats *probing.Statistics) {
-			// stats.PacketsSent, stats.PacketsRecv, stats.PacketLoss
-			// stats.MinRtt, stats.AvgRtt, stats.MaxRtt, stats.StdDevRtt
-			if w.endpointPingMap != nil {
-				log.Tracef("ping stats for %s: %v", addr, stats)
-				avgRttMs := uint32(stats.AvgRtt.Milliseconds())
-				if avgRttMs == 0 { // 0 means bug
-					avgRttMs = 1
-				}
-				w.endpointPingMap.Store(peer.Id, avgRttMs)
-			}
-		}
-
-		epPinger.OnRecv = func(pkt *probing.Packet) {
-			log.Tracef("recv from %s", pkt.IPAddr.String())
-		}
-
-		epPinger.OnSendError = func(pkt *probing.Packet, err error) {
-			log.WithError(err).Errorf("failed to send packet to %s", addr)
-			w.endpointPingMap.Store(peer.Id, math.MaxUint32)
-		}
-
-		waitGroup.Go(func() {
-			if err := epPinger.Run(); err != nil {
-				log.WithError(err).Errorf("failed to run pinger for %s", addr)
-				w.endpointPingMap.Store(peer.Id, math.MaxUint32)
-				return
-			}
-			log.Debugf("ping endpoint [%s] completed", addr)
-		})
-	}
-
-	for _, peer := range peers {
-		if w.useGvisorNet {
-			continue
-		}
-
-		if peer.VirtualIp == "" {
-			continue
-		}
-
-		addr := peer.VirtualIp
-
-		virtAddrPinger, err := probing.NewPinger(addr)
-		if err != nil {
-			log.WithError(err).Errorf("failed to create pinger for %s", addr)
-			continue
-		}
-
-		virtAddrPinger.Count = 5
-		virtAddrPinger.InterfaceName = w.ifce.GetInterfaceName()
-		virtAddrPinger.Timeout = 10 * time.Second
-		virtAddrPinger.OnFinish = func(stats *probing.Statistics) {
-			log.Tracef("ping stats for %s: %v", addr, stats)
-			avgRttMs := uint32(stats.AvgRtt.Milliseconds())
-			if avgRttMs == 0 { // 0 means bug
-				avgRttMs = 1
-			}
-			w.virtAddrPingMap.Store(addr, avgRttMs)
-		}
-		virtAddrPinger.OnSendError = func(pkt *probing.Packet, err error) {
-			log.WithError(err).Errorf("failed to send packet to %s", addr)
-			w.virtAddrPingMap.Store(addr, math.MaxUint32)
-		}
-
-		virtAddrPinger.OnRecv = func(pkt *probing.Packet) {
-			log.Tracef("recv from %s", pkt.IPAddr.String())
-		}
-
-		waitGroup.Go(func() {
-			if err := virtAddrPinger.Run(); err != nil {
-				log.WithError(err).Errorf("failed to run pinger for %s", addr)
-				w.virtAddrPingMap.Store(addr, math.MaxUint32)
-				return
-			}
-			log.Debugf("ping virt addr [%s] completed", addr)
-		})
-	}
-
-	log.Debugf("wait for pingers to complete")
-
-	rcs := waitGroup.WaitAndRecover()
-	if rcs != nil {
-		log.WithError(rcs.AsError()).Errorf("failed to wait for pingers")
 	}
 }

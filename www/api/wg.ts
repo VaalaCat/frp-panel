@@ -27,6 +27,8 @@ import {
 	DeleteWireGuardResponse,
 	UpdateWireGuardRequest,
 	UpdateWireGuardResponse,
+	RestartWireGuardRequest,
+	RestartWireGuardResponse,
 	GetWireGuardRequest,
 	GetWireGuardResponse,
 	ListWireGuardsRequest,
@@ -104,6 +106,10 @@ export const createWireGuard = async (req: CreateWireGuardRequest) => {
 export const deleteWireGuard = async (req: DeleteWireGuardRequest) => {
 	const res = await http.post(API_PATH + '/wg/delete', DeleteWireGuardRequest.toJson(req))
 	return DeleteWireGuardResponse.fromJson((res.data as BaseResponse).body)
+}
+export const restartWireGuard = async (req: RestartWireGuardRequest) => {
+	const res = await http.post(API_PATH + '/wg/restart', RestartWireGuardRequest.toJson(req))
+	return RestartWireGuardResponse.fromJson((res.data as BaseResponse).body)
 }
 export const updateWireGuard = async (req: UpdateWireGuardRequest) => {
 	const res = await http.post(API_PATH + '/wg/update', UpdateWireGuardRequest.toJson(req))

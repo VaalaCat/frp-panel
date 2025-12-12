@@ -131,6 +131,16 @@ message DeleteWireGuardResponse {
   optional common.Status status = 1;
 }
 
+message RestartWireGuardRequest {
+  optional uint32 id = 1;
+  optional string client_id = 2;
+  optional string interface_name = 3;
+}
+
+message RestartWireGuardResponse {
+  optional common.Status status = 1;
+}
+
 message UpdateWireGuardRequest {
   optional wireguard.WireGuardConfig wireguard_config = 1;
   enum UpdateType {

@@ -346,7 +346,7 @@ func NewRestartServiceCmd() *cobra.Command {
 func NewUpgradeCmd(cfg conf.Config) *cobra.Command {
 	upgradeCmd := &cobra.Command{
 		Use:   "upgrade",
-		Short: "自助升级 frp-panel 二进制",
+		Short: "auto upgrade frp-panel binary",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 
@@ -378,11 +378,11 @@ func NewUpgradeCmd(cfg conf.Config) *cobra.Command {
 			}
 
 			if err := bizcommon.UpgradeSelf(ctx, opts); err != nil {
-				logger.Logger(ctx).Errorf("升级失败: %v", err)
+				logger.Logger(ctx).Errorf("upgrade failed: %v", err)
 				return err
 			}
 
-			logger.Logger(ctx).Info("升级完成，如为 systemd 服务请记得重启 frpp 服务生效")
+			logger.Logger(ctx).Info("upgrade completed, if you are using systemd service, please remember to restart frpp service to take effect")
 			return nil
 		},
 	}

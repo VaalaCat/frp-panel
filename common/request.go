@@ -31,7 +31,7 @@ type ReqType interface {
 		pb.GetWorkerStatusRequest | pb.InstallWorkerdRequest | pb.RedeployWorkerRequest |
 		pb.StartSteamLogRequest |
 		// wireguard api
-		pb.CreateNetworkRequest | pb.DeleteNetworkRequest | pb.UpdateNetworkRequest | pb.GetNetworkRequest | pb.ListNetworksRequest |
+		pb.CreateNetworkRequest | pb.DeleteNetworkRequest | pb.UpdateNetworkRequest | pb.GetNetworkRequest | pb.ListNetworksRequest | pb.RestartWireGuardRequest |
 		pb.CreateEndpointRequest | pb.DeleteEndpointRequest | pb.UpdateEndpointRequest | pb.GetEndpointRequest | pb.ListEndpointsRequest |
 		pb.CreateWireGuardRequest | pb.DeleteWireGuardRequest | pb.UpdateWireGuardRequest | pb.GetWireGuardRequest | pb.ListWireGuardsRequest |
 		pb.CreateWireGuardLinkRequest | pb.DeleteWireGuardLinkRequest | pb.UpdateWireGuardLinkRequest | pb.GetWireGuardLinkRequest | pb.ListWireGuardLinksRequest |
