@@ -310,21 +310,93 @@ func (w *wireGuard) UpdatePeer(peer *defs.WireGuardPeerConfig) error {
 }
 
 func (w *wireGuard) PatchPeers(newPeers []*defs.WireGuardPeerConfig) (*app.WireGuardDiffPeersResponse, error) {
-	oldPeers := w.ifce.GetParsedPeers()
+	log := w.svcLogger.WithField("op", "PatchPeers")
 
-	diffResp := utils.Diff(oldPeers, newPeers)
+	// 重要：不要使用 utils.Diff 直接对 Equal 做 diff。
+	// Equal() 包含 AllowedIPs/Endpoint 等字段，任何路由变化都会被当作 remove+add，
+	// 再叠加当前“先删后加”的执行顺序，会导致短时断链/路由黑洞。
+	// 按 PublicKey 做稳定匹配，将变化归类为 add/update/remove
+
+	oldPeers := w.ifce.GetParsedPeers()
+	typedNewPeers, err := parseAndValidatePeerConfigs(newPeers)
+	if err != nil {
+		return nil, err
+	}
+
+	oldByPK := make(map[string]*defs.WireGuardPeerConfig, len(oldPeers))
+	for _, p := range oldPeers {
+		if p == nil || p.GetPublicKey() == "" {
+			continue
+		}
+		oldByPK[p.GetPublicKey()] = p
+	}
+
+	newByPK := make(map[string]*defs.WireGuardPeerConfig, len(typedNewPeers))
+	for _, p := range typedNewPeers {
+		if p == nil || p.GetPublicKey() == "" {
+			continue
+		}
+		newByPK[p.GetPublicKey()] = p
+	}
+
+	addPeers := make([]*defs.WireGuardPeerConfig, 0, 8)
+	updatePeers := make([]*defs.WireGuardPeerConfig, 0, 8)
+	removePeers := make([]*defs.WireGuardPeerConfig, 0, 8)
+
+	for pk, np := range newByPK {
+		op, ok := oldByPK[pk]
+		if !ok { // new peer
+			addPeers = append(addPeers, np)
+			continue
+		}
+		if !op.Equal(np) { // update peer
+			updatePeers = append(updatePeers, np)
+		}
+	}
+	for pk, op := range oldByPK {
+		if _, ok := newByPK[pk]; !ok { // remove peer
+			removePeers = append(removePeers, op)
+		}
+	}
 
 	resp := &app.WireGuardDiffPeersResponse{
-		AddPeers:    diffResp.NotInArr1,
-		RemovePeers: diffResp.NotInArr2,
+		AddPeers:    addPeers,
+		RemovePeers: removePeers,
 	}
 
-	for _, peer := range resp.RemovePeers {
-		w.RemovePeer(peer.GetPublicKey())
+	if len(addPeers) == 0 && len(updatePeers) == 0 && len(removePeers) == 0 {
+		return resp, nil
 	}
-	for _, peer := range resp.AddPeers {
-		w.AddPeer(peer)
+
+	uapiBuilder := NewUAPIBuilder()
+	for _, p := range addPeers {
+		uapiBuilder.AddPeerConfig(p)
 	}
+	for _, p := range updatePeers {
+		uapiBuilder.UpdatePeerConfig(p)
+	}
+	for _, p := range removePeers {
+		uapiBuilder.RemovePeerByKey(p.GetParsedPublicKey())
+	}
+
+	log.Debugf("uapiBuilder: %s", uapiBuilder.Build())
+
+	w.Lock()
+	defer w.Unlock()
+
+	if err := w.wgDevice.IpcSet(uapiBuilder.Build()); err != nil {
+		return nil, errors.Join(errors.New("patch peers IpcSet error"), err)
+	}
+
+	// IpcSet 成功后再更新本地缓存，避免不一致
+	newPBPeers := make([]*pb.WireGuardPeerConfig, 0, len(typedNewPeers))
+	for _, p := range typedNewPeers {
+		if p == nil || p.WireGuardPeerConfig == nil {
+			continue
+		}
+		newPBPeers = append(newPBPeers, p.WireGuardPeerConfig)
+	}
+	w.ifce.Peers = newPBPeers
 
 	return resp, nil
 }

@@ -78,7 +78,8 @@ func (p *dijkstraAllowedIPsPlanner) Compute(peers []*models.WireGuard, links []*
 
 	idToPeer, order := buildNodeIndex(peers)
 	adj := buildAdjacency(order, idToPeer, links, p.policy)
-	aggByNode, edgeInfoMap := runAllPairsDijkstra(order, adj, idToPeer, p.policy)
+	spfAdj := filterAdjacencyForSPF(order, adj, p.policy)
+	aggByNode, edgeInfoMap := runAllPairsDijkstra(order, spfAdj, idToPeer, p.policy)
 	result, err := assemblePeerConfigs(order, aggByNode, edgeInfoMap, idToPeer)
 	if err != nil {
 		return nil, nil, err
@@ -110,7 +111,8 @@ func (p *dijkstraAllowedIPsPlanner) BuildGraph(peers []*models.WireGuard, links 
 func (p *dijkstraAllowedIPsPlanner) BuildFinalGraph(peers []*models.WireGuard, links []*models.WireGuardLink) (map[uint][]Edge, error) {
 	idToPeer, order := buildNodeIndex(peers)
 	adj := buildAdjacency(order, idToPeer, links, p.policy)
-	routesInfoMap, edgeInfoMap := runAllPairsDijkstra(order, adj, idToPeer, p.policy)
+	spfAdj := filterAdjacencyForSPF(order, adj, p.policy)
+	routesInfoMap, edgeInfoMap := runAllPairsDijkstra(order, spfAdj, idToPeer, p.policy)
 
 	ret := map[uint][]Edge{}
 	for src, edgeInfo := range edgeInfoMap {
@@ -156,6 +158,7 @@ type Edge struct {
 	upMbps     uint32
 	toEndpoint *models.Endpoint // 指定的目标端点，可能为 nil
 	routes     []string         // 路由信息
+	explicit   bool             // true: 显式 link；false: 推断/探测用 link
 }
 
 func (e *Edge) ToPB() *pb.WireGuardLink {
@@ -222,7 +225,13 @@ func buildAdjacency(order []uint, idToPeer map[uint]*models.WireGuard, links []*
 			}
 		}
 
-		adj[from] = append(adj[from], Edge{to: to, latency: latency, upMbps: l.UpBandwidthMbps, toEndpoint: l.ToEndpoint})
+		adj[from] = append(adj[from], Edge{
+			to:         to,
+			latency:    latency,
+			upMbps:     l.UpBandwidthMbps,
+			toEndpoint: l.ToEndpoint,
+			explicit:   true,
+		})
 	}
 
 	// 2) 若某节点具备 endpoint，则所有其他节点可直连它
@@ -270,7 +279,12 @@ func buildAdjacency(order []uint, idToPeer map[uint]*models.WireGuard, links []*
 					continue
 				}
 
-				adj[from] = append(adj[from], Edge{to: to, latency: latency, upMbps: policy.DefaultEndpointUpMbps})
+				adj[from] = append(adj[from], Edge{
+					to:       to,
+					latency:  latency,
+					upMbps:   policy.DefaultEndpointUpMbps,
+					explicit: false,
+				})
 				edgeSet[key1] = struct{}{}
 			}
 
@@ -279,12 +293,53 @@ func buildAdjacency(order []uint, idToPeer map[uint]*models.WireGuard, links []*
 				if _, exists := edgeSet[key2]; exists {
 					continue
 				}
-				adj[to] = append(adj[to], Edge{to: from, latency: latency, upMbps: policy.DefaultEndpointUpMbps})
+				adj[to] = append(adj[to], Edge{
+					to:       from,
+					latency:  latency,
+					upMbps:   policy.DefaultEndpointUpMbps,
+					explicit: false,
+				})
 				edgeSet[key2] = struct{}{}
 			}
 		}
 	}
 	return adj
+}
+
+// filterAdjacencyForSPF 将“用于探测的候选邻接(adj)”过滤为“允许进入 SPF 的邻接”。
+//
+// 参考 OSPF：新邻接必须先被确认可达（这里用 runtime ping/virt ping 的存在性作为信号）后，
+// 才能参与最短路计算。否则在节点刚更新/刚加入时，会因为默认权重过低被误选，导致部分节点不可达。
+func filterAdjacencyForSPF(order []uint, adj map[uint][]Edge, policy RoutingPolicy) map[uint][]Edge {
+	ret := make(map[uint][]Edge, len(order))
+
+	for from, edges := range adj {
+		for _, e := range edges {
+			// 显式 link：管理员配置的边，允许进入 SPF
+			if e.explicit {
+				ret[from] = append(ret[from], e)
+				continue
+			}
+
+			// 推断/探测用 link：必须已存在探测数据，且不可达哨兵值要剔除
+			latency, ok := policy.NetworkTopologyCache.GetLatencyMs(from, e.to)
+			if !ok {
+				continue
+			}
+			if latency == math.MaxUint32 {
+				continue
+			}
+			e.latency = latency
+			ret[from] = append(ret[from], e)
+		}
+	}
+
+	for _, id := range order {
+		if _, ok := ret[id]; !ok {
+			ret[id] = []Edge{}
+		}
+	}
+	return ret
 }
 
 // EdgeInfo 保存边的端点信息，用于后续组装 PeerConfig
