@@ -43,14 +43,14 @@ jobs:
           automatic_release_tag: ${{ steps.get_version.outputs.VERSION }}
           files: |
             dist/*
-      # - name: Latest Release
-      #   uses: "marvinpinto/action-automatic-releases@latest"
-      #   with:
-      #     repo_token: "${{ secrets.GITHUB_TOKEN }}"
-      #     prerelease: false
-      #     automatic_release_tag: latest
-      #     files: |
-      #       dist/*
+      - name: Latest Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          automatic_release_tag: latest
+          files: |
+            dist/*
       - name: Setup ko
         uses: ko-build/setup-ko@v0.9
         env:
