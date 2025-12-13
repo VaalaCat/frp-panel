@@ -6,6 +6,7 @@ import (
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
+	"github.com/sirupsen/logrus"
 )
 
 func PullWireGuards(appInstance app.Application, clientID, clientSecret string) error {
@@ -32,7 +33,8 @@ func PullWireGuards(appInstance app.Application, clientID, clientSecret string) 
 	}
 
 	log.Debugf("client [%s] has [%d] wireguards, check their status", clientID, len(resp.GetWireguardConfigs()))
-	log.Tracef("wireguardConfigs: %v", resp.GetWireguardConfigs())
+	log.Tracef("wireguardConfigs: %s", resp.String())
+
 	wgMgr := ctx.GetApp().GetWireGuardManager()
 	successCnt := 0
 	for _, wireGuard := range resp.GetWireguardConfigs() {
@@ -43,7 +45,7 @@ func PullWireGuards(appInstance app.Application, clientID, clientSecret string) 
 				wgMgr.RemoveService(wireGuard.GetInterfaceName())
 			} else {
 				log.Debugf("wireguard [%s] already exists, skip create, update peers if need", wireGuard.GetInterfaceName())
-				wgSvc.PatchPeers(wgCfg.GetParsedPeers())
+				syncExistingWireGuard(log, wgSvc, wgCfg)
 				continue
 			}
 		}
@@ -64,4 +66,19 @@ func PullWireGuards(appInstance app.Application, clientID, clientSecret string) 
 	log.Debugf("pull wireguards belong to client success, clientID: [%s], [%d] wireguards created", clientID, successCnt)
 
 	return nil
+}
+
+func syncExistingWireGuard(log *logrus.Entry, wgSvc app.WireGuard, wgCfg *defs.WireGuardConfig) {
+	if wgSvc == nil || wgCfg == nil {
+		return
+	}
+	// 主链路：先更新 adjs，再 patch peers。wg 内部会基于最新拓扑做预连接补齐/不可直连清理。
+	if err := wgSvc.UpdateAdjs(wgCfg.GetAdjs()); err != nil {
+		log.WithError(err).Warn("update adjs failed while syncing existing wireguard")
+		return
+	}
+	if _, err := wgSvc.PatchPeers(wgCfg.GetParsedPeers()); err != nil {
+		log.WithError(err).Warn("patch peers failed while syncing existing wireguard")
+		return
+	}
 }

@@ -48,19 +48,26 @@ func GetNetworkTopology(ctx *app.Context, req *pb.GetNetworkTopologyRequest) (*p
 		ctx.GetApp().GetClientsManager(),
 	)
 
-	var resp map[uint][]wg.Edge
-
 	if req.GetSpf() {
-		resp, err = wg.NewDijkstraAllowedIPsPlanner(policy).BuildFinalGraph(peers, links)
-	} else {
-		resp, err = wg.NewDijkstraAllowedIPsPlanner(policy).BuildGraph(peers, links)
+		// SPF 模式：展示“真实下发的路由表”（即 PeerConfig.AllowedIps），确保与实际一致。
+		peerCfgs, allEdges, err := wg.PlanAllowedIPs(peers, links, policy)
+		if err != nil {
+			log.WithError(err).Errorf("failed to plan allowed ips")
+			return nil, err
+		}
+		adjs := peerConfigsToPBAdjs(peerCfgs, allEdges)
+
+		return &pb.GetNetworkTopologyResponse{
+			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"},
+			Adjs:   adjs,
+		}, nil
 	}
 
+	resp, err := wg.NewDijkstraAllowedIPsPlanner(policy).BuildGraph(peers, links)
 	if err != nil {
 		log.WithError(err).Errorf("failed to build graph")
 		return nil, err
 	}
-
 	adjs := adjsToPB(resp)
 
 	return &pb.GetNetworkTopologyResponse{

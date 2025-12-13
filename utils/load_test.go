@@ -19,5 +19,5 @@ remotePort = 6000`)
 	if err := LoadConfigureFromContent(content, allCfg, true); err != nil {
 		t.Error(err)
 	}
-	t.Errorf("%+v", allCfg)
+	t.Logf("%+v", allCfg)
 }
