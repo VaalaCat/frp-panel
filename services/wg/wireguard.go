@@ -37,16 +37,18 @@ func NewWireGuard(ctx *app.Context, ifce defs.WireGuardConfig, logger *logrus.En
 	fwManager := newFirewallManager(logger.WithField("component", "iptables"))
 
 	return &wireGuard{
-		ifce:            &cfg,
-		ctx:             svcCtx,
-		cancel:          cancel,
-		svcLogger:       logger,
-		endpointPingMap: &utils.SyncMap[uint32, uint32]{},
-		useGvisorNet:    useGvisorNet,
-		virtAddrPingMap: &utils.SyncMap[string, uint32]{},
-		fwManager:       fwManager,
-		peerDirectory:   make(map[uint32]*pb.WireGuardPeerConfig, 64),
-		preconnectPeers: make(map[uint32]struct{}, 64),
+		ifce:             &cfg,
+		ctx:              svcCtx,
+		cancel:           cancel,
+		svcLogger:        logger,
+		endpointPingMap:  &utils.SyncMap[uint32, uint32]{},
+		useGvisorNet:     useGvisorNet,
+		virtAddrPingMap:  &utils.SyncMap[string, uint32]{},
+		endpointPingEWMA: make(map[uint32]float64, 64),
+		virtAddrPingEWMA: make(map[string]float64, 64),
+		fwManager:        fwManager,
+		peerDirectory:    make(map[uint32]*pb.WireGuardPeerConfig, 64),
+		preconnectPeers:  make(map[uint32]struct{}, 64),
 	}, nil
 }
 

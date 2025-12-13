@@ -10,50 +10,7 @@ import (
 
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/services/app"
 )
-
-// RoutingPolicy 决定边权重的计算方式。
-// cost = LatencyWeight*latency_ms + InverseBandwidthWeight*(1/max(up_mbps,1e-6)) + HopWeight + HandshakePenalty
-type RoutingPolicy struct {
-	LatencyWeight            float64
-	InverseBandwidthWeight   float64
-	HopWeight                float64
-	MinUpMbps                uint32
-	DefaultEndpointUpMbps    uint32
-	DefaultEndpointLatencyMs uint32
-	OfflineThreshold         time.Duration
-	// HandshakeStaleThreshold/HandshakeStalePenalty 用于抑制“握手过旧”的链路被选为最短路。
-	// 仅在能从 runtimeInfo 中找到对应 peer 的 last_handshake_time_sec 时生效；否则不惩罚（避免误伤）。
-	HandshakeStaleThreshold time.Duration
-	HandshakeStalePenalty   float64
-
-	ACL                  *ACL
-	NetworkTopologyCache app.NetworkTopologyCache
-	CliMgr               app.ClientsManager
-}
-
-func (p *RoutingPolicy) LoadACL(acl *ACL) *RoutingPolicy {
-	p.ACL = acl
-	return p
-}
-
-func DefaultRoutingPolicy(acl *ACL, networkTopologyCache app.NetworkTopologyCache, cliMgr app.ClientsManager) RoutingPolicy {
-	return RoutingPolicy{
-		LatencyWeight:            1.0,
-		InverseBandwidthWeight:   50.0, // 对低带宽路径给予更高惩罚
-		HopWeight:                1.0,
-		DefaultEndpointUpMbps:    50,
-		DefaultEndpointLatencyMs: 30,
-		OfflineThreshold:         2 * time.Minute,
-		// 默认启用一个温和的“握手过旧惩罚”：优先选择近期有握手的链路，但不至于强制剔除路径。
-		HandshakeStaleThreshold: 5 * time.Minute,
-		HandshakeStalePenalty:   30.0,
-		ACL:                     acl,
-		NetworkTopologyCache:    networkTopologyCache,
-		CliMgr:                  cliMgr,
-	}
-}
 
 type AllowedIPsPlanner interface {
 	// Compute 基于拓扑与链路指标，计算每个节点应配置到直连邻居的 AllowedIPs。
@@ -374,10 +331,8 @@ func buildAdjacency(order []uint, idToPeer map[uint]*models.WireGuard, links []*
 			}
 
 			latency := policy.DefaultEndpointLatencyMs
+			// GetLatencyMs 已自带“正反向兜底 + endpoint/virt ping 组合”，这里避免重复查询与覆盖，减少抖动
 			if latencyMs, ok := policy.NetworkTopologyCache.GetLatencyMs(from, to); ok {
-				latency = latencyMs
-			}
-			if latencyMs, ok := policy.NetworkTopologyCache.GetLatencyMs(to, from); ok {
 				latency = latencyMs
 			}
 
@@ -480,16 +435,7 @@ func runAllPairsDijkstra(order []uint, adj map[uint][]Edge, idToPeer map[uint]*m
 			}
 			visited[u] = true
 			for _, e := range adj[u] {
-				invBw := 1.0 / math.Max(float64(e.upMbps), 1e-6)
-				handshakePenalty := 0.0
-				if policy.HandshakeStalePenalty > 0 && policy.HandshakeStaleThreshold > 0 {
-					// 握手惩罚必须是“无方向”的，否则会导致 A->B 与 B->A 权重不一致，
-					// 进而产生单向选路（WireGuard AllowedIPs 源地址校验下会丢包）。
-					if age, ok := getHandshakeAgeBetween(u, e.to, idToPeer, policy); ok && age > policy.HandshakeStaleThreshold {
-						handshakePenalty = policy.HandshakeStalePenalty
-					}
-				}
-				w := policy.LatencyWeight*float64(e.latency) + policy.InverseBandwidthWeight*invBw + policy.HopWeight + handshakePenalty
+				w := policy.EdgeWeight(u, e, idToPeer)
 				alt := dist[u] + w
 				if alt < dist[e.to] {
 					dist[e.to] = alt

@@ -26,6 +26,14 @@ const (
 	endpointPingTimeout = 10 * time.Second
 )
 
+// ping 平滑参数（用于上报到 master 的 runtimeInfo.PingMap / VirtAddrPingMap）
+const (
+	pingSmoothAlpha           = 0.30 // EWMA: new*alpha + old*(1-alpha)
+	pingSmoothMinMs    uint32 = 1
+	pingSmoothMaxMs    uint32 = 1500
+	pingSmoothBucketMs uint32 = 5 // 分桶：减少 1-2ms 的抖动引起的波动
+)
+
 func (w *wireGuard) pingPeers() {
 	log := w.svcLogger.WithField("op", "pingPeers")
 
@@ -149,17 +157,13 @@ func (w *wireGuard) scheduleVirtualAddrPings(log *logrus.Entry, ifceConfig *defs
 			avg, err := tcpPingAvg(tcpAddr, endpointPingCount, endpointPingTimeout)
 			if err != nil {
 				log.WithError(err).Errorf("failed to tcp ping virt addr %s via %s", addr, tcpAddr)
-				if w.virtAddrPingMap != nil {
-					w.virtAddrPingMap.Store(addr, math.MaxUint32)
-				}
+				w.storeVirtAddrPing(addr, math.MaxUint32)
 				return
 			}
 
 			log.Tracef("tcp ping stats for %s via %s: avg=%s", addr, tcpAddr, avg)
 			avgRttMs := uint32(avg.Milliseconds())
-			if w.virtAddrPingMap != nil {
-				w.virtAddrPingMap.Store(addr, avgRttMs)
-			}
+			w.storeVirtAddrPing(addr, avgRttMs)
 			log.Debugf("tcp ping virt addr [%s] completed via %s", addr, tcpAddr)
 		})
 	}
@@ -177,7 +181,87 @@ func (w *wireGuard) storeEndpointPing(peerID uint32, ms uint32) {
 	if w.endpointPingMap == nil {
 		return
 	}
-	w.endpointPingMap.Store(peerID, ms)
+	w.endpointPingMap.Store(peerID, w.smoothEndpointPing(peerID, ms))
+}
+
+func (w *wireGuard) storeVirtAddrPing(addr string, ms uint32) {
+	if w.virtAddrPingMap == nil || addr == "" {
+		return
+	}
+	w.virtAddrPingMap.Store(addr, w.smoothVirtAddrPing(addr, ms))
+}
+
+func clampPingMs(ms uint32) uint32 {
+	if ms == 0 {
+		ms = 1
+	}
+	if ms < pingSmoothMinMs {
+		return pingSmoothMinMs
+	}
+	if ms > pingSmoothMaxMs {
+		return pingSmoothMaxMs
+	}
+	return ms
+}
+
+func bucketPingMs(ms uint32) uint32 {
+	if pingSmoothBucketMs == 0 {
+		return ms
+	}
+	b := pingSmoothBucketMs
+	// 四舍五入到最近桶
+	return ((ms + b/2) / b) * b
+}
+
+func (w *wireGuard) smoothEndpointPing(peerID uint32, raw uint32) uint32 {
+	// 不可达哨兵值：直接上报不可达，但保留历史 EWMA 以便恢复时平滑
+	if raw == math.MaxUint32 {
+		return math.MaxUint32
+	}
+	raw = bucketPingMs(clampPingMs(raw))
+	v := float64(raw)
+
+	w.pingAggMu.Lock()
+	defer w.pingAggMu.Unlock()
+
+	if w.endpointPingEWMA == nil {
+		w.endpointPingEWMA = make(map[uint32]float64, 64)
+	}
+	old, ok := w.endpointPingEWMA[peerID]
+	if !ok || old <= 0 {
+		w.endpointPingEWMA[peerID] = v
+		return raw
+	}
+	ema := pingSmoothAlpha*v + (1.0-pingSmoothAlpha)*old
+	w.endpointPingEWMA[peerID] = ema
+	ms := uint32(math.Round(ema))
+	ms = bucketPingMs(clampPingMs(ms))
+	return ms
+}
+
+func (w *wireGuard) smoothVirtAddrPing(addr string, raw uint32) uint32 {
+	if raw == math.MaxUint32 {
+		return math.MaxUint32
+	}
+	raw = bucketPingMs(clampPingMs(raw))
+	v := float64(raw)
+
+	w.pingAggMu.Lock()
+	defer w.pingAggMu.Unlock()
+
+	if w.virtAddrPingEWMA == nil {
+		w.virtAddrPingEWMA = make(map[string]float64, 64)
+	}
+	old, ok := w.virtAddrPingEWMA[addr]
+	if !ok || old <= 0 {
+		w.virtAddrPingEWMA[addr] = v
+		return raw
+	}
+	ema := pingSmoothAlpha*v + (1.0-pingSmoothAlpha)*old
+	w.virtAddrPingEWMA[addr] = ema
+	ms := uint32(math.Round(ema))
+	ms = bucketPingMs(clampPingMs(ms))
+	return ms
 }
 
 // collectEndpointPingTargets 收集所有“可能直连”的节点 endpoint（高内聚：只关注 ping 需要的目标集合）。
