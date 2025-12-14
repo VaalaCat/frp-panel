@@ -142,6 +142,12 @@ func (w *wireGuard) scheduleVirtualAddrPings(log *logrus.Entry, ifceConfig *defs
 	peers := ifceConfig.Peers
 	for _, peer := range peers {
 		p := peer
+		// 没有 AllowedIPs 的 peer（例如仅用于保持连接/预连接的常驻 peer）不参与 virt addr 探测：
+		// - 此时本机通常没有到对端 virtIP 的路由，探测必然失败
+		// - 若失败写入不可达哨兵，会污染 master 的拓扑 cache，导致 SPF 误判为不可达，进而“完全不连通”
+		if p == nil || len(p.GetAllowedIps()) == 0 {
+			continue
+		}
 		addr := p.GetVirtualIp()
 		if addr == "" {
 			continue
@@ -157,7 +163,10 @@ func (w *wireGuard) scheduleVirtualAddrPings(log *logrus.Entry, ifceConfig *defs
 			avg, err := tcpPingAvg(tcpAddr, endpointPingCount, endpointPingTimeout)
 			if err != nil {
 				log.WithError(err).Errorf("failed to tcp ping virt addr %s via %s", addr, tcpAddr)
-				w.storeVirtAddrPing(addr, math.MaxUint32)
+				// 失败时不写入不可达哨兵，避免污染拓扑；删除该条记录即可回退到 endpoint latency
+				if w.virtAddrPingMap != nil {
+					w.virtAddrPingMap.Delete(addr)
+				}
 				return
 			}
 
