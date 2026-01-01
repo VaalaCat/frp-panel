@@ -45,3 +45,6 @@ The application loads configuration in the following order:
 | string | `DB_DSN`                               | `data.db`           | Database DSN. For `sqlite3`, this is a file path (default in working directory). For other databases, use DSN. |
 | string | `CLIENT_ID`                            | –                   | Client ID                                                                                                      |
 | string | `CLIENT_SECRET`                        | –                   | Client secret                                                                                                  |
+| bool   | `IS_DEBUG`                              | `false`             | Enable debug mode (affects logging / some components behavior)                                                |
+| bool   | `DEBUG_PROFILER_ENABLED`                | `false`             | Enable profiler (pprof) HTTP server (by default listens on 127.0.0.1 only)                                    |
+| int    | `DEBUG_PROFILER_PORT`                   | `6961`              | Profiler (pprof) HTTP port                                                                                    |

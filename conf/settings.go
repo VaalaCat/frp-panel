@@ -67,7 +67,11 @@ type Config struct {
 		} `env-prefix:"FEATURES_" env-description:"features config"`
 	} `env-prefix:"CLIENT_"`
 	IsDebug bool `env:"IS_DEBUG" env-default:"false" env-description:"is debug mode"`
-	Logger  struct {
+	Debug   struct {
+		ProfilerEnabled bool `env:"PROFILER_ENABLED" env-default:"false" env-description:"enable profiler"`
+		ProfilerPort    int  `env:"PROFILER_PORT" env-default:"6961" env-description:"profiler port"`
+	} `env-prefix:"DEBUG_"`
+	Logger struct {
 		DefaultLoggerLevel string `env:"DEFAULT_LOGGER_LEVEL" env-default:"info" env-description:"frp-panel internal default logger level"`
 		FRPLoggerLevel     string `env:"FRP_LOGGER_LEVEL" env-default:"info" env-description:"frp logger level"`
 	} `env-prefix:"LOGGER_"`

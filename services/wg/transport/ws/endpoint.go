@@ -78,6 +78,9 @@ func (w *WSConn) readLoop(ctx *app.Context) {
 		return
 	}
 
+	// 限制单条消息大小，避免 gorilla/websocket.ReadMessage/io.ReadAll 触发超大分配
+	conn.SetReadLimit(wsMaxMessageSize)
+
 	for {
 		// data 是 TLV 格式
 		msgType, data, err := conn.ReadMessage()
