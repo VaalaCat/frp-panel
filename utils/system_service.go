@@ -36,6 +36,10 @@ func (ss *SystemService) iRun() {
 }
 
 func CreateSystemService(svcName string, args []string, run func()) (service.Service, error) {
+	return CreateSystemServiceWithOptions(svcName, args, run, nil)
+}
+
+func CreateSystemServiceWithOptions(svcName string, args []string, run func(), options service.KeyValue) (service.Service, error) {
 	currentPath, err := os.Executable()
 	if err != nil {
 		return nil, fmt.Errorf("get current path failed, err: %v", err)
@@ -47,6 +51,7 @@ func CreateSystemService(svcName string, args []string, run func()) (service.Ser
 		Description:      "this is frp-panel service, developed by [VaalaCat] - https://github.com/VaalaCat/frp-panel",
 		Arguments:        args,
 		WorkingDirectory: path.Dir(currentPath),
+		Option:           options,
 	}
 
 	ss := &SystemService{
@@ -61,10 +66,14 @@ func CreateSystemService(svcName string, args []string, run func()) (service.Ser
 }
 
 func ControlSystemService(svcName string, args []string, action string, run func()) error {
+	return ControlSystemServiceWithOptions(svcName, args, action, run, nil)
+}
+
+func ControlSystemServiceWithOptions(svcName string, args []string, action string, run func(), options service.KeyValue) error {
 	ctx := context.Background()
 
 	logger.Logger(ctx).Info("try to ", action, " service, args:", args)
-	s, err := CreateSystemService(svcName, args, run)
+	s, err := CreateSystemServiceWithOptions(svcName, args, run, options)
 	if err != nil {
 		logger.Logger(ctx).WithError(err).Error("create service controller failed")
 		return err

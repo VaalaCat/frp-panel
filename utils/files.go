@@ -6,12 +6,20 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"net"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
+	"sync"
+	"time"
 
 	"github.com/VaalaCat/frp-panel/utils/logger"
+	"github.com/failsafe-go/failsafe-go"
+	"github.com/failsafe-go/failsafe-go/retrypolicy"
 	"github.com/imroc/req/v3"
+	"github.com/mattn/go-isatty"
+	"github.com/schollz/progressbar/v3"
 	"go.uber.org/multierr"
 )
 
@@ -105,19 +113,144 @@ func DownloadFile(ctx context.Context, url string, proxyUrl string) (string, err
 		cli = cli.SetProxyURL(proxyUrl)
 	}
 
-	err = cli.NewParallelDownload(url).
-		SetConcurrency(5).
-		SetSegmentSize(1024 * 1024 * 1).
-		SetOutputFile(fileFullPath).
-		SetFileMode(0777).
-		SetTempRootDir(path.Join(TmpFileDir, "downloads_cache")).
-		Do()
-	if err != nil {
+	logger.Logger(ctx).Infof("Downloading file from url: %s with proxy: %s", url, proxyUrl)
+
+	// 进度条：仅在交互式终端展示，避免污染 service 日志
+	showProgress := isatty.IsTerminal(os.Stderr.Fd())
+
+	// failsafe-go Retry 策略（参考：https://failsafe-go.dev）
+	retryPolicy := retrypolicy.NewBuilder[any]().
+		HandleIf(func(_ any, err error) bool { return isRetryableDownloadErr(err) }).
+		WithMaxRetries(2). // 总共 3 次尝试
+		WithBackoff(500*time.Millisecond, 2*time.Second).
+		Build()
+
+	runAttempt := func() error {
+		_ = os.Remove(fileFullPath)
+
+		if showProgress {
+			// 使用 req 的下载回调驱动进度条（文档：
+			// https://req.cool/docs/tutorial/download/#use-download-callback）
+			var (
+				mu        sync.Mutex
+				bar       *progressbar.ProgressBar
+				lastBytes int64
+			)
+			callback := func(info req.DownloadInfo) {
+				if info.Response == nil || info.Response.Response == nil {
+					return
+				}
+				mu.Lock()
+				defer mu.Unlock()
+
+				if bar == nil {
+					max := info.Response.ContentLength
+					if max <= 0 {
+						max = -1
+					}
+					bar = progressbar.NewOptions64(
+						max,
+						progressbar.OptionSetWriter(os.Stderr),
+						progressbar.OptionShowBytes(true),
+						progressbar.OptionSetWidth(24),
+						progressbar.OptionSetDescription("Downloading..."),
+						progressbar.OptionThrottle(200*time.Millisecond),
+						progressbar.OptionClearOnFinish(),
+					)
+				}
+
+				delta := info.DownloadedSize - lastBytes
+				if delta > 0 {
+					_ = bar.Add64(delta)
+					lastBytes = info.DownloadedSize
+				}
+			}
+
+			resp, err := cli.R().
+				SetContext(ctx).
+				SetOutputFile(fileFullPath).
+				SetDownloadCallbackWithInterval(callback, 200*time.Millisecond).
+				SetRetryCount(0).
+				Get(url)
+
+			if bar != nil {
+				_ = bar.Finish()
+				_, _ = fmt.Fprintln(os.Stderr)
+			}
+			if err != nil {
+				return err
+			}
+			if resp != nil && resp.StatusCode >= 500 {
+				return fmt.Errorf("server error: %d", resp.StatusCode)
+			}
+			return nil
+		}
+
+		// 非交互终端：保持并行下载（更快，也避免刷日志）
+		cacheDir := path.Join(tmpPath, "downloads_cache")
+		_ = os.RemoveAll(cacheDir)
+		err := cli.NewParallelDownload(url).
+			SetConcurrency(5).
+			SetSegmentSize(1024 * 1024 * 1).
+			SetOutputFile(fileFullPath).
+			SetFileMode(0777).
+			SetTempRootDir(cacheDir).
+			Do()
+		return err
+	}
+
+	if err := failsafe.With(retryPolicy).Run(runAttempt); err != nil {
 		logger.Logger(ctx).WithError(err).Error("download file from url error")
 		return "", err
 	}
-
 	return fileFullPath, nil
+}
+
+func isRetryableDownloadErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	// 网络抖动类：EOF/意外断开
+	if err == io.EOF || err == io.ErrUnexpectedEOF {
+		return true
+	}
+	// 常见网络错误（net.Error）
+	if ne, ok := err.(net.Error); ok {
+		if ne.Timeout() || ne.Temporary() {
+			return true
+		}
+	}
+	// 不能用 errors.As（这里为了不引入更多依赖）：
+	// 退而求其次：字符串匹配（兼容 req / tls / http2 的 wrapped error）
+	msg := err.Error()
+	switch {
+	case msg == "unexpected EOF":
+		return true
+	case containsAny(msg,
+		"connection reset by peer",
+		"use of closed network connection",
+		"TLS handshake timeout",
+		"i/o timeout",
+		"timeout",
+		"temporary failure",
+		"server error:",
+	):
+		return true
+	default:
+		return false
+	}
+}
+
+func containsAny(s string, subs ...string) bool {
+	for _, sub := range subs {
+		if len(sub) == 0 {
+			continue
+		}
+		if strings.Contains(s, sub) {
+			return true
+		}
+	}
+	return false
 }
 
 // generateRandomFileName 生成一个随机文件名

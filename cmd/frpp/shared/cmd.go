@@ -6,8 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
-	bizcommon "github.com/VaalaCat/frp-panel/biz/common"
+	"github.com/VaalaCat/frp-panel/biz/common/upgrade"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -56,6 +57,7 @@ func BuildCommand(fs embed.FS) *cobra.Command {
 		NewStopServiceCmd(),
 		NewRestartServiceCmd(),
 		NewUpgradeCmd(cfg),
+		NewUpgradeWorkerCmd(),
 		NewVersionCmd(),
 	)
 }
@@ -346,18 +348,20 @@ func NewRestartServiceCmd() *cobra.Command {
 func NewUpgradeCmd(cfg conf.Config) *cobra.Command {
 	upgradeCmd := &cobra.Command{
 		Use:   "upgrade",
-		Short: "auto upgrade frp-panel binary",
+		Short: "OTA upgrade frp-panel binary (no service interruption unless restart)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 
 			version, _ := cmd.Flags().GetString("version")
+			downloadURL, _ := cmd.Flags().GetString("download-url")
 			githubProxy, _ := cmd.Flags().GetString("github-proxy")
 			httpProxy, _ := cmd.Flags().GetString("http-proxy")
 			binPath, _ := cmd.Flags().GetString("bin")
 			noBackup, _ := cmd.Flags().GetBool("no-backup")
-			skipServiceStop, _ := cmd.Flags().GetBool("no-service-stop")
 			serviceName, _ := cmd.Flags().GetString("service-name")
 			useGithubProxy, _ := cmd.Flags().GetBool("use-github-proxy")
+			workDir, _ := cmd.Flags().GetString("workdir")
+			restartService, _ := cmd.Flags().GetBool("restart-service")
 
 			if useGithubProxy && len(githubProxy) == 0 {
 				githubProxy = cfg.App.GithubProxyUrl
@@ -366,37 +370,96 @@ func NewUpgradeCmd(cfg conf.Config) *cobra.Command {
 				httpProxy = cfg.HTTP_PROXY
 			}
 
-			opts := bizcommon.UpgradeOptions{
+			opts := upgrade.Options{
 				Version:        version,
+				DownloadURL:    downloadURL,
 				GithubProxy:    githubProxy,
+				UseGithubProxy: useGithubProxy,
 				HTTPProxy:      httpProxy,
 				TargetPath:     binPath,
 				Backup:         !noBackup,
-				StopService:    !skipServiceStop,
 				ServiceName:    serviceName,
-				UseGithubProxy: useGithubProxy,
+				RestartService: restartService,
+				WorkDir:        workDir,
+				ServiceArgs:    args,
 			}
 
-			if err := bizcommon.UpgradeSelf(ctx, opts); err != nil {
+			res, err := upgrade.StartWithResult(ctx, opts)
+			if err != nil {
 				logger.Logger(ctx).Errorf("upgrade failed: %v", err)
 				return err
 			}
 
-			logger.Logger(ctx).Info("upgrade completed, if you are using systemd service, please remember to restart frpp service to take effect")
+			if res.Dispatched {
+				logger.Logger(ctx).Infof("upgrade dispatched to background worker, connection may drop; plan: %s", res.PlanPath)
+				return nil
+			}
+
+			if restartService {
+				logger.Logger(ctx).Info("upgrade completed (service restarted if applicable)")
+				return nil
+			}
+			logger.Logger(ctx).Info("upgrade completed. to take effect, restart service/process when convenient")
 			return nil
 		},
 	}
 
 	upgradeCmd.Flags().StringP("version", "v", "latest", "target version, default latest")
-	upgradeCmd.Flags().Bool("use-github-proxy", false, "use github proxy when downloading release asset")
+	upgradeCmd.Flags().String("download-url", "", "custom download url (highest priority), if set will ignore github-proxy")
+	upgradeCmd.Flags().Bool("use-github-proxy", true, "use github proxy when downloading release asset")
 	upgradeCmd.Flags().String("github-proxy", "", "github proxy prefix, e.g. https://ghfast.top/")
 	upgradeCmd.Flags().String("http-proxy", "", "http/https proxy for download, default HTTP_PROXY")
 	upgradeCmd.Flags().String("bin", "", "binary path to overwrite, default current running binary")
 	upgradeCmd.Flags().Bool("no-backup", false, "do not create .bak backup before overwrite")
-	upgradeCmd.Flags().Bool("no-service-stop", false, "do not stop systemd service before upgrade")
 	upgradeCmd.Flags().String("service-name", "frpp", "systemd service name to control")
+	upgradeCmd.Flags().String("workdir", "", "upgrade worker plan/lock directory (default system temp)")
+	upgradeCmd.Flags().Bool("restart-service", true, "restart service after replace (will interrupt service)")
+
+	upgradeCmd.AddCommand(NewUpgradeStatusCmd())
 
 	return upgradeCmd
+}
+
+func NewUpgradeStatusCmd() *cobra.Command {
+	statusCmd := &cobra.Command{
+		Use:   "status",
+		Short: "show last upgrade status (from workdir/status.json)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+			workDir, _ := cmd.Flags().GetString("workdir")
+			st, p, err := upgrade.ReadStatus(workDir)
+			if err != nil {
+				logger.Logger(ctx).Errorf("read upgrade status failed: %v", err)
+				return err
+			}
+			logger.Logger(ctx).Infof("status file: %s", p)
+			logger.Logger(ctx).Infof("success=%v updated_at=%s message=%s", st.Success, st.UpdatedAt.Format(time.RFC3339), st.Message)
+			return nil
+		},
+	}
+	statusCmd.Flags().String("workdir", "", "upgrade worker plan/lock directory (default system temp)")
+	return statusCmd
+}
+
+func NewUpgradeWorkerCmd() *cobra.Command {
+	workerCmd := &cobra.Command{
+		Use:                   "__upgrade-worker",
+		Short:                 "internal upgrade worker (do not call manually)",
+		Hidden:                true,
+		DisableFlagParsing:    false,
+		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+			planPath, _ := cmd.Flags().GetString("plan")
+			if len(planPath) == 0 {
+				return errors.New("missing --plan")
+			}
+			return upgrade.RunWorker(ctx, planPath)
+		},
+	}
+	workerCmd.Flags().String("plan", "", "upgrade plan file path")
+	_ = workerCmd.Flags().MarkHidden("plan")
+	return workerCmd
 }
 
 func NewVersionCmd() *cobra.Command {
