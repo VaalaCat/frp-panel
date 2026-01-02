@@ -284,3 +284,22 @@ message RedeployWorkerRequest {
 message RedeployWorkerResponse {
   optional common.Status status = 1;
 }
+
+message UpgradeFrppRequest {
+  repeated string client_ids = 1;
+  optional string version = 2; // will be used if download_url is not set
+  optional string download_url = 3; // will be used with highest priority
+  optional string github_proxy = 4; // when download_url is not set, github_proxy will be used
+  optional bool use_github_proxy = 5; // only used when download_url is not set
+  optional string http_proxy = 6; // http/https proxy for download, default HTTP_PROXY
+  optional string target_path = 7; // binary path to overwrite, default current running binary
+  optional bool backup = 8; // create .bak backup before overwrite
+  optional string service_name = 9; // service name to control
+  optional bool restart_service = 10; // restart service after replace (will interrupt service)
+  optional string workdir = 11; // upgrade worker plan/lock directory (default system temp)
+  repeated string service_args = 12; // service args to pass to utils.ControlSystemService
+}
+
+message UpgradeFrppResponse {
+  optional common.Status status = 1;
+}

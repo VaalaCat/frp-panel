@@ -81,6 +81,17 @@
       "address": "客户端地址",
       "connectTime": "连接时间"
     },
+    "upgrade": {
+      "dispatched": "升级任务已下发，客户端可能短暂离线",
+      "failed": "升级下发失败",
+      "title": "升级 frp-panel",
+      "warning": "升级会重启客户端服务，可能导致连接短暂断开（属于正常现象）。",
+      "version": "版本（默认 latest）",
+      "download_url": "下载地址（可选，优先级最高）",
+      "download_url_placeholder": "例如：https://ghfast.top/https://github.com/.../frp-panel-linux-amd64",
+      "http_proxy": "HTTP 代理（可选）",
+      "confirm": "开始升级"
+    },
     "status_online": "在线",
     "status_offline": "离线",
     "create": {
@@ -141,6 +152,7 @@
       "download_config": "下载配置",
       "realtime_log": "实时日志",
       "remote_terminal": "远程终端",
+      "upgrade": "升级 frp-panel",
       "pause": "暂停",
       "resume": "启动",
       "delete": "删除"
@@ -166,6 +178,27 @@
     "status_error": "错误",
     "status_pause": "已暂停",
     "status_unknown": "未知"
+  },
+  "common": {
+    "cancel": "取消",
+    "loading": "加载中...",
+    "stream_log_pkgs_select": "捕获日志的模块",
+    "download": "点击这里下载",
+    "copy": "复制",
+    "submit": "提交",
+    "login": "登录",
+    "register": "注册",
+    "userInfo": "用户信息",
+    "logout": "退出登录",
+    "success": "成功",
+    "add": "添加",
+    "back": "返回",
+    "saving": "保存中",
+    "save": "保存",
+    "failed": "失败",
+    "clientType": "客户端类型",
+    "disconnect": "断开连接",
+    "connect": "连接"
   },
   "table": {
     "pagination": {
@@ -512,27 +545,6 @@
       "placeholder": "请输入...",
       "add": "添加"
     }
-  },
-  "common": {
-    "stream_log_pkgs_select": "捕获日志的模块",
-    "download": "点击这里下载",
-    "copy": "复制",
-    "submit": "提交",
-    "login": "登录",
-    "register": "注册",
-    "userInfo": "用户信息",
-    "logout": "退出登录",
-    "success": "成功",
-    "cancel": "取消",
-    "loading": "加载中...",
-    "add": "添加",
-    "back": "返回",
-    "saving": "保存中",
-    "save": "保存",
-    "failed": "失败",
-    "clientType": "客户端类型",
-    "disconnect": "断开连接",
-    "connect": "连接"
   },
   "traffic": {
     "chart": {

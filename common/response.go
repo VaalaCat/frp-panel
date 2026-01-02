@@ -29,7 +29,7 @@ type RespType interface {
 		pb.StartProxyResponse | pb.StopProxyResponse |
 		pb.CreateWorkerResponse | pb.RemoveWorkerResponse | pb.RunWorkerResponse | pb.StopWorkerResponse | pb.UpdateWorkerResponse | pb.GetWorkerResponse |
 		pb.ListWorkersResponse | pb.CreateWorkerIngressResponse | pb.GetWorkerIngressResponse |
-		pb.GetWorkerStatusResponse | pb.InstallWorkerdResponse | pb.RedeployWorkerResponse |
+		pb.GetWorkerStatusResponse | pb.InstallWorkerdResponse | pb.RedeployWorkerResponse | pb.UpgradeFrppResponse |
 		pb.StartSteamLogResponse |
 		// wireguard api
 		pb.CreateNetworkResponse | pb.DeleteNetworkResponse | pb.UpdateNetworkResponse | pb.GetNetworkResponse | pb.ListNetworksResponse | pb.RestartWireGuardResponse |
@@ -114,6 +114,8 @@ func getEvent(origin interface{}) (pb.Event, protoreflect.ProtoMessage, error) {
 		return pb.Event_EVENT_GET_WORKER_STATUS, ptr, nil
 	case *pb.InstallWorkerdResponse:
 		return pb.Event_EVENT_INSTALL_WORKERD, ptr, nil
+	case *pb.UpgradeFrppResponse:
+		return pb.Event_EVENT_UPGRADE_FRPP, ptr, nil
 	case *pb.CreateWireGuardResponse:
 		return pb.Event_EVENT_CREATE_WIREGUARD, ptr, nil
 	case *pb.DeleteWireGuardResponse:

@@ -81,6 +81,17 @@
       "address": "Client Address",
       "connectTime": "Connected Since"
     },
+    "upgrade": {
+      "dispatched": "Upgrade dispatched. Client may go offline briefly.",
+      "failed": "Failed to dispatch upgrade",
+      "title": "Upgrade frp-panel",
+      "warning": "Upgrade will restart client service. Connection may drop briefly (expected).",
+      "version": "Version (default latest)",
+      "download_url": "Download URL (optional, highest priority)",
+      "download_url_placeholder": "e.g. https://ghfast.top/https://github.com/.../frp-panel-linux-amd64",
+      "http_proxy": "HTTP proxy (optional)",
+      "confirm": "Start upgrade"
+    },
     "status_online": "Online",
     "status_offline": "Offline",
     "create": {
@@ -141,6 +152,7 @@
       "download_config": "Download Configuration",
       "realtime_log": "Real-time Log",
       "remote_terminal": "Remote Terminal",
+      "upgrade": "Upgrade frp-panel",
       "pause": "Pause",
       "resume": "Resume",
       "delete": "Delete"
@@ -166,6 +178,27 @@
     "status_error": "Error",
     "status_pause": "Paused",
     "status_unknown": "Unknown"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "stream_log_pkgs_select": "Stream Log From",
+    "download": "Click here to download",
+    "copy": "Copy",
+    "submit": "Submit",
+    "login": "Login",
+    "register": "Register",
+    "userInfo": "User Information",
+    "logout": "Logout",
+    "success": "Success",
+    "add": "Add",
+    "back": "Back",
+    "saving": "Saving...",
+    "save": "Save",
+    "failed": "Failed",
+    "clientType": "Client Type",
+    "disconnect": "Disconnect",
+    "connect": "Connect"
   },
   "table": {
     "pagination": {
@@ -516,27 +549,6 @@
       "placeholder": "Please enter ...",
       "add": "Add"
     }
-  },
-  "common": {
-    "stream_log_pkgs_select": "Stream Log From",
-    "download": "Click here to download",
-    "copy": "Copy",
-    "submit": "Submit",
-    "login": "Login",
-    "register": "Register",
-    "userInfo": "User Information",
-    "logout": "Logout",
-    "success": "Success",
-    "cancel": "Cancel",
-    "loading": "Loading...",
-    "add": "Add",
-    "back": "Back",
-    "saving": "Saving...",
-    "save": "Save",
-    "failed": "Failed",
-    "clientType": "Client Type",
-    "disconnect": "Disconnect",
-    "connect": "Connect"
   },
   "traffic": {
     "chart": {

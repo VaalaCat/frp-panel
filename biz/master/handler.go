@@ -55,6 +55,7 @@ func ConfigureRouter(appInstance app.Application, router *gin.Engine) {
 			clientRouter.POST("/delete", app.Wrapper(appInstance, client.DeleteClientHandler))
 			clientRouter.POST("/list", app.Wrapper(appInstance, client.ListClientsHandler))
 			clientRouter.POST("/install_workerd", app.Wrapper(appInstance, worker.InstallWorkerd))
+			clientRouter.POST("/upgrade", app.Wrapper(appInstance, client.UpgradeFrppHandler))
 		}
 		serverRouter := v1.Group("/server")
 		{

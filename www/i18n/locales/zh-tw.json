@@ -81,6 +81,17 @@
       "address": "客戶端地址",
       "connectTime": "連接時間"
     },
+    "upgrade": {
+      "dispatched": "升級任務已下發，客戶端可能短時離線",
+      "failed": "升級任務下發失敗",
+      "title": "升級客戶端",
+      "warning": "此操作無法撤消。您確定要升級該客戶端?",
+      "version": "版本",
+      "download_url": "下載地址",
+      "download_url_placeholder": "例如：https://ghfast.top/https://github.com/.../frp-panel-linux-amd64",
+      "http_proxy": "HTTP代理",
+      "confirm": "確定升級"
+    },
     "status_online": "在線",
     "status_offline": "離線",
     "create": {
@@ -141,6 +152,7 @@
       "download_config": "下載配置",
       "realtime_log": "實時日志",
       "remote_terminal": "遠程終端",
+      "upgrade": "升級客戶端",
       "pause": "暫停",
       "resume": "啟動",
       "delete": "刪除"
@@ -166,6 +178,27 @@
     "status_error": "錯誤",
     "status_pause": "已暫停",
     "status_unknown": "未知"
+  },
+  "common": {
+    "cancel": "取消",
+    "loading": "載入中...",
+    "stream_log_pkgs_select": "捕獲日志的模塊",
+    "download": "點擊這里下載",
+    "copy": "覆制",
+    "submit": "提交",
+    "login": "登錄",
+    "register": "注冊",
+    "userInfo": "用戶信息",
+    "logout": "退出登錄",
+    "success": "成功",
+    "add": "添加",
+    "back": "返回",
+    "saving": "保存中",
+    "save": "保存",
+    "failed": "失敗",
+    "clientType": "客戶端類型",
+    "disconnect": "斷開連接",
+    "connect": "連接"
   },
   "table": {
     "pagination": {
@@ -512,27 +545,6 @@
       "placeholder": "請輸入...",
       "add": "添加"
     }
-  },
-  "common": {
-    "stream_log_pkgs_select": "捕獲日志的模塊",
-    "download": "點擊這里下載",
-    "copy": "覆制",
-    "submit": "提交",
-    "login": "登錄",
-    "register": "注冊",
-    "userInfo": "用戶信息",
-    "logout": "退出登錄",
-    "success": "成功",
-    "cancel": "取消",
-    "loading": "載入中...",
-    "add": "添加",
-    "back": "返回",
-    "saving": "保存中",
-    "save": "保存",
-    "failed": "失敗",
-    "clientType": "客戶端類型",
-    "disconnect": "斷開連接",
-    "connect": "連接"
   },
   "traffic": {
     "chart": {

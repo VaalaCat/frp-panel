@@ -81,6 +81,17 @@
       "address": "Adresse du Client",
       "connectTime": "Connecté Depuis"
     },
+    "upgrade": {
+      "dispatched": "Mise à Niveau Disparue",
+      "failed": "Mise à Niveau Échouée",
+      "title": "Mise à Niveau du Client",
+      "warning": "Cette action est irréversible. Êtes-vous sûr de vouloir mettre à niveau ce client ?",
+      "version": "Version",
+      "download_url": "URL de Téléchargement",
+      "download_url_placeholder": "URL de Téléchargement",
+      "http_proxy": "Proxy HTTP",
+      "confirm": "Confirmer"
+    },
     "status_online": "En Ligne",
     "status_offline": "Hors Ligne",
     "create": {
@@ -141,6 +152,7 @@
       "download_config": "Télécharger la Configuration",
       "realtime_log": "Journal en Temps Réel",
       "remote_terminal": "Terminal à Distance",
+      "upgrade": "Mise à Niveau",
       "pause": "Pause",
       "resume": "Reprendre",
       "delete": "Supprimer"
@@ -166,6 +178,27 @@
     "status_error": "Erreur",
     "status_pause": "En Pause",
     "status_unknown": "Inconnu"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "stream_log_pkgs_select": "Journal de Flux Depuis",
+    "download": "Cliquez ici pour télécharger",
+    "copy": "Copier",
+    "submit": "Soumettre",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "userInfo": "Informations Utilisateur",
+    "logout": "Déconnexion",
+    "success": "Succès",
+    "add": "Ajouter",
+    "back": "Retour",
+    "saving": "Enregistrement en cours...",
+    "save": "Enregistrer",
+    "failed": "Échec",
+    "clientType": "Type de Client",
+    "disconnect": "Déconnecter",
+    "connect": "Connecter"
   },
   "table": {
     "pagination": {
@@ -520,27 +553,6 @@
       "placeholder": "Veuillez entrer ...",
       "add": "Ajouter"
     }
-  },
-  "common": {
-    "stream_log_pkgs_select": "Journal de Flux Depuis",
-    "download": "Cliquez ici pour télécharger",
-    "copy": "Copier",
-    "submit": "Soumettre",
-    "login": "Connexion",
-    "register": "S'inscrire",
-    "userInfo": "Informations Utilisateur",
-    "logout": "Déconnexion",
-    "success": "Succès",
-    "cancel": "Annuler",
-    "loading": "Chargement...",
-    "add": "Ajouter",
-    "back": "Retour",
-    "saving": "Enregistrement en cours...",
-    "save": "Enregistrer",
-    "failed": "Échec",
-    "clientType": "Type de Client",
-    "disconnect": "Déconnecter",
-    "connect": "Connecter"
   },
   "traffic": {
     "chart": {

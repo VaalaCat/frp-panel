@@ -55,6 +55,8 @@ func HandleServerMessage(appInstance app.Application, req *pb.ServerMessage) *pb
 		return app.WrapperServerMsg(appInstance, req, GetWireGuardRuntimeInfo)
 	case pb.Event_EVENT_RESTART_WIREGUARD:
 		return app.WrapperServerMsg(appInstance, req, RestartWireGuard)
+	case pb.Event_EVENT_UPGRADE_FRPP:
+		return app.WrapperServerMsg(appInstance, req, UpgradeFrpp)
 	case pb.Event_EVENT_PING:
 		rawData, _ := proto.Marshal(conf.GetVersion().ToProto())
 		return &pb.ClientMessage{
