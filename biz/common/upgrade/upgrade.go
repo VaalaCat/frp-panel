@@ -87,6 +87,7 @@ func StartWithResult(ctx context.Context, opt Options) (StartResult, error) {
 	_ = os.Chmod(staged, 0755)
 
 	if err := verifyBinary(staged); err != nil {
+		_ = os.Remove(staged)
 		return StartResult{}, err
 	}
 
@@ -235,6 +236,7 @@ func RunWorker(ctx context.Context, planPath string) error {
 	// worker 假设 staged 固定为 targetPath+".new"
 	staged := stagePathForTarget(opt.TargetPath)
 	if err := verifyBinary(staged); err != nil {
+		_ = os.Remove(staged)
 		_ = writeStatus(opt.WorkDir, false, err.Error())
 		return err
 	}

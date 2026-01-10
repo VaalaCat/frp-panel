@@ -6,6 +6,10 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"syscall"
 
 	opty "github.com/creack/pty"
@@ -37,7 +41,9 @@ func Start() (PTYInterface, error) {
 		return nil, errors.New("none of the default shells was found")
 	}
 	cmd := exec.Command(shellPath)
-	cmd.Env = append(os.Environ(), "TERM=xterm")
+	env := envSliceToMap(os.Environ())
+	ensureFishEnv(env)
+	cmd.Env = envMapToSlice(env)
 	tty, err := opty.Start(cmd)
 	return &Pty{tty: tty, cmd: cmd}, err
 }
@@ -85,4 +91,49 @@ func (pty *Pty) Close() error {
 		return err
 	}
 	return pty.killChildProcess(pty.cmd)
+}
+
+func envSliceToMap(env []string) map[string]string {
+	m := make(map[string]string, len(env))
+	for _, kv := range env {
+		k, v, ok := strings.Cut(kv, "=")
+		if !ok || k == "" {
+			continue
+		}
+		m[k] = v
+	}
+	return m
+}
+
+func envMapToSlice(env map[string]string) []string {
+	out := make([]string, 0, len(env))
+	for k, v := range env {
+		if k == "" || strings.Contains(k, "=") {
+			continue
+		}
+		out = append(out, k+"="+v)
+	}
+	return out
+}
+
+func ensureFishEnv(env map[string]string) {
+	home := strings.TrimSpace(env["HOME"])
+	if home == "" {
+		// Prefer user database (e.g. /etc/passwd) when HOME is not provided.
+		if u, err := user.Current(); err == nil && strings.TrimSpace(u.HomeDir) != "" {
+			home = u.HomeDir
+		}
+	}
+	if home == "" {
+		// Fallback to os.UserHomeDir (may still work in some environments).
+		if h, err := os.UserHomeDir(); err == nil && strings.TrimSpace(h) != "" {
+			home = h
+		}
+	}
+	if home == "" {
+		uid := os.Geteuid()
+		home = filepath.Join(os.TempDir(), "frp-panel-home-"+strconv.Itoa(uid))
+	}
+	env["HOME"] = home
+	env["TERM"] = "xterm"
 }

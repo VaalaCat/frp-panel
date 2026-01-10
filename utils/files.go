@@ -186,17 +186,26 @@ func DownloadFile(ctx context.Context, url string, proxyUrl string) (string, err
 			return nil
 		}
 
-		// 非交互终端：保持并行下载（更快，也避免刷日志）
-		cacheDir := path.Join(tmpPath, "downloads_cache")
-		_ = os.RemoveAll(cacheDir)
-		err := cli.NewParallelDownload(url).
-			SetConcurrency(5).
-			SetSegmentSize(1024 * 1024 * 1).
+		resp, err := cli.R().
+			SetContext(ctx).
 			SetOutputFile(fileFullPath).
-			SetFileMode(0777).
-			SetTempRootDir(cacheDir).
-			Do()
-		return err
+			SetRetryCount(0).
+			Get(url)
+		if err != nil {
+			return err
+		}
+		if resp != nil && resp.StatusCode >= 500 {
+			return fmt.Errorf("server error: %d", resp.StatusCode)
+		}
+
+		const maxExpectedSizeBytes = 1024 * 1024 * 1024 // 1 GiB
+		if st, statErr := os.Stat(fileFullPath); statErr == nil {
+			if st.Size() > maxExpectedSizeBytes {
+				return fmt.Errorf("downloaded file too large (%d bytes > %d bytes), refusing to proceed; please check DownloadURL/GithubProxy",
+					st.Size(), int64(maxExpectedSizeBytes))
+			}
+		}
+		return nil
 	}
 
 	if err := failsafe.With(retryPolicy).Run(runAttempt); err != nil {
