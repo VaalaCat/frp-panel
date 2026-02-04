@@ -14,7 +14,6 @@ import (
 	"github.com/fatedier/frp/client/proxy"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
-	"github.com/fatedier/frp/pkg/featuregate"
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc"
 )
@@ -33,13 +32,9 @@ func NewClientHandler(commonCfg *v1.ClientCommonConfig,
 	visitorCfgs []v1.VisitorConfigurer) app.ClientHandler {
 	ctx := context.Background()
 
-	if len(commonCfg.FeatureGates) > 0 {
-		if err := featuregate.SetFromMap(commonCfg.FeatureGates); err != nil {
-			logger.Logger(ctx).WithError(err).Errorf("there's a feature gate settings, but set failed: %+v, skip", commonCfg.FeatureGates)
-		}
-	}
+	// featuregate removed in frp v0.67.0
 
-	warning, err := validation.ValidateAllClientConfig(commonCfg, proxyCfgs, visitorCfgs)
+	warning, err := validation.ValidateAllClientConfig(commonCfg, proxyCfgs, visitorCfgs, nil)
 	if warning != nil {
 		logger.Logger(ctx).WithError(err).Warnf("validate client config warning: %+v", warning)
 	}

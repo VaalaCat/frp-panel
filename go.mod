@@ -12,7 +12,7 @@ require (
 	github.com/coreos/go-iptables v0.8.0
 	github.com/creack/pty v1.1.24
 	github.com/failsafe-go/failsafe-go v0.9.4
-	github.com/fatedier/frp v0.65.0
+	github.com/fatedier/frp v0.67.0
 	github.com/fatedier/golib v0.5.1
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.9.1
@@ -29,7 +29,6 @@ require (
 	github.com/kardianos/service v1.2.2
 	github.com/lucasepe/codename v0.2.0
 	github.com/mattn/go-isatty v0.0.20
-	github.com/pion/stun/v3 v3.0.2
 	github.com/prometheus-community/pro-bing v0.7.0
 	github.com/samber/lo v1.47.0
 	github.com/schollz/progressbar/v3 v3.19.0
@@ -114,7 +113,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	github.com/pion/dtls/v2 v2.2.7 // indirect
-	github.com/pion/dtls/v3 v3.0.8 // indirect
 	github.com/pion/logging v0.2.4 // indirect
 	github.com/pion/stun/v2 v2.0.0 // indirect
 	github.com/pion/transport/v2 v2.2.1 // indirect
@@ -128,7 +126,7 @@ require (
 	github.com/prometheus/common v0.48.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
-	github.com/quic-go/quic-go v0.53.0 // indirect
+	github.com/quic-go/quic-go v0.55.0 // indirect
 	github.com/refraction-networking/utls v1.7.3 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
@@ -147,7 +145,6 @@ require (
 	github.com/xtaci/kcp-go/v5 v5.6.13 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.uber.org/dig v1.18.1 // indirect
-	go.uber.org/mock v0.5.2 // indirect
 	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect

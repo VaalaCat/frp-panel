@@ -23,7 +23,8 @@ func NewServerHandler(svrCfg *v1.ServerConfig) app.ServerHandler {
 	svrCfg.Complete()
 	ctx := context.Background()
 
-	warning, err := validation.ValidateServerConfig(svrCfg)
+	validator := validation.NewConfigValidator(nil)
+	warning, err := validator.ValidateServerConfig(svrCfg)
 	if warning != nil {
 		logger.Logger(ctx).WithError(err).Warnf("validate server config warning: %+v", warning)
 	}
