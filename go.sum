@@ -50,12 +50,10 @@ github.com/bytedance/sonic v1.15.0 h1:/PXeWFaR5ElNcVE84U0dOHjiMHQOwNIx3K4ymzh/uS
 github.com/bytedance/sonic v1.15.0/go.mod h1:tFkWrPz0/CUCLEF4ri4UkHekCIcdnkqXw9VduqpJh0k=
 github.com/bytedance/sonic/loader v0.5.0 h1:gXH3KVnatgY7loH5/TkeVyXPfESoqSBSBEiDd5VjlgE=
 github.com/bytedance/sonic/loader v0.5.0/go.mod h1:AR4NYCk5DdzZizZ5djGqQ92eEhCCcdf5x77udYiSJRo=
-github.com/casbin/casbin/v2 v2.135.0 h1:6BLkMQiGotYyS5yYeWgW19vxqugUlvHFkFiLnLR/bxk=
-github.com/casbin/casbin/v2 v2.135.0/go.mod h1:FmcfntdXLTcYXv/hxgNntcRPqAbwOG9xsism0yXT+18=
-github.com/casbin/casbin/v3 v3.10.0 h1:039ORla55vCeIZWd0LfzWFt1yiEA5X4W41xBW2bQuHs=
-github.com/casbin/casbin/v3 v3.10.0/go.mod h1:5rJbQr2e6AuuDDNxnPc5lQlC9nIgg6nS1zYwKXhpHC8=
-github.com/casbin/gorm-adapter/v3 v3.41.0 h1:Xhpi0tfRP9aKPDWDf6dgBxHZ9UM6IophxxPIEGWqCNM=
-github.com/casbin/gorm-adapter/v3 v3.41.0/go.mod h1:BQZRJhwUnwMpI+pT2m7/cUJwXxrHfzpBpPcNTyMGeGA=
+github.com/casbin/casbin/v2 v2.105.0 h1:dLj5P6pLApBRat9SADGiLxLZjiDPvA1bsPkyV4PGx6I=
+github.com/casbin/casbin/v2 v2.105.0/go.mod h1:Ee33aqGrmES+GNL17L0h9X28wXuo829wnNUnS0edAco=
+github.com/casbin/gorm-adapter/v3 v3.29.0 h1:MpbF5JVFYOwVGaTkvwDNUV4k+5CYwAu6v83ofZHRfvM=
+github.com/casbin/gorm-adapter/v3 v3.29.0/go.mod h1:C0Ew2tNYtdvDK1f+yEiKZt8XL0fcaurQhOHgxMSBM54=
 github.com/casbin/govaluate v1.3.0/go.mod h1:G/UnbIjZk/0uMNaLwZZmFQrR72tYRZWQkO70si/iR7A=
 github.com/casbin/govaluate v1.10.0 h1:ffGw51/hYH3w3rZcxO/KcaUIDOLP84w7nsidMVgaDG0=
 github.com/casbin/govaluate v1.10.0/go.mod h1:G/UnbIjZk/0uMNaLwZZmFQrR72tYRZWQkO70si/iR7A=
