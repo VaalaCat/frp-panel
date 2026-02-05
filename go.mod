@@ -21,7 +21,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/iamacarpet/go-winpty v1.0.4
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/imroc/req/v3 v3.55.0
+	github.com/imroc/req/v3 v3.57.0
 	github.com/jackpal/gateway v1.1.1
 	github.com/joho/godotenv v1.5.1
 	github.com/kardianos/service v1.2.4
@@ -52,7 +52,7 @@ require (
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
-	gvisor.dev/gvisor v0.0.0-20250503011706-39ed1f5ac29c
+	gvisor.dev/gvisor v0.0.0-20260203022325-8a1f424b4e2c
 	k8s.io/apimachinery v0.35.0
 )
 
@@ -129,8 +129,8 @@ require (
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.67.5 // indirect
 	github.com/prometheus/procfs v0.19.2 // indirect
-	github.com/quic-go/qpack v0.5.1 // indirect
-	github.com/quic-go/quic-go v0.55.0 // indirect
+	github.com/quic-go/qpack v0.6.0 // indirect
+	github.com/quic-go/quic-go v0.57.1 // indirect
 	github.com/refraction-networking/utls v1.8.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
