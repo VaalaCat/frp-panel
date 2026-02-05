@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/ui/form'
 import { Input } from './ui/input'
-import { register } from '@/api/auth'
+import { register, login } from '@/api/auth'
 import { Button } from './ui/button'
 
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
@@ -30,9 +30,6 @@ export function RegisterComponent() {
   const router = useRouter()
 
   const [registerAlert, setRegisterAlert] = useState(false)
-  const sleep = async (ms: number): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, ms))
-  }
 
   const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
     toast(t('auth.registering'))
@@ -41,8 +38,28 @@ export function RegisterComponent() {
       if (res.status?.code === RespCode.SUCCESS) {
         toast(t('auth.registerSuccess'))
         setRegisterAlert(false)
-        await sleep(3000)
-        router.push('/login')
+        
+        // 自动登录
+        toast(t('auth.loggingIn'))
+        try {
+          const loginRes = await login({ username: values.username, password: values.password })
+          if (loginRes.status?.code === RespCode.SUCCESS) {
+            toast(t('auth.loginSuccess'))
+            router.push('/')
+          } else {
+            // 自动登录失败，回退到登录页
+            toast(t('auth.loginFailed'), {
+              description: loginRes.status?.message
+            })
+            router.push('/login')
+          }
+        } catch (loginError) {
+          // 自动登录失败，回退到登录页
+          toast(t('auth.loginFailed'), {
+            description: (loginError as Error).message
+          })
+          router.push('/login')
+        }
       } else {
         toast(t('auth.registerFailed'), {
           description: res.status?.message
