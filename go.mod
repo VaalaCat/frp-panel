@@ -52,7 +52,7 @@ require (
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
-	gvisor.dev/gvisor v0.0.0-20250503011706-39ed1f5ac29c
+	gvisor.dev/gvisor v0.0.0-20260202191832-0bd9aedd142c
 	k8s.io/apimachinery v0.35.0
 )
 
