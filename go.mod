@@ -4,8 +4,8 @@ go 1.25.6
 
 require (
 	github.com/UserExistsError/conpty v0.1.4
-	github.com/casbin/casbin/v2 v2.105.0
-	github.com/casbin/gorm-adapter/v3 v3.29.0
+	github.com/casbin/casbin/v3 v3.10.0
+	github.com/casbin/gorm-adapter/v3 v3.41.0
 	github.com/coocood/freecache v1.2.4
 	github.com/coreos/go-iptables v0.8.0
 	github.com/creack/pty v1.1.24

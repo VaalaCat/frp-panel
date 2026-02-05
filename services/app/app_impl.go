@@ -7,7 +7,7 @@ import (
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/utils/logger"
-	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v3"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/credentials"
 )
