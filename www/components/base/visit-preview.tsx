@@ -16,7 +16,7 @@ export function VisitPreview({ server, typedProxyConfig, direction, withIcon = t
       !direction ? "flex-wrap" : direction == "row" ? "flex-row" : "flex-col"
     )}>
       <ServerSideVisitPreview server={server} typedProxyConfig={typedProxyConfig} withIcon={withIcon} />
-      <ArrowRight className="hidden sm:block w-4 h-4 text-gray-400 mx-2 flex-shrink-0" />
+      <ArrowRight className="hidden sm:block w-4 h-4 text-gray-400 mx-2 shrink-0" />
       <ClientSideVisitPreview typedProxyConfig={typedProxyConfig} withIcon={withIcon} />
     </div>
   );
@@ -28,7 +28,7 @@ export function ServerSideVisitPreview({ server, typedProxyConfig, withIcon = tr
   const serverPort = getServerPort(typedProxyConfig, serverCfg);
 
   return <div className="flex items-center mb-2 sm:mb-0">
-    {withIcon && <Globe className="w-4 h-4 text-blue-500 mr-2 flex-shrink-0" />}
+    {withIcon && <Globe className="w-4 h-4 text-blue-500 mr-2 shrink-0" />}
     <span className="text-nowrap">{typedProxyConfig.type == "http" ? "http://" : ""}{
       typedProxyConfig.type == "http" ? (
         getServerAuth(typedProxyConfig as HTTPProxyConfig) + getServerHost(typedProxyConfig as HTTPProxyConfig, serverCfg, serverAddress)
@@ -46,7 +46,7 @@ export function ClientSideVisitPreview({ typedProxyConfig, withIcon = true }: { 
   const clientPlugin = typedProxyConfig.plugin;
 
   return <div className="flex items-center mb-2 sm:mb-0">
-    {withIcon && <Monitor className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />}
+    {withIcon && <Monitor className="w-4 h-4 text-green-500 mr-2 shrink-0" />}
     {clientPlugin && clientPlugin.type.length > 0 ?
       <PluginLocalDist plugins={clientPlugin} /> :
       <span className="text-nowrap">{localAddress}:{localPort}</span>}

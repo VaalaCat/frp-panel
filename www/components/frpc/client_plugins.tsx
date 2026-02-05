@@ -66,7 +66,7 @@ export function PluginConfigForm({ defaultPluginConfig, setPluginConfig, support
   }, [supportedPlugins])
 
   return (
-    <div className="space-y-6 p-6 bg-white rounded-lg shadow">
+    <div className="space-y-6 p-6 bg-white rounded-lg shadow-sm">
       <div>
         <Label htmlFor="plugin-type">{t('frpc.client_plugins.plugin_type')}</Label>
         <Select

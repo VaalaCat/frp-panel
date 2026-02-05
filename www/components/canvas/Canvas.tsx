@@ -201,7 +201,7 @@ export default function Canvas({
     [handleOpenTerminal, handleOpenLog, handleDeleteNode],
   )
 
-  const canvasClassName = fullscreen ? 'h-full w-full' : 'w-full border rounded-lg overflow-hidden shadow-sm'
+  const canvasClassName = fullscreen ? 'h-full w-full' : 'w-full border rounded-lg overflow-hidden shadow-xs'
 
   const canvasStyle = fullscreen ? undefined : { height: '80dvh' }
 

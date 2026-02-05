@@ -42,7 +42,7 @@ const StringListInput: React.FC<StringListInputProps> = ({ value, onChange, plac
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          className="flex-1 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="flex-1 px-4 py-2 border rounded-md shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-sm"
           placeholder={placeholder || t('input.list.placeholder')}
         />
         <Button

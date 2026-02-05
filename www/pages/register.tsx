@@ -19,7 +19,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Mobile Header */}
-        <div className="fixed w-full flex items-center px-4 py-3 lg:hidden bg-white/80 backdrop-blur-sm border-b z-40">
+        <div className="fixed w-full flex items-center px-4 py-3 lg:hidden bg-white/80 backdrop-blur-xs border-b z-40">
           <div
             className="text-lg font-medium flex items-center"
             onClick={() => router.push('/')}

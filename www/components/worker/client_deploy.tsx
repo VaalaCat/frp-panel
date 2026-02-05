@@ -89,7 +89,7 @@ export function ClientDeployment({
   }
 
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-xs">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center">
@@ -137,7 +137,7 @@ export function ClientDeployment({
                 return (
                   <div
                     key={clientId}
-                    className="group flex flex-col overflow-hidden rounded-md border hover:border-primary/40 hover:shadow-sm transition-all duration-200"
+                    className="group flex flex-col overflow-hidden rounded-md border hover:border-primary/40 hover:shadow-xs transition-all duration-200"
                   >
                     <div className="flex items-center justify-between bg-muted/30 px-3 py-2 border-b">
                       <TooltipProvider>
@@ -154,7 +154,7 @@ export function ClientDeployment({
                         {text}
                       </Badge>
                     </div>
-                    <div className="px-3 py-2 flex-grow">
+                    <div className="px-3 py-2 grow">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>

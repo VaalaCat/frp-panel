@@ -81,7 +81,7 @@ const TerminalNodeComponent: React.FC<NodeProps<TerminalNode> & NodeOperations> 
           style={{ cursor: 'move', userSelect: 'none' }}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <TerminalIcon className="h-4 w-4 flex-shrink-0" />
+            <TerminalIcon className="h-4 w-4 shrink-0" />
             <CardTitle className="text-sm font-medium truncate">{clientId || t('canvas.terminal.noClient')}</CardTitle>
             {clientId && (
               <Badge variant={isOnline ? 'default' : 'secondary'} className="text-[10px] h-4 px-1.5">
@@ -97,7 +97,7 @@ const TerminalNodeComponent: React.FC<NodeProps<TerminalNode> & NodeOperations> 
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             {clientId && (
               <>
                 <Button

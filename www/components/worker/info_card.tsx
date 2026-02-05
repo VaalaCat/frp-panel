@@ -30,7 +30,7 @@ export function WorkerInfoCard({ worker, onChange, clients = [] }: WorkerInfoCar
   })
 
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-xs">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center">

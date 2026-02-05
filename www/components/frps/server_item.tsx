@@ -280,7 +280,7 @@ export const ServerSecret = ({ server }: { server: ServerTableSchema }) => {
           </span>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[32rem] max-w-[95vw]">
+      <PopoverContent className="w-lg max-w-[95vw]">
         <div className="grid gap-4">
           <div className="space-y-2">
             <h4 className="font-medium leading-none">{t('server.start.title')}</h4>

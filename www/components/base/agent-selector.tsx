@@ -104,7 +104,7 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({ value, onChange, p
 					<CaretSortIcon className="h-4 w-4 opacity-50" />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+			<PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
 				<Command>
 					<CommandInput onValueChange={(v) => debounced(v)} placeholder={placeholder || defaultPlaceholder} />
 					<CommandList>

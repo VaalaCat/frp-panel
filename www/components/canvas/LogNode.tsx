@@ -106,7 +106,7 @@ const LogNodeComponent: React.FC<NodeProps<LogNode> & NodeOperations> = ({ id, d
           style={{ cursor: 'move', userSelect: 'none' }}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <FileText className="h-4 w-4 flex-shrink-0" />
+            <FileText className="h-4 w-4 shrink-0" />
             <CardTitle className="text-sm font-medium truncate">
               {clientId ? `${clientId}` : t('canvas.log.noClient')}
             </CardTitle>
@@ -124,7 +124,7 @@ const LogNodeComponent: React.FC<NodeProps<LogNode> & NodeOperations> = ({ id, d
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             {clientId && (
               <>
                 <Button

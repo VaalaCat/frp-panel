@@ -184,7 +184,7 @@ export function WorkerIngress({ workerId, refetchWorker, clients }: WorkerIngres
   }
 
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-xs">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center">
@@ -218,7 +218,7 @@ export function WorkerIngress({ workerId, refetchWorker, clients }: WorkerIngres
               {ingresses.proxyConfigs.map((ingress: ProxyConfig) => (
                 <div
                   key={ingress.id}
-                  className="group overflow-hidden rounded-md border hover:border-primary/40 hover:shadow-sm transition-all duration-200 flex flex-col"
+                  className="group overflow-hidden rounded-md border hover:border-primary/40 hover:shadow-xs transition-all duration-200 flex flex-col"
                 >
                   <div className="flex items-center justify-between bg-muted/30 px-3 py-2 border-b">
                     <TooltipProvider>
@@ -237,7 +237,7 @@ export function WorkerIngress({ workerId, refetchWorker, clients }: WorkerIngres
                       proxyName={ingress.name}
                     />
                   </div>
-                  <div className="px-3 py-2 flex-grow">
+                  <div className="px-3 py-2 grow">
                     <div className="flex flex-col space-y-1">
                       <TooltipProvider>
                         <Tooltip>

@@ -111,7 +111,7 @@ const SuggestiveInput = React.forwardRef<HTMLInputElement, SuggestiveInputProps>
         </PopoverTrigger>
         {shouldShowPopover && (
             <PopoverContent
-              className={cn("w-[--radix-popover-trigger-width] p-1", popoverClassName)}
+              className={cn("w-(--radix-popover-trigger-width) p-1", popoverClassName)}
               style={{ zIndex: 50 }}
               onOpenAutoFocus={(e) => e.preventDefault()}
             >

@@ -174,7 +174,7 @@ const WGNodeComponent: React.FC<NodeComponentProps> = ({
           {/* 主卡片 */}
           <div
             className={cn(
-              'relative h-full rounded-lg border-2 bg-gradient-to-br from-card to-card/95',
+              'relative h-full rounded-lg border-2 bg-linear-to-br from-card to-card/95',
               'shadow-md transition-all duration-200',
               'hover:shadow-xl hover:scale-[1.01]',
               selected
@@ -281,14 +281,14 @@ const WGNodeComponent: React.FC<NodeComponentProps> = ({
             {/* Handles */}
             {!connection.inProgress && (
               <Handle
-                className="!w-2.5 !h-2.5 !bg-primary !border-2 !border-background"
+                className="w-2.5! h-2.5! bg-primary! border-2! border-background!"
                 position={Position.Right}
                 type="source"
               />
             )}
             {(!connection.inProgress || isTarget) && (
               <Handle
-                className="!w-2.5 !h-2.5 !bg-primary !border-2 !border-background"
+                className="w-2.5! h-2.5! bg-primary! border-2! border-background!"
                 position={Position.Left}
                 type="target"
                 isConnectableStart={false}

@@ -23,16 +23,16 @@ const LoadingCircle: React.FC<LoadingCircleProps> = ({ status }) => {
   return (
     <div className="relative flex w-6 h-6">
       <div 
-        className={`absolute w-6 h-6 rounded-full ${outer} animate-[ping_1.5s_ease-in-out_infinite]`}
+        className={`absolute w-6 h-6 rounded-full ${outer} animate-ping-slow`}
         style={{ animationDelay: '0.2s' }}
       />
       <div 
-        className={`absolute w-6 h-6 rounded-full ${outer} animate-[ping_1.5s_ease-in-out_infinite]`}
+        className={`absolute w-6 h-6 rounded-full ${outer} animate-ping-slow`}
         style={{ animationDelay: '0.4s' }}
       />
       <div className={`absolute w-6 h-6 rounded-full ${outer}`}>
         <div 
-          className={`absolute top-1 left-1 w-4 h-4 rounded-full ${inner} animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]`} 
+          className={`absolute top-1 left-1 w-4 h-4 rounded-full ${inner} animate-pulse`} 
         />
       </div>
     </div>

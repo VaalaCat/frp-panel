@@ -83,7 +83,7 @@ const ServerNodeComponent: React.FC<NodeProps<ServerNode> & NodeOperations> = ({
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <Server className={cn('h-3.5 w-3.5 flex-shrink-0', isOnline ? 'text-green-500' : 'text-gray-500')} />
+                  <Server className={cn('h-3.5 w-3.5 shrink-0', isOnline ? 'text-green-500' : 'text-gray-500')} />
                   <span className="font-medium truncate text-purple-600" title={serverId}>
                     {serverId || t('canvas.server.unknown')}
                   </span>
@@ -98,7 +98,7 @@ const ServerNodeComponent: React.FC<NodeProps<ServerNode> & NodeOperations> = ({
                   </Badge>
                 </div>
               </div>
-              <div className="drag-handle cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded flex-shrink-0">
+              <div className="drag-handle cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded shrink-0">
                 <div className="w-4 h-4 flex items-center justify-center">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" className="text-muted-foreground">
                     <circle cx="2" cy="2" r="1.5" />

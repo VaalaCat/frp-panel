@@ -56,7 +56,7 @@ export default function TerminalPage() {
 
   return (
     <Providers>
-      <div className='flex-col h-[100dvh] flex w-full relative'>
+      <div className='flex-col h-dvh flex w-full relative'>
         {/* <TerminalAlerts clientID={clientID||''} status={"error"} onAlertChange={() => { }} /> */}
         <TerminalComponentProps
           setStatus={setStatus}

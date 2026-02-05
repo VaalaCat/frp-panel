@@ -101,7 +101,7 @@ export default function ConsolePage() {
   return (
     <Providers>
       <RootLayout mainHeader={<Header />}>
-        <Card className="w-full h-[calc(100dvh_-_80px)] flex flex-col">
+        <Card className="w-full h-[calc(100dvh-80px)] flex flex-col">
           <CardContent className="p-3 flex-1 flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-1.5 shrink-0">
               <div className="flex items-center gap-1.5">

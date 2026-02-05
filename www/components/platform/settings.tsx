@@ -103,7 +103,7 @@ export function PlatformSettingsForm() {
 							control={form.control}
 							name="useServerGithubProxyUrl"
 							render={({ field }) => (
-								<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+								<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
 									<div className="space-y-0.5">
 										<FormLabel>{t('settings.form.useServerGithubLabel')}</FormLabel>
 										<FormDescription>{t('settings.form.useServerGithubDescription')}</FormDescription>

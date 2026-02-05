@@ -286,7 +286,7 @@ function TopologyFlow({
           nodeStrokeWidth={3}
           zoomable
           pannable
-          className="!bg-card !border-2 !border-border !rounded-lg !shadow-lg"
+          className="bg-card! border-2! border-border! rounded-lg! shadow-lg!"
           nodeColor={(node) => {
             if (node.type === 'terminal') return '#8b5cf6'
             return '#6366f1'
@@ -298,7 +298,7 @@ function TopologyFlow({
           showZoom
           showFitView
           showInteractive
-          className="!bg-card !border-2 !border-border !rounded-lg !shadow-lg"
+          className="bg-card! border-2! border-border! rounded-lg! shadow-lg!"
         />
 
         {/* 自定义控制面板 */}
@@ -318,7 +318,7 @@ function TopologyFlow({
 
         {/* 信息面板 */}
         <Panel position="top-left" className="m-4">
-          <div className="bg-card/95 backdrop-blur-sm border-2 border-border rounded-lg shadow-lg px-3 py-2">
+          <div className="bg-card/95 backdrop-blur-xs border-2 border-border rounded-lg shadow-lg px-3 py-2">
             <div className="text-sm font-medium">
               {t('wg.topologyInfo.nodeCount', { count: data.nodes.filter(n => n.type === 'wg').length })} · {t('wg.topologyInfo.linkCount', { count: data.edges.length })}
             </div>

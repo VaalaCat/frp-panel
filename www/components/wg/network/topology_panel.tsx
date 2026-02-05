@@ -52,7 +52,7 @@ export default function TopologyPanel() {
 		<ReactFlowProvider>
 			<div className="flex flex-col gap-4 h-full">
 				{/* 顶部工具栏 */}
-				<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 bg-gradient-to-r from-card to-card/80 rounded-xl border-2 border-border shadow-lg">
+				<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 bg-linear-to-r from-card to-card/80 rounded-xl border-2 border-border shadow-lg">
 					<div className="flex-1 min-w-[240px]">
 						<NetworkSelector networkID={networkID} setNetworkID={setNetworkID} />
 					</div>
@@ -114,7 +114,7 @@ export default function TopologyPanel() {
 					/* 全屏模式 */
 					<div className="fixed inset-0 z-50 bg-background p-6 flex flex-col gap-4">
 						<div className="flex items-center justify-between">
-							<h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+							<h2 className="text-2xl font-bold bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
 								{t('wg.topology.title')}
 							</h2>
 							<div className="flex gap-2">
