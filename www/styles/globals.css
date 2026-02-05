@@ -1,9 +1,9 @@
+@import "xterm.css";
+@import "xyflow.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "xterm.css";
-@import "xyflow.css";
 
 @layer base {
   :root {
