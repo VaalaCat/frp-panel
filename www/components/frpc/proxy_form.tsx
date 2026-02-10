@@ -146,7 +146,13 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({
   const [pluginConfig, setPluginConfig] = useState<TypedClientPluginOptions | undefined>(defaultConfig.plugin)
 
   const onSubmit = async (values: z.infer<typeof TCPConfigSchema>) => {
-    const cfgToSubmit = { ...defaultConfig, ...values, plugin: pluginConfig, type: 'tcp', name: proxyName } as TCPProxyConfig
+    const cfgToSubmit = {
+      ...defaultConfig,
+      ...values,
+      plugin: usePlugin ? pluginConfig : undefined,
+      type: 'tcp',
+      name: proxyName,
+    } as TCPProxyConfig
     if (!TypedProxyConfigValid(cfgToSubmit)) {
       toast.error('Invalid configuration')
       return
@@ -211,10 +217,15 @@ export const TCPProxyForm: React.FC<ProxyFormProps> = ({
           name="usePlugin"
           label={t('proxy.form.use_plugin')}
           defaultValue={usePlugin}
-          setValue={setUsePlugin}
+          setValue={(value) => {
+            setUsePlugin(value)
+            if (!value) {
+              setPluginConfig(undefined)
+            }
+          }}
         />
         {usePlugin ? (
-          <PluginConfigForm defaultPluginConfig={defaultConfig.plugin} setPluginConfig={setPluginConfig} />
+          <PluginConfigForm defaultPluginConfig={pluginConfig} setPluginConfig={setPluginConfig} />
         ) : null}
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'} className="w-full">
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
@@ -252,7 +263,13 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({
   const [pluginConfig, setPluginConfig] = useState<TypedClientPluginOptions | undefined>(defaultConfig.plugin)
 
   const onSubmit = async (values: z.infer<typeof STCPConfigSchema>) => {
-    const cfgToSubmit = { ...defaultConfig, ...values, plugin: pluginConfig, type: 'stcp', name: proxyName } as STCPProxyConfig
+    const cfgToSubmit = {
+      ...defaultConfig,
+      ...values,
+      plugin: usePlugin ? pluginConfig : undefined,
+      type: 'stcp',
+      name: proxyName,
+    } as STCPProxyConfig
     if (!TypedProxyConfigValid(cfgToSubmit)) {
       toast.error('Invalid configuration')
       return
@@ -291,11 +308,16 @@ export const STCPProxyForm: React.FC<ProxyFormProps> = ({
         <SwitchWithLabel
           name="usePlugin"
           defaultValue={usePlugin}
-          setValue={setUsePlugin}
+          setValue={(value) => {
+            setUsePlugin(value)
+            if (!value) {
+              setPluginConfig(undefined)
+            }
+          }}
           label={t('proxy.form.use_plugin')}
         />
         {usePlugin ? (
-          <PluginConfigForm defaultPluginConfig={defaultConfig.plugin} setPluginConfig={setPluginConfig} />
+          <PluginConfigForm defaultPluginConfig={pluginConfig} setPluginConfig={setPluginConfig} />
         ) : null}
         <SecretStringField name="secretKey" control={form.control} label={t('proxy.form.secret_key') + '*'} />
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'} className="w-full">
@@ -334,7 +356,13 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({
   const [pluginConfig, setPluginConfig] = useState<TypedClientPluginOptions | undefined>(defaultConfig.plugin)
 
   const onSubmit = async (values: z.infer<typeof UDPConfigSchema>) => {
-    const cfgToSubmit = { ...defaultConfig, ...values, plugin: pluginConfig, type: 'udp', name: proxyName } as UDPProxyConfig
+    const cfgToSubmit = {
+      ...defaultConfig,
+      ...values,
+      plugin: usePlugin ? pluginConfig : undefined,
+      type: 'udp',
+      name: proxyName,
+    } as UDPProxyConfig
     if (!TypedProxyConfigValid(cfgToSubmit)) {
       toast.error('Invalid configuration')
       return
@@ -393,11 +421,16 @@ export const UDPProxyForm: React.FC<ProxyFormProps> = ({
         <SwitchWithLabel
           name="usePlugin"
           defaultValue={usePlugin}
-          setValue={setUsePlugin}
+          setValue={(value) => {
+            setUsePlugin(value)
+            if (!value) {
+              setPluginConfig(undefined)
+            }
+          }}
           label={t('proxy.form.use_plugin')}
         />
         {usePlugin ? (
-          <PluginConfigForm defaultPluginConfig={defaultConfig.plugin} setPluginConfig={setPluginConfig} />
+          <PluginConfigForm defaultPluginConfig={pluginConfig} setPluginConfig={setPluginConfig} />
         ) : null}
         <Button type="submit" disabled={isSaveDisabled} variant={'outline'} className="w-full">
           <YesIcon className={`mr-2 h-4 w-4 ${isSaveDisabled ? '' : 'hidden'}`}></YesIcon>
@@ -442,7 +475,13 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({
   const [pluginConfig, setPluginConfig] = useState<TypedClientPluginOptions | undefined>(defaultConfig.plugin)
 
   const onSubmit = async (values: z.infer<typeof HTTPConfigSchema>) => {
-    const cfgToSubmit = { ...defaultConfig, ...values, plugin: pluginConfig, type: 'http', name: proxyName } as HTTPProxyConfig
+    const cfgToSubmit = {
+      ...defaultConfig,
+      ...values,
+      plugin: usePlugin ? pluginConfig : undefined,
+      type: 'http',
+      name: proxyName,
+    } as HTTPProxyConfig
     if (!TypedProxyConfigValid(cfgToSubmit)) {
       toast.error('Invalid configuration')
       return
@@ -526,11 +565,16 @@ export const HTTPProxyForm: React.FC<ProxyFormProps> = ({
         <SwitchWithLabel
           name="usePlugin"
           defaultValue={usePlugin}
-          setValue={setUsePlugin}
+          setValue={(value) => {
+            setUsePlugin(value)
+            if (!value) {
+              setPluginConfig(undefined)
+            }
+          }}
           label={t('proxy.form.use_plugin')}
         />
         {usePlugin ? (
-          <PluginConfigForm defaultPluginConfig={defaultConfig.plugin} setPluginConfig={setPluginConfig} />
+          <PluginConfigForm defaultPluginConfig={pluginConfig} setPluginConfig={setPluginConfig} />
         ) : null}
         <SwitchWithLabel
           name="moreSettings"
