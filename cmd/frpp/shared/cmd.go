@@ -35,6 +35,8 @@ type CommonArgs struct {
 	ApiPort   *int
 	ApiScheme *string
 	JoinToken *string
+
+	Ephemeral *bool
 }
 
 func BuildCommand(fs embed.FS) *cobra.Command {
@@ -68,6 +70,7 @@ func AddCommonFlags(commonCmd *cobra.Command) {
 	commonCmd.Flags().String("rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
 	commonCmd.Flags().String("api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
 	commonCmd.Flags().StringP("join-token", "j", "", "your token from master, auto join with out webui")
+	commonCmd.Flags().Bool("ephemeral", true, "auto join with join-token, whether the client is ephemeral, change flag to --ephemeral=false to disable")
 
 	// deprecated start
 	commonCmd.Flags().StringP("app", "a", "", "app secret")
@@ -120,6 +123,10 @@ func GetCommonArgs(cmd *cobra.Command) CommonArgs {
 
 	if joinToken, err := cmd.Flags().GetString("join-token"); err == nil {
 		commonArgs.JoinToken = &joinToken
+	}
+
+	if ephemeral, err := cmd.Flags().GetBool("ephemeral"); err == nil {
+		commonArgs.Ephemeral = &ephemeral
 	}
 
 	return commonArgs
@@ -572,7 +579,7 @@ func JoinMaster(cfg conf.Config, joinArgs CommonArgs) (*pb.Client, error) {
 		logger.Logger(c).Infof("client [%s] not found, try to init client", clientID)
 
 		// 创建短期client
-		initResp, err := rpc.InitClient(cfg, clientID, *joinArgs.JoinToken, true)
+		initResp, err := rpc.InitClient(cfg, clientID, *joinArgs.JoinToken, joinArgs.Ephemeral)
 		if err != nil {
 			logger.Logger(c).Errorf("init client failed: %s", err.Error())
 			return nil, err

@@ -15,6 +15,7 @@ import (
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/VaalaCat/frp-panel/utils/wsgrpc"
 	"github.com/imroc/req/v3"
+	"github.com/samber/lo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/proto"
@@ -114,14 +115,18 @@ func GetClientCert(appInstance app.Application, clientID, clientSecret string, c
 	return resp.Cert
 }
 
-func InitClient(cfg conf.Config, clientID, joinToken string, ephemeral bool) (*pb.InitClientResponse, error) {
+func InitClient(cfg conf.Config, clientID, joinToken string, ephemeral *bool) (*pb.InitClientResponse, error) {
 	apiEndpoint := conf.GetAPIURL(cfg)
 
 	c := httpCli()
 
+	if ephemeral == nil {
+		ephemeral = lo.ToPtr(true) // default to ephemeral
+	}
+
 	rawReq, err := proto.Marshal(&pb.InitClientRequest{
 		ClientId:  &clientID,
-		Ephemeral: &ephemeral,
+		Ephemeral: ephemeral,
 	})
 	if err != nil {
 		return nil, err

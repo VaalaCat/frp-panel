@@ -35,7 +35,7 @@ In the diagram, the two boxes represent two clients sharing the `10.10.0.0/24` n
 Left client:
 
 - Has a **device** `wg0` (virtual NIC) with virtual IP `10.10.0.1`.
-- Device `wg0` binds an **endpoint** `10.10.0.1:51820` (public IP + port).
+- Device `wg0` binds an **endpoint** `1.1.1.1:51820` (public IP + port).
 - Device `wg0` joins the **network** `10.10.0.0/24`.
 - Device `wg0` can talk to other devices in the `10.10.0.0/24` network.
 
