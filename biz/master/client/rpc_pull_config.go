@@ -36,7 +36,7 @@ func RPCPullConfig(ctx *app.Context, req *pb.PullClientConfigReq) (*pb.PullClien
 		if err != nil {
 			logger.Logger(ctx).Infof("cannot get client ids in shadow, maybe not a shadow client, id: [%s]", cli.ClientID)
 		}
-		clientIDs = lo.Map(proxies, func(p *models.ProxyConfig, _ int) string { return p.ClientID })
+		clientIDs = lo.Uniq(lo.Map(proxies, func(p *models.ProxyConfig, _ int) string { return p.ClientID }))
 	}
 
 	if cli.Stopped && cli.IsShadow {
