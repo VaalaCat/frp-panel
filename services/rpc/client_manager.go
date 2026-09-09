@@ -61,47 +61,31 @@ func (c *ClientsManagerImpl) ClientAddr(cliID string) string {
 
     ctx := connector.Conn.Context()
 
-    // 优先读取反向代理传递的真实客户端 IP。
-    // gRPC metadata 实际通过 HTTP/2 headers 传输。
     if md, ok := metadata.FromIncomingContext(ctx); ok {
-        // 1. 优先 X-Real-IP
+        // Prefer the real client IP set by a trusted reverse proxy.
         if values := md.Get("x-real-ip"); len(values) > 0 {
-            ip := strings.TrimSpace(values[0])
-            if net.ParseIP(ip) != nil {
+            if ip := strings.TrimSpace(values[0]); net.ParseIP(ip) != nil {
                 return ip
             }
         }
 
-        // 2. 其次 X-Forwarded-For，取最左边的客户端 IP
+        // Fall back to the first valid address in X-Forwarded-For.
         if values := md.Get("x-forwarded-for"); len(values) > 0 {
-            parts := strings.Split(values[0], ",")
-            for _, part := range parts {
-                ip := strings.TrimSpace(part)
-                if net.ParseIP(ip) != nil {
+            for part := range strings.SplitSeq(values[0], ",") {
+                if ip := strings.TrimSpace(part); net.ParseIP(ip) != nil {
                     return ip
                 }
             }
         }
     }
 
-    // 3. 没经过反向代理或没有真实 IP header 时，
-    // 保持原项目行为，返回实际 gRPC 对端地址。
+    // Preserve the original behavior for direct gRPC connections.
     p, ok := peer.FromContext(ctx)
     if !ok || p == nil || p.Addr == nil {
         return ""
     }
 
     return p.Addr.String()
-}
-	connector := c.Get(cliID)
-	if connector == nil {
-		return ""
-	}
-	p, ok := peer.FromContext(connector.Conn.Context())
-	if !ok || p == nil {
-		return ""
-	}
-	return p.Addr.String()
 }
 
 func (c *ClientsManagerImpl) ConnectTime(cliID string) (time.Time, bool) {
