@@ -42,6 +42,10 @@
     },
     "runtime": {
       "protocol": "協定"
+    },
+    "topologyActions": {
+      "noSpf": "不使用最短路徑優先",
+      "default": ""
     }
   },
   "canvas": {

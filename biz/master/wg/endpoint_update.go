@@ -19,7 +19,10 @@ func UpdateEndpoint(ctx *app.Context, req *pb.UpdateEndpointRequest) (*pb.Update
 		return nil, errors.New("invalid endpoint params")
 	}
 
-	oldEndpoint, err := dao.NewQuery(ctx).GetEndpointByID(userInfo, uint(e.GetId()))
+	q := dao.NewQuery(ctx)
+	m := dao.NewMutation(ctx)
+
+	oldEndpoint, err := q.GetEndpointByID(userInfo, uint(e.GetId()))
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +40,7 @@ func UpdateEndpoint(ctx *app.Context, req *pb.UpdateEndpointRequest) (*pb.Update
 		oldEndpoint.Type = e.GetType()
 	}
 
-	if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, uint(e.GetId()), oldEndpoint.EndpointEntity); err != nil {
+	if err := m.UpdateEndpoint(userInfo, uint(e.GetId()), oldEndpoint.EndpointEntity); err != nil {
 		return nil, err
 	}
 

@@ -42,6 +42,7 @@ func ValidateClientRequest(ctx *app.Context, req ValidateableClientRequest) (*mo
 
 func MakeClientShadowed(c *app.Context, serverID string, clientEntity *models.ClientEntity) (*models.ClientEntity, error) {
 	userInfo := common.GetUserInfo(c)
+	m := dao.NewMutation(c)
 
 	var clientID = clientEntity.ClientID
 	var childClient *models.ClientEntity
@@ -53,7 +54,7 @@ func MakeClientShadowed(c *app.Context, serverID string, clientEntity *models.Cl
 			return nil, err
 		}
 
-		if err := dao.NewQuery(c).RebuildProxyConfigFromClient(userInfo, &models.Client{ClientEntity: childClient}); err != nil {
+		if err := m.RebuildProxyConfigFromClient(userInfo, &models.Client{ClientEntity: childClient}); err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot rebuild proxy config from client, id: [%s]", childClient.ClientID)
 			return nil, err
 		}
@@ -62,12 +63,12 @@ func MakeClientShadowed(c *app.Context, serverID string, clientEntity *models.Cl
 	clientEntity.IsShadow = true
 	clientEntity.ConfigContent = nil
 	clientEntity.ServerID = ""
-	if err := dao.NewQuery(c).UpdateClient(userInfo, clientEntity); err != nil {
+	if err := m.UpdateClient(userInfo, clientEntity); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot update client, id: [%s]", clientID)
 		return nil, err
 	}
 
-	if err := dao.NewQuery(c).DeleteProxyConfigsByClientID(userInfo, clientID); err != nil {
+	if err := m.DeleteProxyConfigsByClientID(userInfo, clientID); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot delete proxy configs, id: [%s]", clientID)
 		return nil, err
 	}
@@ -79,13 +80,15 @@ func MakeClientShadowed(c *app.Context, serverID string, clientEntity *models.Cl
 // bool 表示是否新建
 func ChildClientForServer(c *app.Context, serverID string, clientEntity *models.ClientEntity) (*models.ClientEntity, bool, error) {
 	userInfo := common.GetUserInfo(c)
+	q := dao.NewQuery(c)
+	m := dao.NewMutation(c)
 
 	originClientID := clientEntity.ClientID
 	if len(clientEntity.OriginClientID) != 0 {
 		originClientID = clientEntity.OriginClientID
 	}
 
-	existClient, err := dao.NewQuery(c).GetClientByFilter(userInfo, &models.ClientEntity{
+	existClient, err := q.GetClientByFilter(userInfo, &models.ClientEntity{
 		ServerID:       serverID,
 		OriginClientID: originClientID,
 	}, lo.ToPtr(false))
@@ -93,7 +96,7 @@ func ChildClientForServer(c *app.Context, serverID string, clientEntity *models.
 		return existClient, false, nil
 	}
 
-	shadowCount, err := dao.NewQuery(c).CountClientsInShadow(userInfo, originClientID)
+	shadowCount, err := q.CountClientsInShadow(userInfo, originClientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot count shadow clients, id: [%s]", originClientID)
 		return nil, false, err
@@ -109,7 +112,7 @@ func ChildClientForServer(c *app.Context, serverID string, clientEntity *models.
 	copiedClient.OriginClientID = originClientID
 	copiedClient.IsShadow = false
 	copiedClient.Stopped = false
-	if err := dao.NewQuery(c).CreateClient(userInfo, copiedClient); err != nil {
+	if err := m.CreateClient(userInfo, copiedClient); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot create child client, id: [%s]", copiedClient.ClientID)
 		return nil, false, err
 	}

@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/VaalaCat/frp-panel/biz/common/upgrade"
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
@@ -33,6 +35,8 @@ type CommonArgs struct {
 	ApiPort   *int
 	ApiScheme *string
 	JoinToken *string
+
+	Ephemeral *bool
 }
 
 func BuildCommand(fs embed.FS) *cobra.Command {
@@ -54,6 +58,8 @@ func BuildCommand(fs embed.FS) *cobra.Command {
 		NewStartServiceCmd(),
 		NewStopServiceCmd(),
 		NewRestartServiceCmd(),
+		NewUpgradeCmd(cfg),
+		NewUpgradeWorkerCmd(),
 		NewVersionCmd(),
 	)
 }
@@ -64,6 +70,7 @@ func AddCommonFlags(commonCmd *cobra.Command) {
 	commonCmd.Flags().String("rpc-url", "", "rpc url, master rpc url, scheme can be grpc/ws/wss://hostname:port")
 	commonCmd.Flags().String("api-url", "", "api url, master api url, scheme can be http/https://hostname:port")
 	commonCmd.Flags().StringP("join-token", "j", "", "your token from master, auto join with out webui")
+	commonCmd.Flags().Bool("ephemeral", true, "auto join with join-token, whether the client is ephemeral, change flag to --ephemeral=false to disable")
 
 	// deprecated start
 	commonCmd.Flags().StringP("app", "a", "", "app secret")
@@ -116,6 +123,10 @@ func GetCommonArgs(cmd *cobra.Command) CommonArgs {
 
 	if joinToken, err := cmd.Flags().GetString("join-token"); err == nil {
 		commonArgs.JoinToken = &joinToken
+	}
+
+	if ephemeral, err := cmd.Flags().GetBool("ephemeral"); err == nil {
+		commonArgs.Ephemeral = &ephemeral
 	}
 
 	return commonArgs
@@ -181,7 +192,7 @@ func NewMasterCmd(cfg conf.Config, fs embed.FS) *cobra.Command {
 				}
 			}
 
-			if srv, err := utils.CreateSystemService(args, run); err != nil {
+			if srv, err := utils.CreateSystemService(defs.DefaultServiceName, args, run); err != nil {
 				run()
 			} else {
 				srv.Run()
@@ -223,7 +234,7 @@ func NewClientCmd(cfg conf.Config) *cobra.Command {
 					logger.Logger(context.Background()).Fatalf("clientApp FX Application Error: %v", err)
 				}
 			}
-			if srv, err := utils.CreateSystemService(args, run); err != nil {
+			if srv, err := utils.CreateSystemService(defs.DefaultServiceName, args, run); err != nil {
 				run()
 			} else {
 				srv.Run()
@@ -268,7 +279,7 @@ func NewServerCmd(cfg conf.Config) *cobra.Command {
 					logger.Logger(context.Background()).Fatalf("serverApp FX Application Error: %v", err)
 				}
 			}
-			if srv, err := utils.CreateSystemService(args, run); err != nil {
+			if srv, err := utils.CreateSystemService(defs.DefaultServiceName, args, run); err != nil {
 				run()
 			} else {
 				srv.Run()
@@ -288,7 +299,7 @@ func NewInstallServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "install", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "install", func() {})
 		},
 	}
 }
@@ -300,7 +311,7 @@ func NewUninstallServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "uninstall", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "uninstall", func() {})
 		},
 	}
 }
@@ -312,7 +323,7 @@ func NewStartServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "start", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "start", func() {})
 		},
 	}
 }
@@ -324,7 +335,7 @@ func NewStopServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "stop", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "stop", func() {})
 		},
 	}
 }
@@ -336,9 +347,126 @@ func NewRestartServiceCmd() *cobra.Command {
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.ControlSystemService(args, "restart", func() {})
+			utils.ControlSystemService(defs.DefaultServiceName, args, "restart", func() {})
 		},
 	}
+}
+
+func NewUpgradeCmd(cfg conf.Config) *cobra.Command {
+	upgradeCmd := &cobra.Command{
+		Use:   "upgrade",
+		Short: "OTA upgrade frp-panel binary (no service interruption unless restart)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+
+			version, _ := cmd.Flags().GetString("version")
+			downloadURL, _ := cmd.Flags().GetString("download-url")
+			githubProxy, _ := cmd.Flags().GetString("github-proxy")
+			httpProxy, _ := cmd.Flags().GetString("http-proxy")
+			binPath, _ := cmd.Flags().GetString("bin")
+			noBackup, _ := cmd.Flags().GetBool("no-backup")
+			serviceName, _ := cmd.Flags().GetString("service-name")
+			useGithubProxy, _ := cmd.Flags().GetBool("use-github-proxy")
+			workDir, _ := cmd.Flags().GetString("workdir")
+			restartService, _ := cmd.Flags().GetBool("restart-service")
+
+			if useGithubProxy && len(githubProxy) == 0 {
+				githubProxy = cfg.App.GithubProxyUrl
+			}
+			if len(httpProxy) == 0 {
+				httpProxy = cfg.HTTP_PROXY
+			}
+
+			opts := upgrade.Options{
+				Version:        version,
+				DownloadURL:    downloadURL,
+				GithubProxy:    githubProxy,
+				UseGithubProxy: useGithubProxy,
+				HTTPProxy:      httpProxy,
+				TargetPath:     binPath,
+				Backup:         !noBackup,
+				ServiceName:    serviceName,
+				RestartService: restartService,
+				WorkDir:        workDir,
+				ServiceArgs:    args,
+			}
+
+			res, err := upgrade.StartWithResult(ctx, opts)
+			if err != nil {
+				logger.Logger(ctx).Errorf("upgrade failed: %v", err)
+				return err
+			}
+
+			if res.Dispatched {
+				logger.Logger(ctx).Infof("upgrade dispatched to background worker, connection may drop; plan: %s", res.PlanPath)
+				return nil
+			}
+
+			if restartService {
+				logger.Logger(ctx).Info("upgrade completed (service restarted if applicable)")
+				return nil
+			}
+			logger.Logger(ctx).Info("upgrade completed. to take effect, restart service/process when convenient")
+			return nil
+		},
+	}
+
+	upgradeCmd.Flags().StringP("version", "v", "latest", "target version, default latest")
+	upgradeCmd.Flags().String("download-url", "", "custom download url (highest priority), if set will ignore github-proxy")
+	upgradeCmd.Flags().Bool("use-github-proxy", true, "use github proxy when downloading release asset")
+	upgradeCmd.Flags().String("github-proxy", "", "github proxy prefix, e.g. https://ghfast.top/")
+	upgradeCmd.Flags().String("http-proxy", "", "http/https proxy for download, default HTTP_PROXY")
+	upgradeCmd.Flags().String("bin", "", "binary path to overwrite, default current running binary")
+	upgradeCmd.Flags().Bool("no-backup", false, "do not create .bak backup before overwrite")
+	upgradeCmd.Flags().String("service-name", "frpp", "systemd service name to control")
+	upgradeCmd.Flags().String("workdir", "", "upgrade worker plan/lock directory (default system temp)")
+	upgradeCmd.Flags().Bool("restart-service", true, "restart service after replace (will interrupt service)")
+
+	upgradeCmd.AddCommand(NewUpgradeStatusCmd())
+
+	return upgradeCmd
+}
+
+func NewUpgradeStatusCmd() *cobra.Command {
+	statusCmd := &cobra.Command{
+		Use:   "status",
+		Short: "show last upgrade status (from workdir/status.json)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+			workDir, _ := cmd.Flags().GetString("workdir")
+			st, p, err := upgrade.ReadStatus(workDir)
+			if err != nil {
+				logger.Logger(ctx).Errorf("read upgrade status failed: %v", err)
+				return err
+			}
+			logger.Logger(ctx).Infof("status file: %s", p)
+			logger.Logger(ctx).Infof("success=%v updated_at=%s message=%s", st.Success, st.UpdatedAt.Format(time.RFC3339), st.Message)
+			return nil
+		},
+	}
+	statusCmd.Flags().String("workdir", "", "upgrade worker plan/lock directory (default system temp)")
+	return statusCmd
+}
+
+func NewUpgradeWorkerCmd() *cobra.Command {
+	workerCmd := &cobra.Command{
+		Use:                   "__upgrade-worker",
+		Short:                 "internal upgrade worker (do not call manually)",
+		Hidden:                true,
+		DisableFlagParsing:    false,
+		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+			planPath, _ := cmd.Flags().GetString("plan")
+			if len(planPath) == 0 {
+				return errors.New("missing --plan")
+			}
+			return upgrade.RunWorker(ctx, planPath)
+		},
+	}
+	workerCmd.Flags().String("plan", "", "upgrade plan file path")
+	_ = workerCmd.Flags().MarkHidden("plan")
+	return workerCmd
 }
 
 func NewVersionCmd() *cobra.Command {
@@ -451,7 +579,7 @@ func JoinMaster(cfg conf.Config, joinArgs CommonArgs) (*pb.Client, error) {
 		logger.Logger(c).Infof("client [%s] not found, try to init client", clientID)
 
 		// 创建短期client
-		initResp, err := rpc.InitClient(cfg, clientID, *joinArgs.JoinToken, true)
+		initResp, err := rpc.InitClient(cfg, clientID, *joinArgs.JoinToken, joinArgs.Ephemeral)
 		if err != nil {
 			logger.Logger(c).Errorf("init client failed: %s", err.Error())
 			return nil, err

@@ -252,6 +252,7 @@ type WireGuard interface {
 	// Config相关
 	GenWGConfig() (string, error) // unimplemented
 	GetWGRuntimeInfo() (*pb.WGDeviceRuntimeInfo, error)
+	UpdateAdjs(adjs map[uint32]*pb.WireGuardLinks) error
 }
 
 type NetworkTopologyCache interface {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { createWireGuardLink, updateWireGuardLink, getWireGuard } from '@/api/wg'
 import { CreateWireGuardLinkRequest, UpdateWireGuardLinkRequest, GetWireGuardRequest } from '@/lib/pb/api_wg'
-import { WireGuardLink } from '@/lib/pb/types_wg'
+import { Endpoint, WireGuardLink } from '@/lib/pb/types_wg'
 import { WireGuardSelector } from '../base/wireguard-selector'
 import { EndpointSelector } from '../base/endpoint-selector'
 
@@ -24,51 +24,80 @@ export default function WireGuardLinkForm({ link, onSuccess, submitText }: { lin
 	const [active, setActive] = useState<boolean>(link?.active ?? true)
 	const [toClientId, setToClientId] = useState<string>('')
 	const [toEndpointId, setToEndpointId] = useState<number | undefined>(link?.toEndpoint?.id ?? undefined)
+	// 记录上一次的 toId，用于检测切换目标节点
+	const prevToIdRef = useRef<number | undefined>(link?.toWireguardId ?? undefined)
 
-	// 当 toId 改变时，获取对应的 clientId
+	// link 变化时同步表单状态，避免使用旧值
 	useEffect(() => {
-		if (toId) {
-			getWireGuard(GetWireGuardRequest.create({ id: toId }))
-				.then((resp) => {
-					if (resp.wireguardConfig?.clientId) {
-						setToClientId(resp.wireguardConfig.clientId)
-					}
-				})
-				.catch((err) => {
-					console.error('Failed to get wireguard:', err)
-				})
-		} else {
+		setFromId(link?.fromWireguardId ?? undefined)
+		setToId(link?.toWireguardId ?? undefined)
+		setUpBw(link?.upBandwidthMbps ?? 100)
+		setDownBw(link?.downBandwidthMbps ?? 100)
+		setLatency(link?.latencyMs ?? 60)
+		setActive(link?.active ?? true)
+		setToEndpointId(link?.toEndpoint?.id ?? undefined)
+		prevToIdRef.current = link?.toWireguardId ?? undefined
+	}, [link?.id, link?.fromWireguardId, link?.toWireguardId, link?.upBandwidthMbps, link?.downBandwidthMbps, link?.latencyMs, link?.active, link?.toEndpoint?.id])
+
+	// 当 toId 改变时，获取对应的 clientId，并在切换目标时清理旧的 endpoint 选择
+	useEffect(() => {
+		if (!toId) {
+			setToClientId('')
+			setToEndpointId(undefined)
+			prevToIdRef.current = undefined
+			return
+		}
+
+		if (prevToIdRef.current && prevToIdRef.current !== toId) {
 			setToEndpointId(undefined)
 		}
+		prevToIdRef.current = toId
+		setToClientId('')
+
+		getWireGuard(GetWireGuardRequest.create({ id: toId }))
+			.then((resp) => {
+				if (resp.wireguardConfig?.clientId) {
+					setToClientId(resp.wireguardConfig.clientId)
+				}
+			})
+			.catch((err) => {
+				console.error('Failed to get wireguard:', err)
+			})
 	}, [toId])
 
-	const onSubmit = async () => {
+	const onSubmit = useCallback(async () => {
 		if (!fromId || !toId || fromId === toId) {
 			toast.error(t('wg.linkForm.invalid'))
 			return
 		}
 		setLoading(true)
 		try {
-			const linkData: any = {
+			const toEndpoint = toEndpointId ? Endpoint.create({ id: toEndpointId }) : undefined
+			const linkData = WireGuardLink.create({
 				fromWireguardId: fromId,
 				toWireguardId: toId,
 				upBandwidthMbps: upBw,
 				downBandwidthMbps: downBw,
 				latencyMs: latency,
 				active,
-			}
-			if (toEndpointId) {
-				linkData.toEndpoint = { id: toEndpointId }
-			}
+				toEndpoint,
+			})
+
+			console.log('linkData', linkData)
+
 			if (link?.id) {
 				linkData.id = link.id
-				await updateWireGuardLink(UpdateWireGuardLinkRequest.create({
-					wireguardLink: WireGuardLink.create(linkData)
-				}))
+				await updateWireGuardLink(
+					UpdateWireGuardLinkRequest.create({
+						wireguardLink: linkData,
+					}),
+				)
 			} else {
-				await createWireGuardLink(CreateWireGuardLinkRequest.create({
-					wireguardLink: WireGuardLink.create(linkData)
-				}))
+				await createWireGuardLink(
+					CreateWireGuardLinkRequest.create({
+						wireguardLink: linkData,
+					}),
+				)
 			}
 			toast.success(t('common.success'))
 			onSuccess?.()
@@ -77,7 +106,7 @@ export default function WireGuardLinkForm({ link, onSuccess, submitText }: { lin
 		} finally {
 			setLoading(false)
 		}
-	}
+	}, [fromId, toId, upBw, downBw, latency, active, toEndpointId, link?.id, t, onSuccess])
 
 	return (
 		<div className="space-y-3">

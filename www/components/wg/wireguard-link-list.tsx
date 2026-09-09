@@ -225,7 +225,7 @@ export function WireGuardLinkList({ networkId, keyword }: { networkId?: number; 
 		id: l.id!,
 		fromWireguardId: l.fromWireguardId!,
 		toWireguardId: l.toWireguardId!,
-		toEndpoint: l.toEndpoint ? `${l.toEndpoint.host}:${l.toEndpoint.port}` : undefined,
+		toEndpoint: l.toEndpoint ? `${l.toEndpoint.uri ? l.toEndpoint.uri : `${l.toEndpoint.host}:${l.toEndpoint.port}`}` : undefined,
 		upBandwidthMbps: l.upBandwidthMbps,
 		downBandwidthMbps: l.downBandwidthMbps,
 		latencyMs: l.latencyMs,

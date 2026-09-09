@@ -9,6 +9,8 @@ import {
   InitClientResponse,
   ListClientsRequest,
   ListClientsResponse,
+  UpgradeFrppRequest,
+  UpgradeFrppResponse,
 } from '@/lib/pb/api_client'
 import { BaseResponse } from '@/types/api'
 
@@ -31,4 +33,9 @@ export const initClient = async (req: InitClientRequest) => {
   console.log('attempting init client:', InitClientRequest.toJsonString(req))
   const res = await http.post(API_PATH + '/client/init', InitClientRequest.toJson(req))
   return InitClientResponse.fromJson((res.data as BaseResponse).body)
+}
+
+export const upgradeFrpp = async (req: UpgradeFrppRequest) => {
+  const res = await http.post(API_PATH + '/client/upgrade', UpgradeFrppRequest.toJson(req))
+  return UpgradeFrppResponse.fromJson((res.data as BaseResponse).body)
 }

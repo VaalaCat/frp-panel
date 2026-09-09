@@ -2926,6 +2926,182 @@ func (x *RedeployWorkerResponse) GetStatus() *Status {
 	return nil
 }
 
+type UpgradeFrppRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ClientIds      []string               `protobuf:"bytes,1,rep,name=client_ids,json=clientIds,proto3" json:"client_ids,omitempty"`
+	Version        *string                `protobuf:"bytes,2,opt,name=version,proto3,oneof" json:"version,omitempty"`                                        // will be used if download_url is not set
+	DownloadUrl    *string                `protobuf:"bytes,3,opt,name=download_url,json=downloadUrl,proto3,oneof" json:"download_url,omitempty"`             // will be used with highest priority
+	GithubProxy    *string                `protobuf:"bytes,4,opt,name=github_proxy,json=githubProxy,proto3,oneof" json:"github_proxy,omitempty"`             // when download_url is not set, github_proxy will be used
+	UseGithubProxy *bool                  `protobuf:"varint,5,opt,name=use_github_proxy,json=useGithubProxy,proto3,oneof" json:"use_github_proxy,omitempty"` // only used when download_url is not set
+	HttpProxy      *string                `protobuf:"bytes,6,opt,name=http_proxy,json=httpProxy,proto3,oneof" json:"http_proxy,omitempty"`                   // http/https proxy for download, default HTTP_PROXY
+	TargetPath     *string                `protobuf:"bytes,7,opt,name=target_path,json=targetPath,proto3,oneof" json:"target_path,omitempty"`                // binary path to overwrite, default current running binary
+	Backup         *bool                  `protobuf:"varint,8,opt,name=backup,proto3,oneof" json:"backup,omitempty"`                                         // create .bak backup before overwrite
+	ServiceName    *string                `protobuf:"bytes,9,opt,name=service_name,json=serviceName,proto3,oneof" json:"service_name,omitempty"`             // service name to control
+	RestartService *bool                  `protobuf:"varint,10,opt,name=restart_service,json=restartService,proto3,oneof" json:"restart_service,omitempty"`  // restart service after replace (will interrupt service)
+	Workdir        *string                `protobuf:"bytes,11,opt,name=workdir,proto3,oneof" json:"workdir,omitempty"`                                       // upgrade worker plan/lock directory (default system temp)
+	ServiceArgs    []string               `protobuf:"bytes,12,rep,name=service_args,json=serviceArgs,proto3" json:"service_args,omitempty"`                  // service args to pass to utils.ControlSystemService
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UpgradeFrppRequest) Reset() {
+	*x = UpgradeFrppRequest{}
+	mi := &file_api_client_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpgradeFrppRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpgradeFrppRequest) ProtoMessage() {}
+
+func (x *UpgradeFrppRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpgradeFrppRequest.ProtoReflect.Descriptor instead.
+func (*UpgradeFrppRequest) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *UpgradeFrppRequest) GetClientIds() []string {
+	if x != nil {
+		return x.ClientIds
+	}
+	return nil
+}
+
+func (x *UpgradeFrppRequest) GetVersion() string {
+	if x != nil && x.Version != nil {
+		return *x.Version
+	}
+	return ""
+}
+
+func (x *UpgradeFrppRequest) GetDownloadUrl() string {
+	if x != nil && x.DownloadUrl != nil {
+		return *x.DownloadUrl
+	}
+	return ""
+}
+
+func (x *UpgradeFrppRequest) GetGithubProxy() string {
+	if x != nil && x.GithubProxy != nil {
+		return *x.GithubProxy
+	}
+	return ""
+}
+
+func (x *UpgradeFrppRequest) GetUseGithubProxy() bool {
+	if x != nil && x.UseGithubProxy != nil {
+		return *x.UseGithubProxy
+	}
+	return false
+}
+
+func (x *UpgradeFrppRequest) GetHttpProxy() string {
+	if x != nil && x.HttpProxy != nil {
+		return *x.HttpProxy
+	}
+	return ""
+}
+
+func (x *UpgradeFrppRequest) GetTargetPath() string {
+	if x != nil && x.TargetPath != nil {
+		return *x.TargetPath
+	}
+	return ""
+}
+
+func (x *UpgradeFrppRequest) GetBackup() bool {
+	if x != nil && x.Backup != nil {
+		return *x.Backup
+	}
+	return false
+}
+
+func (x *UpgradeFrppRequest) GetServiceName() string {
+	if x != nil && x.ServiceName != nil {
+		return *x.ServiceName
+	}
+	return ""
+}
+
+func (x *UpgradeFrppRequest) GetRestartService() bool {
+	if x != nil && x.RestartService != nil {
+		return *x.RestartService
+	}
+	return false
+}
+
+func (x *UpgradeFrppRequest) GetWorkdir() string {
+	if x != nil && x.Workdir != nil {
+		return *x.Workdir
+	}
+	return ""
+}
+
+func (x *UpgradeFrppRequest) GetServiceArgs() []string {
+	if x != nil {
+		return x.ServiceArgs
+	}
+	return nil
+}
+
+type UpgradeFrppResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *Status                `protobuf:"bytes,1,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpgradeFrppResponse) Reset() {
+	*x = UpgradeFrppResponse{}
+	mi := &file_api_client_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpgradeFrppResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpgradeFrppResponse) ProtoMessage() {}
+
+func (x *UpgradeFrppResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_client_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpgradeFrppResponse.ProtoReflect.Descriptor instead.
+func (*UpgradeFrppResponse) Descriptor() ([]byte, []int) {
+	return file_api_client_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *UpgradeFrppResponse) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
 var File_api_client_proto protoreflect.FileDescriptor
 
 const file_api_client_proto_rawDesc = "" +
@@ -3258,6 +3434,38 @@ const file_api_client_proto_rawDesc = "" +
 	"_worker_id\"P\n" +
 	"\x16RedeployWorkerResponse\x12+\n" +
 	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\a_status\"\xee\x04\n" +
+	"\x12UpgradeFrppRequest\x12\x1d\n" +
+	"\n" +
+	"client_ids\x18\x01 \x03(\tR\tclientIds\x12\x1d\n" +
+	"\aversion\x18\x02 \x01(\tH\x00R\aversion\x88\x01\x01\x12&\n" +
+	"\fdownload_url\x18\x03 \x01(\tH\x01R\vdownloadUrl\x88\x01\x01\x12&\n" +
+	"\fgithub_proxy\x18\x04 \x01(\tH\x02R\vgithubProxy\x88\x01\x01\x12-\n" +
+	"\x10use_github_proxy\x18\x05 \x01(\bH\x03R\x0euseGithubProxy\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"http_proxy\x18\x06 \x01(\tH\x04R\thttpProxy\x88\x01\x01\x12$\n" +
+	"\vtarget_path\x18\a \x01(\tH\x05R\n" +
+	"targetPath\x88\x01\x01\x12\x1b\n" +
+	"\x06backup\x18\b \x01(\bH\x06R\x06backup\x88\x01\x01\x12&\n" +
+	"\fservice_name\x18\t \x01(\tH\aR\vserviceName\x88\x01\x01\x12,\n" +
+	"\x0frestart_service\x18\n" +
+	" \x01(\bH\bR\x0erestartService\x88\x01\x01\x12\x1d\n" +
+	"\aworkdir\x18\v \x01(\tH\tR\aworkdir\x88\x01\x01\x12!\n" +
+	"\fservice_args\x18\f \x03(\tR\vserviceArgsB\n" +
+	"\n" +
+	"\b_versionB\x0f\n" +
+	"\r_download_urlB\x0f\n" +
+	"\r_github_proxyB\x13\n" +
+	"\x11_use_github_proxyB\r\n" +
+	"\v_http_proxyB\x0e\n" +
+	"\f_target_pathB\t\n" +
+	"\a_backupB\x0f\n" +
+	"\r_service_nameB\x12\n" +
+	"\x10_restart_serviceB\n" +
+	"\n" +
+	"\b_workdir\"M\n" +
+	"\x13UpgradeFrppResponse\x12+\n" +
+	"\x06status\x18\x01 \x01(\v2\x0e.common.StatusH\x00R\x06status\x88\x01\x01B\t\n" +
 	"\a_statusB\aZ\x05../pbb\x06proto3"
 
 var (
@@ -3272,7 +3480,7 @@ func file_api_client_proto_rawDescGZIP() []byte {
 	return file_api_client_proto_rawDescData
 }
 
-var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
+var file_api_client_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
 var file_api_client_proto_goTypes = []any{
 	(*InitClientRequest)(nil),               // 0: api_client.InitClientRequest
 	(*InitClientResponse)(nil),              // 1: api_client.InitClientResponse
@@ -3330,61 +3538,64 @@ var file_api_client_proto_goTypes = []any{
 	(*InstallWorkerdResponse)(nil),          // 53: api_client.InstallWorkerdResponse
 	(*RedeployWorkerRequest)(nil),           // 54: api_client.RedeployWorkerRequest
 	(*RedeployWorkerResponse)(nil),          // 55: api_client.RedeployWorkerResponse
-	nil,                                     // 56: api_client.GetWorkerStatusResponse.WorkerStatusEntry
-	(*Status)(nil),                          // 57: common.Status
-	(*Client)(nil),                          // 58: common.Client
-	(*ProxyInfo)(nil),                       // 59: common.ProxyInfo
-	(*ProxyConfig)(nil),                     // 60: common.ProxyConfig
-	(*ProxyWorkingStatus)(nil),              // 61: common.ProxyWorkingStatus
-	(*Worker)(nil),                          // 62: common.Worker
+	(*UpgradeFrppRequest)(nil),              // 56: api_client.UpgradeFrppRequest
+	(*UpgradeFrppResponse)(nil),             // 57: api_client.UpgradeFrppResponse
+	nil,                                     // 58: api_client.GetWorkerStatusResponse.WorkerStatusEntry
+	(*Status)(nil),                          // 59: common.Status
+	(*Client)(nil),                          // 60: common.Client
+	(*ProxyInfo)(nil),                       // 61: common.ProxyInfo
+	(*ProxyConfig)(nil),                     // 62: common.ProxyConfig
+	(*ProxyWorkingStatus)(nil),              // 63: common.ProxyWorkingStatus
+	(*Worker)(nil),                          // 64: common.Worker
 }
 var file_api_client_proto_depIdxs = []int32{
-	57, // 0: api_client.InitClientResponse.status:type_name -> common.Status
-	57, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
-	58, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
-	57, // 3: api_client.GetClientResponse.status:type_name -> common.Status
-	58, // 4: api_client.GetClientResponse.client:type_name -> common.Client
-	57, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
-	57, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
-	57, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
-	57, // 8: api_client.StopFRPCResponse.status:type_name -> common.Status
-	57, // 9: api_client.StartFRPCResponse.status:type_name -> common.Status
-	57, // 10: api_client.GetProxyStatsByClientIDResponse.status:type_name -> common.Status
-	59, // 11: api_client.GetProxyStatsByClientIDResponse.proxy_infos:type_name -> common.ProxyInfo
-	57, // 12: api_client.ListProxyConfigsResponse.status:type_name -> common.Status
-	60, // 13: api_client.ListProxyConfigsResponse.proxy_configs:type_name -> common.ProxyConfig
-	57, // 14: api_client.CreateProxyConfigResponse.status:type_name -> common.Status
-	57, // 15: api_client.DeleteProxyConfigResponse.status:type_name -> common.Status
-	57, // 16: api_client.UpdateProxyConfigResponse.status:type_name -> common.Status
-	57, // 17: api_client.GetProxyConfigResponse.status:type_name -> common.Status
-	60, // 18: api_client.GetProxyConfigResponse.proxy_config:type_name -> common.ProxyConfig
-	61, // 19: api_client.GetProxyConfigResponse.working_status:type_name -> common.ProxyWorkingStatus
-	57, // 20: api_client.StopProxyResponse.status:type_name -> common.Status
-	57, // 21: api_client.StartProxyResponse.status:type_name -> common.Status
-	62, // 22: api_client.CreateWorkerRequest.worker:type_name -> common.Worker
-	57, // 23: api_client.CreateWorkerResponse.status:type_name -> common.Status
-	57, // 24: api_client.RemoveWorkerResponse.status:type_name -> common.Status
-	62, // 25: api_client.UpdateWorkerRequest.worker:type_name -> common.Worker
-	57, // 26: api_client.UpdateWorkerResponse.status:type_name -> common.Status
-	57, // 27: api_client.RunWorkerResponse.status:type_name -> common.Status
-	57, // 28: api_client.StopWorkerResponse.status:type_name -> common.Status
-	57, // 29: api_client.ListWorkersResponse.status:type_name -> common.Status
-	62, // 30: api_client.ListWorkersResponse.workers:type_name -> common.Worker
-	57, // 31: api_client.CreateWorkerIngressResponse.status:type_name -> common.Status
-	57, // 32: api_client.GetWorkerIngressResponse.status:type_name -> common.Status
-	60, // 33: api_client.GetWorkerIngressResponse.proxy_configs:type_name -> common.ProxyConfig
-	57, // 34: api_client.GetWorkerResponse.status:type_name -> common.Status
-	62, // 35: api_client.GetWorkerResponse.worker:type_name -> common.Worker
-	58, // 36: api_client.GetWorkerResponse.clients:type_name -> common.Client
-	57, // 37: api_client.GetWorkerStatusResponse.status:type_name -> common.Status
-	56, // 38: api_client.GetWorkerStatusResponse.worker_status:type_name -> api_client.GetWorkerStatusResponse.WorkerStatusEntry
-	57, // 39: api_client.InstallWorkerdResponse.status:type_name -> common.Status
-	57, // 40: api_client.RedeployWorkerResponse.status:type_name -> common.Status
-	41, // [41:41] is the sub-list for method output_type
-	41, // [41:41] is the sub-list for method input_type
-	41, // [41:41] is the sub-list for extension type_name
-	41, // [41:41] is the sub-list for extension extendee
-	0,  // [0:41] is the sub-list for field type_name
+	59, // 0: api_client.InitClientResponse.status:type_name -> common.Status
+	59, // 1: api_client.ListClientsResponse.status:type_name -> common.Status
+	60, // 2: api_client.ListClientsResponse.clients:type_name -> common.Client
+	59, // 3: api_client.GetClientResponse.status:type_name -> common.Status
+	60, // 4: api_client.GetClientResponse.client:type_name -> common.Client
+	59, // 5: api_client.DeleteClientResponse.status:type_name -> common.Status
+	59, // 6: api_client.UpdateFRPCResponse.status:type_name -> common.Status
+	59, // 7: api_client.RemoveFRPCResponse.status:type_name -> common.Status
+	59, // 8: api_client.StopFRPCResponse.status:type_name -> common.Status
+	59, // 9: api_client.StartFRPCResponse.status:type_name -> common.Status
+	59, // 10: api_client.GetProxyStatsByClientIDResponse.status:type_name -> common.Status
+	61, // 11: api_client.GetProxyStatsByClientIDResponse.proxy_infos:type_name -> common.ProxyInfo
+	59, // 12: api_client.ListProxyConfigsResponse.status:type_name -> common.Status
+	62, // 13: api_client.ListProxyConfigsResponse.proxy_configs:type_name -> common.ProxyConfig
+	59, // 14: api_client.CreateProxyConfigResponse.status:type_name -> common.Status
+	59, // 15: api_client.DeleteProxyConfigResponse.status:type_name -> common.Status
+	59, // 16: api_client.UpdateProxyConfigResponse.status:type_name -> common.Status
+	59, // 17: api_client.GetProxyConfigResponse.status:type_name -> common.Status
+	62, // 18: api_client.GetProxyConfigResponse.proxy_config:type_name -> common.ProxyConfig
+	63, // 19: api_client.GetProxyConfigResponse.working_status:type_name -> common.ProxyWorkingStatus
+	59, // 20: api_client.StopProxyResponse.status:type_name -> common.Status
+	59, // 21: api_client.StartProxyResponse.status:type_name -> common.Status
+	64, // 22: api_client.CreateWorkerRequest.worker:type_name -> common.Worker
+	59, // 23: api_client.CreateWorkerResponse.status:type_name -> common.Status
+	59, // 24: api_client.RemoveWorkerResponse.status:type_name -> common.Status
+	64, // 25: api_client.UpdateWorkerRequest.worker:type_name -> common.Worker
+	59, // 26: api_client.UpdateWorkerResponse.status:type_name -> common.Status
+	59, // 27: api_client.RunWorkerResponse.status:type_name -> common.Status
+	59, // 28: api_client.StopWorkerResponse.status:type_name -> common.Status
+	59, // 29: api_client.ListWorkersResponse.status:type_name -> common.Status
+	64, // 30: api_client.ListWorkersResponse.workers:type_name -> common.Worker
+	59, // 31: api_client.CreateWorkerIngressResponse.status:type_name -> common.Status
+	59, // 32: api_client.GetWorkerIngressResponse.status:type_name -> common.Status
+	62, // 33: api_client.GetWorkerIngressResponse.proxy_configs:type_name -> common.ProxyConfig
+	59, // 34: api_client.GetWorkerResponse.status:type_name -> common.Status
+	64, // 35: api_client.GetWorkerResponse.worker:type_name -> common.Worker
+	60, // 36: api_client.GetWorkerResponse.clients:type_name -> common.Client
+	59, // 37: api_client.GetWorkerStatusResponse.status:type_name -> common.Status
+	58, // 38: api_client.GetWorkerStatusResponse.worker_status:type_name -> api_client.GetWorkerStatusResponse.WorkerStatusEntry
+	59, // 39: api_client.InstallWorkerdResponse.status:type_name -> common.Status
+	59, // 40: api_client.RedeployWorkerResponse.status:type_name -> common.Status
+	59, // 41: api_client.UpgradeFrppResponse.status:type_name -> common.Status
+	42, // [42:42] is the sub-list for method output_type
+	42, // [42:42] is the sub-list for method input_type
+	42, // [42:42] is the sub-list for extension type_name
+	42, // [42:42] is the sub-list for extension extendee
+	0,  // [0:42] is the sub-list for field type_name
 }
 
 func init() { file_api_client_proto_init() }
@@ -3449,13 +3660,15 @@ func file_api_client_proto_init() {
 	file_api_client_proto_msgTypes[53].OneofWrappers = []any{}
 	file_api_client_proto_msgTypes[54].OneofWrappers = []any{}
 	file_api_client_proto_msgTypes[55].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[56].OneofWrappers = []any{}
+	file_api_client_proto_msgTypes[57].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_client_proto_rawDesc), len(file_api_client_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   57,
+			NumMessages:   59,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

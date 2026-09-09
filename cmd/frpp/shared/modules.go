@@ -57,5 +57,7 @@ var (
 		rpc.NewClientsManager,
 		NewAutoJoin, // provide final config
 		fx.Annotate(NewPatchedConfig, fx.ResultTags(`name:"argsPatchedConfig"`)),
-	))
+	),
+		fx.Invoke(runProfiler),
+	)
 )

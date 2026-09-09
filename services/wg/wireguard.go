@@ -1,68 +1,20 @@
+//go:build !windows
+// +build !windows
+
 package wg
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"math"
-	"net/http"
-	"net/netip"
-	"os"
-	"reflect"
-	"sync"
-	"time"
-	"unsafe"
 
-	"github.com/gin-gonic/gin"
-	probing "github.com/prometheus-community/pro-bing"
-	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
-	"github.com/sourcegraph/conc"
 	"github.com/vishvananda/netlink"
-	"golang.zx2c4.com/wireguard/conn"
-	"golang.zx2c4.com/wireguard/device"
-	"golang.zx2c4.com/wireguard/tun"
-	"golang.zx2c4.com/wireguard/tun/netstack"
-	"gvisor.dev/gvisor/pkg/tcpip"
-	"gvisor.dev/gvisor/pkg/tcpip/network/ipv4"
-	"gvisor.dev/gvisor/pkg/tcpip/network/ipv6"
-	"gvisor.dev/gvisor/pkg/tcpip/stack"
 
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
-	"github.com/VaalaCat/frp-panel/services/wg/multibind"
-	"github.com/VaalaCat/frp-panel/services/wg/transport/ws"
 	"github.com/VaalaCat/frp-panel/utils"
 )
-
-const (
-	ReportInterval = time.Second * 60
-)
-
-var (
-	_ app.WireGuard = (*wireGuard)(nil)
-)
-
-type wireGuard struct {
-	sync.RWMutex
-
-	ifce            *defs.WireGuardConfig
-	endpointPingMap *utils.SyncMap[uint32, uint32] // ms
-	virtAddrPingMap *utils.SyncMap[string, uint32] // ms
-
-	wgDevice  *device.Device
-	tunDevice tun.Device
-	multiBind *multibind.MultiBind
-	gvisorNet *netstack.Net
-
-	running      bool
-	useGvisorNet bool // if true, use gvisor netstack
-
-	svcLogger *logrus.Entry
-	ctx       *app.Context
-	cancel    context.CancelFunc
-}
 
 func NewWireGuard(ctx *app.Context, ifce defs.WireGuardConfig, logger *logrus.Entry) (app.WireGuard, error) {
 	if logger == nil {
@@ -82,15 +34,21 @@ func NewWireGuard(ctx *app.Context, ifce defs.WireGuardConfig, logger *logrus.En
 		useGvisorNet = cfg.GetUseGvisorNet()
 	}
 
+	fwManager := newFirewallManager(logger.WithField("component", "iptables"))
+
 	return &wireGuard{
-		RWMutex:         sync.RWMutex{},
-		ifce:            &cfg,
-		ctx:             svcCtx,
-		cancel:          cancel,
-		svcLogger:       logger,
-		endpointPingMap: &utils.SyncMap[uint32, uint32]{},
-		useGvisorNet:    useGvisorNet,
-		virtAddrPingMap: &utils.SyncMap[string, uint32]{},
+		ifce:             &cfg,
+		ctx:              svcCtx,
+		cancel:           cancel,
+		svcLogger:        logger,
+		endpointPingMap:  &utils.SyncMap[uint32, uint32]{},
+		useGvisorNet:     useGvisorNet,
+		virtAddrPingMap:  &utils.SyncMap[string, uint32]{},
+		endpointPingEWMA: make(map[uint32]float64, 64),
+		virtAddrPingEWMA: make(map[string]float64, 64),
+		fwManager:        fwManager,
+		peerDirectory:    make(map[uint32]*pb.WireGuardPeerConfig, 64),
+		preconnectPeers:  make(map[uint32]struct{}, 64),
 	}, nil
 }
 
@@ -136,6 +94,10 @@ func (w *wireGuard) Start() error {
 		}
 	}
 
+	if err := w.applyFirewallRulesLocked(); err != nil {
+		return errors.Join(errors.New("apply firewall rules failed"), err)
+	}
+
 	log.Infof("Started service done for iface '%s'", w.ifce.GetInterfaceName())
 	w.running = true
 
@@ -156,6 +118,10 @@ func (w *wireGuard) Stop() error {
 	}
 
 	log.Info("Stopping service...")
+
+	if err := w.cleanupFirewallRulesLocked(); err != nil {
+		log.WithError(err).Warn("cleanup firewall rules failed")
+	}
 
 	w.cleanupWGDevice()
 	w.cleanupNetwork()
@@ -179,6 +145,7 @@ func (w *wireGuard) AddPeer(peer *defs.WireGuardPeerConfig) error {
 	defer w.Unlock()
 
 	w.ifce.Peers = append(w.ifce.Peers, peer.WireGuardPeerConfig)
+	w.indexPeerDirectoryLocked(peerCfg)
 	uapiBuilder := NewUAPIBuilder().AddPeerConfig(peerCfg)
 
 	log.Debugf("uapiBuilder: %s", uapiBuilder.Build())
@@ -186,6 +153,9 @@ func (w *wireGuard) AddPeer(peer *defs.WireGuardPeerConfig) error {
 	if err = w.wgDevice.IpcSet(uapiBuilder.Build()); err != nil {
 		return errors.Join(errors.New("add peer IpcSet error"), err)
 	}
+
+	// 补齐本节点可连接的常驻 peer（若目录里有基础信息）
+	w.onPeersChangedLocked("after AddPeer")
 
 	return nil
 }
@@ -236,29 +206,49 @@ func (w *wireGuard) RemovePeer(peerNameOrPk string) error {
 	w.Lock()
 	defer w.Unlock()
 
-	newPeers := []*pb.WireGuardPeerConfig{}
-	var peerToRemove *defs.WireGuardPeerConfig
+	// 语义：真正移除 peer（下发 remove=true），并从本地配置中删除。
+	// 如需要“只移除路由但保持连接”，请使用 PatchPeers/UpdatePeer 下发 AllowedIPs=nil 的更新策略。
+
+	var removedPeerPB *pb.WireGuardPeerConfig
+	newPeers := make([]*pb.WireGuardPeerConfig, 0, len(w.ifce.Peers))
 	for _, p := range w.ifce.Peers {
-		if p.ClientId != peerNameOrPk && p.PublicKey != peerNameOrPk {
-			newPeers = append(newPeers, p)
+		if p.ClientId == peerNameOrPk || p.PublicKey == peerNameOrPk {
+			removedPeerPB = p
 			continue
 		}
-		peerToRemove = &defs.WireGuardPeerConfig{WireGuardPeerConfig: p}
+		newPeers = append(newPeers, p)
 	}
 
-	if len(newPeers) == len(w.ifce.Peers) {
+	if removedPeerPB == nil {
 		return errors.New("peer not found")
 	}
 
-	w.ifce.Peers = newPeers
+	removedPeer := &defs.WireGuardPeerConfig{WireGuardPeerConfig: removedPeerPB}
+	log.Debugf("remove peer completely: key=%s pk=%s", truncate(peerNameOrPk, 10), truncate(removedPeer.GetPublicKey(), 10))
 
-	uapiBuilder := NewUAPIBuilder().RemovePeerByKey(peerToRemove.GetParsedPublicKey())
+	uapiBuilder := NewUAPIBuilder().RemovePeerByKey(removedPeer.GetParsedPublicKey())
 
 	log.Debugf("uapiBuilder: %s", uapiBuilder.Build())
 
 	if err := w.wgDevice.IpcSet(uapiBuilder.Build()); err != nil {
 		return errors.Join(errors.New("remove peer IpcSet error"), err)
 	}
+
+	// IpcSet 成功后再更新本地缓存，避免不一致
+	w.ifce.Peers = newPeers
+	w.deletePeerDirectoryLocked(removedPeer)
+	if id := removedPeer.GetId(); id != 0 {
+		delete(w.preconnectPeers, id)
+	}
+	if removedPeer.GetEndpoint() != nil {
+		if id := removedPeer.GetEndpoint().GetWireguardId(); id != 0 {
+			delete(w.preconnectPeers, id)
+		}
+	}
+	w.cleanupPreconnectPeersLocked()
+
+	// 移除后也补齐其他可连接 peer（若目录里有基础信息）
+	w.onPeersChangedLocked("after RemovePeer")
 
 	return nil
 }
@@ -285,6 +275,7 @@ func (w *wireGuard) UpdatePeer(peer *defs.WireGuardPeerConfig) error {
 	}
 
 	w.ifce.Peers = newPeers
+	w.indexPeerDirectoryLocked(peerCfg)
 
 	uapiBuilder := NewUAPIBuilder().UpdatePeerConfig(peerCfg)
 
@@ -294,25 +285,124 @@ func (w *wireGuard) UpdatePeer(peer *defs.WireGuardPeerConfig) error {
 		return errors.Join(errors.New("update peer IpcSet error"), err)
 	}
 
+	// 更新后补齐常驻 peer（若目录里有基础信息）
+	w.onPeersChangedLocked("after UpdatePeer")
+
 	return nil
 }
 
 func (w *wireGuard) PatchPeers(newPeers []*defs.WireGuardPeerConfig) (*app.WireGuardDiffPeersResponse, error) {
-	oldPeers := w.ifce.GetParsedPeers()
+	log := w.svcLogger.WithField("op", "PatchPeers")
 
-	diffResp := utils.Diff(oldPeers, newPeers)
+	// 重要：不要使用 utils.Diff 直接对 Equal 做 diff。
+	// Equal() 包含 AllowedIPs/Endpoint 等字段，任何路由变化都会被当作 remove+add，
+	// 再叠加当前“先删后加”的执行顺序，会导致短时断链/路由黑洞。
+	// 按 PublicKey 做稳定匹配，将变化归类为 add/update/remove
+
+	oldPeers := w.ifce.GetParsedPeers()
+	typedNewPeers, err := parseAndValidatePeerConfigs(newPeers)
+	if err != nil {
+		return nil, err
+	}
+
+	// 优化：从 adj 中提取“本节点可直连/可连接”的 peer，确保它们常驻但不分配 AllowedIPs。
+	// 这样后续路由变化只需要更新 AllowedIPs，不需要 remove+add 重新建立连接。
+	beforeMerge := len(typedNewPeers)
+	typedNewPeers = mergeConnectablePeersFromAdj(w.ifce, typedNewPeers, oldPeers)
+	if delta := len(typedNewPeers) - beforeMerge; delta > 0 {
+		log.Debugf("merged connectable peers from adjs: +%d (desired=%d -> %d)", delta, beforeMerge, len(typedNewPeers))
+	}
+
+	// 更新 peerDirectory（把本次看到的 peer 基础信息都缓存起来，后续 adjs 变化可用于补齐常驻 peer）
+	w.Lock()
+	for _, p := range typedNewPeers {
+		if p == nil {
+			continue
+		}
+		w.indexPeerDirectoryLocked(p)
+	}
+	w.Unlock()
+
+	oldByPK := make(map[string]*defs.WireGuardPeerConfig, len(oldPeers))
+	for _, p := range oldPeers {
+		if p == nil || p.GetPublicKey() == "" {
+			continue
+		}
+		oldByPK[p.GetPublicKey()] = p
+	}
+
+	newByPK := make(map[string]*defs.WireGuardPeerConfig, len(typedNewPeers))
+	for _, p := range typedNewPeers {
+		if p == nil || p.GetPublicKey() == "" {
+			continue
+		}
+		newByPK[p.GetPublicKey()] = p
+	}
+
+	addPeers := make([]*defs.WireGuardPeerConfig, 0, 8)
+	updatePeers := make([]*defs.WireGuardPeerConfig, 0, 8)
+	removePeers := make([]*defs.WireGuardPeerConfig, 0, 8)
+
+	for pk, np := range newByPK {
+		op, ok := oldByPK[pk]
+		if !ok { // new peer
+			addPeers = append(addPeers, np)
+			continue
+		}
+		if !op.Equal(np) { // update peer
+			updatePeers = append(updatePeers, np)
+		}
+	}
+	for pk, op := range oldByPK {
+		if _, ok := newByPK[pk]; !ok { // remove peer
+			removePeers = append(removePeers, op)
+		}
+	}
 
 	resp := &app.WireGuardDiffPeersResponse{
-		AddPeers:    diffResp.NotInArr1,
-		RemovePeers: diffResp.NotInArr2,
+		AddPeers:    addPeers,
+		RemovePeers: removePeers,
 	}
 
-	for _, peer := range resp.RemovePeers {
-		w.RemovePeer(peer.GetPublicKey())
+	if len(addPeers) == 0 && len(updatePeers) == 0 && len(removePeers) == 0 {
+		return resp, nil
 	}
-	for _, peer := range resp.AddPeers {
-		w.AddPeer(peer)
+
+	uapiBuilder := NewUAPIBuilder()
+	for _, p := range addPeers {
+		uapiBuilder.AddPeerConfig(p)
 	}
+	for _, p := range updatePeers {
+		uapiBuilder.UpdatePeerConfig(p)
+	}
+	for _, p := range removePeers {
+		uapiBuilder.RemovePeerByKey(p.GetParsedPublicKey())
+	}
+
+	log.Debugf("uapiBuilder: %s", uapiBuilder.Build())
+
+	w.Lock()
+	defer w.Unlock()
+
+	if err := w.wgDevice.IpcSet(uapiBuilder.Build()); err != nil {
+		return nil, errors.Join(errors.New("patch peers IpcSet error"), err)
+	}
+
+	// IpcSet 成功后再更新本地缓存，避免不一致
+	newPBPeers := make([]*pb.WireGuardPeerConfig, 0, len(typedNewPeers))
+	for _, p := range typedNewPeers {
+		if p == nil || p.WireGuardPeerConfig == nil {
+			continue
+		}
+		newPBPeers = append(newPBPeers, p.WireGuardPeerConfig)
+	}
+	w.ifce.Peers = newPBPeers
+
+	// 清理 preconnectPeers 中已不存在的 peer id，避免无限增长
+	w.cleanupPreconnectPeersLocked()
+
+	// PatchPeers 后再次补齐（主要覆盖：adjs 先于 peers 变化、且目录已有信息的场景）
+	w.onPeersChangedLocked("after PatchPeers")
 
 	return resp, nil
 }
@@ -367,6 +457,16 @@ func (w *wireGuard) GetWGRuntimeInfo() (*pb.WGDeviceRuntimeInfo, error) {
 	return runtimeInfo, nil
 }
 
+func (w *wireGuard) UpdateAdjs(adjs map[uint32]*pb.WireGuardLinks) error {
+	w.Lock()
+	defer w.Unlock()
+
+	w.ifce.Adjs = adjs
+
+	// adjs 变化后立刻补齐“可连接 peer 常驻”（只要 peerDirectory 中已有其基础信息）
+	return w.ensureConnectablePeersLocked()
+}
+
 func (w *wireGuard) NeedRecreate(newCfg *defs.WireGuardConfig) bool {
 	return w.ifce.GetId() != newCfg.GetId() ||
 		w.ifce.GetInterfaceName() != newCfg.GetInterfaceName() ||
@@ -377,415 +477,4 @@ func (w *wireGuard) NeedRecreate(newCfg *defs.WireGuardConfig) bool {
 		w.ifce.GetInterfaceMtu() != newCfg.GetInterfaceMtu() ||
 		w.ifce.GetUseGvisorNet() != newCfg.GetUseGvisorNet() ||
 		w.ifce.GetNetworkId() != newCfg.GetNetworkId()
-}
-
-func (w *wireGuard) initTransports() error {
-	log := w.svcLogger.WithField("op", "initTransports")
-
-	wsTrans := ws.NewWSBind(w.ctx)
-	w.multiBind = multibind.NewMultiBind(
-		w.svcLogger,
-		multibind.NewTransport(conn.NewDefaultBind(), "udp"),
-		multibind.NewTransport(wsTrans, "ws"),
-	)
-
-	engine := gin.New()
-	engine.Any(defs.DefaultWSHandlerPath, func(c *gin.Context) {
-		err := wsTrans.HandleHTTP(c.Writer, c.Request)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-	})
-
-	// if ws listen port not set, use wg listen port, share tcp and udp port
-	listenPort := w.ifce.GetWsListenPort()
-	if listenPort == 0 {
-		listenPort = w.ifce.GetListenPort()
-	}
-	go func() {
-		if err := engine.Run(fmt.Sprintf(":%d", listenPort)); err != nil {
-			w.svcLogger.WithError(err).Errorf("failed to run gin engine for ws transport on port %d", listenPort)
-		}
-	}()
-
-	log.Infof("WS transport engine running on port %d", listenPort)
-
-	return nil
-}
-
-func (w *wireGuard) initWGDevice() error {
-	log := w.svcLogger.WithField("op", "initWGDevice")
-
-	log.Debugf("start to create TUN device '%s' (MTU %d)", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu())
-
-	var err error
-
-	if w.useGvisorNet {
-		log.Infof("using gvisor netstack for TUN device")
-		prf, err := netip.ParsePrefix(w.ifce.GetLocalAddress())
-		if err != nil {
-			return errors.Join(fmt.Errorf("parse local addr '%s' for netip", w.ifce.GetLocalAddress()), err)
-		}
-
-		addrs := lo.Map(w.ifce.GetDnsServers(), func(s string, _ int) netip.Addr {
-			addr, err := netip.ParseAddr(s)
-			if err != nil {
-				return netip.Addr{}
-			}
-			return addr
-		})
-		if len(addrs) == 0 {
-			addrs = []netip.Addr{netip.AddrFrom4([4]byte{1, 2, 4, 8})}
-		}
-		log.Debugf("create netstack TUN with addr '%s' and dns servers '%v'", prf.Addr().String(), addrs)
-		w.tunDevice, w.gvisorNet, err = netstack.CreateNetTUN([]netip.Addr{prf.Addr()}, addrs, 1200)
-		if err != nil {
-			return errors.Join(fmt.Errorf("create netstack TUN device '%s' (MTU %d) failed", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu()), err)
-		}
-	} else {
-		w.tunDevice, err = tun.CreateTUN(w.ifce.GetInterfaceName(), int(w.ifce.GetInterfaceMtu()))
-		if err != nil {
-			return errors.Join(fmt.Errorf("create TUN device '%s' (MTU %d) failed", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu()), err)
-		}
-	}
-
-	log.Debugf("TUN device '%s' (MTU %d) created successfully", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu())
-
-	log.Debugf("start to create WireGuard device '%s'", w.ifce.GetInterfaceName())
-
-	w.wgDevice = device.NewDevice(w.tunDevice, w.multiBind, &device.Logger{
-		Verbosef: w.svcLogger.WithField("wg-dev-iface", w.ifce.GetInterfaceName()).Debugf,
-		Errorf:   w.svcLogger.WithField("wg-dev-iface", w.ifce.GetInterfaceName()).Errorf,
-	})
-
-	log.Debugf("WireGuard device '%s' created successfully", w.ifce.GetInterfaceName())
-
-	return nil
-}
-
-func (w *wireGuard) applyPeerConfig() error {
-	log := w.svcLogger.WithField("op", "applyConfig")
-
-	log.Debugf("start to apply config to WireGuard device '%s'", w.ifce.GetInterfaceName())
-
-	if w.wgDevice == nil {
-		return errors.New("wgDevice is nil, please init WG device first")
-	}
-
-	wgTypedPeerConfigs, err := parseAndValidatePeerConfigs(w.ifce.GetParsedPeers())
-	if err != nil {
-		return errors.Join(errors.New("parse/validate peers"), err)
-	}
-
-	log.Debugf("wgTypedPeerConfigs: %v", wgTypedPeerConfigs)
-
-	uapiConfigString := generateUAPIConfigString(w.ifce, w.ifce.GetParsedPrivKey(), wgTypedPeerConfigs, !w.running, false)
-
-	log.Debugf("uapiBuilder: %s", uapiConfigString)
-
-	log.Debugf("calling IpcSet...")
-	if err = w.wgDevice.IpcSet(uapiConfigString); err != nil {
-		return errors.Join(errors.New("IpcSet error"), err)
-	}
-	log.Debugf("IpcSet completed successfully")
-
-	return nil
-}
-
-func (w *wireGuard) initNetwork() error {
-	log := w.svcLogger.WithField("op", "initNetwork")
-
-	// 等待 TUN 设备在内核中完全注册,避免竞态条件
-	var link netlink.Link
-	var err error
-	maxRetries := 10
-	for i := 0; i < maxRetries; i++ {
-		link, err = netlink.LinkByName(w.ifce.GetInterfaceName())
-		if err == nil {
-			break
-		}
-		if i < maxRetries-1 {
-			log.Debugf("attempt %d: waiting for iface '%s' to be ready, will retry...", i+1, w.ifce.GetInterfaceName())
-			time.Sleep(100 * time.Millisecond)
-		}
-	}
-	if err != nil {
-		return errors.Join(fmt.Errorf("get iface '%s' via netlink after %d retries", w.ifce.GetInterfaceName(), maxRetries), err)
-	}
-	log.Debugf("successfully found interface '%s' via netlink", w.ifce.GetInterfaceName())
-
-	addr, err := netlink.ParseAddr(w.ifce.GetLocalAddress())
-	if err != nil {
-		return errors.Join(fmt.Errorf("parse local addr '%s' for netlink", w.ifce.GetLocalAddress()), err)
-	}
-
-	if err = netlink.AddrAdd(link, addr); err != nil && !os.IsExist(err) {
-		return errors.Join(fmt.Errorf("add IP '%s' to '%s'", w.ifce.GetLocalAddress(), w.ifce.GetInterfaceName()), err)
-	} else if os.IsExist(err) {
-		log.Infof("IP %s already on '%s'.", w.ifce.GetLocalAddress(), w.ifce.GetInterfaceName())
-	} else {
-		log.Infof("IP %s added to '%s'.", w.ifce.GetLocalAddress(), w.ifce.GetInterfaceName())
-	}
-
-	if err = netlink.LinkSetMTU(link, int(w.ifce.GetInterfaceMtu())); err != nil {
-		log.Warnf("Set MTU %d on '%s' via netlink: %v. TUN MTU is %d.",
-			w.ifce.GetInterfaceMtu(), w.ifce.GetInterfaceName(), err, w.ifce.GetInterfaceMtu())
-	} else {
-		log.Infof("Iface '%s' MTU %d set via netlink.", w.ifce.GetInterfaceName(), w.ifce.GetInterfaceMtu())
-	}
-
-	if err = netlink.LinkSetUp(link); err != nil {
-		return errors.Join(fmt.Errorf("bring up iface '%s' via netlink", w.ifce.GetInterfaceName()), err)
-	}
-
-	log.Infof("Iface '%s' up via netlink.", w.ifce.GetInterfaceName())
-	return nil
-}
-
-func (w *wireGuard) initGvisorNetwork() error {
-	log := w.svcLogger.WithField("op", "initGvisorNetwork")
-
-	if w.gvisorNet == nil {
-		return errors.New("gvisorNet is nil, cannot initialize network")
-	}
-
-	// wg-go dose not expose the stack field, so we need to use reflection to access it
-	netValue := reflect.ValueOf(w.gvisorNet).Elem()
-	stackField := netValue.FieldByName("stack")
-
-	if !stackField.IsValid() {
-		return errors.New("cannot find stack field in gvisorNet")
-	}
-
-	stackPtrValue := reflect.NewAt(stackField.Type(), unsafe.Pointer(stackField.UnsafeAddr())).Elem()
-	if !stackPtrValue.IsValid() || stackPtrValue.IsNil() {
-		return errors.New("gvisor stack is nil or invalid")
-	}
-
-	gvisorStack := stackPtrValue.Interface().(*stack.Stack)
-	if gvisorStack == nil {
-		return errors.New("gvisor stack is nil after conversion")
-	}
-
-	log.Infof("successfully accessed gvisor stack, enabling IP forwarding")
-
-	if err := gvisorStack.SetForwardingDefaultAndAllNICs(ipv4.ProtocolNumber, true); err != nil {
-		log.Warnf("failed to enable IPv4 forwarding: %v, relay may not work", err)
-	} else {
-		log.Infof("IPv4 forwarding enabled for gvisor netstack")
-	}
-
-	if err := gvisorStack.SetForwardingDefaultAndAllNICs(ipv6.ProtocolNumber, true); err != nil {
-		log.Warnf("failed to enable IPv6 forwarding: %v", err)
-	} else {
-		log.Infof("IPv6 forwarding enabled for gvisor netstack")
-	}
-
-	for _, peer := range w.ifce.Peers {
-		for _, allowedIP := range peer.AllowedIps {
-			prefix, err := netip.ParsePrefix(allowedIP)
-			if err != nil {
-				log.WithError(err).Warnf("failed to parse allowed IP: %s", allowedIP)
-				continue
-			}
-
-			addr := tcpip.AddrFromSlice(prefix.Addr().AsSlice())
-
-			ones := prefix.Bits()
-			maskBytes := make([]byte, len(prefix.Addr().AsSlice()))
-			for i := 0; i < len(maskBytes); i++ {
-				if ones >= 8 {
-					maskBytes[i] = 0xff
-					ones -= 8
-				} else if ones > 0 {
-					maskBytes[i] = byte(0xff << (8 - ones))
-					ones = 0
-				}
-			}
-
-			subnet, err := tcpip.NewSubnet(addr, tcpip.MaskFromBytes(maskBytes))
-			if err != nil {
-				log.WithError(err).Warnf("failed to create subnet for %s", allowedIP)
-				continue
-			}
-
-			route := tcpip.Route{
-				Destination: subnet,
-				NIC:         1,
-			}
-
-			gvisorStack.AddRoute(route)
-			log.Debugf("added route for peer allowed IP: %s via NIC 1", allowedIP)
-		}
-	}
-
-	log.Infof("gvisor netstack initialized with IP forwarding enabled")
-	return nil
-}
-
-func (w *wireGuard) cleanupNetwork() {
-	log := w.svcLogger.WithField("op", "cleanupNetwork")
-
-	if w.useGvisorNet {
-		log.Infof("skip network cleanup for gvisor netstack")
-		return
-	}
-
-	link, err := netlink.LinkByName(w.ifce.GetInterfaceName())
-	if err == nil {
-		if err := netlink.LinkSetDown(link); err != nil {
-			log.Warnf("Failed to LinkSetDown '%s' after wgDevice.Up() error: %v", w.ifce.GetInterfaceName(), err)
-		}
-	}
-	log.Debug("Cleanup network complete.")
-}
-
-func (w *wireGuard) cleanupWGDevice() {
-	log := w.svcLogger.WithField("op", "cleanupWGDevice")
-
-	if w.wgDevice != nil {
-		w.wgDevice.Close()
-	} else if w.tunDevice != nil {
-		w.tunDevice.Close()
-	}
-	w.wgDevice = nil
-	w.tunDevice = nil
-	log.Debug("Cleanup WG device complete.")
-}
-
-func (w *wireGuard) reportStatusTask() {
-	for {
-		select {
-		case <-w.ctx.Done():
-			return
-		default:
-			w.pingPeers()
-			time.Sleep(ReportInterval)
-		}
-	}
-}
-
-func (w *wireGuard) pingPeers() {
-
-	log := w.svcLogger.WithField("op", "pingPeers")
-
-	ifceConfig, err := w.GetIfceConfig()
-	if err != nil {
-		log.WithError(err).Errorf("failed to get interface config")
-		return
-	}
-
-	log.Debugf("start to ping peers, len: %d", len(ifceConfig.Peers))
-
-	peers := ifceConfig.Peers
-
-	var waitGroup conc.WaitGroup
-
-	for _, peer := range peers {
-
-		addr := ""
-
-		if peer.Endpoint != nil && peer.Endpoint.Host != "" {
-			addr = peer.Endpoint.Host
-		}
-
-		if addr == "" {
-			continue
-		}
-
-		epPinger, err := probing.NewPinger(addr)
-		if err != nil {
-			log.WithError(err).Errorf("failed to create pinger for %s", addr)
-			continue
-		}
-
-		epPinger.Count = 5
-		epPinger.Timeout = 10 * time.Second
-
-		epPinger.OnFinish = func(stats *probing.Statistics) {
-			// stats.PacketsSent, stats.PacketsRecv, stats.PacketLoss
-			// stats.MinRtt, stats.AvgRtt, stats.MaxRtt, stats.StdDevRtt
-			if w.endpointPingMap != nil {
-				log.Tracef("ping stats for %s: %v", addr, stats)
-				avgRttMs := uint32(stats.AvgRtt.Milliseconds())
-				if avgRttMs == 0 { // 0 means bug
-					avgRttMs = 1
-				}
-				w.endpointPingMap.Store(peer.Id, avgRttMs)
-			}
-		}
-
-		epPinger.OnRecv = func(pkt *probing.Packet) {
-			log.Tracef("recv from %s", pkt.IPAddr.String())
-		}
-
-		epPinger.OnSendError = func(pkt *probing.Packet, err error) {
-			log.WithError(err).Errorf("failed to send packet to %s", addr)
-			w.endpointPingMap.Store(peer.Id, math.MaxUint32)
-		}
-
-		waitGroup.Go(func() {
-			if err := epPinger.Run(); err != nil {
-				log.WithError(err).Errorf("failed to run pinger for %s", addr)
-				w.endpointPingMap.Store(peer.Id, math.MaxUint32)
-				return
-			}
-			log.Debugf("ping endpoint [%s] completed", addr)
-		})
-	}
-
-	for _, peer := range peers {
-		if w.useGvisorNet {
-			continue
-		}
-
-		if peer.VirtualIp == "" {
-			continue
-		}
-
-		addr := peer.VirtualIp
-
-		virtAddrPinger, err := probing.NewPinger(addr)
-		if err != nil {
-			log.WithError(err).Errorf("failed to create pinger for %s", addr)
-			continue
-		}
-
-		virtAddrPinger.Count = 5
-		virtAddrPinger.InterfaceName = w.ifce.GetInterfaceName()
-		virtAddrPinger.Timeout = 10 * time.Second
-		virtAddrPinger.OnFinish = func(stats *probing.Statistics) {
-			log.Tracef("ping stats for %s: %v", addr, stats)
-			avgRttMs := uint32(stats.AvgRtt.Milliseconds())
-			if avgRttMs == 0 { // 0 means bug
-				avgRttMs = 1
-			}
-			w.virtAddrPingMap.Store(addr, avgRttMs)
-		}
-		virtAddrPinger.OnSendError = func(pkt *probing.Packet, err error) {
-			log.WithError(err).Errorf("failed to send packet to %s", addr)
-			w.virtAddrPingMap.Store(addr, math.MaxUint32)
-		}
-
-		virtAddrPinger.OnRecv = func(pkt *probing.Packet) {
-			log.Tracef("recv from %s", pkt.IPAddr.String())
-		}
-
-		waitGroup.Go(func() {
-			if err := virtAddrPinger.Run(); err != nil {
-				log.WithError(err).Errorf("failed to run pinger for %s", addr)
-				w.virtAddrPingMap.Store(addr, math.MaxUint32)
-				return
-			}
-			log.Debugf("ping virt addr [%s] completed", addr)
-		})
-	}
-
-	log.Debugf("wait for pingers to complete")
-
-	rcs := waitGroup.WaitAndRecover()
-	if rcs != nil {
-		log.WithError(rcs.AsError()).Errorf("failed to wait for pingers")
-	}
 }

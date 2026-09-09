@@ -18,7 +18,7 @@ func DeleteNetwork(ctx *app.Context, req *pb.DeleteNetworkRequest) (*pb.DeleteNe
 	if id == 0 {
 		return nil, errors.New("invalid id")
 	}
-	if err := dao.NewQuery(ctx).DeleteNetwork(userInfo, id); err != nil {
+	if err := dao.NewMutation(ctx).DeleteNetwork(userInfo, id); err != nil {
 		return nil, err
 	}
 	return &pb.DeleteNetworkResponse{

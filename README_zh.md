@@ -2,7 +2,9 @@
 
 FRP-Panel 是一款基于 FRP 的可视化管理面板，提供中心化配置、统一凭证、动态调度和边缘 Worker 支持，让内网穿透和服务暴露更简单、更安全、更高效。
 
-[详细使用文档 (Wiki)](https://vaala.cat/frp-panel) | [Blog 开发记录](https://vaala.cat/posts/frp-panel-doc/) | [截图/视频展示](https://vaala.cat/frp-panel/screenshots) | QQ 群：830620423
+[详细使用文档 (Wiki)](https://vaala.cat/frp-panel) | [Frp-panel Blog 开发记录](https://vaala.cat/posts/frp-panel-doc/) | [截图/视频展示](https://vaala.cat/frp-panel/screenshots) | QQ 群：830620423
+
+> [WireGuard 多跳智能组网功能开发笔记](https://vaala.cat/posts/frp-panel-with-wireguard/) 点开有好玩的 Demo 哦！
 
 中文文档 | [English](./README.md)
 
@@ -20,6 +22,9 @@ FRP-Panel 是一款基于 FRP 的可视化管理面板，提供中心化配置�
 | 可视化界面                 | Web UI 一键创建、编辑、监控隧道和Worker，实时日志与统计一目了然                  |
 | 简化凭证分发               | 自动生成并分发启动命令，无须手动传参             |
 | 边缘 Worker 自部署         | 在 Client 上部署自定义 Worker，Server 将其暴露到公网，Master 可实时调整配置 |
+| WireGuard 智能组网         | 支持 Client 相互之间使用 WireGuard over UDP/Websocket 多跳组网、自定义路由、拓扑，按延迟和带宽智能计算最短路由 |
+
+> 组网功能目前处于测试阶段，可能存在一些问题，欢迎反馈
 
 ## 架构概览
 
@@ -27,7 +32,9 @@ FRP-Panel 是一款基于 FRP 的可视化管理面板，提供中心化配置�
 
 1. **Master** – 集中管理与鉴权，要求所有 Server 和 Client 可访问；
 2. **Server** – 承载业务流量，作为公网入口，为 Client 提供服务；
-3. **Client** – 内网代理，支持部署 Worker；
+3. **Client** – 内网代理，支持部署 Worker，支持 WireGuard 与其他 Client 智能组网；
+
+> 组网目前要求网络中至少有一个 Client 有公网IP作为中继节点，且目前仅支持 Linux 操作系统组网
 
 ## 社区与赞助
 

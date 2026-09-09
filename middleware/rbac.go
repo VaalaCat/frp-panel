@@ -41,7 +41,7 @@ func RBAC(appInstance app.Application) func(*gin.Context) {
 				RequestPath:   path,
 				RequestMethod: method,
 			}) {
-				logger.Logger(c).Infof("user has api permission, continue")
+				logger.Logger(c).Debugf("user has api permission, continue")
 				c.Next()
 				return
 			}

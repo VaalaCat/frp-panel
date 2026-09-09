@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import type { WGEdge } from './types'
-import { Activity, TrendingUp, TrendingDown, Clock, MapPin, Zap } from 'lucide-react'
+import { Activity, TrendingUp, TrendingDown, Clock, MapPin, Zap, Route } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface TopologySidebarProps {
@@ -116,6 +116,27 @@ export default function TopologySidebar({ selectedEdge }: TopologySidebarProps) 
 							</div>
 						</div>
 					</div>
+				)}
+
+				{/* 路由信息 */}
+				{link.routes && link.routes.length > 0 && (
+					<>
+						<Separator />
+						<div className="space-y-2">
+							<div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+								<Route className="h-4 w-4" />
+								{t('wg.topologySidebar.routes', 'Routes')}
+							</div>
+							<div className="bg-muted/50 rounded-lg p-3 space-y-1">
+								{link.routes.map((route, i) => (
+									<div key={i} className="font-mono text-sm flex items-center gap-2">
+										<span className="w-1.5 h-1.5 rounded-full bg-primary/50" />
+										{route}
+									</div>
+								))}
+							</div>
+						</div>
+					</>
 				)}
 
 				{/* 连接信息 */}

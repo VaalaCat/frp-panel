@@ -41,6 +41,7 @@ import { $clientTableRefetchTrigger } from '@/store/refetch-trigger'
 import { NeedUpgrade } from '@/config/notify'
 import { Label } from '../ui/label'
 import { Checkbox } from '../ui/checkbox'
+import { ClientUpgradeDialog } from '../base/client_upgrade_dialog'
 
 export type ClientTableSchema = {
   id: string
@@ -346,6 +347,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
   const router = useRouter()
   const platformInfo = useStore($platformInfo)
   const frontendPreference = useStore($frontendPreference)
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false)
 
   const removeClient = useMutation({
     mutationFn: deleteClient,
@@ -398,8 +400,26 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
     URL.revokeObjectURL(aTag.href)
   }
 
+  const githubProxyUrl =
+    frontendPreference.useServerGithubProxyUrl && frontendPreference.githubProxyUrl
+      ? frontendPreference.githubProxyUrl
+      : platformInfo?.githubProxyUrl || ''
+
   return (
-    <Dialog>
+    <>
+      <ClientUpgradeDialog
+        open={upgradeDialogOpen}
+        onOpenChange={setUpgradeDialogOpen}
+        clientId={client.id}
+        defaultGithubProxy={githubProxyUrl || undefined}
+        defaultUseGithubProxy={true}
+        defaultServiceName="frpp"
+        onDispatched={() => {
+          $clientTableRefetchTrigger.set(Math.random())
+        }}
+      />
+
+      <Dialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -491,6 +511,16 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
           >
             {t('client.actions_menu.remote_terminal')}
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setUpgradeDialogOpen(true)
+            }}
+          >
+            {t('client.actions_menu.upgrade')}
+          </DropdownMenuItem>
           {!client.stopped && (
             <DropdownMenuItem className="text-destructive" onClick={() => stopClient.mutate({ clientId: client.id })}>
               {t('client.actions_menu.pause')}
@@ -522,6 +552,7 @@ export const ClientActions: React.FC<ClientItemProps> = ({ client, table }) => {
           </DialogClose>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   )
 }

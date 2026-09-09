@@ -44,7 +44,7 @@ func StopProxy(ctx *app.Context, req *pb.StopProxyRequest) (*pb.StopProxyRespons
 
 	// 1. 更新proxy状态
 	proxyConfig.Stopped = true
-	err = dao.NewQuery(ctx).UpdateProxyConfig(userInfo, proxyConfig)
+	err = dao.NewMutation(ctx).UpdateProxyConfig(userInfo, proxyConfig)
 	if err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot update proxy config, client: [%s], server: [%s], proxy name: [%s]", clientID, serverID, proxyName)
 		return nil, err

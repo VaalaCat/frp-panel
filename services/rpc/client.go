@@ -79,36 +79,37 @@ func Recv(appInstance app.Application, clientID string) chan bool {
 	done := make(chan bool)
 	go func() {
 		c := context.Background()
+		log := logger.Logger(c).WithField("clientID", clientID)
 		for {
 			reciver := appInstance.GetClientsManager().Get(clientID)
 			if reciver == nil {
-				logger.Logger(c).Errorf("cannot get client")
+				log.Errorf("cannot get client")
 				continue
 			}
 			resp, err := reciver.Conn.Recv()
 			if err == io.EOF {
-				logger.Logger(c).Infof("finish client recv")
+				log.Infof("finish client recv")
 				done <- true
 				return
 			}
 			if err != nil {
-				logger.Logger(context.Background()).WithError(err).Errorf("cannot recv, usually means client disconnect")
+				log.WithError(err).Errorf("cannot recv, usually means client disconnect")
 				done <- true
 				return
 			}
 
 			respChAny, ok := appInstance.GetClientRecvMap().Load(resp.SessionId)
 			if !ok {
-				logger.Logger(c).Errorf("cannot load")
+				log.Errorf("cannot load")
 				continue
 			}
 
 			respCh, ok := respChAny.(chan *pb.ClientMessage)
 			if !ok {
-				logger.Logger(c).Errorf("cannot cast")
+				log.Errorf("cannot cast")
 				continue
 			}
-			logger.Logger(c).Infof("recv success, resp: %+v", resp)
+			log.Debugf("recv success, resp: %+v", resp)
 			respCh <- resp
 		}
 	}()

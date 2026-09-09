@@ -31,7 +31,7 @@ func InitClientHandler(c *app.Context, req *pb.InitClientRequest) (*pb.InitClien
 
 	logger.Logger(c).Infof("start to init client, request:[%s], transformed global client id:[%s]", req.String(), globalClientID)
 
-	if err := dao.NewQuery(c).CreateClient(userInfo,
+	if err := dao.NewMutation(c).CreateClient(userInfo,
 		&models.ClientEntity{
 			ClientID:      globalClientID,
 			TenantID:      userInfo.GetTenantID(),

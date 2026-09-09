@@ -2,6 +2,7 @@ package ws
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -22,9 +23,11 @@ var (
 const (
 	defaultRegisterChanSize = 128
 	defaultIncomingChanSize = 2048
-	defaultBatchSize        = 128 // 批量处理大小
-	wsReadBufferSize        = 65536
-	wsWriteBufferSize       = 65536
+	defaultBatchSize        = 128             // 批量处理大小
+	wsReadBufferSize        = 64 * 1024       // 64KiB
+	wsWriteBufferSize       = 64 * 1024       // 64KiB
+	wsMaxMessageSize        = 4 * 1024 * 1024 // 4MiB
+	maxPooledPayloadCap     = 64 * 1024       // 64KiB
 )
 
 type WSBind struct {
@@ -145,35 +148,90 @@ func (w *WSBind) Send(bufs [][]byte, ep conn.Endpoint) error {
 		return err
 	}
 
-	writer, err := conn.NextWriter(websocket.BinaryMessage)
-	if err != nil {
+	// 需要限制单条 message 的大小。
+	// 超大 message 可能导致对端有大分配
+	var (
+		writer     io.WriteCloser
+		msgBytes   int
+		openWriter = func() error { // 打开 writer
+			wr, openErr := conn.NextWriter(websocket.BinaryMessage)
+			if openErr != nil {
+				return openErr
+			}
+			writer = wr
+			msgBytes = 0
+			return nil
+		}
+		flushWriter = func() error { // 关闭 writer
+			if writer == nil {
+				return nil
+			}
+			closeErr := writer.Close()
+			writer = nil
+			msgBytes = 0
+			return closeErr
+		}
+	)
+
+	if err = openWriter(); err != nil {
 		conn.Close()
 		return fmt.Errorf("ws get writer error: %w", err)
 	}
 
 	// 批量写包
 	// TLV分割
+	// 保证最大包大小不超过wsMaxMessageSize
+	// 如果超过，分多次TLV写入
 	for _, buf := range bufs {
 		if len(buf) == 0 {
 			continue
 		}
+		// TLV 长度字段为 2 字节，单包最大 65535
+		// 如果超长，给wg-go报错，他不应该传这么长的包
+		if len(buf) > 0xFFFF {
+			_ = flushWriter()
+			conn.Close()
+			return fmt.Errorf("ws packet too large: %d > 65535", len(buf))
+		}
 
-		// 高低位拼接
+		need := 2 + len(buf)
+		if need > wsMaxMessageSize {
+			_ = flushWriter()
+			conn.Close()
+			return fmt.Errorf("ws message too large for single packet: need=%d limit=%d", need, wsMaxMessageSize)
+		}
+
+		// 若追加后超过单条 message 上限，则先 flush，再开启新 message
+		if msgBytes > 0 && msgBytes+need > wsMaxMessageSize {
+			if err = flushWriter(); err != nil {
+				conn.Close()
+				return fmt.Errorf("ws flush error: %w", err)
+			}
+			if err = openWriter(); err != nil {
+				conn.Close()
+				return fmt.Errorf("ws get writer error: %w", err)
+			}
+		}
+
+		// 写 TLV 长度
 		lenBuf := [2]byte{byte(len(buf) >> 8), byte(len(buf))}
 		if _, err = writer.Write(lenBuf[:]); err != nil {
+			_ = flushWriter()
 			conn.Close()
 			return fmt.Errorf("ws write length error: %w", err)
 		}
-
-		// 写入包内容
+		// 写 TLV 内容
 		if _, err = writer.Write(buf); err != nil {
+			_ = flushWriter()
 			conn.Close()
 			return fmt.Errorf("ws write data error: %w", err)
 		}
+
+		msgBytes += need
 	}
 
-	// 一次性写入
-	if err = writer.Close(); err != nil {
+	// flush 最后一条 message
+	if err = flushWriter(); err != nil {
 		conn.Close()
 		return fmt.Errorf("ws flush error: %w", err)
 	}
@@ -204,6 +262,9 @@ func (w *WSBind) HandleHTTP(writer http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return fmt.Errorf("ws upgrade error: %w", err)
 	}
+
+	// 限制单条消息大小，避免 ReadMessage 触发 io.ReadAll 的超大分配
+	conn.SetReadLimit(wsMaxMessageSize)
 
 	// 禁用写入截止时间，避免在高负载下超时
 	conn.SetWriteDeadline(time.Time{})
@@ -297,6 +358,12 @@ func (w *WSBind) recvFunc(packets [][]byte, sizes []int, eps []conn.Endpoint) (i
 			sizes[idx] = len(payload)
 		}
 		eps[idx] = p.endpoint
+		// 避免把大 buffer 放回 sync.Pool
+		if cap(p.payload) > maxPooledPayloadCap {
+			p.payload = make([]byte, 0, 2048)
+		} else {
+			p.payload = p.payload[:0]
+		}
 		// 归还 packet 到对象池
 		w.packetPool.Put(p)
 	}

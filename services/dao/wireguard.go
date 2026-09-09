@@ -7,7 +7,30 @@ import (
 	"gorm.io/gorm"
 )
 
-func (q *queryImpl) CreateWireGuard(userInfo models.UserInfo, wg *models.WireGuard) error {
+type WireGuardQuery interface {
+	GetWireGuardByID(userInfo models.UserInfo, id uint) (*models.WireGuard, error)
+	AdminGetWireGuardByClientIDAndInterfaceName(clientID, interfaceName string) (*models.WireGuard, error)
+	GetWireGuardsByNetworkID(userInfo models.UserInfo, networkID uint) ([]*models.WireGuard, error)
+	GetWireGuardLocalAddressesByNetworkID(userInfo models.UserInfo, networkID uint) ([]string, error)
+	ListWireGuardsWithFilters(userInfo models.UserInfo, page, pageSize int, filter *models.WireGuardEntity, keyword string) ([]*models.WireGuard, error)
+	AdminListWireGuardsWithClientID(clientID string) ([]*models.WireGuard, error)
+	AdminListWireGuardsWithNetworkIDs(networkIDs []uint) ([]*models.WireGuard, error)
+	CountWireGuardsWithFilters(userInfo models.UserInfo, filter *models.WireGuardEntity, keyword string) (int64, error)
+}
+
+type WireGuardMutation interface {
+	CreateWireGuard(userInfo models.UserInfo, wg *models.WireGuard) error
+	UpdateWireGuard(userInfo models.UserInfo, id uint, wg *models.WireGuard) error
+	DeleteWireGuard(userInfo models.UserInfo, id uint) error
+}
+
+type wireGuardQuery struct{ *queryImpl }
+type wireGuardMutation struct{ *mutationImpl }
+
+func newWireGuardQuery(base *queryImpl) WireGuardQuery          { return &wireGuardQuery{base} }
+func newWireGuardMutation(base *mutationImpl) WireGuardMutation { return &wireGuardMutation{base} }
+
+func (m *wireGuardMutation) CreateWireGuard(userInfo models.UserInfo, wg *models.WireGuard) error {
 	if wg == nil || wg.WireGuardEntity == nil {
 		return fmt.Errorf("invalid wireguard entity")
 	}
@@ -18,11 +41,11 @@ func (q *queryImpl) CreateWireGuard(userInfo models.UserInfo, wg *models.WireGua
 	wg.UserId = uint32(userInfo.GetUserID())
 	wg.TenantId = uint32(userInfo.GetTenantID())
 
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Create(wg).Error
 }
 
-func (q *queryImpl) UpdateWireGuard(userInfo models.UserInfo, id uint, wg *models.WireGuard) error {
+func (m *wireGuardMutation) UpdateWireGuard(userInfo models.UserInfo, id uint, wg *models.WireGuard) error {
 	if id == 0 || wg == nil || wg.WireGuardEntity == nil {
 		return fmt.Errorf("invalid wireguard id or entity")
 	}
@@ -30,7 +53,7 @@ func (q *queryImpl) UpdateWireGuard(userInfo models.UserInfo, id uint, wg *model
 	wg.UserId = uint32(userInfo.GetUserID())
 	wg.TenantId = uint32(userInfo.GetTenantID())
 
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 
 	// clear endpoints and resave if provided
 	if wg.AdvertisedEndpoints != nil {
@@ -49,11 +72,11 @@ func (q *queryImpl) UpdateWireGuard(userInfo models.UserInfo, id uint, wg *model
 	}}).Save(wg).Error
 }
 
-func (q *queryImpl) DeleteWireGuard(userInfo models.UserInfo, id uint) error {
+func (m *wireGuardMutation) DeleteWireGuard(userInfo models.UserInfo, id uint) error {
 	if id == 0 {
 		return fmt.Errorf("invalid wireguard id")
 	}
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().Where(&models.WireGuard{
 		Model: gorm.Model{ID: id},
 		WireGuardEntity: &models.WireGuardEntity{
@@ -63,7 +86,7 @@ func (q *queryImpl) DeleteWireGuard(userInfo models.UserInfo, id uint) error {
 	}).Delete(&models.WireGuard{}).Error
 }
 
-func (q *queryImpl) GetWireGuardByID(userInfo models.UserInfo, id uint) (*models.WireGuard, error) {
+func (q *wireGuardQuery) GetWireGuardByID(userInfo models.UserInfo, id uint) (*models.WireGuard, error) {
 	if id == 0 {
 		return nil, fmt.Errorf("invalid wireguard id")
 	}
@@ -84,7 +107,7 @@ func (q *queryImpl) GetWireGuardByID(userInfo models.UserInfo, id uint) (*models
 	return &m, nil
 }
 
-func (q *queryImpl) AdminGetWireGuardByClientIDAndInterfaceName(clientID, interfaceName string) (*models.WireGuard, error) {
+func (q *wireGuardQuery) AdminGetWireGuardByClientIDAndInterfaceName(clientID, interfaceName string) (*models.WireGuard, error) {
 	if clientID == "" || interfaceName == "" {
 		return nil, fmt.Errorf("invalid client id or interface name")
 	}
@@ -100,7 +123,7 @@ func (q *queryImpl) AdminGetWireGuardByClientIDAndInterfaceName(clientID, interf
 	return &m, nil
 }
 
-func (q *queryImpl) GetWireGuardsByNetworkID(userInfo models.UserInfo, networkID uint) ([]*models.WireGuard, error) {
+func (q *wireGuardQuery) GetWireGuardsByNetworkID(userInfo models.UserInfo, networkID uint) ([]*models.WireGuard, error) {
 	if networkID == 0 {
 		return nil, fmt.Errorf("invalid network id")
 	}
@@ -119,7 +142,7 @@ func (q *queryImpl) GetWireGuardsByNetworkID(userInfo models.UserInfo, networkID
 	return list, nil
 }
 
-func (q *queryImpl) GetWireGuardLocalAddressesByNetworkID(userInfo models.UserInfo, networkID uint) ([]string, error) {
+func (q *wireGuardQuery) GetWireGuardLocalAddressesByNetworkID(userInfo models.UserInfo, networkID uint) ([]string, error) {
 	if networkID == 0 {
 		return nil, fmt.Errorf("invalid network id")
 	}
@@ -135,7 +158,7 @@ func (q *queryImpl) GetWireGuardLocalAddressesByNetworkID(userInfo models.UserIn
 	return list, nil
 }
 
-func (q *queryImpl) ListWireGuardsWithFilters(userInfo models.UserInfo, page, pageSize int, filter *models.WireGuardEntity, keyword string) ([]*models.WireGuard, error) {
+func (q *wireGuardQuery) ListWireGuardsWithFilters(userInfo models.UserInfo, page, pageSize int, filter *models.WireGuardEntity, keyword string) ([]*models.WireGuard, error) {
 	if page < 1 || pageSize < 1 {
 		return nil, fmt.Errorf("invalid page or page size")
 	}
@@ -170,7 +193,7 @@ func (q *queryImpl) ListWireGuardsWithFilters(userInfo models.UserInfo, page, pa
 	return list, nil
 }
 
-func (q *queryImpl) AdminListWireGuardsWithClientID(clientID string) ([]*models.WireGuard, error) {
+func (q *wireGuardQuery) AdminListWireGuardsWithClientID(clientID string) ([]*models.WireGuard, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var list []*models.WireGuard
 	if err := db.Where(&models.WireGuard{WireGuardEntity: &models.WireGuardEntity{ClientID: clientID}}).
@@ -180,7 +203,7 @@ func (q *queryImpl) AdminListWireGuardsWithClientID(clientID string) ([]*models.
 	return list, nil
 }
 
-func (q *queryImpl) AdminListWireGuardsWithNetworkIDs(networkIDs []uint) ([]*models.WireGuard, error) {
+func (q *wireGuardQuery) AdminListWireGuardsWithNetworkIDs(networkIDs []uint) ([]*models.WireGuard, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var list []*models.WireGuard
 	if err := db.Where("network_id IN ?", networkIDs).
@@ -190,7 +213,7 @@ func (q *queryImpl) AdminListWireGuardsWithNetworkIDs(networkIDs []uint) ([]*mod
 	return list, nil
 }
 
-func (q *queryImpl) CountWireGuardsWithFilters(userInfo models.UserInfo, filter *models.WireGuardEntity, keyword string) (int64, error) {
+func (q *wireGuardQuery) CountWireGuardsWithFilters(userInfo models.UserInfo, filter *models.WireGuardEntity, keyword string) (int64, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	base := db.Model(&models.WireGuard{}).Where(&models.WireGuard{WireGuardEntity: &models.WireGuardEntity{

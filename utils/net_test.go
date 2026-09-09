@@ -11,5 +11,5 @@ func TestAllocateIP(t *testing.T) {
 	if err != nil {
 		t.Errorf("AllocateIP() failed: %v", err)
 	}
-	t.Errorf("AllocateIP() = %v", ip)
+	t.Logf("AllocateIP() = %v", ip)
 }

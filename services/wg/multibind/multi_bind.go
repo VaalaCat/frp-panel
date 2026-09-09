@@ -20,6 +20,10 @@ type MultiBind struct {
 	endpointPool sync.Pool
 }
 
+const (
+	maxPooledEndpointSliceCap = 1024
+)
+
 func NewMultiBind(logger *logrus.Entry, trans ...*Transport) *MultiBind {
 	if logger == nil {
 		logger = logrus.NewEntry(logrus.New())
@@ -173,7 +177,12 @@ func (m *MultiBind) recvWrapper(trans *Transport, fns conn.ReceiveFunc) conn.Rec
 		for i := range tmpEps {
 			tmpEps[i] = nil
 		}
-		tmpEps = tmpEps[:0]
+		// 避免把超大切片放回 pool
+		if cap(tmpEps) > maxPooledEndpointSliceCap {
+			tmpEps = make([]conn.Endpoint, 0, 128)
+		} else {
+			tmpEps = tmpEps[:0]
+		}
 		*tmpEpsPtr = tmpEps
 		m.endpointPool.Put(tmpEpsPtr)
 

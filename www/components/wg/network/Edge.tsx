@@ -99,16 +99,14 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
   let dirX = targetCenterX - sourceCenterX
   let dirY = targetCenterY - sourceCenterY
 
-  // 检测双向边：按字典序排列source和target，确定偏移方向
-  // 这样同一对节点间的两条边会使用一致的偏移方向
-  const hasBidirectional = source !== target
-  const isSecondaryEdge = hasBidirectional && id.localeCompare(`${target}-${source}`) > 0
+  // 如果是双向边（通过 data.isBidirectional 判断），给每条边都添加一个垂直偏移
+  // 总是向右偏移（相对于边的方向），这样方向相反的两条边会向相反方向偏移，形成平行的双向通道
+  const isBidirectional = data?.isBidirectional && source !== target
 
-  // 如果是双向边，给边添加一个小的垂直偏移
-  const OFFSET = 12 // 偏移像素，增加到12以避免重叠
-  if (isSecondaryEdge) {
-    // 计算垂直于连线的方向
+  if (isBidirectional) {
+    const OFFSET = 22 // 偏移像素，增加以避免重叠
     const length = Math.sqrt(dirX * dirX + dirY * dirY)
+
     if (length > 0) {
       const perpX = -dirY / length * OFFSET
       const perpY = dirX / length * OFFSET
@@ -238,6 +236,21 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
       ? `${data.link.latencyMs}ms ${data.link.upBandwidthMbps}↑ ${data.link.downBandwidthMbps}↓`
       : ''))
 
+    const routes = data?.link?.routes || []
+    const hasRoutes = routes.length > 0
+    const routesLabel = hasRoutes
+      ? (routes.length > 1 || routes[0].length > 15
+        ? `${routes.length} Routes`
+        : routes[0])
+      : ''
+
+    // 计算标签尺寸
+    const displayLabelWidth = displayLabel.length * 5.6 + 16
+    const routesLabelWidth = routesLabel.length * 4.5 + 16
+    const rectWidth = Math.max(displayLabelWidth, hasRoutes ? routesLabelWidth : 0)
+    const rectHeight = hasRoutes ? 28 : 18
+    const rectY = hasRoutes ? -14 : -9
+
     return (
       <>
         <BaseEdge
@@ -251,15 +264,15 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
           }}
         />
 
-        {displayLabel && (
+        {(displayLabel || hasRoutes) && (
           <g transform={`translate(${labelX}, ${labelY})`}>
             <g transform={`rotate(${labelAngle})`}>
               {/* 标签背景 */}
               <rect
-                x={-displayLabel.length * 2.8 - 8}
-                y={-9}
-                width={displayLabel.length * 5.6 + 16}
-                height={18}
+                x={-rectWidth / 2}
+                y={rectY}
+                width={rectWidth}
+                height={rectHeight}
                 rx={3}
                 fill="white"
                 fillOpacity={0.95}
@@ -272,10 +285,23 @@ const WGEdgeComponent: React.FC<EdgeProps<WGEdge>> = (props) => {
                 className="text-[10px] font-mono pointer-events-none select-none"
                 textAnchor="middle"
                 dominantBaseline="middle"
+                y={hasRoutes ? -4 : 0}
                 fill={strokeColor}
               >
                 {displayLabel}
               </text>
+              {hasRoutes && (
+                <text
+                  className="text-[8px] font-mono pointer-events-none select-none"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  y={6}
+                  fill={strokeColor}
+                  opacity={0.8}
+                >
+                  {routesLabel}
+                </text>
+              )}
             </g>
           </g>
         )}

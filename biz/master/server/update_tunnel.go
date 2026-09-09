@@ -6,6 +6,7 @@ import (
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/conf"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/dao"
@@ -13,6 +14,7 @@ import (
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
+	"github.com/samber/lo"
 )
 
 func UpdateFrpsHander(c *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPSResponse, error) {
@@ -27,7 +29,8 @@ func UpdateFrpsHander(c *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPS
 		return nil, fmt.Errorf("request invalid")
 	}
 
-	srv, err := dao.NewQuery(c).GetServerByServerID(userInfo, serverID)
+	q := dao.NewQuery(c)
+	srv, err := q.GetServerByServerID(userInfo, serverID)
 	if srv == nil || err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot get server, id: [%s]", serverID)
 		return nil, err
@@ -39,7 +42,10 @@ func UpdateFrpsHander(c *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPS
 		return nil, err
 	}
 
-	srvCfg.HTTPPlugins = []v1.HTTPPluginOptions{conf.FRPsAuthOption(c.GetApp().GetConfig())}
+	lo.Filter(srvCfg.HTTPPlugins, func(item v1.HTTPPluginOptions, _ int) bool {
+		return item.Name != defs.FRP_Plugin_Multiuser
+	})
+	srvCfg.HTTPPlugins = append(srvCfg.HTTPPlugins, conf.FRPsAuthOption(c.GetApp().GetConfig()))
 
 	if err := srv.SetConfigContent(srvCfg); err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot set server config")
@@ -55,7 +61,7 @@ func UpdateFrpsHander(c *app.Context, req *pb.UpdateFRPSRequest) (*pb.UpdateFRPS
 		srv.FrpsUrls = req.GetFrpsUrls()
 	}
 
-	if err := dao.NewQuery(c).UpdateServer(userInfo, srv); err != nil {
+	if err := dao.NewMutation(c).UpdateServer(userInfo, srv); err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot update server, id: [%s]", serverID)
 		return nil, err
 	}

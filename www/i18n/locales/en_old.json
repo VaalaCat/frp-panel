@@ -50,6 +50,10 @@
     },
     "runtime": {
       "protocol": "Protocol"
+    },
+    "topologyActions": {
+      "noSpf": "No Shortest Path First",
+      "default": ""
     }
   },
   "canvas": {

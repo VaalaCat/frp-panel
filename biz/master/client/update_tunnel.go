@@ -27,6 +27,8 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 		reqClientID = req.GetClientId() // may be shadow or child
 		userInfo    = common.GetUserInfo(c)
 	)
+	q := dao.NewQuery(c)
+	m := dao.NewMutation(c)
 
 	cliCfg, err := utils.LoadClientConfigNormal(content, true)
 	if err != nil {
@@ -36,7 +38,7 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 		}, err
 	}
 
-	cliRecord, err := dao.NewQuery(c).GetClientByClientID(userInfo, reqClientID)
+	cliRecord, err := q.GetClientByClientID(userInfo, reqClientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", reqClientID)
 		return &pb.UpdateFRPCResponse{
@@ -72,7 +74,7 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 		}
 	}
 
-	srv, err := dao.NewQuery(c).GetServerByServerID(userInfo, req.GetServerId())
+	srv, err := q.GetServerByServerID(userInfo, req.GetServerId())
 	if err != nil || srv == nil || len(srv.ServerIP) == 0 || len(srv.ConfigContent) == 0 {
 		logger.Logger(c).WithError(err).Errorf("cannot get server, server is not prepared, id: [%s]", req.GetServerId())
 		return &pb.UpdateFRPCResponse{
@@ -169,12 +171,12 @@ func UpdateFrpcHander(c *app.Context, req *pb.UpdateFRPCRequest) (*pb.UpdateFRPC
 		cli.Comment = req.GetComment()
 	}
 
-	if err := dao.NewQuery(c).UpdateClient(userInfo, cli); err != nil {
+	if err := m.UpdateClient(userInfo, cli); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot update client, id: [%s]", cli.ClientID)
 		return nil, err
 	}
 
-	if err := dao.NewQuery(c).RebuildProxyConfigFromClient(userInfo, &models.Client{ClientEntity: cli}); err != nil {
+	if err := m.RebuildProxyConfigFromClient(userInfo, &models.Client{ClientEntity: cli}); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot rebuild proxy config from client, id: [%s]", cli.ClientID)
 		return nil, err
 	}

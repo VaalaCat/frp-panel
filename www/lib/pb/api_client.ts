@@ -744,6 +744,68 @@ export interface RedeployWorkerResponse {
      */
     status?: Status;
 }
+/**
+ * @generated from protobuf message api_client.UpgradeFrppRequest
+ */
+export interface UpgradeFrppRequest {
+    /**
+     * @generated from protobuf field: repeated string client_ids = 1;
+     */
+    clientIds: string[];
+    /**
+     * @generated from protobuf field: optional string version = 2;
+     */
+    version?: string; // will be used if download_url is not set
+    /**
+     * @generated from protobuf field: optional string download_url = 3;
+     */
+    downloadUrl?: string; // will be used with highest priority
+    /**
+     * @generated from protobuf field: optional string github_proxy = 4;
+     */
+    githubProxy?: string; // when download_url is not set, github_proxy will be used
+    /**
+     * @generated from protobuf field: optional bool use_github_proxy = 5;
+     */
+    useGithubProxy?: boolean; // only used when download_url is not set
+    /**
+     * @generated from protobuf field: optional string http_proxy = 6;
+     */
+    httpProxy?: string; // http/https proxy for download, default HTTP_PROXY
+    /**
+     * @generated from protobuf field: optional string target_path = 7;
+     */
+    targetPath?: string; // binary path to overwrite, default current running binary
+    /**
+     * @generated from protobuf field: optional bool backup = 8;
+     */
+    backup?: boolean; // create .bak backup before overwrite
+    /**
+     * @generated from protobuf field: optional string service_name = 9;
+     */
+    serviceName?: string; // service name to control
+    /**
+     * @generated from protobuf field: optional bool restart_service = 10;
+     */
+    restartService?: boolean; // restart service after replace (will interrupt service)
+    /**
+     * @generated from protobuf field: optional string workdir = 11;
+     */
+    workdir?: string; // upgrade worker plan/lock directory (default system temp)
+    /**
+     * @generated from protobuf field: repeated string service_args = 12;
+     */
+    serviceArgs: string[]; // service args to pass to utils.ControlSystemService
+}
+/**
+ * @generated from protobuf message api_client.UpgradeFrppResponse
+ */
+export interface UpgradeFrppResponse {
+    /**
+     * @generated from protobuf field: optional common.Status status = 1;
+     */
+    status?: Status;
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class InitClientRequest$Type extends MessageType<InitClientRequest> {
     constructor() {
@@ -3730,3 +3792,174 @@ class RedeployWorkerResponse$Type extends MessageType<RedeployWorkerResponse> {
  * @generated MessageType for protobuf message api_client.RedeployWorkerResponse
  */
 export const RedeployWorkerResponse = new RedeployWorkerResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class UpgradeFrppRequest$Type extends MessageType<UpgradeFrppRequest> {
+    constructor() {
+        super("api_client.UpgradeFrppRequest", [
+            { no: 1, name: "client_ids", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "version", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "download_url", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "github_proxy", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "use_github_proxy", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
+            { no: 6, name: "http_proxy", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 7, name: "target_path", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 8, name: "backup", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
+            { no: 9, name: "service_name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 10, name: "restart_service", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
+            { no: 11, name: "workdir", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 12, name: "service_args", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<UpgradeFrppRequest>): UpgradeFrppRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.clientIds = [];
+        message.serviceArgs = [];
+        if (value !== undefined)
+            reflectionMergePartial<UpgradeFrppRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: UpgradeFrppRequest): UpgradeFrppRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated string client_ids */ 1:
+                    message.clientIds.push(reader.string());
+                    break;
+                case /* optional string version */ 2:
+                    message.version = reader.string();
+                    break;
+                case /* optional string download_url */ 3:
+                    message.downloadUrl = reader.string();
+                    break;
+                case /* optional string github_proxy */ 4:
+                    message.githubProxy = reader.string();
+                    break;
+                case /* optional bool use_github_proxy */ 5:
+                    message.useGithubProxy = reader.bool();
+                    break;
+                case /* optional string http_proxy */ 6:
+                    message.httpProxy = reader.string();
+                    break;
+                case /* optional string target_path */ 7:
+                    message.targetPath = reader.string();
+                    break;
+                case /* optional bool backup */ 8:
+                    message.backup = reader.bool();
+                    break;
+                case /* optional string service_name */ 9:
+                    message.serviceName = reader.string();
+                    break;
+                case /* optional bool restart_service */ 10:
+                    message.restartService = reader.bool();
+                    break;
+                case /* optional string workdir */ 11:
+                    message.workdir = reader.string();
+                    break;
+                case /* repeated string service_args */ 12:
+                    message.serviceArgs.push(reader.string());
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: UpgradeFrppRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated string client_ids = 1; */
+        for (let i = 0; i < message.clientIds.length; i++)
+            writer.tag(1, WireType.LengthDelimited).string(message.clientIds[i]);
+        /* optional string version = 2; */
+        if (message.version !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.version);
+        /* optional string download_url = 3; */
+        if (message.downloadUrl !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.downloadUrl);
+        /* optional string github_proxy = 4; */
+        if (message.githubProxy !== undefined)
+            writer.tag(4, WireType.LengthDelimited).string(message.githubProxy);
+        /* optional bool use_github_proxy = 5; */
+        if (message.useGithubProxy !== undefined)
+            writer.tag(5, WireType.Varint).bool(message.useGithubProxy);
+        /* optional string http_proxy = 6; */
+        if (message.httpProxy !== undefined)
+            writer.tag(6, WireType.LengthDelimited).string(message.httpProxy);
+        /* optional string target_path = 7; */
+        if (message.targetPath !== undefined)
+            writer.tag(7, WireType.LengthDelimited).string(message.targetPath);
+        /* optional bool backup = 8; */
+        if (message.backup !== undefined)
+            writer.tag(8, WireType.Varint).bool(message.backup);
+        /* optional string service_name = 9; */
+        if (message.serviceName !== undefined)
+            writer.tag(9, WireType.LengthDelimited).string(message.serviceName);
+        /* optional bool restart_service = 10; */
+        if (message.restartService !== undefined)
+            writer.tag(10, WireType.Varint).bool(message.restartService);
+        /* optional string workdir = 11; */
+        if (message.workdir !== undefined)
+            writer.tag(11, WireType.LengthDelimited).string(message.workdir);
+        /* repeated string service_args = 12; */
+        for (let i = 0; i < message.serviceArgs.length; i++)
+            writer.tag(12, WireType.LengthDelimited).string(message.serviceArgs[i]);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.UpgradeFrppRequest
+ */
+export const UpgradeFrppRequest = new UpgradeFrppRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class UpgradeFrppResponse$Type extends MessageType<UpgradeFrppResponse> {
+    constructor() {
+        super("api_client.UpgradeFrppResponse", [
+            { no: 1, name: "status", kind: "message", T: () => Status }
+        ]);
+    }
+    create(value?: PartialMessage<UpgradeFrppResponse>): UpgradeFrppResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        if (value !== undefined)
+            reflectionMergePartial<UpgradeFrppResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: UpgradeFrppResponse): UpgradeFrppResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* optional common.Status status */ 1:
+                    message.status = Status.internalBinaryRead(reader, reader.uint32(), options, message.status);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: UpgradeFrppResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* optional common.Status status = 1; */
+        if (message.status)
+            Status.internalBinaryWrite(message.status, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message api_client.UpgradeFrppResponse
+ */
+export const UpgradeFrppResponse = new UpgradeFrppResponse$Type();

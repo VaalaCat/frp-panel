@@ -25,7 +25,7 @@ func NewServerHandler(svrCfg *v1.ServerConfig) app.ServerHandler {
 
 	warning, err := validation.ValidateServerConfig(svrCfg)
 	if warning != nil {
-		logger.Logger(context.Background()).WithError(err).Warnf("validate server config warning: %+v", warning)
+		logger.Logger(ctx).WithError(err).Warnf("validate server config warning: %+v", warning)
 	}
 	if err != nil {
 		logger.Logger(ctx).Panic(err)
@@ -34,8 +34,10 @@ func NewServerHandler(svrCfg *v1.ServerConfig) app.ServerHandler {
 	var svr *server.Service
 
 	if svr, err = server.NewService(svrCfg); err != nil {
-		logger.Logger(context.Background()).WithError(err).Panic("cannot create server, exit and restart")
+		logger.Logger(ctx).WithError(err).Panic("cannot create server, exit and restart")
 	}
+
+	logger.Logger(ctx).Debugf("create server, config is: [ %+v ]", svrCfg)
 
 	return &serverImpl{
 		srv:       svr,

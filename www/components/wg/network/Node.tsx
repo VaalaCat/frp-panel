@@ -161,7 +161,7 @@ const WGNodeComponent: React.FC<NodeComponentProps> = ({
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            'group relative',
+            'group relative cursor-grab active:cursor-grabbing',
             selected && 'z-10'
           )}
           style={{ width: 240, height: 150, userSelect: 'none' }}
@@ -210,7 +210,7 @@ const WGNodeComponent: React.FC<NodeComponentProps> = ({
                     // 跳转到 WireGuard 详情页
                     router.push(`/wg/wireguard-detail?id=${id}`)
                   }}
-                  className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
+                  className="nodrag flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
                 >
                   <span className="text-muted-foreground">ID:</span>
                   <span className="font-mono font-semibold underline decoration-dotted">#{id}</span>

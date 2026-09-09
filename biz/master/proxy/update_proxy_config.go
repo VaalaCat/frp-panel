@@ -27,8 +27,10 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 		clientID = req.GetClientId()
 		serverID = req.GetServerId()
 	)
+	q := dao.NewQuery(c)
+	m := dao.NewMutation(c)
 
-	cli, err := dao.NewQuery(c).GetClientByClientID(userInfo, clientID)
+	cli, err := q.GetClientByClientID(userInfo, clientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, err
@@ -38,7 +40,7 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 
 	if clientEntity.ServerID != serverID {
 		logger.Logger(c).Errorf("client and server not match, find or create client, client: [%s], server: [%s]", clientID, serverID)
-		originClient, err := dao.NewQuery(c).GetClientByClientID(userInfo, clientEntity.OriginClientID)
+		originClient, err := q.GetClientByClientID(userInfo, clientEntity.OriginClientID)
 		if err != nil {
 			logger.Logger(c).WithError(err).Errorf("cannot get origin client, id: [%s]", clientEntity.OriginClientID)
 			return nil, err
@@ -51,7 +53,7 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 		}
 	}
 
-	_, err = dao.NewQuery(c).GetServerByServerID(userInfo, serverID)
+	_, err = q.GetServerByServerID(userInfo, serverID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get server, id: [%s]", serverID)
 		return nil, err
@@ -84,13 +86,13 @@ func UpdateProxyConfig(c *app.Context, req *pb.UpdateProxyConfigRequest) (*pb.Up
 		return nil, err
 	}
 
-	oldProxyCfg, err := dao.NewQuery(c).GetProxyConfigByOriginClientIDAndName(userInfo, clientID, proxyCfg.Name)
+	oldProxyCfg, err := q.GetProxyConfigByOriginClientIDAndName(userInfo, clientID, proxyCfg.Name)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get proxy config, id: [%s]", clientID)
 		return nil, err
 	}
 
-	if dao.NewQuery(c).UpdateProxyConfig(userInfo, &models.ProxyConfig{
+	if m.UpdateProxyConfig(userInfo, &models.ProxyConfig{
 		Model:             oldProxyCfg.Model,
 		ProxyConfigEntity: proxyCfg,
 	}) != nil {

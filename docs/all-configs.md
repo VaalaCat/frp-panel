@@ -42,3 +42,6 @@
 | string | `DB_DSN`                           | `data.db`         | 数据库 DSN，默认使用sqlite3，数据默认存储在可执行文件同目录下，对于 sqlite 是路径，其他数据库为 DSN，参见 [MySQL DSN](https://github.com/go-sql-driver/mysql#dsn-data-source-name) |
 | string | `CLIENT_ID`                        | -                  | 客户端 ID                                                        |
 | string | `CLIENT_SECRET`                   | -                  | 客户端密钥                                                       |
+| bool   | `IS_DEBUG`                         | `false`            | 是否开启调试模式（影响日志/部分组件行为）                                  |
+| bool   | `DEBUG_PROFILER_ENABLED`           | `false`            | 是否开启 profiler(pprof) HTTP 服务（默认仅监听 127.0.0.1）                 |
+| int    | `DEBUG_PROFILER_PORT`              | `6961`             | profiler(pprof) HTTP 服务端口                                      |

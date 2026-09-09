@@ -7,16 +7,16 @@ import { useNetworkTopology } from './topology_hook'
 import TopologyCanvas from './topology_canvas'
 import TopologySidebar from './topology_sidebar'
 import type { WGEdge, TopologyNode } from './types'
-import { layoutNetwork } from './layout'
 import { useTranslation } from 'react-i18next'
-import { RefreshCw, Maximize2, Minimize2, Info } from 'lucide-react'
+import { RefreshCw, Maximize2, Minimize2, Info, Route, RouteOff } from 'lucide-react'
 import { ReactFlowProvider } from '@xyflow/react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { cn } from '@/lib/utils'
 
 export default function TopologyPanel() {
 	const [networkID, setNetworkID] = useState<number | undefined>()
-	const { topology, isFetching, refetch, hasData } = useNetworkTopology(networkID)
+	const [spf, setSpf] = useState(true)
+	const { topology, isFetching, refetch, hasData } = useNetworkTopology(networkID, spf)
 	const [selectedEdgeId, setSelectedEdgeId] = useState<string | undefined>()
 	const [fullscreen, setFullscreen] = useState(false)
 	const { t } = useTranslation()
@@ -29,40 +29,14 @@ export default function TopologyPanel() {
 		[selectedEdgeId, edges]
 	)
 
-	// 布局nodes
+	// 同步edges & nodes，但保留自定义节点
 	useEffect(() => {
-		let cancelled = false
-
-		const doLayout = async () => {
-			if (topology.nodes.length === 0) {
-				setNodes([])
-				return
-			}
-
-			try {
-				const { nodes: layoutedNodes } = await layoutNetwork(topology.nodes, topology.edges)
-				if (!cancelled) {
-					setNodes(layoutedNodes)
-				}
-			} catch (error) {
-				console.error('Layout error:', error)
-				if (!cancelled) {
-					setNodes(topology.nodes)
-				}
-			}
-		}
-
-		doLayout()
-
-		return () => {
-			cancelled = true
-		}
-	}, [topology.nodes, topology.edges])
-
-	// 同步edges
-	useEffect(() => {
+		setNodes((prev) => {
+			const customNodes = prev.filter(n => n.type !== 'wg')
+			return [...topology.nodes, ...customNodes]
+		})
 		setEdges(topology.edges)
-	}, [topology.edges])
+	}, [topology.nodes, topology.edges])
 
 	// 全屏切换
 	const toggleFullscreen = useCallback(() => {
@@ -103,6 +77,15 @@ export default function TopologyPanel() {
 							className="shadow-md hover:shadow-lg transition-shadow"
 						>
 							{fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+						</Button>
+						<Button
+							variant="outline"
+							size="icon"
+							onClick={() => setSpf(!spf)}
+							title={spf ? t('wg.topologyActions.spf') : t('wg.topologyActions.full')}
+							className="shadow-md hover:shadow-lg transition-shadow"
+						>
+							{spf ? <Route className="h-4 w-4" /> : <RouteOff className="h-4 w-4" />}
 						</Button>
 					</div>
 				</div>

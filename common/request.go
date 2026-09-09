@@ -28,10 +28,10 @@ type ReqType interface {
 		pb.StartProxyRequest | pb.StopProxyRequest |
 		pb.CreateWorkerRequest | pb.RemoveWorkerRequest | pb.RunWorkerRequest | pb.StopWorkerRequest | pb.UpdateWorkerRequest | pb.GetWorkerRequest |
 		pb.ListWorkersRequest | pb.CreateWorkerIngressRequest | pb.GetWorkerIngressRequest |
-		pb.GetWorkerStatusRequest | pb.InstallWorkerdRequest | pb.RedeployWorkerRequest |
+		pb.GetWorkerStatusRequest | pb.InstallWorkerdRequest | pb.RedeployWorkerRequest | pb.UpgradeFrppRequest |
 		pb.StartSteamLogRequest |
 		// wireguard api
-		pb.CreateNetworkRequest | pb.DeleteNetworkRequest | pb.UpdateNetworkRequest | pb.GetNetworkRequest | pb.ListNetworksRequest |
+		pb.CreateNetworkRequest | pb.DeleteNetworkRequest | pb.UpdateNetworkRequest | pb.GetNetworkRequest | pb.ListNetworksRequest | pb.RestartWireGuardRequest |
 		pb.CreateEndpointRequest | pb.DeleteEndpointRequest | pb.UpdateEndpointRequest | pb.GetEndpointRequest | pb.ListEndpointsRequest |
 		pb.CreateWireGuardRequest | pb.DeleteWireGuardRequest | pb.UpdateWireGuardRequest | pb.GetWireGuardRequest | pb.ListWireGuardsRequest |
 		pb.CreateWireGuardLinkRequest | pb.DeleteWireGuardLinkRequest | pb.UpdateWireGuardLinkRequest | pb.GetWireGuardLinkRequest | pb.ListWireGuardLinksRequest |

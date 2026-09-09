@@ -4,6 +4,8 @@ FRP-Panel is a visualization management dashboard for FRP, offering centralized 
 
 [Detailed Documentation (Wiki)](https://vaala.cat/frp-panel/en/) · [Development Blog](https://vaala.cat/posts/frp-panel-doc/) · [Screenshots & Videos](https://vaala.cat/frp-panel/en/screenshots) · QQ Group: 830620423
 
+> [WireGuard Multi-Hop Smart Networking Dev Notes](https://vaala.cat/posts/frp-panel-with-wireguard/) — includes a funny demo you can try.
+
 English | [中文](./README_zh.md)
 
 <div align="center">
@@ -21,6 +23,10 @@ English | [中文](./README_zh.md)
 | Visual Interface          | Create, edit, and monitor tunnels and Workers via Web UI, with real-time logs and stats |
 | Simplified Credential Distribution | Auto-generate and distribute startup commands—no manual parameter passing |
 | Edge Worker Deployment    | Deploy custom Workers on Clients, expose them via Server, and adjust configs live via Master |
+| WireGuard Smart Networking | WireGuard over UDP/WebSocket with multi-hop routing, custom routes/topology, and latency + bandwidth-aware path selection |
+
+> Networking is currently in beta. Please share feedback.  
+> Networking requires at least one client with a public IP as a relay, and currently supports Linux systems only.
 
 ## Architecture Overview
 
@@ -28,7 +34,7 @@ English | [中文](./README_zh.md)
 
 1. **Master** – Centralized management and authentication; requires access from all Servers and Clients  
 2. **Server** – Public-facing entry point that handles traffic for Clients  
-3. **Client** – Internal proxy that supports deploying Workers  
+3. **Client** – Internal proxy that supports deploying Workers and WireGuard mesh networking  
 
 ## Community & Sponsorship
 

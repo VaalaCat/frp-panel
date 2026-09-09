@@ -11,13 +11,13 @@ import { calculateConnectionQuality } from './layout'
 /**
  * 使用网络拓扑数据的 Hook
  */
-export function useNetworkTopology(networkID?: number) {
+export function useNetworkTopology(networkID?: number, spf?: boolean) {
   // 获取拓扑连接数据
   const { data: topologyData, isFetching: isTopologyFetching, refetch: refetchTopology } = useQuery({
-    queryKey: ['getNetworkTopology', networkID],
+    queryKey: ['getNetworkTopology', networkID, spf],
     queryFn: async () => {
       if (!networkID) return undefined
-      return await getNetworkTopology(GetNetworkTopologyRequest.create({ id: networkID }))
+      return await getNetworkTopology(GetNetworkTopologyRequest.create({ id: networkID, spf: spf ?? true }))
     },
     enabled: !!networkID,
     staleTime: 10000, // 10秒内数据视为新鲜
@@ -29,10 +29,10 @@ export function useNetworkTopology(networkID?: number) {
     queryFn: async () => {
       if (!networkID) return undefined
       return await listWireGuards(
-        ListWireGuardsRequest.create({ 
-          page: 1, 
-          pageSize: 1000, 
-          networkId: networkID 
+        ListWireGuardsRequest.create({
+          page: 1,
+          pageSize: 1000,
+          networkId: networkID
         })
       )
     },
@@ -67,20 +67,20 @@ export function useNetworkTopology(networkID?: number) {
     const adjs = topologyData.adjs as Record<string, WireGuardLinks>
     Object.entries(adjs).forEach(([fromIdStr, links]) => {
       const fromId = Number(fromIdStr)
-      ;(links as WireGuardLinks).links.forEach((link: WireGuardLink) => {
-        const reverseLinks = adjs[String(link.toWireguardId)] as WireGuardLinks | undefined
-        if (reverseLinks) {
-          const hasReverse = reverseLinks.links.some(
-            (l: WireGuardLink) => l.toWireguardId === fromId
-          )
-          if (hasReverse) {
-            const edgeKey1 = `${fromId}-${link.toWireguardId}`
-            const edgeKey2 = `${link.toWireguardId}-${fromId}`
-            bidirectionalEdges.add(edgeKey1)
-            bidirectionalEdges.add(edgeKey2)
+        ; (links as WireGuardLinks).links.forEach((link: WireGuardLink) => {
+          const reverseLinks = adjs[String(link.toWireguardId)] as WireGuardLinks | undefined
+          if (reverseLinks) {
+            const hasReverse = reverseLinks.links.some(
+              (l: WireGuardLink) => l.toWireguardId === fromId
+            )
+            if (hasReverse) {
+              const edgeKey1 = `${fromId}-${link.toWireguardId}`
+              const edgeKey2 = `${link.toWireguardId}-${fromId}`
+              bidirectionalEdges.add(edgeKey1)
+              bidirectionalEdges.add(edgeKey2)
+            }
           }
-        }
-      })
+        })
     })
 
     // 构建边
@@ -88,42 +88,42 @@ export function useNetworkTopology(networkID?: number) {
       const fromId = Number(fromIdStr)
       nodeIds.add(fromIdStr)
 
-      ;(links as WireGuardLinks).links.forEach((link: WireGuardLink) => {
-        const toId = link.toWireguardId
-        nodeIds.add(String(toId))
+        ; (links as WireGuardLinks).links.forEach((link: WireGuardLink) => {
+          const toId = link.toWireguardId
+          nodeIds.add(String(toId))
 
-        const edgeKey = `${fromId}-${toId}`
-        const quality = calculateConnectionQuality(
-          link.latencyMs ?? 999,
-          Math.max(link.upBandwidthMbps || 0, link.downBandwidthMbps || 0)
-        )
+          const edgeKey = `${fromId}-${toId}`
+          const quality = calculateConnectionQuality(
+            link.latencyMs ?? 999,
+            Math.max(link.upBandwidthMbps || 0, link.downBandwidthMbps || 0)
+          )
 
-        // 使用唯一的边ID：结合link.id、源和目标ID
-        const edgeId = link.id && link.id > 0 
-          ? `edge-${link.id}` 
-          : `edge-${fromId}-${toId}-${link.latencyMs || 0}-${Date.now()}`
+          // 使用唯一的边ID：结合link.id、源和目标ID
+          const edgeId = link.id && link.id > 0
+            ? `edge-${link.id}`
+            : `edge-${fromId}-${toId}-${link.latencyMs || 0}-${Date.now()}`
 
-        edges.push({
-          id: edgeId,
-          source: String(fromId),
-          target: String(toId),
-          type: 'wgEdge',
-          animated: link.active,
-          data: {
-            link,
-            quality,
-            isBidirectional: bidirectionalEdges.has(edgeKey),
-          },
-          label: link.active
-            ? `${link.latencyMs}ms | ${link.upBandwidthMbps}↑ ${link.downBandwidthMbps}↓`
-            : '未激活',
+          edges.push({
+            id: edgeId,
+            source: String(fromId),
+            target: String(toId),
+            type: 'wgEdge',
+            animated: link.active,
+            data: {
+              link,
+              quality,
+              isBidirectional: bidirectionalEdges.has(edgeKey),
+            },
+            label: link.active
+              ? `${link.latencyMs}ms | ${link.upBandwidthMbps}↑ ${link.downBandwidthMbps}↓`
+              : '未激活',
+          })
         })
-      })
     })
 
     // 构建节点
     const sortedIds = Array.from(nodeIds).sort((a, b) => Number(a) - Number(b))
-    
+
     sortedIds.forEach((idStr) => {
       const id = Number(idStr)
       const config = configMap.get(id)
@@ -148,7 +148,7 @@ export function useNetworkTopology(networkID?: number) {
           label,
           config,
         },
-        dragHandle: '.drag-handle',
+        // dragHandle: '.drag-handle', // 移除 dragHandle 限制，让整个节点可拖拽
       })
     })
 

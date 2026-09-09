@@ -37,18 +37,17 @@ func ServerAPIListenAddr(cfg Config) string {
 }
 
 func FRPsAuthOption(cfg Config) v1.HTTPPluginOptions {
-	apiUrl := GetAPIURL(cfg)
-
-	parsedUrl, err := url.Parse(apiUrl)
+	authUrl := fmt.Sprintf("http://%s:%d/auth", defs.LocalHost, cfg.Server.APIPort)
+	parsedUrl, err := url.Parse(authUrl)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Fatalf("parse auth url error")
 	}
+
 	return v1.HTTPPluginOptions{
-		Name:      "multiuser",
-		Ops:       []string{"Login"},
-		Addr:      parsedUrl.Host,
-		Path:      "/auth",
-		TLSVerify: false,
+		Name: defs.FRP_Plugin_Multiuser,
+		Ops:  []string{"Login"},
+		Addr: parsedUrl.Host,
+		Path: parsedUrl.Path,
 	}
 }
 

@@ -41,7 +41,7 @@ func LoginHandler(ctx *app.Context, req *pb.LoginRequest) (*pb.LoginResponse, er
 
 		userEntity.Role = defs.UserRole_Admin
 
-		dao.NewQuery(ctx).AdminUpdateUser(&models.UserEntity{
+		dao.NewMutation(ctx).AdminUpdateUser(&models.UserEntity{
 			UserID: user.GetUserID(),
 		}, userEntity.UserEntity)
 	}

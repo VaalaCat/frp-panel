@@ -15,7 +15,7 @@ func PushProxyInfo(ctx *app.Context, req *pb.PushProxyInfoReq) (*pb.PushProxyInf
 		return nil, err
 	}
 
-	if err = dao.NewQuery(ctx).AdminUpdateProxyStats(srv, req.GetProxyInfos()); err != nil {
+	if err = dao.NewMutation(ctx).AdminUpdateProxyStats(srv, req.GetProxyInfos()); err != nil {
 		return nil, err
 	}
 	return &pb.PushProxyInfoResp{

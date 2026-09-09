@@ -8,9 +8,6 @@ jobs:
   build-static:
     runs-on: ubuntu-latest
     steps:
-      - name: Get version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -46,5 +43,5 @@ jobs:
         run: |
           mv .ko.workerd.yaml .ko.yaml
           echo "${password}" | ko login docker.io --username ${username} --password-stdin
-          ko build ./cmd/frpp --sbom=none --bare -t ${{ steps.get_version.outputs.VERSION }}-workerd
+          ko build ./cmd/frpp --sbom=none --bare -t ${{ github.ref_name }}-workerd
           ko build ./cmd/frpp --sbom=none --bare -t latest-workerd

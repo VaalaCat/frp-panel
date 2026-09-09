@@ -31,7 +31,7 @@ func RemoveFrpcHandler(c *app.Context, req *pb.RemoveFRPCRequest) (*pb.RemoveFRP
 		return nil, err
 	}
 
-	err = dao.NewQuery(c).DeleteClient(userInfo, clientID)
+	err = dao.NewMutation(c).DeleteClient(userInfo, clientID)
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Errorf("cannot delete client, id: [%s]", clientID)
 		return nil, err

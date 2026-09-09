@@ -38,7 +38,7 @@ func StopFRPCHandler(ctx *app.Context, req *pb.StopFRPCRequest) (*pb.StopFRPCRes
 
 	client.Stopped = true
 
-	if err = dao.NewQuery(ctx).UpdateClient(userInfo, client); err != nil {
+	if err = dao.NewMutation(ctx).UpdateClient(userInfo, client); err != nil {
 		return nil, err
 	}
 

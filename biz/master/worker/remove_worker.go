@@ -19,13 +19,16 @@ func RemoveWorker(ctx *app.Context, req *pb.RemoveWorkerRequest) (*pb.RemoveWork
 
 	logger.Logger(ctx).Infof("start remove worker, id: [%s]", workerId)
 
-	workerToDelete, err := dao.NewQuery(ctx).GetWorkerByWorkerID(userInfo, workerId)
+	q := dao.NewQuery(ctx)
+	mut := dao.NewMutation(ctx)
+
+	workerToDelete, err := q.GetWorkerByWorkerID(userInfo, workerId)
 	if err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot get worker, id: [%s]", workerId)
 		return nil, err
 	}
 
-	if ingressesToDelete, err := dao.NewQuery(ctx).GetProxyConfigsByWorkerId(userInfo, workerId); err == nil {
+	if ingressesToDelete, err := q.GetProxyConfigsByWorkerId(userInfo, workerId); err == nil {
 		for _, ingressToDelete := range ingressesToDelete {
 			logger.Logger(ctx).Infof("start to remove worker ingress on server: [%s] client: [%s], name: [%s]", ingressToDelete.ServerID, ingressToDelete.ClientID, ingressToDelete.Name)
 
@@ -44,7 +47,7 @@ func RemoveWorker(ctx *app.Context, req *pb.RemoveWorkerRequest) (*pb.RemoveWork
 		}
 	}
 
-	if err := dao.NewQuery(ctx).DeleteWorker(userInfo, workerId); err != nil {
+	if err := mut.DeleteWorker(userInfo, workerId); err != nil {
 		logger.Logger(ctx).WithError(err).Errorf("cannot remove worker, id: [%s]", workerId)
 		return nil, err
 	}

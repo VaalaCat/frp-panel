@@ -65,13 +65,13 @@ export function EndpointList({
   })
 
   const rows: EndpointTableSchema[] = (data?.endpoints ?? []).map((e) => ({
-    id: e.id!,
-    host: e.host!,
-    port: e.port!,
-    clientId: e.clientId!,
+    id: e.id || 0,
+    host: e.host || '-',
+    port: e.port || 0,
+    clientId: e.clientId || '-',
     origin: e,
-    uri: e.uri!,
-    type: e.type!,
+    uri: e.uri || '-',
+    type: e.type || '-',
   }))
 
   const handleMutated = React.useCallback(() => {

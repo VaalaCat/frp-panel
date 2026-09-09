@@ -7,7 +7,27 @@ import (
 	"gorm.io/gorm"
 )
 
-func (q *queryImpl) CreateNetwork(userInfo models.UserInfo, network *models.NetworkEntity) error {
+type NetworkQuery interface {
+	GetNetworkByID(userInfo models.UserInfo, id uint) (*models.Network, error)
+	ListNetworks(userInfo models.UserInfo, page, pageSize int) ([]*models.Network, error)
+	ListNetworksWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.Network, error)
+	CountNetworks(userInfo models.UserInfo) (int64, error)
+	CountNetworksWithKeyword(userInfo models.UserInfo, keyword string) (int64, error)
+}
+
+type NetworkMutation interface {
+	CreateNetwork(userInfo models.UserInfo, network *models.NetworkEntity) error
+	UpdateNetwork(userInfo models.UserInfo, id uint, network *models.NetworkEntity) error
+	DeleteNetwork(userInfo models.UserInfo, id uint) error
+}
+
+type networkQuery struct{ *queryImpl }
+type networkMutation struct{ *mutationImpl }
+
+func newNetworkQuery(base *queryImpl) NetworkQuery          { return &networkQuery{base} }
+func newNetworkMutation(base *mutationImpl) NetworkMutation { return &networkMutation{base} }
+
+func (m *networkMutation) CreateNetwork(userInfo models.UserInfo, network *models.NetworkEntity) error {
 	if network == nil {
 		return fmt.Errorf("invalid network entity")
 	}
@@ -18,11 +38,11 @@ func (q *queryImpl) CreateNetwork(userInfo models.UserInfo, network *models.Netw
 	network.UserId = uint32(userInfo.GetUserID())
 	network.TenantId = uint32(userInfo.GetTenantID())
 
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Create(&models.Network{NetworkEntity: network}).Error
 }
 
-func (q *queryImpl) UpdateNetwork(userInfo models.UserInfo, id uint, network *models.NetworkEntity) error {
+func (m *networkMutation) UpdateNetwork(userInfo models.UserInfo, id uint, network *models.NetworkEntity) error {
 	if id == 0 || network == nil {
 		return fmt.Errorf("invalid network id or entity")
 	}
@@ -30,7 +50,7 @@ func (q *queryImpl) UpdateNetwork(userInfo models.UserInfo, id uint, network *mo
 	network.UserId = uint32(userInfo.GetUserID())
 	network.TenantId = uint32(userInfo.GetTenantID())
 
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Where(&models.Network{
 		Model: gorm.Model{ID: id},
 		NetworkEntity: &models.NetworkEntity{
@@ -43,11 +63,11 @@ func (q *queryImpl) UpdateNetwork(userInfo models.UserInfo, id uint, network *mo
 	}).Error
 }
 
-func (q *queryImpl) DeleteNetwork(userInfo models.UserInfo, id uint) error {
+func (m *networkMutation) DeleteNetwork(userInfo models.UserInfo, id uint) error {
 	if id == 0 {
 		return fmt.Errorf("invalid network id")
 	}
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Unscoped().Where(&models.Network{
 		Model: gorm.Model{ID: id},
 		NetworkEntity: &models.NetworkEntity{
@@ -57,7 +77,7 @@ func (q *queryImpl) DeleteNetwork(userInfo models.UserInfo, id uint) error {
 	}).Delete(&models.Network{}).Error
 }
 
-func (q *queryImpl) GetNetworkByID(userInfo models.UserInfo, id uint) (*models.Network, error) {
+func (q *networkQuery) GetNetworkByID(userInfo models.UserInfo, id uint) (*models.Network, error) {
 	if id == 0 {
 		return nil, fmt.Errorf("invalid network id")
 	}
@@ -75,7 +95,7 @@ func (q *queryImpl) GetNetworkByID(userInfo models.UserInfo, id uint) (*models.N
 	return &n, nil
 }
 
-func (q *queryImpl) ListNetworks(userInfo models.UserInfo, page, pageSize int) ([]*models.Network, error) {
+func (q *networkQuery) ListNetworks(userInfo models.UserInfo, page, pageSize int) ([]*models.Network, error) {
 	if page < 1 || pageSize < 1 {
 		return nil, fmt.Errorf("invalid page or page size")
 	}
@@ -91,7 +111,7 @@ func (q *queryImpl) ListNetworks(userInfo models.UserInfo, page, pageSize int) (
 	return list, nil
 }
 
-func (q *queryImpl) ListNetworksWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.Network, error) {
+func (q *networkQuery) ListNetworksWithKeyword(userInfo models.UserInfo, page, pageSize int, keyword string) ([]*models.Network, error) {
 	if page < 1 || pageSize < 1 || len(keyword) == 0 {
 		return nil, fmt.Errorf("invalid page or page size or keyword")
 	}
@@ -107,7 +127,7 @@ func (q *queryImpl) ListNetworksWithKeyword(userInfo models.UserInfo, page, page
 	return list, nil
 }
 
-func (q *queryImpl) CountNetworks(userInfo models.UserInfo) (int64, error) {
+func (q *networkQuery) CountNetworks(userInfo models.UserInfo) (int64, error) {
 	var count int64
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	if err := db.Model(&models.Network{}).Where(&models.Network{NetworkEntity: &models.NetworkEntity{
@@ -119,7 +139,7 @@ func (q *queryImpl) CountNetworks(userInfo models.UserInfo) (int64, error) {
 	return count, nil
 }
 
-func (q *queryImpl) CountNetworksWithKeyword(userInfo models.UserInfo, keyword string) (int64, error) {
+func (q *networkQuery) CountNetworksWithKeyword(userInfo models.UserInfo, keyword string) (int64, error) {
 	var count int64
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	if err := db.Model(&models.Network{}).Where(&models.Network{NetworkEntity: &models.NetworkEntity{

@@ -32,7 +32,7 @@ func SyncTunnel(ctx *app.Context, userInfo models.UserInfo) error {
 			return
 		}
 
-		if err := dao.NewQuery(ctx).UpdateClient(userInfo, cli); err != nil {
+		if err := dao.NewMutation(ctx).UpdateClient(userInfo, cli); err != nil {
 			logger.Logger(context.Background()).WithError(err).Errorf("cannot update client, id: [%s]", cli.ClientID)
 			return
 		}

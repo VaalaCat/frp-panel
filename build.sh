@@ -21,6 +21,10 @@ GIT_COMMIT="$(git rev-parse HEAD)"
 VERSION="$(git describe --tags --abbrev=0 | tr -d '\n')"
 GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
+if [[ -n "$GITHUB_REF_NAME" ]]; then
+    VERSION="$GITHUB_REF_NAME"
+fi
+
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in

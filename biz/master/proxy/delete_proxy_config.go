@@ -20,12 +20,14 @@ func DeleteProxyConfig(c *app.Context, req *pb.DeleteProxyConfigRequest) (*pb.De
 		serverID  = req.GetServerId()
 		proxyName = req.GetName()
 	)
+	q := dao.NewQuery(c)
+	m := dao.NewMutation(c)
 
 	if len(clientID) == 0 || len(serverID) == 0 || len(proxyName) == 0 {
 		return nil, fmt.Errorf("request invalid")
 	}
 
-	cli, err := dao.NewQuery(c).GetClientByClientID(userInfo, clientID)
+	cli, err := q.GetClientByClientID(userInfo, clientID)
 	if err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot get client, id: [%s]", clientID)
 		return nil, err
@@ -49,7 +51,7 @@ func DeleteProxyConfig(c *app.Context, req *pb.DeleteProxyConfigRequest) (*pb.De
 		return nil, err
 	}
 
-	if err := dao.NewQuery(c).UpdateClient(userInfo, cli.ClientEntity); err != nil {
+	if err := m.UpdateClient(userInfo, cli.ClientEntity); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot update client, id: [%s]", clientID)
 		return nil, err
 	}
@@ -72,7 +74,7 @@ func DeleteProxyConfig(c *app.Context, req *pb.DeleteProxyConfigRequest) (*pb.De
 		return nil, err
 	}
 
-	if err := dao.NewQuery(c).DeleteProxyConfig(userInfo, clientID, proxyName); err != nil {
+	if err := m.DeleteProxyConfig(userInfo, clientID, proxyName); err != nil {
 		logger.Logger(c).WithError(err).Errorf("cannot delete proxy config, id: [%s]", clientID)
 		return nil, err
 	}

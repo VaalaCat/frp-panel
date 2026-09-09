@@ -16,7 +16,6 @@ import (
 
 // Create/Update/Get/List WireGuard 基于 pb.WireGuardConfig
 // 将 pb 映射到 models.WireGuard + models.Endpoint 列表
-
 func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.CreateWireGuardResponse, error) {
 	log := ctx.Logger().WithField("op", "CreateWireGuard")
 
@@ -28,14 +27,16 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 	if cfg == nil || len(cfg.GetClientId()) == 0 || len(cfg.GetInterfaceName()) == 0 || len(cfg.GetLocalAddress()) == 0 {
 		return nil, errors.New("invalid wireguard config")
 	}
+	q := dao.NewQuery(ctx)
+	m := dao.NewMutation(ctx)
 
-	ips, err := dao.NewQuery(ctx).GetWireGuardLocalAddressesByNetworkID(userInfo, uint(cfg.GetNetworkId()))
+	ips, err := q.GetWireGuardLocalAddressesByNetworkID(userInfo, uint(cfg.GetNetworkId()))
 	if err != nil {
 		log.WithError(err).Errorf("get wireguard local addresses by network id failed")
 		return nil, err
 	}
 
-	network, err := dao.NewQuery(ctx).GetNetworkByID(userInfo, uint(cfg.GetNetworkId()))
+	network, err := q.GetNetworkByID(userInfo, uint(cfg.GetNetworkId()))
 	if err != nil {
 		log.WithError(err).Errorf("get network by id failed")
 		return nil, err
@@ -72,7 +73,7 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 
 	log.Debugf("create wireguard with config: %+v", wgModel)
 
-	if err := dao.NewQuery(ctx).CreateWireGuard(userInfo, wgModel); err != nil {
+	if err := m.CreateWireGuard(userInfo, wgModel); err != nil {
 		return nil, err
 	}
 
@@ -83,7 +84,7 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 		}
 		if ep.GetId() > 0 {
 			// 复用现有 endpoint，要求归属同一 client
-			exist, err := dao.NewQuery(ctx).GetEndpointByID(userInfo, uint(ep.GetId()))
+			exist, err := q.GetEndpointByID(userInfo, uint(ep.GetId()))
 			if err != nil {
 				return nil, err
 			}
@@ -92,7 +93,7 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 			}
 			exist.WireGuardID = wgModel.ID
 
-			if err := dao.NewQuery(ctx).UpdateEndpoint(userInfo, uint(exist.ID), exist.EndpointEntity); err != nil {
+			if err := m.UpdateEndpoint(userInfo, uint(exist.ID), exist.EndpointEntity); err != nil {
 				return nil, err
 			}
 		} else {
@@ -101,58 +102,76 @@ func CreateWireGuard(ctx *app.Context, req *pb.CreateWireGuardRequest) (*pb.Crea
 			newEp.FromPB(ep)
 			newEp.ClientID = cfg.GetClientId()
 			newEp.WireGuardID = wgModel.ID
-			if err := dao.NewQuery(ctx).CreateEndpoint(userInfo, newEp.EndpointEntity); err != nil {
+			if err := m.CreateEndpoint(userInfo, newEp.EndpointEntity); err != nil {
 				return nil, err
 			}
 		}
 	}
 
 	go func() {
-		peers, err := dao.NewQuery(ctx).GetWireGuardsByNetworkID(userInfo, uint(cfg.GetNetworkId()))
-		if err != nil {
-			log.WithError(err).Errorf("get wireguards by network id failed")
-			return
+		if err := emitCreateWireGuardEvent(ctx, cfg, network.NetworkEntity); err != nil {
+			log.WithError(err).Errorf("emit create wireguard event failed")
 		}
-		links, err := dao.NewQuery(ctx).ListWireGuardLinksByNetwork(userInfo, uint(cfg.GetNetworkId()))
-		if err != nil {
-			log.WithError(err).Errorf("get wireguard links by network id failed")
-			return
-		}
-
-		peerConfigs, err := wgsvc.PlanAllowedIPs(
-			peers,
-			links,
-			wgsvc.DefaultRoutingPolicy(
-				wgsvc.NewACL().LoadFromPB(network.ACL.Data),
-				ctx.GetApp().GetNetworkTopologyCache(),
-				ctx.GetApp().GetClientsManager(),
-			))
-		if err != nil {
-			log.WithError(err).Errorf("build peer configs for network failed")
-			return
-		}
-
-		for _, peer := range peers {
-			if peer.ClientID == cfg.GetClientId() {
-				if err := emitCreateWireGuardEventToClient(ctx, peer, peerConfigs[peer.ID]); err != nil {
-					log.WithError(err).Errorf("update config to client failed")
-				}
-				continue
-			}
-
-			if err := emitPatchWireGuardEventToClient(ctx, peer, peerConfigs[peer.ID]); err != nil {
-				log.WithError(err).Errorf("add wireguard event send to client error")
-				continue
-			}
-
-			log.Debugf("update config to client success, client id: [%s], wireguard interface: [%s]", peer.ClientID, peer.Name)
-		}
+		log.Infof("emit create wireguard event success, client id: [%s], wireguard interface: [%s]", cfg.GetClientId(), cfg.GetInterfaceName())
 	}()
 
 	return &pb.CreateWireGuardResponse{Status: &pb.Status{Code: pb.RespCode_RESP_CODE_SUCCESS, Message: "success"}, WireguardConfig: cfg}, nil
 }
 
-func emitCreateWireGuardEventToClient(ctx *app.Context, peer *models.WireGuard, peerConfigs []*pb.WireGuardPeerConfig) error {
+func emitCreateWireGuardEvent(ctx *app.Context, cfg *pb.WireGuardConfig, network *models.NetworkEntity) error {
+	log := ctx.Logger().WithField("op", "emitCreateWireGuardEvent")
+
+	userInfo := common.GetUserInfo(ctx)
+	if !userInfo.Valid() {
+		return errors.New("invalid user")
+	}
+
+	q := dao.NewQuery(ctx)
+
+	peers, err := q.GetWireGuardsByNetworkID(userInfo, uint(cfg.GetNetworkId()))
+	if err != nil {
+		log.WithError(err).Errorf("get wireguards by network id failed")
+		return err
+	}
+	links, err := q.ListWireGuardLinksByNetwork(userInfo, uint(cfg.GetNetworkId()))
+	if err != nil {
+		log.WithError(err).Errorf("get wireguard links by network id failed")
+		return err
+	}
+
+	peerConfigs, adjs, err := wgsvc.PlanAllowedIPs(
+		peers,
+		links,
+		wgsvc.DefaultRoutingPolicy(
+			wgsvc.NewACL().LoadFromPB(network.ACL.Data),
+			ctx.GetApp().GetNetworkTopologyCache(),
+			ctx.GetApp().GetClientsManager(),
+		))
+	if err != nil {
+		log.WithError(err).Errorf("build peer configs for network failed")
+		return err
+	}
+
+	for _, peer := range peers {
+		if peer.ClientID == cfg.GetClientId() {
+			if err := emitCreateWireGuardEventToClient(ctx, peer, peerConfigs[peer.ID], adjs); err != nil {
+				log.WithError(err).Errorf("update config to client failed")
+			}
+			continue
+		}
+
+		if err := emitPatchWireGuardEventToClient(ctx, peer, peerConfigs[peer.ID], adjs); err != nil {
+			log.WithError(err).Errorf("add wireguard event send to client error")
+			continue
+		}
+
+		log.Debugf("update config to client success, client id: [%s], wireguard interface: [%s]", peer.ClientID, peer.Name)
+	}
+
+	return nil
+}
+
+func emitCreateWireGuardEventToClient(ctx *app.Context, peer *models.WireGuard, peerConfigs []*pb.WireGuardPeerConfig, adjs map[uint][]wgsvc.Edge) error {
 	log := ctx.Logger().WithField("op", "updateConfigToClient")
 	userInfo := common.GetUserInfo(ctx)
 	if !userInfo.Valid() {
@@ -161,7 +180,7 @@ func emitCreateWireGuardEventToClient(ctx *app.Context, peer *models.WireGuard, 
 
 	cfg := peer.ToPB()
 	cfg.Peers = peerConfigs
-
+	cfg.Adjs = adjsToPB(adjs)
 	resp := &pb.CreateWireGuardResponse{}
 
 	req := &pb.CreateWireGuardRequest{
@@ -179,7 +198,7 @@ func emitCreateWireGuardEventToClient(ctx *app.Context, peer *models.WireGuard, 
 	return nil
 }
 
-func emitPatchWireGuardEventToClient(ctx *app.Context, peer *models.WireGuard, peerConfigs []*pb.WireGuardPeerConfig) error {
+func emitPatchWireGuardEventToClient(ctx *app.Context, peer *models.WireGuard, peerConfigs []*pb.WireGuardPeerConfig, adjs map[uint][]wgsvc.Edge) error {
 	log := ctx.Logger().WithField("op", "patchWireGuardToClient")
 	userInfo := common.GetUserInfo(ctx)
 	if !userInfo.Valid() {
@@ -188,6 +207,7 @@ func emitPatchWireGuardEventToClient(ctx *app.Context, peer *models.WireGuard, p
 
 	cfg := peer.ToPB()
 	cfg.Peers = peerConfigs
+	cfg.Adjs = adjsToPB(adjs)
 
 	resp := &pb.UpdateWireGuardResponse{}
 	req := &pb.UpdateWireGuardRequest{

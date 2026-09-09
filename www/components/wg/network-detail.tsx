@@ -27,7 +27,6 @@ import { useNetworkTopology } from './network/topology_hook'
 import TopologyCanvas from './network/topology_canvas'
 import TopologySidebar from './network/topology_sidebar'
 import type { TopologyNode, WGEdge, WGNode } from './network/types'
-import { layoutNetwork } from './network/layout'
 import { Skeleton } from '@/components/ui/skeleton'
 import NetworkEditDialog from './network-edit-dialog'
 
@@ -41,6 +40,7 @@ const NetworkDetail: React.FC = () => {
 	const [openEdit, setOpenEdit] = React.useState(false)
 	const [nodes, setNodes] = React.useState<TopologyNode[]>([])
 	const [edges, setEdges] = React.useState<WGEdge[]>([])
+	const [spf, setSpf] = React.useState(true)
 	const [selectedEdgeId, setSelectedEdgeId] = React.useState<string>()
 
 	const { data, isLoading, refetch } = useQuery({
@@ -50,19 +50,14 @@ const NetworkDetail: React.FC = () => {
 		refetchOnWindowFocus: false,
 	})
 
-	const { topology, isFetching: topologyLoading, refetch: refetchTopology } = useNetworkTopology(networkId)
+	const { topology, isFetching: topologyLoading, refetch: refetchTopology } = useNetworkTopology(networkId, spf)
 
 	React.useEffect(() => {
-		let alive = true
-			; (async () => {
-				const { nodes: laidNodes, edges: laidEdges } = await layoutNetwork(topology.nodes, topology.edges)
-				if (!alive) return
-				setNodes(laidNodes)
-				setEdges(laidEdges)
-			})()
-		return () => {
-			alive = false
-		}
+		setNodes((prev) => {
+			const customNodes = prev.filter(n => n.type !== 'wg')
+			return [...topology.nodes, ...customNodes]
+		})
+		setEdges(topology.edges)
 	}, [topology.nodes, topology.edges])
 
 	const selectedEdge = React.useMemo(() => edges.find((edge) => edge.id === selectedEdgeId), [edges, selectedEdgeId])
@@ -250,25 +245,28 @@ const NetworkDetail: React.FC = () => {
 								<Button variant="outline" onClick={() => refetchTopology()} disabled={topologyLoading}>
 									{topologyLoading ? t('wg.topologyActions.loading') : t('wg.topologyActions.refresh')}
 								</Button>
+								<Button variant="outline" onClick={() => setSpf(!spf)} disabled={topologyLoading}>
+									{spf ? t('wg.topologyActions.spf') : t('wg.topologyActions.full')}
+								</Button>
 							</div>
 						</CardHeader>
-					<CardContent className={selectedEdge ? "grid gap-4 md:grid-cols-[2fr_1fr]" : ""}>
-						<div className="h-[700px] md:h-[800px] lg:h-[900px]">
-							<TopologyCanvas
-								data={{ nodes, edges }}
-								onEdgeClick={setSelectedEdgeId}
-								onPaneClick={() => setSelectedEdgeId(undefined)}
-								setNodes={setNodes}
-								setEdges={setEdges}
-								onLinkCreated={() => refetchTopology()}
-							/>
-						</div>
-						{selectedEdge && (
-							<div>
-								<TopologySidebar selectedEdge={selectedEdge} />
+						<CardContent className={selectedEdge ? "grid gap-4 md:grid-cols-[2fr_1fr]" : ""}>
+							<div className="h-[700px] md:h-[800px] lg:h-[900px]">
+								<TopologyCanvas
+									data={{ nodes, edges }}
+									onEdgeClick={setSelectedEdgeId}
+									onPaneClick={() => setSelectedEdgeId(undefined)}
+									setNodes={setNodes}
+									setEdges={setEdges}
+									onLinkCreated={() => refetchTopology()}
+								/>
 							</div>
-						)}
-					</CardContent>
+							{selectedEdge && (
+								<div>
+									<TopologySidebar selectedEdge={selectedEdge} />
+								</div>
+							)}
+						</CardContent>
 					</Card>
 				</TabsContent>
 			</Tabs>

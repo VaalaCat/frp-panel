@@ -8,7 +8,28 @@ import (
 	"github.com/samber/lo"
 )
 
-func (q *queryImpl) AdminGetAllUsers() ([]*models.UserEntity, error) {
+type UserQuery interface {
+	AdminGetAllUsers() ([]*models.UserEntity, error)
+	AdminCountUsers() (int64, error)
+	GetUserByUserID(userID int) (*models.UserEntity, error)
+	GetUserByUserName(userName string) (*models.UserEntity, error)
+	CheckUserPassword(userNameOrEmail, password string) (bool, models.UserInfo, error)
+	CheckUserNameAndEmail(userName, email string) error
+}
+
+type UserMutation interface {
+	UpdateUser(userInfo models.UserInfo, user *models.UserEntity) error
+	AdminUpdateUser(userInfo models.UserInfo, user *models.UserEntity) error
+	CreateUser(user *models.UserEntity) error
+}
+
+type userQuery struct{ *queryImpl }
+type userMutation struct{ *mutationImpl }
+
+func newUserQuery(base *queryImpl) UserQuery          { return &userQuery{base} }
+func newUserMutation(base *mutationImpl) UserMutation { return &userMutation{base} }
+
+func (q *userQuery) AdminGetAllUsers() ([]*models.UserEntity, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	users := make([]*models.User, 0)
 	err := db.Find(&users).Error
@@ -21,7 +42,7 @@ func (q *queryImpl) AdminGetAllUsers() ([]*models.UserEntity, error) {
 		}), nil
 }
 
-func (q *queryImpl) AdminCountUsers() (int64, error) {
+func (q *userQuery) AdminCountUsers() (int64, error) {
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 	var count int64
 	err := db.Model(&models.User{}).Count(&count).Error
@@ -31,7 +52,7 @@ func (q *queryImpl) AdminCountUsers() (int64, error) {
 	return count, nil
 }
 
-func (q *queryImpl) GetUserByUserID(userID int) (*models.UserEntity, error) {
+func (q *userQuery) GetUserByUserID(userID int) (*models.UserEntity, error) {
 	if userID == 0 {
 		return nil, fmt.Errorf("invalid user id")
 	}
@@ -48,8 +69,8 @@ func (q *queryImpl) GetUserByUserID(userID int) (*models.UserEntity, error) {
 	return u.UserEntity, nil
 }
 
-func (q *queryImpl) UpdateUser(userInfo models.UserInfo, user *models.UserEntity) error {
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+func (m *userMutation) UpdateUser(userInfo models.UserInfo, user *models.UserEntity) error {
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	user.UserID = userInfo.GetUserID()
 	return db.Model(&models.User{}).Where(
 		&models.User{
@@ -62,8 +83,8 @@ func (q *queryImpl) UpdateUser(userInfo models.UserInfo, user *models.UserEntity
 	}).Error
 }
 
-func (q *queryImpl) AdminUpdateUser(userInfo models.UserInfo, user *models.UserEntity) error {
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+func (m *userMutation) AdminUpdateUser(userInfo models.UserInfo, user *models.UserEntity) error {
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	user.UserID = userInfo.GetUserID()
 	return db.Model(&models.User{}).Where(
 		&models.User{
@@ -76,7 +97,7 @@ func (q *queryImpl) AdminUpdateUser(userInfo models.UserInfo, user *models.UserE
 	}).Error
 }
 
-func (q *queryImpl) GetUserByUserName(userName string) (*models.UserEntity, error) {
+func (q *userQuery) GetUserByUserName(userName string) (*models.UserEntity, error) {
 	if userName == "" {
 		return nil, fmt.Errorf("invalid user name")
 	}
@@ -93,7 +114,7 @@ func (q *queryImpl) GetUserByUserName(userName string) (*models.UserEntity, erro
 	return u.UserEntity, nil
 }
 
-func (q *queryImpl) CheckUserPassword(userNameOrEmail, password string) (bool, models.UserInfo, error) {
+func (q *userQuery) CheckUserPassword(userNameOrEmail, password string) (bool, models.UserInfo, error) {
 	var user models.User
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 
@@ -111,7 +132,7 @@ func (q *queryImpl) CheckUserPassword(userNameOrEmail, password string) (bool, m
 	return utils.CheckPasswordHash(password, user.Password), user, nil
 }
 
-func (q *queryImpl) CheckUserNameAndEmail(userName, email string) error {
+func (q *userQuery) CheckUserNameAndEmail(userName, email string) error {
 	var user models.User
 	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
 
@@ -129,10 +150,10 @@ func (q *queryImpl) CheckUserNameAndEmail(userName, email string) error {
 	return nil
 }
 
-func (q *queryImpl) CreateUser(user *models.UserEntity) error {
+func (m *userMutation) CreateUser(user *models.UserEntity) error {
 	u := &models.User{
 		UserEntity: user,
 	}
-	db := q.ctx.GetApp().GetDBManager().GetDefaultDB()
+	db := m.ctx.GetApp().GetDBManager().GetDefaultDB()
 	return db.Create(u).Error
 }
