@@ -1,13 +1,16 @@
 package rpc
 
 import (
-	"time"
+    "net"
+    "strings"
+    "time"
 
-	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/services/app"
-	"github.com/VaalaCat/frp-panel/utils"
-	"google.golang.org/grpc/peer"
+    "github.com/VaalaCat/frp-panel/defs"
+    "github.com/VaalaCat/frp-panel/pb"
+    "github.com/VaalaCat/frp-panel/services/app"
+    "github.com/VaalaCat/frp-panel/utils"
+    "google.golang.org/grpc/metadata"
+    "google.golang.org/grpc/peer"
 )
 
 type ClientsManager interface {
@@ -51,6 +54,45 @@ func (c *ClientsManagerImpl) Remove(cliID string) {
 }
 
 func (c *ClientsManagerImpl) ClientAddr(cliID string) string {
+    connector := c.Get(cliID)
+    if connector == nil {
+        return ""
+    }
+
+    ctx := connector.Conn.Context()
+
+    // 优先读取反向代理传递的真实客户端 IP。
+    // gRPC metadata 实际通过 HTTP/2 headers 传输。
+    if md, ok := metadata.FromIncomingContext(ctx); ok {
+        // 1. 优先 X-Real-IP
+        if values := md.Get("x-real-ip"); len(values) > 0 {
+            ip := strings.TrimSpace(values[0])
+            if net.ParseIP(ip) != nil {
+                return ip
+            }
+        }
+
+        // 2. 其次 X-Forwarded-For，取最左边的客户端 IP
+        if values := md.Get("x-forwarded-for"); len(values) > 0 {
+            parts := strings.Split(values[0], ",")
+            for _, part := range parts {
+                ip := strings.TrimSpace(part)
+                if net.ParseIP(ip) != nil {
+                    return ip
+                }
+            }
+        }
+    }
+
+    // 3. 没经过反向代理或没有真实 IP header 时，
+    // 保持原项目行为，返回实际 gRPC 对端地址。
+    p, ok := peer.FromContext(ctx)
+    if !ok || p == nil || p.Addr == nil {
+        return ""
+    }
+
+    return p.Addr.String()
+}
 	connector := c.Get(cliID)
 	if connector == nil {
 		return ""
