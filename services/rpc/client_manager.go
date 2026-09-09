@@ -1,13 +1,16 @@
 package rpc
 
 import (
-	"time"
+    "net"
+    "strings"
+    "time"
 
-	"github.com/VaalaCat/frp-panel/defs"
-	"github.com/VaalaCat/frp-panel/pb"
-	"github.com/VaalaCat/frp-panel/services/app"
-	"github.com/VaalaCat/frp-panel/utils"
-	"google.golang.org/grpc/peer"
+    "github.com/VaalaCat/frp-panel/defs"
+    "github.com/VaalaCat/frp-panel/pb"
+    "github.com/VaalaCat/frp-panel/services/app"
+    "github.com/VaalaCat/frp-panel/utils"
+    "google.golang.org/grpc/metadata"
+    "google.golang.org/grpc/peer"
 )
 
 type ClientsManager interface {
@@ -51,15 +54,38 @@ func (c *ClientsManagerImpl) Remove(cliID string) {
 }
 
 func (c *ClientsManagerImpl) ClientAddr(cliID string) string {
-	connector := c.Get(cliID)
-	if connector == nil {
-		return ""
-	}
-	p, ok := peer.FromContext(connector.Conn.Context())
-	if !ok || p == nil {
-		return ""
-	}
-	return p.Addr.String()
+    connector := c.Get(cliID)
+    if connector == nil {
+        return ""
+    }
+
+    ctx := connector.Conn.Context()
+
+    if md, ok := metadata.FromIncomingContext(ctx); ok {
+        // Prefer the real client IP set by a trusted reverse proxy.
+        if values := md.Get("x-real-ip"); len(values) > 0 {
+            if ip := strings.TrimSpace(values[0]); net.ParseIP(ip) != nil {
+                return ip
+            }
+        }
+
+        // Fall back to the first valid address in X-Forwarded-For.
+        if values := md.Get("x-forwarded-for"); len(values) > 0 {
+            for part := range strings.SplitSeq(values[0], ",") {
+                if ip := strings.TrimSpace(part); net.ParseIP(ip) != nil {
+                    return ip
+                }
+            }
+        }
+    }
+
+    // Preserve the original behavior for direct gRPC connections.
+    p, ok := peer.FromContext(ctx)
+    if !ok || p == nil || p.Addr == nil {
+        return ""
+    }
+
+    return p.Addr.String()
 }
 
 func (c *ClientsManagerImpl) ConnectTime(cliID string) (time.Time, bool) {
