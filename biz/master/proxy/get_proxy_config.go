@@ -1,7 +1,10 @@
 package proxy
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/VaalaCat/frp-panel/common"
 	"github.com/VaalaCat/frp-panel/models"
@@ -35,14 +38,21 @@ func GetProxyConfig(c *app.Context, req *pb.GetProxyConfigRequest) (*pb.GetProxy
 		Status: lo.ToPtr("stopped"),
 	}}
 	if !proxyConfig.Stopped {
-		if err := rpc.CallClientWrapper(c, proxyConfig.OriginClientID, pb.Event_EVENT_GET_PROXY_INFO, &pb.GetProxyConfigRequest{
+		statusCtx, cancel := context.WithTimeout(c, 8*time.Second)
+		defer cancel()
+		if err := rpc.CallClientWrapper(app.NewContext(statusCtx, c.GetApp()), proxyConfig.OriginClientID, pb.Event_EVENT_GET_PROXY_INFO, &pb.GetProxyConfigRequest{
 			ClientId: lo.ToPtr(proxyConfig.ClientID),
 			ServerId: lo.ToPtr(proxyConfig.ServerID),
 			Name:     lo.ToPtr(fmt.Sprintf("%s.%s", userInfo.GetUserName(), proxyName)),
 		}, resp); err != nil {
-			resp.WorkingStatus = &pb.ProxyWorkingStatus{
-				Status: lo.ToPtr("error"),
+			status, message := "error", "Client could not report tunnel status"
+			if errors.Is(err, rpc.ErrClientOffline) {
+				status, message = "offline", "Client is disconnected from the master"
 			}
+			if errors.Is(err, context.DeadlineExceeded) {
+				status, message = "timeout", "Client status query timed out; waiting for recovery"
+			}
+			resp.WorkingStatus = &pb.ProxyWorkingStatus{Status: &status, Err: &message}
 			logger.Logger(c).WithError(err).Errorf("cannot get proxy config, client: [%s], server: [%s], proxy name: [%s]", proxyConfig.OriginClientID, proxyConfig.ServerID, proxyConfig.Name)
 		}
 

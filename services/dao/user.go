@@ -1,11 +1,13 @@
 package dao
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/VaalaCat/frp-panel/models"
 	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/samber/lo"
+	"gorm.io/gorm"
 )
 
 type UserQuery interface {
@@ -127,6 +129,10 @@ func (q *userQuery) CheckUserPassword(userNameOrEmail, password string) (bool, m
 			Email: userNameOrEmail,
 		},
 	}).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			utils.CheckDummyPassword(password)
+			return false, nil, nil
+		}
 		return false, nil, err
 	}
 	return utils.CheckPasswordHash(password, user.Password), user, nil

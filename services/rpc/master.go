@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
@@ -18,27 +20,24 @@ import (
 	"github.com/samber/lo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/proto"
 )
 
 type masterClient struct {
 	cli         pb.MasterClient
-	inited      bool
+	once        sync.Once
 	appInstance app.Application
 }
 
 func (m *masterClient) Call() pb.MasterClient {
-	if !m.inited {
-		m.cli = newMasterCli(m.appInstance)
-		m.inited = true
-	}
+	m.once.Do(func() { m.cli = newMasterCli(m.appInstance) })
 	return m.cli
 }
 
 func NewMasterCli(appInstance app.Application) *masterClient {
 	logger.Logger(context.Background()).Debugf("creating new master client")
 	return &masterClient{
-		inited:      false,
 		appInstance: appInstance,
 	}
 }
@@ -47,7 +46,14 @@ func newMasterCli(appInstance app.Application) pb.MasterClient {
 	connInfo := conf.GetRPCConnInfo(appInstance.GetConfig())
 	ctx := context.Background()
 
-	opt := []grpc.DialOption{}
+	opt := []grpc.DialOption{grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoke grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		if _, bounded := ctx.Deadline(); !bounded {
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(ctx, 15*time.Second)
+			defer cancel()
+		}
+		return invoke(ctx, method, req, reply, cc, opts...)
+	}), grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: 30 * time.Second, Timeout: 10 * time.Second, PermitWithoutStream: true})}
 
 	switch connInfo.Scheme {
 	case conf.GRPC:

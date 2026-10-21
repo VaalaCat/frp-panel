@@ -2,13 +2,15 @@ package rpc
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"io"
+	"sync"
+	"time"
 
 	"github.com/VaalaCat/frp-panel/common"
+	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
-	"github.com/VaalaCat/frp-panel/utils/logger"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -28,89 +30,94 @@ func CallClientWrapper[R common.RespType](c *app.Context, clientID string, event
 	return proto.Unmarshal(cresp.GetData(), protoMsgRef)
 }
 
+const CallTimeout = 15 * time.Second
+
+var ErrClientOffline = errors.New("client is offline")
+
+type pendingResponse struct {
+	connector *defs.Connector
+	response  chan *pb.ClientMessage
+}
+
 func CallClient(ctx *app.Context, clientID string, event pb.Event, msg proto.Message) (*pb.ClientMessage, error) {
 	sender := ctx.GetApp().GetClientsManager().Get(clientID)
 	if sender == nil {
-		logger.Logger(ctx).Errorf("cannot get client, id: [%s]", clientID)
-		return nil, fmt.Errorf("cannot get client, id: [%s]", clientID)
+		return nil, fmt.Errorf("%w: %s", ErrClientOffline, clientID)
 	}
-
+	timeout := CallTimeout
+	switch event {
+	case pb.Event_EVENT_INSTALL_WORKERD, pb.Event_EVENT_UPGRADE_FRPP:
+		timeout = 5 * time.Minute
+	case pb.Event_EVENT_UPDATE_FRPC, pb.Event_EVENT_START_FRPC, pb.Event_EVENT_UPDATE_FRPS:
+		timeout = time.Minute
+	}
+	callCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
 	data, err := proto.Marshal(msg)
 	if err != nil {
-		logger.Logger(context.Background()).WithError(err).Errorf("cannot marshal")
 		return nil, err
 	}
-
-	req := &pb.ServerMessage{
-		Event:     event,
-		Data:      data,
-		SessionId: uuid.New().String(),
-		ClientId:  clientID,
+	req := &pb.ServerMessage{Event: event, Data: data, SessionId: uuid.NewString(), ClientId: clientID}
+	pending := &pendingResponse{connector: sender, response: make(chan *pb.ClientMessage, 1)}
+	responses := ctx.GetApp().GetClientRecvMap()
+	responses.Store(req.SessionId, pending)
+	defer responses.Delete(req.SessionId)
+	if err := sender.Send(callCtx, req); err != nil {
+		return nil, fmt.Errorf("send to client %s: %w", clientID, err)
 	}
-
-	ctx.GetApp().GetClientRecvMap().Store(req.SessionId, make(chan *pb.ClientMessage))
-	err = sender.Conn.Send(req)
-	if err != nil {
-		logger.Logger(context.Background()).WithError(err).Errorf("cannot send")
-		ctx.GetApp().GetClientsManager().Remove(clientID)
-		return nil, err
+	select {
+	case resp := <-pending.response:
+		if resp.GetEvent() == pb.Event_EVENT_ERROR {
+			return nil, fmt.Errorf("client returned error: %s", resp.GetData())
+		}
+		return resp, nil
+	case <-callCtx.Done():
+		return nil, fmt.Errorf("client %s did not respond: %w", clientID, callCtx.Err())
+	case <-sender.Done():
+		return nil, fmt.Errorf("%w: %s", ErrClientOffline, clientID)
+	case <-sender.Conn.Context().Done():
+		return nil, fmt.Errorf("%w: %s", ErrClientOffline, clientID)
 	}
-	respChAny, ok := ctx.GetApp().GetClientRecvMap().Load(req.SessionId)
+}
+
+func deliverResponse(responses *sync.Map, connector *defs.Connector, resp *pb.ClientMessage) {
+	if resp == nil {
+		return
+	}
+	value, ok := responses.Load(resp.GetSessionId())
 	if !ok {
-		logger.Logger(ctx).Fatalf("cannot load")
+		return
 	}
-
-	respCh, ok := respChAny.(chan *pb.ClientMessage)
-	if !ok {
-		logger.Logger(ctx).Fatalf("cannot cast")
+	pending, ok := value.(*pendingResponse)
+	if !ok || pending.connector != connector || !responses.CompareAndDelete(resp.GetSessionId(), pending) {
+		return
 	}
-
-	resp := <-respCh
-	if resp.Event == pb.Event_EVENT_ERROR {
-		return nil, fmt.Errorf("client return error: %s", resp.Data)
+	// Late or duplicate replies must never block the stream receive loop.
+	select {
+	case pending.response <- resp:
+	default:
 	}
-
-	close(respCh)
-	ctx.GetApp().GetClientRecvMap().Delete(req.SessionId)
-	return resp, nil
 }
 
 func Recv(appInstance app.Application, clientID string) chan bool {
+	return RecvConnector(appInstance, appInstance.GetClientsManager().Get(clientID))
+}
+
+func RecvConnector(appInstance app.Application, connector *defs.Connector) chan bool {
 	done := make(chan bool)
+	if connector == nil {
+		close(done)
+		return done
+	}
 	go func() {
-		c := context.Background()
-		log := logger.Logger(c).WithField("clientID", clientID)
+		defer close(done)
+		defer appInstance.GetClientsManager().RemoveIf(connector.CliID, connector)
 		for {
-			reciver := appInstance.GetClientsManager().Get(clientID)
-			if reciver == nil {
-				log.Errorf("cannot get client")
-				continue
-			}
-			resp, err := reciver.Conn.Recv()
-			if err == io.EOF {
-				log.Infof("finish client recv")
-				done <- true
-				return
-			}
+			resp, err := connector.Conn.Recv()
 			if err != nil {
-				log.WithError(err).Errorf("cannot recv, usually means client disconnect")
-				done <- true
 				return
 			}
-
-			respChAny, ok := appInstance.GetClientRecvMap().Load(resp.SessionId)
-			if !ok {
-				log.Errorf("cannot load")
-				continue
-			}
-
-			respCh, ok := respChAny.(chan *pb.ClientMessage)
-			if !ok {
-				log.Errorf("cannot cast")
-				continue
-			}
-			log.Debugf("recv success, resp: %+v", resp)
-			respCh <- resp
+			deliverResponse(appInstance.GetClientRecvMap(), connector, resp)
 		}
 	}()
 	return done

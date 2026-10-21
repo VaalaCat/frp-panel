@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"time"
 
 	"github.com/VaalaCat/frp-panel/biz/master/client"
 	masterserver "github.com/VaalaCat/frp-panel/biz/master/server"
@@ -21,6 +22,7 @@ import (
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
 )
 
 type server struct {
@@ -100,9 +102,10 @@ func (s *server) ListClientWorkers(ctx context.Context, req *pb.ListClientWorker
 }
 
 func newRpcServer(appInstance app.Application, creds credentials.TransportCredentials) *grpc.Server {
-	// s := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
-	// s := grpc.NewServer(grpc.Creds(creds))
-	s := grpc.NewServer(grpc.Creds(creds))
+	s := grpc.NewServer(grpc.Creds(creds),
+		grpc.KeepaliveParams(keepalive.ServerParameters{Time: 30 * time.Second, Timeout: 10 * time.Second}),
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{MinTime: 20 * time.Second, PermitWithoutStream: true}),
+	)
 	pb.RegisterMasterServer(s, &server{
 		appInstance: appInstance,
 	})
@@ -143,10 +146,11 @@ func (s *server) FRPCAuth(ctx context.Context, req *pb.FRPAuthRequest) (*pb.FRPA
 
 // ServerSend implements pb.MasterServer.
 func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
-	ctx := app.NewContext(context.Background(), s.appInstance)
+	ctx := app.NewContext(sender.Context(), s.appInstance)
 
 	logger.Logger(ctx).Infof("server get a client connected")
 	var done chan bool
+	var connector *defs.Connector
 	for {
 		req, err := sender.Recv()
 		if err == io.EOF {
@@ -213,18 +217,24 @@ func (s *server) ServerSend(sender pb.Master_ServerSendServer) error {
 				}
 			}
 
-			s.appInstance.GetClientsManager().Set(req.GetClientId(), cliType, sender)
-			done = rpc.Recv(s.appInstance, req.GetClientId())
-			sender.Send(&pb.ServerMessage{
-				Event:     req.GetEvent(),
-				ClientId:  req.GetClientId(),
-				SessionId: req.GetClientId(),
-			})
-			logger.Logger(ctx).Infof("register success, req: [%+v]", req)
+			// Complete registration before making this stream available to callers.
+			if err := sender.Send(&pb.ServerMessage{
+				Event: req.GetEvent(), ClientId: req.GetClientId(), SessionId: req.GetSessionId(),
+			}); err != nil {
+				return err
+			}
+			connector = s.appInstance.GetClientsManager().Set(req.GetClientId(), cliType, sender)
+			done = rpc.RecvConnector(s.appInstance, connector)
+			defer s.appInstance.GetClientsManager().RemoveIf(req.GetClientId(), connector)
+			logger.Logger(ctx).Infof("registered client %s", req.GetClientId())
 			break
 		}
 	}
-	<-done
+	select {
+	case <-done:
+	case <-connector.Done():
+	case <-sender.Context().Done():
+	}
 	return nil
 }
 

@@ -17,7 +17,8 @@ type ClientRPCHandler interface {
 type clientRPCHandler struct {
 	appInstance  app.Application
 	rpcClient    app.MasterClient
-	done         chan bool
+	ctx          context.Context
+	cancel       context.CancelFunc
 	handerFunc   func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage
 	clientID     string
 	clientSecret string
@@ -32,11 +33,12 @@ func NewClientRPCHandler(
 	handerFunc func(appInstance app.Application, req *pb.ServerMessage) *pb.ClientMessage,
 ) app.ClientRPCHandler {
 	rpcCli := appInstance.GetMasterCli()
-	done := make(chan bool)
+	ctx, cancel := context.WithCancel(context.Background())
 	return &clientRPCHandler{
 		appInstance:  appInstance,
 		rpcClient:    rpcCli,
-		done:         done,
+		ctx:          ctx,
+		cancel:       cancel,
 		handerFunc:   handerFunc,
 		clientID:     clientID,
 		clientSecret: clientSecret,
@@ -51,11 +53,11 @@ func (s *clientRPCHandler) Run() {
 		}
 	}()
 
-	startClientRpcHandler(s.appInstance, s.rpcClient, s.done, s.clientID, s.clientSecret, s.event, s.handerFunc)
+	startClientRpcHandler(s.appInstance, s.rpcClient, s.ctx, s.clientID, s.clientSecret, s.event, s.handerFunc)
 }
 
 func (s *clientRPCHandler) Stop() {
-	close(s.done)
+	s.cancel()
 }
 
 func (s *clientRPCHandler) GetCli() app.MasterClient {

@@ -114,16 +114,18 @@ function VisitPreviewField({ row }: { row: Row<ProxyConfigTableSchema> }) {
 
 function ProxyStatus({ row }: { row: Row<ProxyConfigTableSchema> }) {
   const refetchTrigger = useStore($proxyTableRefetchTrigger)
-  const { data } = useQuery({
+  const { t } = useTranslation()
+  const { data, isPending, isError, error, dataUpdatedAt } = useQuery({
     queryKey: ['getProxyConfig', row.original.clientID, row.original.serverID, row.original.name, refetchTrigger],
-    queryFn: () => {
+    queryFn: ({ signal }) => {
       return getProxyConfig({
         clientId: row.original.clientID,
         serverId: row.original.serverID,
         name: row.original.name,
-      })
+      }, signal)
     },
     refetchInterval: 10000,
+    retry: false,
   })
 
   function getStatusColor(status: string): string {
@@ -138,6 +140,9 @@ function ProxyStatus({ row }: { row: Row<ProxyConfigTableSchema> }) {
         return 'text-green-500'
       case 'check failed':
         return 'text-orange-500'
+      case 'offline':
+      case 'timeout':
+      case 'query failed':
       case 'error':
         return 'text-red-600'
       default:
@@ -145,13 +150,20 @@ function ProxyStatus({ row }: { row: Row<ProxyConfigTableSchema> }) {
     }
   }
 
+  const status = row.original.stopped ? 'stopped' : isError ? 'query failed' : data?.workingStatus?.status || (isPending ? 'loading' : 'unknown')
+  const detail = isError ? (error instanceof Error ? error.message : t('proxy.item.query_failed')) : data?.workingStatus?.err
+  const labels: Record<string, string> = {
+    loading: t('proxy.item.querying'), timeout: t('proxy.item.timeout'), offline: t('proxy.item.offline'),
+    'query failed': t('proxy.item.query_failed'),
+  }
+  const checkedAt = dataUpdatedAt ? `${t('proxy.item.last_checked')}: ${new Date(dataUpdatedAt).toLocaleTimeString()}` : ''
   return (
-    <div className="flex items-center gap-2 flex-row text-nowrap">
+    <div className="flex items-center gap-2 flex-row text-nowrap" title={[detail, checkedAt].filter(Boolean).join(' · ')} aria-live="polite">
       <Badge
         variant={'secondary'}
-        className={`p-2 border rounded font-mono w-fit ${getStatusColor(data?.workingStatus?.status || 'unknown')} text-nowrap rounded-full h-6`}
+        className={`p-2 border rounded font-mono w-fit ${getStatusColor(status)} text-nowrap rounded-full h-6`}
       >
-        {data?.workingStatus?.status || 'loading'}
+        {labels[status] || status}
       </Badge>
     </div>
   )

@@ -695,7 +695,12 @@
       "client_id": "客户端ID",
       "server_id": "服务端ID",
       "status": "状态",
-      "visit_preview": "访问预览"
+      "visit_preview": "访问预览",
+      "querying": "查询中",
+      "timeout": "客户端响应超时",
+      "offline": "客户端离线",
+      "query_failed": "状态查询失败",
+      "last_checked": "最后检查"
     },
     "stats": {
       "label": "隧道名称",

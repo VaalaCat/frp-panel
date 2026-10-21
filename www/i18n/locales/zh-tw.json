@@ -695,7 +695,12 @@
       "client_id": "客戶端ID",
       "server_id": "服務端ID",
       "status": "狀態",
-      "visit_preview": "訪問預覽"
+      "visit_preview": "訪問預覽",
+      "querying": "查詢中",
+      "timeout": "用戶端回應逾時",
+      "offline": "用戶端離線",
+      "query_failed": "狀態查詢失敗",
+      "last_checked": "最後檢查"
     },
     "stats": {
       "label": "隧道名稱",

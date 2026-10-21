@@ -13,6 +13,8 @@ import (
 )
 
 type Application interface {
+	GetClientConfigLock() *sync.Mutex
+	GetServerConfigLock() *sync.Mutex
 	GetStreamLogHookMgr() StreamLogHookMgr
 	SetStreamLogHookMgr(StreamLogHookMgr)
 	GetShellPTYMgr() ShellPTYMgr

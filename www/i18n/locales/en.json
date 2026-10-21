@@ -700,7 +700,12 @@
       "client_id": "Client ID",
       "server_id": "Server ID",
       "status": "Status",
-      "visit_preview": "Visit Preview"
+      "visit_preview": "Visit Preview",
+      "querying": "Checking",
+      "timeout": "Client timed out",
+      "offline": "Client offline",
+      "query_failed": "Status unavailable",
+      "last_checked": "Last checked"
     },
     "stats": {
       "label": "Tunnel Name",

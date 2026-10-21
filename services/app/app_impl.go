@@ -13,6 +13,8 @@ import (
 )
 
 type application struct {
+	clientConfigLock sync.Mutex
+	serverConfigLock sync.Mutex
 	streamLogHookMgr StreamLogHookMgr
 	masterCli        MasterClient
 
@@ -262,3 +264,6 @@ func (a *application) GetNetworkTopologyCache() NetworkTopologyCache {
 func (a *application) SetNetworkTopologyCache(networkTopologyCache NetworkTopologyCache) {
 	a.networkTopologyCache = networkTopologyCache
 }
+
+func (a *application) GetClientConfigLock() *sync.Mutex { return &a.clientConfigLock }
+func (a *application) GetServerConfigLock() *sync.Mutex { return &a.serverConfigLock }

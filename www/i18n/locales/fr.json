@@ -705,7 +705,12 @@
       "client_id": "ID du Client",
       "server_id": "ID du Serveur",
       "status": "Statut",
-      "visit_preview": "Visiter l'aperçu"
+      "visit_preview": "Visiter l'aperçu",
+      "querying": "Vérification",
+      "timeout": "Délai client dépassé",
+      "offline": "Client hors ligne",
+      "query_failed": "État indisponible",
+      "last_checked": "Dernière vérification"
     },
     "stats": {
       "label": "Nom du Tunnel",

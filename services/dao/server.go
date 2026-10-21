@@ -5,6 +5,7 @@ import (
 
 	"github.com/VaalaCat/frp-panel/defs"
 	"github.com/VaalaCat/frp-panel/models"
+	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -91,7 +92,7 @@ func (q *serverQuery) ValidateServerSecret(serverID string, secret string) (*mod
 	if err != nil {
 		return nil, err
 	}
-	if c.ConnectSecret != secret {
+	if !utils.MatchSecret(secret, c.ConnectSecret) {
 		return nil, fmt.Errorf("invalid secret")
 	}
 	return c.ServerEntity, nil

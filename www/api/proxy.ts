@@ -38,8 +38,8 @@ export const deleteProxyConfig = async (req: DeleteProxyConfigRequest) => {
   return DeleteProxyConfigResponse.fromJson((res.data as BaseResponse).body)
 }
 
-export const getProxyConfig = async (req: GetProxyConfigRequest) => {
-  const res = await http.post(API_PATH + '/proxy/get_config', GetProxyConfigRequest.toJson(req))
+export const getProxyConfig = async (req: GetProxyConfigRequest, signal?: AbortSignal) => {
+  const res = await http.post(API_PATH + '/proxy/get_config', GetProxyConfigRequest.toJson(req), { signal, timeout: 12000 })
   return GetProxyConfigResponse.fromJson((res.data as BaseResponse).body)
 }
 

@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"sync"
 	"time"
 
 	"github.com/VaalaCat/frp-panel/defs"
@@ -12,13 +13,14 @@ import (
 
 type ClientsManager interface {
 	Get(cliID string) *defs.Connector
-	Set(cliID, clientType string, sender pb.Master_ServerSendServer)
+	Set(cliID, clientType string, sender pb.Master_ServerSendServer) *defs.Connector
 	Remove(cliID string)
 	ClientAddr(cliID string) string
 	ConnectTime(cliID string) (time.Time, bool)
 }
 
 type ClientsManagerImpl struct {
+	mu          sync.Mutex
 	senders     *utils.SyncMap[string, *defs.Connector]
 	connectTime *utils.SyncMap[string, time.Time]
 	lastSeenAt  *utils.SyncMap[string, time.Time]
@@ -34,17 +36,39 @@ func (c *ClientsManagerImpl) Get(cliID string) *defs.Connector {
 }
 
 // Set implements ClientsManager.
-func (c *ClientsManagerImpl) Set(cliID, clientType string, sender pb.Master_ServerSendServer) {
-	c.senders.Store(cliID, &defs.Connector{
-		CliID:   cliID,
-		Conn:    sender,
-		CliType: clientType,
-	})
+func (c *ClientsManagerImpl) Set(cliID, clientType string, sender pb.Master_ServerSendServer) *defs.Connector {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if old := c.Get(cliID); old != nil {
+		old.Close()
+	}
+	connector := defs.NewConnector(cliID, clientType, sender)
+	c.senders.Store(cliID, connector)
 	c.connectTime.Store(cliID, time.Now())
 	c.lastSeenAt.Store(cliID, time.Now())
+	return connector
 }
 
 func (c *ClientsManagerImpl) Remove(cliID string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if old := c.Get(cliID); old != nil {
+		old.Close()
+	}
+	c.remove(cliID)
+}
+
+func (c *ClientsManagerImpl) RemoveIf(cliID string, connector *defs.Connector) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.Get(cliID) != connector {
+		return
+	}
+	connector.Close()
+	c.remove(cliID)
+}
+
+func (c *ClientsManagerImpl) remove(cliID string) {
 	c.senders.Delete(cliID)
 	c.connectTime.Delete(cliID)
 	c.lastSeenAt.Delete(cliID)

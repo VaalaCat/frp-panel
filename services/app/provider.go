@@ -79,8 +79,9 @@ type DBManager interface {
 
 type ClientsManager interface {
 	Get(cliID string) *defs.Connector
-	Set(cliID, clientType string, sender pb.Master_ServerSendServer)
+	Set(cliID, clientType string, sender pb.Master_ServerSendServer) *defs.Connector
 	Remove(cliID string)
+	RemoveIf(cliID string, connector *defs.Connector)
 	ClientAddr(cliID string) string
 	ConnectTime(cliID string) (time.Time, bool)
 	UpdateLastSeenAt(cliID string)

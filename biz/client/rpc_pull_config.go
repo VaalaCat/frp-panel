@@ -2,7 +2,9 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/VaalaCat/frp-panel/pb"
 	"github.com/VaalaCat/frp-panel/services/app"
@@ -13,7 +15,15 @@ import (
 )
 
 func PullConfig(appInstance app.Application, clientID, clientSecret string) error {
-	ctx := context.Background()
+	lock := appInstance.GetClientConfigLock()
+	lock.Lock()
+	defer lock.Unlock()
+	return pullConfig(appInstance, clientID, clientSecret)
+}
+
+func pullConfig(appInstance app.Application, clientID, clientSecret string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
+	defer cancel()
 	ctrl := appInstance.GetClientController()
 
 	logger.Logger(ctx).Infof("start to pull client config, clientID: [%s]", clientID)
@@ -29,6 +39,10 @@ func PullConfig(appInstance app.Application, clientID, clientSecret string) erro
 		return err
 	}
 
+	if (resp.GetStatus() != nil && resp.GetStatus().GetCode() != pb.RespCode_RESP_CODE_SUCCESS) || resp.GetClient() == nil {
+		return fmt.Errorf("master rejected client config: %s", resp.GetStatus().GetMessage())
+	}
+
 	if resp.GetClient().GetStopped() {
 		logger.Logger(ctx).Infof("client [%s] is stopped, stop client", clientID)
 		ctrl.StopByClient(clientID)
@@ -37,7 +51,7 @@ func PullConfig(appInstance app.Application, clientID, clientSecret string) erro
 
 	if len(resp.GetClient().GetOriginClientId()) == 0 {
 		currentClientIDs := ctrl.List()
-		if idsToRemove, _ := lo.Difference(resp.GetClient().GetClientIds(), currentClientIDs); len(idsToRemove) > 0 {
+		if idsToRemove, _ := lo.Difference(currentClientIDs, append([]string{clientID}, resp.GetClient().GetClientIds()...)); len(idsToRemove) > 0 {
 			logger.Logger(ctx).Infof("client [%s] has %d expired child clients, remove clientIDs: [%+v]", clientID, len(idsToRemove), idsToRemove)
 			for _, id := range idsToRemove {
 				ctrl.StopByClient(id)
@@ -49,12 +63,12 @@ func PullConfig(appInstance app.Application, clientID, clientSecret string) erro
 	// this client is shadow client, has no config
 	// pull child client config
 	if len(resp.GetClient().GetClientIds()) > 0 {
-		for _, id := range resp.GetClient().GetClientIds() {
+		for _, id := range lo.Uniq(resp.GetClient().GetClientIds()) {
 			if id == clientID {
 				logger.Logger(ctx).Infof("client [%s] is shadow client, skip", clientID)
 				continue
 			}
-			if err := PullConfig(appInstance, id, clientSecret); err != nil {
+			if err := pullConfig(appInstance, id, clientSecret); err != nil {
 				logger.Logger(context.Background()).WithError(err).Errorf("cannot pull child client config, id: [%s]", id)
 			}
 		}

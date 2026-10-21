@@ -16,7 +16,10 @@ func LoginHandler(ctx *app.Context, req *pb.LoginRequest) (*pb.LoginResponse, er
 	password := req.GetPassword()
 	ok, user, err := dao.NewQuery(ctx).CheckUserPassword(username, password)
 	if err != nil {
-		return nil, err
+		logger.Logger(ctx).WithError(err).Error("password authentication failed")
+		return &pb.LoginResponse{
+			Status: &pb.Status{Code: pb.RespCode_RESP_CODE_INVALID, Message: "invalid username or password"},
+		}, nil
 	}
 
 	if !ok {

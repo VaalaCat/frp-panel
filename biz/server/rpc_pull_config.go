@@ -2,7 +2,9 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/VaalaCat/frp-panel/conf"
 	"github.com/VaalaCat/frp-panel/defs"
@@ -16,7 +18,12 @@ import (
 )
 
 func PullConfig(appInstance app.Application, serverID, serverSecret string) error {
-	ctx := app.NewContext(context.Background(), appInstance)
+	lock := appInstance.GetServerConfigLock()
+	lock.Lock()
+	defer lock.Unlock()
+	baseCtx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
+	defer cancel()
+	ctx := app.NewContext(baseCtx, appInstance)
 
 	logger.Logger(ctx).Infof("start to pull server config, serverID: [%s]", serverID)
 
@@ -30,6 +37,10 @@ func PullConfig(appInstance app.Application, serverID, serverSecret string) erro
 	if err != nil {
 		logger.Logger(context.Background()).WithError(err).Error("cannot pull server config")
 		return err
+	}
+
+	if (resp.GetStatus() != nil && resp.GetStatus().GetCode() != pb.RespCode_RESP_CODE_SUCCESS) || resp.GetServer() == nil {
+		return fmt.Errorf("master rejected server config: %s", resp.GetStatus().GetMessage())
 	}
 
 	if len(resp.GetServer().GetConfig()) == 0 {

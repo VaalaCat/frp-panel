@@ -6,6 +6,7 @@ import (
 	"github.com/VaalaCat/frp-panel/services/app"
 	"github.com/VaalaCat/frp-panel/services/cache"
 	"github.com/VaalaCat/frp-panel/services/dao"
+	"github.com/VaalaCat/frp-panel/utils"
 	"github.com/VaalaCat/frp-panel/utils/logger"
 	plugin "github.com/fatedier/frp/pkg/plugin/server"
 	"github.com/gin-gonic/gin"
@@ -59,7 +60,7 @@ func HandleLogin(ctx *app.Context) (interface{}, error) {
 	token := content.Metas["token"]
 	if len(content.User) == 0 || len(token) == 0 {
 		res.Reject = true
-		res.RejectReason = "user or meta token can not be empty"
+		res.RejectReason = "invalid credentials"
 		return res, nil
 	}
 
@@ -68,19 +69,19 @@ func HandleLogin(ctx *app.Context) (interface{}, error) {
 		u, err := dao.NewQuery(ctx).GetUserByUserName(content.User)
 		if err != nil || u == nil {
 			res.Reject = true
-			res.RejectReason = "invalid frp auth"
+			res.RejectReason = "invalid credentials"
 			return res, nil
 		}
 		cache.Get().Set([]byte(u.GetUserName()), []byte(u.GetToken()), 0)
 		userToken = []byte(u.GetToken())
 	}
 
-	if string(userToken) == token {
+	if utils.MatchSecret(token, string(userToken)) {
 		res.Unchange = true
 		return res, nil
 	}
 
 	res.Reject = true
-	res.RejectReason = "invalid meta token"
+	res.RejectReason = "invalid credentials"
 	return res, nil
 }
